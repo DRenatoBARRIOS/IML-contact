@@ -170,17 +170,9 @@ const MARKERS = [
   { name: "United States", x: 120, y: 138, labelDx: 12, labelDy: 18, textSize: 12.4 },
 ];
 
-const US_STATES = ["California", "Ohio"];
-
-const US_STATE_SAMPLES = {
-  California: { score: 82, subtitle: "Strong state-level profile built around the California Data Exchange Framework and whole-person care ambition.", values: [88, 82, 74, 78, 80, 67], strengths: ["Statewide data sharing agreement and policy layer", "Whole-person care framing", "Clear administrative home for implementation"], watch: ["Operational readiness across a very large delivery system", "Identity and matching less unified than governance ambition", "Real-world usage depth still needs continued evidence"] },
-  Ohio: { score: 74, subtitle: "Strong operational HIE case anchored in CliniSync and explicit legal framing for exchange.", values: [73, 79, 68, 81, 76, 61], strengths: ["Statewide exchange environment", "Practical deployment reach", "Explicit legal definition for health information exchange"], watch: ["Less broad whole-person reform frame than California", "Identity and cross-domain linkage less visible than exchange functionality", "Redress present in law but less prominent in the interoperability narrative"] },
-};
-
 function assertDataIntegrity() {
-  const countryNames = Object.keys(COUNTRIES);
-  countryNames.forEach((name) => {
-    if (!Array.isArray(COUNTRIES[name].values) || COUNTRIES[name].values.length !== AXES.length) {
+  Object.entries(COUNTRIES).forEach(([name, country]) => {
+    if (!Array.isArray(country.values) || country.values.length !== AXES.length) {
       throw new Error(`Country data for ${name} must provide ${AXES.length} axis values.`);
     }
   });
@@ -556,13 +548,7 @@ function WorldMap({ selectedCountry, onSelect }) {
               const selected = selectedCountry === marker.name;
               const hovered = hoveredCountry === marker.name;
               return (
-                <g
-                  key={marker.name}
-                  className="marker-group"
-                  onClick={() => onSelect(marker.name)}
-                  onMouseEnter={() => openTooltip(marker.name)}
-                  onMouseLeave={scheduleClose}
-                >
+                <g key={marker.name} className="marker-group" onClick={() => onSelect(marker.name)} onMouseEnter={() => openTooltip(marker.name)} onMouseLeave={scheduleClose}>
                   <circle cx={marker.x} cy={marker.y} r={selected || hovered ? 12 : 8} fill={selected || hovered ? "#0f172a" : "#334155"} />
                   <circle cx={marker.x} cy={marker.y} r={selected || hovered ? 22 : 15} fill="rgba(15,23,42,0.10)" />
                   <text x={marker.x + (marker.labelDx ?? 14)} y={marker.y + (marker.labelDy ?? 4)} fill="#0f172a" style={{ fontSize: marker.textSize ?? 13, fontWeight: 600 }}>
@@ -625,9 +611,7 @@ function CountryProfile({ selectedCountry }) {
 
 function WorldPage() {
   const [selectedCountry, setSelectedCountry] = useState("");
-  const [selectedState, setSelectedState] = useState(US_STATES[0]);
   const options = useMemo(() => Object.keys(COUNTRIES).sort((a, b) => a.localeCompare(b)), []);
-  const stateData = US_STATE_SAMPLES[selectedState];
 
   return (
     <section className="section">
@@ -651,28 +635,16 @@ function WorldPage() {
             </div>
           </div>
         </Card>
-        <div className="split-grid top-gap">
-          <div className="select-wrap">
-            <label>Choose a country</label>
-            <select value={selectedCountry} onChange={(event) => setSelectedCountry(event.target.value)}>
-              <option value="">Choose a country</option>
-              {options.map((country) => (
-                <option key={country} value={country}>
-                  {country}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="select-wrap">
-            <label>U.S. sample states</label>
-            <select value={selectedState} onChange={(event) => setSelectedState(event.target.value)}>
-              {US_STATES.map((state) => (
-                <option key={state} value={state}>
-                  {state}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div className="select-wrap top-gap">
+          <label>Choose a country</label>
+          <select value={selectedCountry} onChange={(event) => setSelectedCountry(event.target.value)}>
+            <option value="">Choose a country</option>
+            {options.map((country) => (
+              <option key={country} value={country}>
+                {country}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="top-gap">
           <WorldMap selectedCountry={selectedCountry} onSelect={setSelectedCountry} />
@@ -682,41 +654,6 @@ function WorldPage() {
             <CountryProfile selectedCountry={selectedCountry} />
           </div>
         ) : null}
-        <div className="top-gap">
-          <Card className="soft-card">
-            <div className="content-block">
-              <h3>U.S. sample note: {selectedState}</h3>
-              <p className="muted-copy">{stateData.subtitle}</p>
-              <div className="split-grid">
-                <div>
-                  <HexagonChart values={stateData.values} />
-                </div>
-                <div className="stack-layout">
-                  <Card>
-                    <div className="content-block">
-                      <h3>Strengths</h3>
-                      <ul className="plain-list">
-                        {stateData.strengths.map((item) => (
-                          <li key={item}>• {item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </Card>
-                  <Card>
-                    <div className="content-block">
-                      <h3>Points to watch</h3>
-                      <ul className="plain-list">
-                        {stateData.watch.map((item) => (
-                          <li key={item}>• {item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </Card>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </div>
       </div>
     </section>
   );
@@ -765,7 +702,7 @@ function ContactPage() {
                 </label>
                 <div className="form-actions">
                   <button type="submit" className="primary-button">Send</button>
-                  <span className="form-note">Formspree HTML form. Submissions go to the mailbox linked to this Formspree form.</span>
+                  <span className="form-note">Formspree HTML form. Preview does not send from this canvas, but the deployed site will post to Formspree.</span>
                 </div>
               </form>
             </div>
@@ -789,7 +726,7 @@ function ContactPage() {
                   <li>• Discuss the methodology with institutional partners</li>
                   <li>• Open an editorial or publication conversation</li>
                   <li>• Explore an identity-layer or medicines-analysis use case</li>
-                  <li>• Extend the U.S. sample-state section or add new countries</li>
+                  <li>• Add new countries to the benchmark</li>
                 </ul>
               </div>
             </Card>
