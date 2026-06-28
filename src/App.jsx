@@ -478,11 +478,17 @@ function Id4dPage() {
   return (
     <section className="section">
       <div className="container">
+
+        
+        
+        
+        
         <SectionTitle badge="Identity infrastructure" title="Positioning IML in alignment with the ID4D approach" text="Identity is treated as an enabling public infrastructure layer for access, trust and accountability." />
         <Card className="soft-card">
           <div className="content-block">
             <h3>Identity and trust as a public infrastructure layer</h3>
-            <p>Within the ID4D framing, identity is not a side module. It is one of the enabling layers that determine whether access, exchange and accountability can function at scale.</p>
+            <p>Digital identity is more than a secure authentication mechanism. In a fragmented health system, it can provide the logical basis for creating a shared reference identifier that links information coming from heterogeneous clinical, laboratory, pharmacy and administrative systems. This common identifier does not require replacing existing local identifiers or imposing a single software platform. Instead, it can be built through a trusted matching process using stable identity attributes, governance rules and interoperability standards, allowing different systems to recognize that they refer to the same patient, healthcare professional or organization. By creating this shared layer of identification, health systems can reduce duplicate records, improve data quality, support cross-institutional and cross-border exchange, and progressively harmonize information while preserving existing infrastructures and workflows.
+</p>
             <div className="code-box mono">IML1-S-DDMMYYYY-GEO4-SSSS-CC</div>
           </div>
         </Card>
