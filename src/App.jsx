@@ -489,7 +489,15 @@ function Id4dPage() {
             <h3>Identity and trust as a public infrastructure layer</h3>
             <p>Digital identity is more than a secure authentication mechanism. In a fragmented healthcare ecosystem, it provides the foundation for creating a common interoperability identifier capable of linking information originating from heterogeneous clinical, laboratory, pharmacy and administrative systems. Rather than replacing existing national or local identifiers or requiring a single software platform, the proposed IML approach is based on a federated identity model that generates a shared interoperability identifier through standardized identity matching, trusted governance and interoperability standards. This logical identifier acts as a bridge between heterogeneous information systems, enabling them to recognize the same patient, healthcare professional or organization while preserving existing infrastructures and workflows. By providing this common identification layer, health systems can harmonize data, reduce duplicate records, improve data quality, and support secure information exchange across institutions, regions and countries without replacing existing systems.
 </p>
-            <div className="code-box mono">IML1-S-DDMMYYYY-GEO4-SSSS-CC</div>
+            <div className="code-box mono">IML1-S-DDMMYYYY-GEO4-HASH-CC</div>
+            <p className="small-text">
+  <strong>IML1</strong>: algorithm version •
+  <strong>S</strong>: sex •
+  <strong>DDMMYYYY</strong>: date of birth •
+  <strong>GEO4</strong>: standardized geographic code •
+  <strong>HASH</strong>: one-way cryptographic hash generated from normalized demographic attributes •
+  <strong>CC</strong>: checksum for integrity verification.
+</p>
           </div>
         </Card>
       </div>
