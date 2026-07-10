@@ -447,8 +447,12 @@ function HomePage() {
             <p>IML does not rank countries. It creates maturity profiles, identifies weaknesses in information continuity and supports practical improvement pathways.</p>
           </Card>
           <div className="button-row">
-            <a className="primary-button" href={MANUSCRIPT_URL} download>Download the Founding Manuscript</a>
-            <a className="secondary-button" href="#methodology">Explore the framework</a>
+            <a className="primary-button" href={MANUSCRIPT_URL} download>
+              Download the Founding Manuscript
+            </a>
+            <a className="secondary-button" href="#methodology">
+              Explore the framework
+            </a>
           </div>
           <div className="metric-grid two-up top-gap-small">
             <MetricCard symbol="5L" title="Interoperability" value="5 layers" subtitle="Technical, semantic, organisational, institutional, and clinical/public health." />
@@ -685,13 +689,6 @@ function ContactPage() {
                 </div>
               </div>
             </Card>
-            <Card className="soft-card">
-              <div className="content-block">
-                <h3>Founding Manuscript</h3>
-                <p>Alpha 0.2.6, Database Quality. Open for scientific review.</p>
-                <a className="text-link" href={MANUSCRIPT_URL} download>Download the PDF</a>
-              </div>
-            </Card>
           </div>
         </div>
       </div>
@@ -716,7 +713,6 @@ function Footer() {
         <div>
           <div className="footer-label">Scientific status</div>
           <p className="footer-copy">Independent, non-commercial and open for scientific review. IML creates maturity profiles and improvement pathways rather than country rankings.</p>
-          <a className="text-link" href={MANUSCRIPT_URL} download>Founding Manuscript Alpha 0.2.6</a>
         </div>
       </div>
     </footer>
