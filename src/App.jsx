@@ -572,7 +572,7 @@ function EvaluationPage() {
           <Card className="value-card">
             <div className="metric-symbol">OCW</div>
             <h3>Open Clinical Workspace</h3>
-            <p>Not another electronic health record. The proposed workspace is a vendor-neutral implementation bridge using open standards, import on demand, clinical context, auditability and modular services.</p>
+            <p>The proposed workspace is a vendor-neutral implementation bridge using open standards, import on demand, clinical context, auditability and modular services.</p>
           </Card>
           <Card className="value-card">
             <div className="metric-symbol">Q</div>
