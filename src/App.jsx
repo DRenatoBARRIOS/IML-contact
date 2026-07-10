@@ -122,8 +122,6 @@ const styles = `
     .hero-grid { gap: 22px; }
   }
 `;
-
-const CONTACT_FORM_ACTION = "https://formspree.io/f/xzdorore";
 const MANUSCRIPT_URL = manuscriptPdf;
 const ROUTES = [
   { key: "home", label: "Home" },
