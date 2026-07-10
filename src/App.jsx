@@ -1,740 +1,788 @@
-import React from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import manuscriptPdf from "./IML_Founding_Manuscript_Alpha_0.2.6.pdf";
 
-export default function App() {
-  const contactEmail = "contact@imlhealth.org";
+const styles = `
+  :root {
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #0f172a;
+    background: #ffffff;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+  * { box-sizing: border-box; }
+  html, body, #root { margin: 0; min-height: 100%; }
+  body { background: #ffffff; color: #0f172a; }
+  button, input, textarea, select { font: inherit; }
+  .app-shell { min-height: 100vh; background: #ffffff; }
+  .container { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+  .topbar { position: sticky; top: 0; z-index: 50; border-bottom: 1px solid #e2e8f0; background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); }
+  .topbar-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 0; }
+  .brand-button { display: flex; align-items: center; gap: 12px; border: 0; background: transparent; cursor: pointer; text-align: left; padding: 0; }
+  .brand-title { font-size: 14px; color: #334155; }
+  .logo-box { height: 56px; width: 56px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 18px; border: 1px solid #dbe2ea; background: #ffffff; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06); }
+  .logo-svg { height: 44px; width: 44px; }
+  .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em; color: #64748b; }
+  .topnav, .mobile-nav { display: flex; gap: 8px; flex-wrap: wrap; }
+  .mobile-nav { display: none; padding-bottom: 16px; overflow-x: auto; }
+  .nav-button, .secondary-button { border: 0; cursor: pointer; }
+  .nav-button { border-radius: 18px; background: #0f172a; color: white; padding: 10px 16px; font-size: 14px; font-weight: 700; transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease; }
+  .nav-button:hover { background: #1e293b; }
+  .nav-button-active { padding: 12px 20px; font-size: 16px; transform: scale(1.08); box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18); outline: 2px solid #cbd5e1; }
+  .hero { overflow: hidden; border-bottom: 1px solid #e2e8f0; background: radial-gradient(circle at top left, rgba(15,23,42,0.06), transparent 34%), radial-gradient(circle at bottom right, rgba(15,23,42,0.05), transparent 30%); }
+  .hero-grid, .split-grid, .footer-grid, .profile-grid { display: grid; gap: 28px; }
+  .hero-grid { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); padding: 72px 0 88px; }
+  .hero-copy h1, .section-heading h2 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
+  .hero-copy h1 { max-width: 760px; font-size: clamp(2.7rem, 5vw, 4.4rem); }
+  .hero-text, .section-heading p, .content-block p, .value-card p, .muted-copy, .footer-copy, .list-box, .plain-list, .form-note { color: #475569; }
+  .hero-text { max-width: 720px; font-size: 19px; line-height: 1.8; }
+  .section { padding: 72px 0; }
+  .section-heading { max-width: 820px; margin-bottom: 32px; }
+  .section-heading h2 { font-size: clamp(2rem, 3vw, 3rem); margin-bottom: 12px; }
+  .section-heading p { font-size: 18px; line-height: 1.75; margin: 0; }
+  .section-badge { display: inline-flex; align-items: center; border-radius: 999px; border: 1px solid #dbe2ea; background: #ffffff; padding: 6px 12px; margin-bottom: 14px; font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #64748b; }
+  .card { border: 1px solid #e2e8f0; border-radius: 28px; background: #ffffff; box-shadow: 0 10px 32px rgba(15, 23, 42, 0.05); }
+  .soft-card { background: #f8fafc; }
+  .highlight-card { border-color: #fde68a; background: #fef3c7; }
+  .content-block { padding: 28px; }
+  .content-block h3, .value-card h3, .profile-head h3 { margin: 0 0 14px; font-size: 1.32rem; letter-spacing: -0.02em; }
+  .content-block p, .value-card p, .plain-list li, .list-box, .metric-subtitle, .form-note { font-size: 15px; line-height: 1.8; }
+  .note-box { padding: 22px 24px; max-width: 860px; }
+  .note-box p { margin: 0; }
+  .metric-grid, .tile-grid, .form-grid, .stack-list { display: grid; gap: 18px; }
+  .metric-grid.two-up, .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tile-grid.three-up, .tile-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .value-card, .metric-card, .mini-tile { padding: 24px; }
+  .metric-card { display: flex; gap: 16px; align-items: flex-start; }
+  .metric-symbol { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 44px; height: 44px; border-radius: 16px; border: 1px solid #dbe2ea; background: #f1f5f9; color: #0f172a; font-weight: 800; }
+  .metric-title { font-size: 14px; color: #64748b; }
+  .metric-value { margin-top: 2px; font-size: 30px; font-weight: 800; letter-spacing: -0.03em; }
+  .metric-subtitle { margin-top: 4px; }
+  .overview-card { padding: 30px; }
+  .overview-top { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .overview-title, .mail-box { font-size: 1.2rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; }
+  .mini-tile { border: 1px solid #e2e8f0; border-radius: 22px; }
+  .mini-tile-title { margin-bottom: 8px; font-size: 14px; font-weight: 800; }
+  .mini-tile-text { font-size: 14px; color: #475569; line-height: 1.7; }
+  .top-gap { margin-top: 36px; }
+  .top-gap-small { margin-top: 20px; }
+  .split-grid, .footer-grid, .profile-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stack-layout { display: grid; gap: 18px; }
+  .list-box, .code-box { border: 1px solid #e2e8f0; border-radius: 20px; padding: 16px 18px; background: #ffffff; }
+  .code-box { margin-top: 18px; background: #f8fafc; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  .hex-chart { display: block; width: 100%; max-width: 390px; margin: 0 auto; }
+  .mini-hex { width: 88px; height: 88px; }
+  .world-box { position: relative; overflow: hidden; border-radius: 32px; border: 1px solid #e2e8f0; background: linear-gradient(180deg, #fbfdff 0%, #f2f6fb 100%); padding: 20px; box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08); }
+  .world-box-head { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 14px; }
+  .helper-pill { border-radius: 999px; border: 1px solid #e2e8f0; background: white; padding: 10px 14px; color: #64748b; font-size: 12px; }
+  .world-map-wrap { position: relative; width: 100%; aspect-ratio: 900 / 430; }
+  .world-map { width: 100%; height: 100%; }
+  .marker-group { cursor: pointer; }
+  .tooltip-anchor { pointer-events: auto; position: absolute; z-index: 10; }
+  .map-tooltip { width: 160px; border-radius: 22px; border: 1px solid rgba(226,232,240,0.95); background: rgba(255,255,255,0.95); padding: 12px; box-shadow: 0 18px 50px rgba(15, 23, 42, 0.18); backdrop-filter: blur(8px); }
+  .map-tooltip-top, .profile-head, .form-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .map-tooltip-title { font-size: 14px; font-weight: 800; }
+  .map-tooltip-score, .score-pill { border-radius: 999px; background: #0f172a; color: white; padding: 6px 10px; font-size: 12px; font-weight: 700; }
+  .muted-copy { margin-top: 0; margin-bottom: 12px; }
+  .select-wrap { max-width: 360px; }
+  .select-wrap label { display: block; font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 8px; }
+  .select-wrap select { width: 100%; border: 1px solid #cbd5e1; border-radius: 18px; background: #ffffff; padding: 14px 16px; color: #0f172a; outline: none; }
+  .contact-form { display: grid; gap: 16px; }
+  .contact-form label { display: block; font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 8px; }
+  .contact-form input, .contact-form textarea { width: 100%; border: 1px solid #cbd5e1; border-radius: 18px; background: #ffffff; padding: 14px 16px; color: #0f172a; outline: none; }
+  .contact-form textarea { resize: vertical; }
+  .primary-button { border: 0; cursor: pointer; border-radius: 16px; padding: 12px 16px; font-weight: 700; background: #0f172a; color: white; }
+  .secondary-button { border: 0; cursor: pointer; border-radius: 16px; padding: 12px 16px; font-weight: 700; background: #ffffff; color: #0f172a; border: 1px solid #dbe2ea; }
+  .mail-box { border-radius: 18px; border: 1px solid #e2e8f0; background: white; padding: 14px 16px; }
+  .footer { border-top: 1px solid #e2e8f0; background: #f8fafc; margin-top: 40px; }
+  .footer-grid { padding: 36px 0; }
+  .footer-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .footer-title { font-size: 14px; color: #334155; }
+  .footer-label { margin-bottom: 12px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em; color: #64748b; font-weight: 800; }
+  .plain-list { margin: 0; padding: 0; list-style: none; }
+
+  .button-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 22px; }
+  .primary-button, .secondary-button { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+  .text-link { color: #0f172a; font-weight: 800; text-decoration: underline; text-decoration-color: #cbd5e1; text-underline-offset: 4px; }
+  .text-link:hover { text-decoration-color: #0f172a; }
+  .principle-stack { display: grid; gap: 10px; margin-top: 22px; }
+  .principle-line { border-left: 3px solid #0f172a; padding: 4px 0 4px 14px; font-size: 16px; font-weight: 700; color: #334155; }
+  .compact-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; color: #475569; }
+  .compact-list li { line-height: 1.65; }
+  .status-pill { display: inline-flex; align-items: center; border-radius: 999px; background: #f1f5f9; color: #334155; padding: 7px 11px; font-size: 12px; font-weight: 800; }
+  @media (max-width: 1100px) {
+    .hero-grid, .split-grid, .footer-grid, .profile-grid, .metric-grid.two-up, .tile-grid, .tile-grid.three-up, .form-grid { grid-template-columns: 1fr; }
+    .helper-pill { display: none; }
+  }
+  @media (max-width: 820px) {
+    .desktop-nav { display: none; }
+    .mobile-nav { display: flex; }
+    .container { width: min(100% - 28px, 1180px); }
+    .section, .hero-grid { padding-top: 56px; padding-bottom: 56px; }
+    .hero-grid { gap: 22px; }
+  }
+`;
+
+const CONTACT_FORM_ACTION = "https://formspree.io/f/xzdorore";
+const MANUSCRIPT_URL = manuscriptPdf;
+const ROUTES = [
+  { key: "home", label: "Home" },
+  { key: "id4d", label: "Identity & Trust" },
+  { key: "evaluation", label: "From assessment to action" },
+  { key: "methodology", label: "Methodology" },
+  { key: "world", label: "World Map" },
+  { key: "contact", label: "Scientific Review" },
+];
+const AXES = ["Governance", "Technical", "Identity", "Adoption", "Security", "Learning"];
+
+const COUNTRIES = {
+  Argentina: { subtitle: "Nationally coordinated digital-health trajectory built around shared records and distributed interoperability.", values: [78, 74, 72, 77, 73, 63], strengths: ["National interoperability strategy", "Distributed shared health-record model", "Legal framework for electronic clinical records"], watch: ["Operational maturity varies across jurisdictions", "Implementation depends on provincial adoption", "Correction capacity remains uneven"] },
+  Brazil: { subtitle: "Large-scale interoperability effort centred on RNDS, SUS Digital and citizen-facing access.", values: [84, 85, 76, 80, 81, 67], strengths: ["RNDS platform", "Meu SUS Digital", "Nationwide SUS Digital adhesion"], watch: ["Federal complexity", "Uneven local implementation", "Less visible correction layer"] },
+  Canada: { subtitle: "Strong policy vision, but constrained by a multi-jurisdictional landscape and uneven implementation.", values: [71, 76, 68, 74, 77, 58], strengths: ["Pan-Canadian roadmap", "Strong digital health policy capacity", "Connected care priorities"], watch: ["Jurisdictional fragmentation", "Variable implementation maturity", "Coordination complexity"] },
+  China: { subtitle: "Large-scale state-led digital health environment with strong deployment capacity, but more limited transparency on interoperability quality, recourse and practical correction pathways.", values: [74, 76, 70, 73, 71, 45], strengths: ["Large-scale public digital infrastructure", "Strong administrative steering capacity", "Platform-scale deployment potential"], watch: ["Public transparency on interoperability maturity remains more limited than in some peer systems", "Patient-facing correction and redress pathways are harder to read from open documentation", "Cross-actor trust and real-world continuity are more difficult to assess than infrastructure scale alone"] },
+  France: { subtitle: "France combines strong identity and doctrinal foundations with comparatively weak real-world interoperability: connectivity remains concentrated in institutional corridors, DMP feeding is irregular, and correction mechanisms remain largely formal rather than operational.", values: [66, 45, 82, 42, 80, 15], strengths: ["INS identity layer", "Pro Santé Connect", "CI-SIS doctrine"], watch: ["Connectivity remains concentrated in state-centred channels", "DMP and Mon espace santé feeding remain irregular", "Correction and redress remain slow, opaque and frequently ineffective"] },
+  Guatemala: { subtitle: "Foundational identity system exists, but health-sector integration remains comparatively early and uneven.", values: [54, 46, 62, 43, 55, 33], strengths: ["RENAP registry", "RENAP-MSPAS coordination", "Digital transformation agenda"], watch: ["Early-stage health interoperability", "Limited linkage to care pathways", "Weak ecosystem-wide correction loops"] },
+  India: { subtitle: "Large digital-health identity ecosystem built around ABDM, ABHA and structured registries.", values: [80, 81, 86, 74, 79, 61], strengths: ["ABHA", "Health Facility Registry", "Provider Registry"], watch: ["Uneven state-level implementation", "Scale and diversity", "Less legible correction capacity"] },
+  Japan: { subtitle: "Mature identity-linked health access environment combined with strong regulatory data infrastructure.", values: [82, 85, 88, 79, 86, 67], strengths: ["My Number health linkage", "Identity-linked access", "MID-NET"], watch: ["Governance and trust management", "Not all domains move at same speed", "Correction separate from maturity"] },
+  Morocco: { subtitle: "Ecosystem in transition supported by broader digital transformation, still needing stronger convergence between identity and health interoperability.", values: [58, 49, 52, 61, 56, 34], strengths: ["Digital Morocco 2030", "National ID-based authentication", "State modernization potential"], watch: ["Health interoperability less visible", "Identity and care pathways require tighter integration", "Correction still maturing"] },
+  "New Zealand": { subtitle: "Longstanding health-identity environment built around the National Health Index and broad operational use.", values: [81, 82, 90, 77, 84, 66], strengths: ["National Health Index", "Broad cross-setting use", "Clear identity governance"], watch: ["Identity does not equal full interoperability everywhere", "Connected systems still matter", "Correction remains distinct"] },
+  Senegal: { subtitle: "Promising but uneven trajectory combining digital economy reforms, identity advances and health-system strengthening.", values: [60, 52, 57, 58, 51, 36], strengths: ["Biometric identity framework", "Digital economy reforms", "Health information-system strengthening"], watch: ["Health interoperability not yet as visible", "Identity-health integration remains partial", "Less documented feedback mechanisms"] },
+  Sweden: { subtitle: "Strong medication-centred digital health ecosystem combining e-prescriptions, a national medication list and strict identity safeguards.", values: [86, 90, 84, 85, 92, 70], strengths: ["High e-prescription adoption", "National Medication List", "Strong identity and authorisation requirements"], watch: ["Correction requires governance beyond access control", "Strengths clearer in medicines than every domain", "Feedback channels still matter"] },
+  Tanzania: { subtitle: "Structured digital-health trajectory with formal strategy, enterprise architecture and registry ambitions.", values: [69, 70, 61, 68, 63, 55], strengths: ["Digital health strategy", "Center for Digital Health", "Enterprise architecture"], watch: ["Implementation varies across facilities", "Continuity across full care path remains work in progress", "Correction less visible than architecture ambitions"] },
+  "United States": { subtitle: "Nationally significant but heterogeneous environment, combining a federal governance floor with major state-level and network-level variation.", values: [82, 83, 72, 76, 84, 63], strengths: ["TEFCA", "USCDI", "Strong federal policy capacity"], watch: ["Major local variation", "Federal floor does not erase disparities", "State-specific reading still needed"] },
+};
+
+const MARKERS = [
+  { name: "Argentina", x: 246, y: 302 },
+  { name: "Brazil", x: 223, y: 258, labelDx: 12, labelDy: 16 },
+  { name: "Canada", x: 140, y: 110, labelDx: 12, labelDy: -2, textSize: 11.5 },
+  { name: "China", x: 730, y: 155, labelDx: 12, labelDy: -10 },
+  { name: "France", x: 470, y: 125 },
+  { name: "Guatemala", x: 178, y: 184, labelDx: -82, labelDy: -10 },
+  { name: "India", x: 662, y: 186, labelDx: 12, labelDy: 18 },
+  { name: "Japan", x: 812, y: 166, labelDx: 10, labelDy: -8 },
+  { name: "Morocco", x: 446, y: 170, labelDx: -36, labelDy: -10 },
+  { name: "New Zealand", x: 805, y: 350 },
+  { name: "Senegal", x: 428, y: 205, labelDx: -48, labelDy: 10 },
+  { name: "Sweden", x: 490, y: 88 },
+  { name: "Tanzania", x: 505, y: 274, labelDx: 12, labelDy: 18 },
+  { name: "United States", x: 120, y: 138, labelDx: 12, labelDy: 18, textSize: 12.4 },
+];
+
+function cls(...items) {
+  return items.filter(Boolean).join(" ");
+}
+
+function assertDataIntegrity() {
+  Object.entries(COUNTRIES).forEach(([name, country]) => {
+    if (!Array.isArray(country.values) || country.values.length !== AXES.length) {
+      throw new Error(`Country data for ${name} must provide ${AXES.length} axis values.`);
+    }
+    if (!Array.isArray(country.strengths) || !Array.isArray(country.watch)) {
+      throw new Error(`Country data for ${name} must include strengths and watch arrays.`);
+    }
+  });
+  MARKERS.forEach((marker) => {
+    if (!COUNTRIES[marker.name]) {
+      throw new Error(`Marker ${marker.name} must match a country entry.`);
+    }
+  });
+}
+
+function polar(angle, radius, center) {
+  const rad = (angle - 90) * (Math.PI / 180);
+  return {
+    x: center + radius * Math.cos(rad),
+    y: center + radius * Math.sin(rad),
+  };
+}
+
+function LogoMark() {
+  return (
+    <div className="logo-box">
+      <svg viewBox="0 0 64 64" className="logo-svg" aria-label="IML logo">
+        <g fill="none" stroke="#0f172a" strokeWidth="1.45" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="10.5" y="10.5" width="43" height="43" rx="1.6" />
+          <path d="M32 15.5 L46 44 H18 Z" />
+          <path d="M20.6 33 C23.7 28.1, 28.7 25.6, 31.7 25.6 C34.8 25.6, 39.8 28.1, 43.4 33 C39.8 37.9, 34.8 40.4, 31.7 40.4 C28.7 40.4, 23.7 37.9, 20.6 33 Z" />
+          <circle cx="30.7" cy="33" r="4.2" fill="#0f172a" stroke="none" />
+          <circle cx="32" cy="31.7" r="0.95" fill="white" stroke="none" />
+        </g>
+      </svg>
+    </div>
+  );
+}
+
+function Card({ children, className = "" }) {
+  return <div className={cls("card", className)}>{children}</div>;
+}
+
+function NavButton({ active, children, onClick }) {
+  return (
+    <button type="button" onClick={onClick} className={cls("nav-button", active && "nav-button-active")}>
+      {children}
+    </button>
+  );
+}
+
+function SectionTitle({ badge, title, text }) {
+  return (
+    <div className="section-heading">
+      {badge ? <div className="section-badge">{badge}</div> : null}
+      <h2>{title}</h2>
+      <p>{text}</p>
+    </div>
+  );
+}
+
+function MetricCard({ symbol, title, value, subtitle }) {
+  return (
+    <Card className="metric-card">
+      <div className="metric-symbol">{symbol}</div>
+      <div>
+        <div className="metric-title">{title}</div>
+        <div className="metric-value">{value}</div>
+        <div className="metric-subtitle">{subtitle}</div>
+      </div>
+    </Card>
+  );
+}
+
+function HexagonChart({ values, small = false }) {
+  const size = small ? 92 : 360;
+  const center = size / 2;
+  const radius = small ? 28 : 118;
+  const levels = small ? 3 : 5;
+  const safe = AXES.map((_, index) => Math.max(0, Math.min(100, Number(values?.[index]) || 0)));
+
+  const ring = (scale) =>
+    AXES.map((_, index) => {
+      const point = polar((360 / AXES.length) * index, radius * scale, center);
+      return `${point.x},${point.y}`;
+    }).join(" ");
+
+  const data = safe.map((value, index) => {
+    const point = polar((360 / AXES.length) * index, radius * (value / 100), center);
+    return `${point.x},${point.y}`;
+  }).join(" ");
 
   return (
-    <div className="app">
-      <style>{`
-        :root {
-          --ink: #10243f;
-          --ink-soft: #40516a;
-          --blue: #164f8b;
-          --blue-soft: #e9f2fb;
-          --green: #1b7c6b;
-          --gold: #b88a2b;
-          --line: #d9e3ef;
-          --paper: #ffffff;
-          --mist: #f6f9fc;
-        }
+    <svg viewBox={`0 0 ${size} ${size}`} className={small ? "mini-hex" : "hex-chart"} aria-label="IML hexagon chart">
+      {Array.from({ length: levels }).map((_, index) => (
+        <polygon key={index} points={ring((index + 1) / levels)} fill="none" stroke="#d8dee7" strokeWidth="1" />
+      ))}
+      {AXES.map((axis, index) => {
+        const end = polar((360 / AXES.length) * index, radius, center);
+        const label = polar((360 / AXES.length) * index, radius + (small ? 0 : 30), center);
+        return (
+          <g key={axis}>
+            <line x1={center} y1={center} x2={end.x} y2={end.y} stroke="#d8dee7" strokeWidth="1" />
+            {!small ? (
+              <text x={label.x} y={label.y} textAnchor="middle" style={{ fontSize: 11, fontWeight: 600, fill: "#64748b" }}>
+                {axis}
+              </text>
+            ) : null}
+          </g>
+        );
+      })}
+      <polygon points={data} fill="rgba(15,23,42,0.14)" stroke="#0f172a" strokeWidth="2" />
+      {safe.map((value, index) => {
+        const point = polar((360 / AXES.length) * index, radius * (value / 100), center);
+        return <circle key={index} cx={point.x} cy={point.y} r={small ? 2.4 : 4} fill="#0f172a" />;
+      })}
+    </svg>
+  );
+}
 
-        * {
-          box-sizing: border-box;
-        }
+function WorldTooltip({ marker, country, onEnter, onLeave }) {
+  if (!marker || !country) return null;
+  const left = `${(marker.x / 900) * 100}%`;
+  const top = `${(marker.y / 430) * 100}%`;
+  const horizontal = marker.x > 650 ? "translate(calc(-100% - 18px), -16px)" : "translate(18px, -16px)";
 
-        html {
-          scroll-behavior: smooth;
-        }
+  return (
+    <div className="tooltip-anchor" style={{ left, top, transform: horizontal }} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+      <div className="map-tooltip">
+        <div className="map-tooltip-top">
+          <div className="map-tooltip-title">{marker.name}</div>
+          <div className="map-tooltip-score">Working profile</div>
+        </div>
+        <HexagonChart values={country.values} small />
+      </div>
+    </div>
+  );
+}
 
-        body {
-          margin: 0;
-          font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-          background: var(--paper);
-          color: var(--ink);
-        }
+function WorldMap({ selectedCountry, onSelect }) {
+  const [hoveredCountry, setHoveredCountry] = useState("");
+  const closeTimerRef = useRef(null);
 
-        a {
-          color: inherit;
-          text-decoration: none;
-        }
+  const clearCloseTimer = () => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
 
-        .app {
-          min-height: 100vh;
-          background:
-            radial-gradient(circle at top left, rgba(22, 79, 139, 0.10), transparent 34rem),
-            linear-gradient(180deg, #ffffff 0%, #f7fafc 100%);
-        }
+  const openTooltip = (name) => {
+    clearCloseTimer();
+    setHoveredCountry(name);
+    onSelect(name);
+  };
 
-        .nav {
-          position: sticky;
-          top: 0;
-          z-index: 20;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 1rem 5vw;
-          background: rgba(255, 255, 255, 0.88);
-          backdrop-filter: blur(14px);
-          border-bottom: 1px solid var(--line);
-        }
+  const scheduleClose = () => {
+    clearCloseTimer();
+    closeTimerRef.current = setTimeout(() => {
+      setHoveredCountry("");
+      closeTimerRef.current = null;
+    }, 140);
+  };
 
-        .brand {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          font-weight: 800;
-          letter-spacing: 0.04em;
-        }
+  const activeMarker = MARKERS.find((marker) => marker.name === hoveredCountry) || null;
+  const activeCountry = hoveredCountry ? COUNTRIES[hoveredCountry] : null;
 
-        .brand-mark {
-          width: 2.4rem;
-          height: 2.4rem;
-          border-radius: 0.8rem;
-          display: grid;
-          place-items: center;
-          color: white;
-          background: linear-gradient(135deg, var(--blue), var(--green));
-          font-weight: 800;
-        }
+  return (
+    <div className="world-box">
+      <div className="world-box-head">
+        <div>
+          <div className="eyebrow">Exploratory review in progress</div>
+          <div className="overview-title">Interactive maturity profiles</div>
+        </div>
+        <div className="helper-pill">Hover a marker to preview a working profile. Select a country to read the full note.</div>
+      </div>
+      <div className="world-map-wrap">
+        <svg viewBox="0 0 900 430" className="world-map" aria-label="Interactive world map">
+          <defs>
+            <linearGradient id="oceanFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#f8fbff" />
+              <stop offset="100%" stopColor="#eef3f9" />
+            </linearGradient>
+            <linearGradient id="landFill" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#e7eef6" />
+              <stop offset="100%" stopColor="#d5e0ec" />
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="900" height="430" rx="28" fill="url(#oceanFill)" />
+          <g fill="url(#landFill)" stroke="#9fb0c4" strokeWidth="1.1">
+            <path d="M88 112 C108 80, 170 70, 214 90 C248 105, 254 144, 232 170 C214 192, 174 197, 155 220 C139 240, 101 236, 79 207 C59 180, 58 141, 88 112 Z" />
+            <path d="M180 233 C199 228, 226 239, 239 259 C251 276, 245 305, 223 319 C204 332, 176 326, 164 305 C154 287, 160 241, 180 233 Z" />
+            <path d="M372 92 C422 70, 498 75, 548 103 C580 122, 595 160, 572 187 C551 211, 504 214, 482 233 C456 254, 417 247, 395 228 C376 211, 337 212, 320 189 C304 166, 317 116, 372 92 Z" />
+            <path d="M468 238 C489 228, 523 235, 542 255 C559 271, 563 308, 538 333 C515 355, 479 354, 455 338 C433 323, 420 297, 428 273 C435 255, 448 247, 468 238 Z" />
+            <path d="M609 103 C654 85, 730 92, 775 118 C816 141, 829 182, 806 212 C781 244, 733 246, 694 241 C657 236, 623 214, 604 190 C584 163, 579 118, 609 103 Z" />
+            <ellipse cx="742" cy="324" rx="34" ry="18" />
+            <ellipse cx="805" cy="350" rx="17" ry="10" />
+          </g>
+          <g>
+            {MARKERS.map((marker) => {
+              const selected = selectedCountry === marker.name;
+              const hovered = hoveredCountry === marker.name;
+              return (
+                <g key={marker.name} className="marker-group" onClick={() => onSelect(marker.name)} onMouseEnter={() => openTooltip(marker.name)} onMouseLeave={scheduleClose}>
+                  <circle cx={marker.x} cy={marker.y} r={selected || hovered ? 12 : 8} fill={selected || hovered ? "#0f172a" : "#334155"} />
+                  <circle cx={marker.x} cy={marker.y} r={selected || hovered ? 22 : 15} fill="rgba(15,23,42,0.10)" />
+                  <text x={marker.x + (marker.labelDx ?? 14)} y={marker.y + (marker.labelDy ?? 4)} fill="#0f172a" style={{ fontSize: marker.textSize ?? 13, fontWeight: 600 }}>{marker.name}</text>
+                </g>
+              );
+            })}
+          </g>
+        </svg>
+        {activeMarker && activeCountry ? <WorldTooltip marker={activeMarker} country={activeCountry} onEnter={() => openTooltip(activeMarker.name)} onLeave={scheduleClose} /> : null}
+      </div>
+    </div>
+  );
+}
 
-        .nav-links {
-          display: flex;
-          align-items: center;
-          gap: 1.2rem;
-          font-size: 0.94rem;
-          color: var(--ink-soft);
-        }
+function CountryProfile({ selectedCountry }) {
+  const selected = selectedCountry ? COUNTRIES[selectedCountry] : null;
+  if (!selected) return null;
 
-        .nav-links a:hover {
-          color: var(--blue);
-        }
-
-        .hero {
-          padding: 6rem 5vw 4.5rem;
-          max-width: 1220px;
-          margin: 0 auto;
-          display: grid;
-          grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
-          gap: 4rem;
-          align-items: center;
-        }
-
-        .eyebrow {
-          margin: 0 0 1rem;
-          color: var(--green);
-          font-size: 0.82rem;
-          font-weight: 800;
-          letter-spacing: 0.14em;
-          text-transform: uppercase;
-        }
-
-        h1 {
-          margin: 0;
-          font-size: clamp(2.55rem, 6vw, 5.2rem);
-          line-height: 0.95;
-          letter-spacing: -0.055em;
-        }
-
-        .hero-lead {
-          margin: 1.5rem 0 0;
-          max-width: 760px;
-          font-size: clamp(1.08rem, 2vw, 1.35rem);
-          line-height: 1.65;
-          color: var(--ink-soft);
-        }
-
-        .hero-actions {
-          margin-top: 2rem;
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.9rem;
-        }
-
-        .btn-primary,
-        .btn-secondary {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 2.95rem;
-          padding: 0.85rem 1.2rem;
-          border-radius: 999px;
-          font-weight: 750;
-          border: 1px solid transparent;
-          transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-        }
-
-        .btn-primary {
-          color: white;
-          background: var(--blue);
-          box-shadow: 0 14px 28px rgba(22, 79, 139, 0.20);
-        }
-
-        .btn-primary:hover,
-        .btn-secondary:hover {
-          transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-          color: var(--blue);
-          background: white;
-          border-color: var(--line);
-        }
-
-        .hero-card {
-          background: rgba(255, 255, 255, 0.78);
-          border: 1px solid var(--line);
-          border-radius: 2rem;
-          padding: 2rem;
-          box-shadow: 0 24px 70px rgba(16, 36, 63, 0.09);
-        }
-
-        .principles {
-          display: grid;
-          gap: 1rem;
-        }
-
-        .principle {
-          padding: 1.15rem;
-          border-radius: 1.2rem;
-          background: var(--mist);
-          border: 1px solid var(--line);
-        }
-
-        .principle strong {
-          display: block;
-          margin-bottom: 0.35rem;
-          font-size: 1rem;
-        }
-
-        .principle span {
-          color: var(--ink-soft);
-          line-height: 1.55;
-        }
-
-        .section {
-          padding: 4.5rem 5vw;
-          max-width: 1220px;
-          margin: 0 auto;
-        }
-
-        .section-header {
-          max-width: 820px;
-          margin-bottom: 2rem;
-        }
-
-        .section h2 {
-          margin: 0;
-          font-size: clamp(2rem, 4vw, 3.2rem);
-          line-height: 1.05;
-          letter-spacing: -0.04em;
-        }
-
-        .section-header p:not(.eyebrow) {
-          margin: 1rem 0 0;
-          color: var(--ink-soft);
-          font-size: 1.08rem;
-          line-height: 1.7;
-        }
-
-        .grid-3 {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 1.1rem;
-        }
-
-        .grid-2 {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 1.1rem;
-        }
-
-        .card {
-          background: white;
-          border: 1px solid var(--line);
-          border-radius: 1.4rem;
-          padding: 1.45rem;
-          box-shadow: 0 14px 38px rgba(16, 36, 63, 0.06);
-        }
-
-        .card h3 {
-          margin: 0 0 0.65rem;
-          font-size: 1.18rem;
-        }
-
-        .card p {
-          margin: 0;
-          color: var(--ink-soft);
-          line-height: 1.65;
-        }
-
-        .number {
-          width: 2.2rem;
-          height: 2.2rem;
-          border-radius: 999px;
-          display: grid;
-          place-items: center;
-          margin-bottom: 1rem;
-          background: var(--blue-soft);
-          color: var(--blue);
-          font-weight: 800;
-        }
-
-        .framework-panel {
-          background: linear-gradient(135deg, #ffffff 0%, #f4f8fc 100%);
-          border: 1px solid var(--line);
-          border-radius: 2rem;
-          padding: 2rem;
-          box-shadow: 0 24px 70px rgba(16, 36, 63, 0.08);
-        }
-
-        .domain-list {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.7rem;
-          margin-top: 1.2rem;
-        }
-
-        .pill {
-          display: inline-flex;
-          padding: 0.62rem 0.88rem;
-          border-radius: 999px;
-          background: white;
-          border: 1px solid var(--line);
-          color: var(--ink-soft);
-          font-weight: 650;
-          font-size: 0.94rem;
-        }
-
-        .highlight {
-          border-left: 4px solid var(--green);
-          background: #f1faf7;
-        }
-
-        .gold {
-          border-left: 4px solid var(--gold);
-          background: #fff9ec;
-        }
-
-        .blue {
-          border-left: 4px solid var(--blue);
-          background: #f3f8ff;
-        }
-
-        .contact-section {
-          padding-bottom: 6rem;
-        }
-
-        .contact-card {
-          max-width: 760px;
-          background: white;
-          border: 1px solid var(--line);
-          border-radius: 1.6rem;
-          padding: 1.6rem;
-          box-shadow: 0 18px 44px rgba(16, 36, 63, 0.08);
-        }
-
-        .contact-card p {
-          margin: 0 0 1.2rem;
-          color: var(--ink-soft);
-          line-height: 1.7;
-        }
-
-        .contact-email {
-          margin-top: 1rem !important;
-          font-weight: 750;
-          color: var(--blue) !important;
-        }
-
-        .footer {
-          border-top: 1px solid var(--line);
-          padding: 2rem 5vw;
-          color: var(--ink-soft);
-          background: white;
-        }
-
-        .footer-inner {
-          max-width: 1220px;
-          margin: 0 auto;
-          display: flex;
-          justify-content: space-between;
-          gap: 1rem;
-          flex-wrap: wrap;
-          font-size: 0.92rem;
-        }
-
-        @media (max-width: 900px) {
-          .hero {
-            grid-template-columns: 1fr;
-            padding-top: 4rem;
-          }
-
-          .grid-3,
-          .grid-2 {
-            grid-template-columns: 1fr;
-          }
-
-          .nav {
-            align-items: flex-start;
-            gap: 1rem;
-            flex-direction: column;
-          }
-
-          .nav-links {
-            flex-wrap: wrap;
-          }
-        }
-      `}</style>
-
-      <header className="nav">
-        <a className="brand" href="#home" aria-label="IML home">
-          <span className="brand-mark">IML</span>
-          <span>Interoperability Maturity Lab</span>
-        </a>
-
-        <nav className="nav-links" aria-label="Main navigation">
-          <a href="#about">About</a>
-          <a href="#framework">Framework</a>
-          <a href="#amr">AMR/BMR</a>
-          <a href="#workspace">Workspace</a>
-          <a href="#ai">AI</a>
-          <a href="#contact">Contact</a>
-        </nav>
-      </header>
-
-      <main>
-        <section id="home" className="hero">
-          <div>
-            <p className="eyebrow">Founding scientific initiative</p>
-            <h1>Trusted Health Information Ecosystems</h1>
-            <p className="hero-lead">
-              IML proposes a scientific framework to understand, assess and improve
-              interoperability in health. Its purpose is not to rank countries or promote
-              a commercial platform. Its purpose is to help health information become
-              trustworthy knowledge that protects health.
-            </p>
-
-            <div className="hero-actions">
-              <a href="#framework" className="btn-primary">
-                Explore the framework
-              </a>
-              <a href="#contact" className="btn-secondary">
-                Scientific review
-              </a>
-            </div>
+  return (
+    <div className="split-grid profile-grid">
+      <Card>
+        <div className="content-block">
+          <div className="profile-head">
+            <h3>{selectedCountry}</h3>
+            <div className="score-pill">Exploratory profile</div>
           </div>
-
-          <aside className="hero-card" aria-label="IML principles">
-            <div className="principles">
-              <div className="principle">
-                <strong>Health is the objective</strong>
-                <span>
-                  Technology has value only when it improves prevention, care,
-                  public health, research and equity.
-                </span>
-              </div>
-
-              <div className="principle">
-                <strong>Trustworthy information is the foundation</strong>
-                <span>
-                  Data become useful when they remain accurate, contextualised,
-                  governed, auditable and clinically meaningful.
-                </span>
-              </div>
-
-              <div className="principle">
-                <strong>Interoperability is the path</strong>
-                <span>
-                  Interoperability should preserve meaning, trust, clinical context
-                  and responsibility across boundaries.
-                </span>
-              </div>
-            </div>
-          </aside>
-        </section>
-
-        <section id="about" className="section">
-          <div className="section-header">
-            <p className="eyebrow">About IML</p>
-            <h2>A framework for health information that can be trusted, used and improved.</h2>
-            <p>
-              The Interoperability Maturity Lab studies health information ecosystems as
-              networks of patients, clinicians, laboratories, hospitals, payers, public
-              health authorities, researchers, industry, infrastructure and governance.
-              The ecosystem, not the isolated application, becomes the unit of analysis.
-            </p>
+          <p className="muted-copy">{selected.subtitle}</p>
+          <HexagonChart values={selected.values} />
+        </div>
+      </Card>
+      <div className="stack-layout">
+        <Card>
+          <div className="content-block">
+            <h3>Strengths</h3>
+            <ul className="plain-list">
+              {selected.strengths.map((item) => <li key={item}>• {item}</li>)}
+            </ul>
           </div>
-
-          <div className="grid-3">
-            <article className="card">
-              <div className="number">01</div>
-              <h3>Not another ranking</h3>
-              <p>
-                IML does not classify countries as winners or losers. It creates maturity
-                profiles and improvement pathways adapted to each context.
-              </p>
-            </article>
-
-            <article className="card">
-              <div className="number">02</div>
-              <h3>Not another platform</h3>
-              <p>
-                IML is not a vendor proposition. It is a scientific and practical framework
-                that can guide assessment, review, pilots and implementation.
-              </p>
-            </article>
-
-            <article className="card">
-              <div className="number">03</div>
-              <h3>Not technology first</h3>
-              <p>
-                Operating systems, databases, standards and AI are evaluated according to
-                their ability to support health, trust, continuity and responsibility.
-              </p>
-            </article>
+        </Card>
+        <Card>
+          <div className="content-block">
+            <h3>Points to watch</h3>
+            <ul className="plain-list">
+              {selected.watch.map((item) => <li key={item}>• {item}</li>)}
+            </ul>
           </div>
-        </section>
+        </Card>
+      </div>
+    </div>
+  );
+}
 
-        <section id="framework" className="section">
-          <div className="section-header">
-            <p className="eyebrow">Framework</p>
-            <h2>From technical exchange to meaningful health use.</h2>
-            <p>
-              IML understands interoperability as a multidimensional capability. It includes
-              technical exchange, semantic meaning, organisational workflows, institutional
-              cooperation, clinical usefulness and public health learning.
-            </p>
+function HomePage() {
+  return (
+    <section className="hero">
+      <div className="container hero-grid">
+        <div className="hero-copy">
+          <div className="section-badge">Open for scientific review</div>
+          <h1>A scientific framework for trusted Health Information Ecosystems.</h1>
+          <div className="principle-stack" aria-label="IML founding principles">
+            <div className="principle-line">Health is the objective.</div>
+            <div className="principle-line">Trustworthy information is the foundation.</div>
+            <div className="principle-line">Interoperability is the path.</div>
           </div>
-
-          <div className="framework-panel">
-            <h3>Six IML assessment domains</h3>
-            <div className="domain-list">
-              <span className="pill">Governance and Standards</span>
-              <span className="pill">Technical Interoperability</span>
-              <span className="pill">Identity, Consent and Trust</span>
-              <span className="pill">Adoption and Use</span>
-              <span className="pill">Security and Resilience</span>
-              <span className="pill">Feedback, Correction and Learning</span>
-            </div>
-
-            <h3 style={{ marginTop: "1.8rem" }}>Cross-cutting dimensions</h3>
-            <div className="domain-list">
-              <span className="pill">Institutional Engagement</span>
-              <span className="pill">Payer Interoperability</span>
-              <span className="pill">AI Readiness</span>
-              <span className="pill">Operating System Quality</span>
-              <span className="pill">Database Quality</span>
-            </div>
-          </div>
-        </section>
-
-        <section id="ecosystems" className="section">
-          <div className="section-header">
-            <p className="eyebrow">Health Information Ecosystems</p>
-            <h2>Information acquires value when it moves with context.</h2>
-            <p>
-              A laboratory result, a prescription, a diagnosis or a reimbursement event
-              rarely has full meaning alone. Meaning emerges when information remains
-              connected to symptoms, clinical interpretation, treatment, outcome,
-              governance and authorised reuse.
-            </p>
-          </div>
-
-          <div className="grid-2">
-            <article className="card highlight">
-              <h3>Continuity of Health Information</h3>
-              <p>
-                Information should accompany the patient and the health system across time,
-                settings and authorised actors without losing integrity or clinical relevance.
-              </p>
-            </article>
-
-            <article className="card blue">
-              <h3>Knowledge Continuity</h3>
-              <p>
-                Each encounter, dataset and project should enrich future decisions rather
-                than repeatedly restarting from fragmented information.
-              </p>
-            </article>
-          </div>
-        </section>
-
-        <section id="amr" className="section">
-          <div className="section-header">
-            <p className="eyebrow">First operational thread</p>
-            <h2>AMR/BMR as a demonstrator.</h2>
-            <p>
-              Antimicrobial resistance exposes the limits of fragmented information. A
-              resistant isolate is not automatically a clinically meaningful infection.
-              The first IML demonstrator focuses on urinary tract infections caused by
-              multidrug-resistant E. coli.
-            </p>
-          </div>
-
-          <div className="grid-3">
-            <article className="card">
-              <h3>Clinical context</h3>
-              <p>
-                Symptoms, fever, urinary signs, risk context, diagnosis and outcome are
-                needed to distinguish infection, colonisation, contamination and
-                asymptomatic bacteriuria.
-              </p>
-            </article>
-
-            <article className="card">
-              <h3>Microbiology</h3>
-              <p>
-                Culture, bacterial count, species identification and antibiogram become
-                more useful when linked to the patient story and the clinical decision.
-              </p>
-            </article>
-
-            <article className="card">
-              <h3>Learning</h3>
-              <p>
-                Connected information can support antimicrobial stewardship, public health
-                surveillance, payer analysis, research and responsible AI.
-              </p>
-            </article>
-          </div>
-        </section>
-
-        <section id="workspace" className="section">
-          <div className="section-header">
-            <p className="eyebrow">Implementation bridge</p>
-            <h2>Open Clinical Workspace.</h2>
-            <p>
-              The Open Clinical Workspace is proposed as a vendor-neutral, open-source-oriented
-              environment that interacts with existing systems. It is not another EHR. It is
-              an interoperability and clinical context layer designed to import information
-              on demand and support responsible use.
-            </p>
-          </div>
-
-          <div className="grid-2">
-            <article className="card gold">
-              <h3>Import on demand</h3>
-              <p>
-                Information should not circulate permanently or indiscriminately. It should
-                be accessed for a defined clinical, public health or research purpose under
-                transparent governance.
-              </p>
-            </article>
-
-            <article className="card highlight">
-              <h3>Clinical context layer</h3>
-              <p>
-                The workspace should preserve the relationship between observations and the
-                circumstances that give them meaning, including indication, interpretation,
-                treatment and evolution.
-              </p>
-            </article>
-
-            <article className="card blue">
-              <h3>Operating system quality</h3>
-              <p>
-                Windows, legacy DOS environments, macOS, UNIX, GNU/Linux, BSD and FreeBSD
-                should be compared by supportability, security, maintainability, portability,
-                auditability and resilience in health use.
-              </p>
-            </article>
-
-            <article className="card">
-              <h3>Database quality</h3>
-              <p>
-                Database technologies should be evaluated through integrity, traceability,
-                auditability, reversibility, security, portability, backup, recovery,
-                correction, migration and preservation of clinical context.
-              </p>
-            </article>
-          </div>
-        </section>
-
-        <section id="ai" className="section">
-          <div className="section-header">
-            <p className="eyebrow">Responsible AI</p>
-            <h2>AI assistance under human responsibility.</h2>
-            <p>
-              IML treats AI as an ecosystem actor, not as an autonomous clinical or moral
-              authority. AI may assist summarisation, pattern recognition, missing context
-              detection, research extraction and decision support, but judgement and
-              accountability remain human.
-            </p>
-          </div>
-
-          <div className="grid-3">
-            <article className="card">
-              <h3>Transparency</h3>
-              <p>
-                Meaningful AI-assisted writing, analysis or interpretation should be disclosed
-                and documented.
-              </p>
-            </article>
-
-            <article className="card">
-              <h3>Equity</h3>
-              <p>
-                AI readiness requires attention to bias, representativeness, vulnerable
-                populations and fragmented information.
-              </p>
-            </article>
-
-            <article className="card">
-              <h3>Limits</h3>
-              <p>
-                Mature ecosystems must be able to define when AI should not be used. The
-                capacity to limit automation is part of responsibility.
-              </p>
-            </article>
-          </div>
-        </section>
-
-        <section id="publications" className="section">
-          <div className="section-header">
-            <p className="eyebrow">Publications</p>
-            <h2>Founding Manuscript.</h2>
-            <p>
-              The IML Founding Manuscript is open for scientific review. It defines the
-              conceptual, methodological and operational foundations of the project and
-              will evolve through versioned review.
-            </p>
-          </div>
-
-          <div className="contact-card">
-            <p>
-              The manuscript can be shared with reviewers, collaborators and institutions
-              on request.
-            </p>
-
-            <a
-              href={`mailto:${contactEmail}?subject=${encodeURIComponent(
-                "Request for the IML Founding Manuscript"
-              )}`}
-              className="btn-primary"
-            >
+          <p className="hero-text">IML helps researchers, clinicians, institutions, engineers, payers and public decision-makers understand, assess and progressively improve the ecosystems through which health information is generated, trusted, exchanged and used.</p>
+          <Card className="note-box">
+            <p>IML does not rank countries. It creates maturity profiles, identifies weaknesses in information continuity and supports practical improvement pathways.</p>
+          </Card>
+          <div className="button-row">
+            <a className="primary-button" href={MANUSCRIPT_URL} download>
               Download the Founding Manuscript
             </a>
-
-            <p className="contact-email">{contactEmail}</p>
-          </div>
-        </section>
-
-        <section id="contact" className="section contact-section">
-          <div className="section-header">
-            <p className="eyebrow">Contact</p>
-            <h2>Scientific review and collaboration.</h2>
-            <p>
-              IML is open to methodological discussion and collaboration with clinicians,
-              researchers, institutions, payers, public health teams, engineers and
-              open-source contributors.
-            </p>
-          </div>
-
-          <div className="contact-card">
-            <p>
-              To discuss the IML framework, the AMR/BMR demonstrator, the Open Clinical
-              Workspace or a scientific review, please contact:
-            </p>
-
-            <a
-              href={`mailto:${contactEmail}?subject=${encodeURIComponent(
-                "Scientific review - IML"
-              )}`}
-              className="btn-primary"
-            >
-              Contact IML
+            <a className="secondary-button" href="#methodology">
+              Explore the framework
             </a>
-
-            <p className="contact-email">{contactEmail}</p>
           </div>
-        </section>
-      </main>
-
-      <footer className="footer">
-        <div className="footer-inner">
-          <span>© Interoperability Maturity Lab</span>
-          <span>Health first. Trustworthy information. Interoperability as path.</span>
+          <div className="metric-grid two-up top-gap-small">
+            <MetricCard symbol="5L" title="Interoperability" value="5 layers" subtitle="Technical, semantic, organisational, institutional, and clinical/public health." />
+            <MetricCard symbol="6D" title="Assessment" value="6 domains" subtitle="A health-oriented maturity profile rather than a technological inventory." />
+          </div>
         </div>
-      </footer>
+        <Card className="overview-card">
+          <div className="overview-top">
+            <LogoMark />
+            <div>
+              <div className="eyebrow">Interoperability Maturity Lab</div>
+              <div className="overview-title">From information to better health</div>
+            </div>
+          </div>
+          <div className="tile-grid three-up">
+            {[
+              ["Health Information Ecosystems", "The ecosystem, not an isolated application, is the principal unit of analysis."],
+              ["AMR / BMR demonstrator", "UTI and multidrug-resistant E. coli provide the first operational thread."],
+              ["Human responsibility", "AI may assist analysis and learning, but responsibility remains human."],
+            ].map(([title, text]) => (
+              <div key={title} className="mini-tile">
+                <div className="mini-tile-title">{title}</div>
+                <div className="mini-tile-text">{text}</div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+    </section>
+  );
+}
+
+function MethodologyPage() {
+  const domains = [
+    { title: "Governance and Standards", symbol: "GOV", text: "Shared responsibilities, standards, legal clarity and accountable ecosystem governance." },
+    { title: "Technical Interoperability", symbol: "TEC", text: "Secure, reliable and maintainable exchange across heterogeneous systems." },
+    { title: "Identity, Consent and Trust", symbol: "ID", text: "Reliable identification, appropriate consent, provenance and confidence in information." },
+    { title: "Adoption and Use", symbol: "USE", text: "Practical integration into clinical, organisational and public health workflows." },
+    { title: "Security and Resilience", symbol: "SEC", text: "Protection, availability, recovery, traceability and continuity under disruption." },
+    { title: "Feedback, Correction and Learning", symbol: "LRN", text: "Correction pathways, feedback loops, evaluation and institutional learning." },
+  ];
+
+  return (
+    <section className="section">
+      <div className="container">
+        <SectionTitle badge="IML Framework" title="A maturity framework for improvement, not ranking" text="Assessment should answer three questions: where are we today, what should improve next, and how will progress be measured?" />
+        <div className="tile-grid three-up">
+          {domains.map((pillar) => (
+            <Card key={pillar.title} className="value-card">
+              <div className="metric-symbol">{pillar.symbol}</div>
+              <h3>{pillar.title}</h3>
+              <p>{pillar.text}</p>
+            </Card>
+          ))}
+        </div>
+        <div className="split-grid top-gap">
+          <Card className="soft-card">
+            <div className="content-block">
+              <h3>Five interacting layers</h3>
+              <ul className="compact-list">
+                <li><strong>Technical:</strong> can systems exchange information securely and reliably?</li>
+                <li><strong>Semantic:</strong> is meaning preserved across systems and contexts?</li>
+                <li><strong>Organisational:</strong> do workflows and responsibilities support action?</li>
+                <li><strong>Institutional:</strong> are institutions ready and willing to collaborate?</li>
+                <li><strong>Clinical and public health:</strong> does information improve care, prevention, surveillance or learning?</li>
+              </ul>
+            </div>
+          </Card>
+          <Card className="soft-card">
+            <div className="content-block">
+              <h3>Cross-cutting dimensions</h3>
+              <ul className="compact-list">
+                <li><strong>Institutional Engagement</strong> examines practical responsiveness and collaboration.</li>
+                <li><strong>Payer Interoperability</strong> recognises public and private financing actors as part of the ecosystem.</li>
+                <li><strong>AI Readiness</strong> examines whether information is trustworthy enough for responsible AI-assisted use.</li>
+              </ul>
+            </div>
+          </Card>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Id4dPage() {
+  return (
+    <section className="section">
+      <div className="container">
+        <SectionTitle badge="Identity infrastructure" title="Identity, consent and trust across fragmented systems" text="Identity is an enabling layer for continuity, accountability and appropriate access. It is not the whole of interoperability." />
+        <Card className="soft-card">
+          <div className="content-block">
+            <h3>A federated interoperability identifier</h3>
+            <p>IML explores a shared logical identifier that could help heterogeneous clinical, laboratory, pharmacy and administrative systems recognise the same person, professional or organisation. The proposal is designed to coexist with national and local identifiers rather than replace them.</p>
+            <div className="code-box mono">IML1-S-DDMMYYYY-GEO4-HASH-CC</div>
+            <p><strong>IML proposal:</strong> the identifier would require scientific validation, privacy assessment, transparent governance, correction procedures and safeguards against exclusion or misuse before any operational implementation.</p>
+            <p className="small-text">
+              <strong>IML1</strong>: algorithm version • <strong>S</strong>: sex • <strong>DDMMYYYY</strong>: date of birth • <strong>GEO4</strong>: standardised geographic code • <strong>HASH</strong>: one-way cryptographic hash generated from normalised demographic attributes • <strong>CC</strong>: checksum for integrity verification.
+            </p>
+          </div>
+        </Card>
+      </div>
+    </section>
+  );
+}
+
+function EvaluationPage() {
+  return (
+    <section className="section">
+      <div className="container">
+        <SectionTitle badge="Operational pathway" title="From assessment to action" text="IML connects maturity assessment with concrete clinical and public health problems, while remaining independent of any particular vendor or platform." />
+        <div className="tile-grid three-up">
+          <Card className="value-card">
+            <div className="metric-symbol">AMR</div>
+            <h3>AMR / BMR demonstrator</h3>
+            <p>A resistant isolate is not necessarily a clinically meaningful infection. The first IML demonstrator links microbiology with symptoms, diagnosis, treatment, outcomes and public health learning, beginning with UTI and multidrug-resistant <em>E. coli</em>.</p>
+          </Card>
+          <Card className="value-card">
+            <div className="metric-symbol">OCW</div>
+            <h3>Open Clinical Workspace</h3>
+            <p>Not another electronic health record. The proposed workspace is a vendor-neutral implementation bridge using open standards, import on demand, clinical context, auditability and modular services.</p>
+          </Card>
+          <Card className="value-card">
+            <div className="metric-symbol">Q</div>
+            <h3>Technology quality in health</h3>
+            <p>Operating systems and databases are examined through health-relevant criteria such as reliability, security, resilience, maintainability, traceability, portability, recovery and long-term continuity, never through vendor preference.</p>
+          </Card>
+        </div>
+        <Card className="soft-card top-gap">
+          <div className="content-block">
+            <h3>Clinical thread for the first demonstrator</h3>
+            <div className="stack-list">
+              <div className="list-box"><strong>1.</strong> Symptoms, fever and clinical context.</div>
+              <div className="list-box"><strong>2.</strong> Urine testing, culture, bacterial count and antibiogram.</div>
+              <div className="list-box"><strong>3.</strong> Clinical interpretation and retained diagnosis.</div>
+              <div className="list-box"><strong>4.</strong> Treatment, evolution and outcome.</div>
+              <div className="list-box"><strong>5.</strong> Aggregated surveillance, correction and shared learning.</div>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </section>
+  );
+}
+
+function WorldPage() {
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const options = useMemo(() => Object.keys(COUNTRIES).sort((a, b) => a.localeCompare(b)), []);
+
+  return (
+    <section className="section">
+      <div className="container">
+        <SectionTitle badge="Exploratory country notes" title="Maturity profiles, not country rankings" text="The current country notes are illustrative working material. They are not formal IML assessments and should be refined through evidence review and local expertise." />
+        <Card className="soft-card">
+          <div className="content-block">
+            <h3>How to read a country profile</h3>
+            <div className="tile-grid">
+              {[
+                { title: "Evidence", text: "Document the sources, their date, scope and level of confidence." },
+                { title: "Context", text: "Interpret maturity within the legal, institutional, economic and clinical environment." },
+                { title: "Profile", text: "Show strengths and weaknesses across the six domains without reducing the ecosystem to a league table." },
+                { title: "Pathway", text: "Identify the next realistic improvement and the evidence needed to measure progress." },
+              ].map((item) => (
+                <div key={item.title} className="mini-tile">
+                  <div className="mini-tile-title">{item.title}</div>
+                  <div className="mini-tile-text">{item.text}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+        <div className="select-wrap top-gap">
+          <label>Choose a country</label>
+          <select value={selectedCountry} onChange={(event) => setSelectedCountry(event.target.value)}>
+            <option value="">Choose a country</option>
+            {options.map((country) => <option key={country} value={country}>{country}</option>)}
+          </select>
+        </div>
+        <div className="top-gap">
+          <WorldMap selectedCountry={selectedCountry} onSelect={setSelectedCountry} />
+        </div>
+        {selectedCountry ? (
+          <div className="top-gap">
+            <CountryProfile selectedCountry={selectedCountry} />
+          </div>
+        ) : null}
+      </div>
+    </section>
+  );
+}
+
+function ContactPage() {
+  const [copied, setCopied] = useState(false);
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText("iml.health@pm.me");
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  return (
+    <section className="section">
+      <div className="container">
+        <SectionTitle badge="Open for scientific review" title="Scientific review and collaboration" text="IML welcomes methodological criticism, evidence review, clinical expertise, institutional perspectives and proposals for collaborative case studies." />
+        <div className="split-grid profile-grid">
+          <Card>
+            <div className="content-block">
+              <h3>Contact form</h3>
+              <form className="contact-form" action={CONTACT_FORM_ACTION} method="POST">
+                <input type="hidden" name="subject" value="IML scientific review or collaboration" />
+                <div className="form-grid">
+                  <label>Name<input name="name" placeholder="Your name" required /></label>
+                  <label>Email<input name="email" placeholder="name@organisation.org" type="email" required /></label>
+                </div>
+                <label>Organisation<input name="organisation" placeholder="University, health authority, clinical service, payer, research group..." /></label>
+                <label>Message<textarea name="message" placeholder="Share a scientific comment, propose a review, or describe a possible collaboration." rows="6" required /></label>
+                <div className="form-actions">
+                  <button type="submit" className="primary-button">Send</button>
+                  <span className="form-note">Messages are sent through Formspree.</span>
+                </div>
+              </form>
+            </div>
+          </Card>
+          <div className="stack-layout">
+            <Card className="soft-card">
+              <div className="content-block">
+                <h3>Direct contact</h3>
+                <div className="mail-box">iml.health@pm.me</div>
+                <div className="form-actions top-gap-small">
+                  <button type="button" className="secondary-button" onClick={copyEmail}>Copy email</button>
+                  {copied ? <span className="form-note">Email copied.</span> : null}
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="footer">
+      <div className="container footer-grid">
+        <div>
+          <div className="footer-brand">
+            <LogoMark />
+            <div>
+              <div className="eyebrow">IML</div>
+              <div className="footer-title">Interoperability Maturity Lab</div>
+            </div>
+          </div>
+          <p className="footer-copy">Health is the objective. Trustworthy information is the foundation. Interoperability is the path.</p>
+        </div>
+        <div>
+          <div className="footer-label">Scientific status</div>
+          <p className="footer-copy">Independent, non-commercial and open for scientific review. IML creates maturity profiles and improvement pathways rather than country rankings.</p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+export default function App() {
+  const getHash = () => {
+    if (typeof window === "undefined") return "home";
+    const hash = window.location.hash.replace("#", "").trim();
+    return ROUTES.some((route) => route.key === hash) ? hash : "home";
+  };
+
+  const [route, setRoute] = useState(getHash);
+
+  useEffect(() => {
+    assertDataIntegrity();
+  }, []);
+
+  useEffect(() => {
+    const sync = () => setRoute(getHash());
+    window.addEventListener("hashchange", sync);
+    return () => window.removeEventListener("hashchange", sync);
+  }, []);
+
+  const goTo = (key) => {
+    if (typeof window !== "undefined") {
+      window.location.hash = key;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    setRoute(key);
+  };
+
+  return (
+    <div className="app-shell">
+      <style>{styles}</style>
+      <header className="topbar">
+        <div className="container topbar-inner">
+          <button type="button" className="brand-button" onClick={() => goTo("home")}>
+            <LogoMark />
+            <div>
+              <div className="eyebrow">IML</div>
+              <div className="brand-title">Interoperability Maturity Lab</div>
+            </div>
+          </button>
+          <nav className="topnav desktop-nav">
+            {ROUTES.map((item) => (
+              <NavButton key={item.key} active={route === item.key} onClick={() => goTo(item.key)}>
+                {item.label}
+              </NavButton>
+            ))}
+          </nav>
+        </div>
+        <div className="container mobile-nav">
+          {ROUTES.map((item) => (
+            <NavButton key={item.key} active={route === item.key} onClick={() => goTo(item.key)}>
+              {item.label}
+            </NavButton>
+          ))}
+        </div>
+      </header>
+      <main>
+        {route === "home" ? <HomePage /> : null}
+        {route === "id4d" ? <Id4dPage /> : null}
+        {route === "evaluation" ? <EvaluationPage /> : null}
+        {route === "methodology" ? <MethodologyPage /> : null}
+        {route === "world" ? <WorldPage /> : null}
+        {route === "contact" ? <ContactPage /> : null}
+      </main>
+      <Footer />
     </div>
   );
 }
