@@ -642,10 +642,12 @@ function WorldPage() {
 }
 
 function ContactPage() {
+  const email = "iml.health@pm.me";
   const [copied, setCopied] = useState(false);
+
   const copyEmail = async () => {
     try {
-      await navigator.clipboard.writeText("iml.health@pm.me");
+      await navigator.clipboard.writeText(email);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
@@ -653,38 +655,57 @@ function ContactPage() {
     }
   };
 
+  const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(
+    "IML scientific review or collaboration"
+  )}`;
+
   return (
     <section className="section">
       <div className="container">
-        <SectionTitle badge="Open for scientific review" title="Scientific review and collaboration" text="IML welcomes methodological criticism, evidence review, clinical expertise, institutional perspectives and proposals for collaborative case studies." />
+        <SectionTitle
+          badge="Open for scientific review"
+          title="Scientific review and collaboration"
+          text="IML welcomes methodological criticism, evidence review, clinical expertise, institutional perspectives and proposals for collaborative case studies."
+        />
         <div className="split-grid profile-grid">
           <Card>
             <div className="content-block">
-              <h3>Contact form</h3>
-              <form className="contact-form" action={CONTACT_FORM_ACTION} method="POST">
-                <input type="hidden" name="subject" value="IML scientific review or collaboration" />
-                <div className="form-grid">
-                  <label>Name<input name="name" placeholder="Your name" required /></label>
-                  <label>Email<input name="email" placeholder="name@organisation.org" type="email" required /></label>
-                </div>
-                <label>Organisation<input name="organisation" placeholder="University, health authority, clinical service, payer, research group..." /></label>
-                <label>Message<textarea name="message" placeholder="Share a scientific comment, propose a review, or describe a possible collaboration." rows="6" required /></label>
-                <div className="form-actions">
-                  <button type="submit" className="primary-button">Send</button>
-                  <span className="form-note">Messages are sent through Formspree.</span>
-                </div>
-              </form>
+              <h3>Direct contact</h3>
+              <p>
+                For scientific review, collaboration or questions about the
+                framework, contact IML directly by email.
+              </p>
+              <div className="mail-box">
+                <a className="text-link" href={`mailto:${email}`}>
+                  {email}
+                </a>
+              </div>
+              <div className="form-actions top-gap-small">
+                <a className="primary-button" href={mailtoLink}>
+                  Send email
+                </a>
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={copyEmail}
+                >
+                  Copy email
+                </button>
+              </div>
+              {copied ? (
+                <p className="form-note top-gap-small">Email copied.</p>
+              ) : null}
             </div>
           </Card>
           <div className="stack-layout">
             <Card className="soft-card">
               <div className="content-block">
-                <h3>Direct contact</h3>
-                <div className="mail-box">iml.health@pm.me</div>
-                <div className="form-actions top-gap-small">
-                  <button type="button" className="secondary-button" onClick={copyEmail}>Copy email</button>
-                  {copied ? <span className="form-note">Email copied.</span> : null}
-                </div>
+                <h3>Scientific contributions</h3>
+                <p>
+                  Messages may concern methodology, evidence review, clinical
+                  or public health use cases, institutional collaboration,
+                  payer interoperability or responsible AI.
+                </p>
               </div>
             </Card>
           </div>
