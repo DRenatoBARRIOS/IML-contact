@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import manuscriptPdf from "./IML_Founding_Manuscript_Alpha_0.2.6.pdf";
 
 const styles = `
   :root {
@@ -99,6 +100,16 @@ const styles = `
   .footer-title { font-size: 14px; color: #334155; }
   .footer-label { margin-bottom: 12px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em; color: #64748b; font-weight: 800; }
   .plain-list { margin: 0; padding: 0; list-style: none; }
+
+  .button-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 22px; }
+  .primary-button, .secondary-button { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+  .text-link { color: #0f172a; font-weight: 800; text-decoration: underline; text-decoration-color: #cbd5e1; text-underline-offset: 4px; }
+  .text-link:hover { text-decoration-color: #0f172a; }
+  .principle-stack { display: grid; gap: 10px; margin-top: 22px; }
+  .principle-line { border-left: 3px solid #0f172a; padding: 4px 0 4px 14px; font-size: 16px; font-weight: 700; color: #334155; }
+  .compact-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; color: #475569; }
+  .compact-list li { line-height: 1.65; }
+  .status-pill { display: inline-flex; align-items: center; border-radius: 999px; background: #f1f5f9; color: #334155; padding: 7px 11px; font-size: 12px; font-weight: 800; }
   @media (max-width: 1100px) {
     .hero-grid, .split-grid, .footer-grid, .profile-grid, .metric-grid.two-up, .tile-grid, .tile-grid.three-up, .form-grid { grid-template-columns: 1fr; }
     .helper-pill { display: none; }
@@ -113,31 +124,32 @@ const styles = `
 `;
 
 const CONTACT_FORM_ACTION = "https://formspree.io/f/xzdorore";
+const MANUSCRIPT_URL = manuscriptPdf;
 const ROUTES = [
   { key: "home", label: "Home" },
-  { key: "id4d", label: "ID4D Framework" },
-  { key: "evaluation", label: "Evaluation and regulatory shifts" },
+  { key: "id4d", label: "Identity & Trust" },
+  { key: "evaluation", label: "From assessment to action" },
   { key: "methodology", label: "Methodology" },
   { key: "world", label: "World Map" },
-  { key: "contact", label: "Contact" },
+  { key: "contact", label: "Scientific Review" },
 ];
-const AXES = ["Standards", "Connectivity", "Identity", "Adoption", "Security", "Correction"];
+const AXES = ["Governance", "Technical", "Identity", "Adoption", "Security", "Learning"];
 
 const COUNTRIES = {
-  Argentina: { score: 76, subtitle: "Nationally coordinated digital-health trajectory built around shared records and distributed interoperability.", values: [78, 74, 72, 77, 73, 63], strengths: ["National interoperability strategy", "Distributed shared health-record model", "Legal framework for electronic clinical records"], watch: ["Operational maturity varies across jurisdictions", "Implementation depends on provincial adoption", "Correction capacity remains uneven"] },
-  Brazil: { score: 82, subtitle: "Large-scale interoperability effort centred on RNDS, SUS Digital and citizen-facing access.", values: [84, 85, 76, 80, 81, 67], strengths: ["RNDS platform", "Meu SUS Digital", "Nationwide SUS Digital adhesion"], watch: ["Federal complexity", "Uneven local implementation", "Less visible correction layer"] },
-  Canada: { score: 73, subtitle: "Strong policy vision, but constrained by a multi-jurisdictional landscape and uneven implementation.", values: [71, 76, 68, 74, 77, 58], strengths: ["Pan-Canadian roadmap", "Strong digital health policy capacity", "Connected care priorities"], watch: ["Jurisdictional fragmentation", "Variable implementation maturity", "Coordination complexity"] },
-  China: { score: 72, subtitle: "Large-scale state-led digital health environment with strong deployment capacity, but more limited transparency on interoperability quality, recourse and practical correction pathways.", values: [74, 76, 70, 73, 71, 45], strengths: ["Large-scale public digital infrastructure", "Strong administrative steering capacity", "Platform-scale deployment potential"], watch: ["Public transparency on interoperability maturity remains more limited than in some peer systems", "Patient-facing correction and redress pathways are harder to read from open documentation", "Cross-actor trust and real-world continuity are more difficult to assess than infrastructure scale alone"] },
-  France: { score: 55, subtitle: "France combines strong identity and doctrinal foundations with comparatively weak real-world interoperability: connectivity remains concentrated in institutional corridors, DMP feeding is irregular, and correction mechanisms remain largely formal rather than operational.", values: [66, 45, 82, 42, 80, 15], strengths: ["INS identity layer", "Pro Santé Connect", "CI-SIS doctrine"], watch: ["Connectivity remains concentrated in state-centred channels", "DMP and Mon espace santé feeding remain irregular", "Correction and redress remain slow, opaque and frequently ineffective"] },
-  Guatemala: { score: 52, subtitle: "Foundational identity system exists, but health-sector integration remains comparatively early and uneven.", values: [54, 46, 62, 43, 55, 33], strengths: ["RENAP registry", "RENAP-MSPAS coordination", "Digital transformation agenda"], watch: ["Early-stage health interoperability", "Limited linkage to care pathways", "Weak ecosystem-wide correction loops"] },
-  India: { score: 79, subtitle: "Large digital-health identity ecosystem built around ABDM, ABHA and structured registries.", values: [80, 81, 86, 74, 79, 61], strengths: ["ABHA", "Health Facility Registry", "Provider Registry"], watch: ["Uneven state-level implementation", "Scale and diversity", "Less legible correction capacity"] },
-  Japan: { score: 84, subtitle: "Mature identity-linked health access environment combined with strong regulatory data infrastructure.", values: [82, 85, 88, 79, 86, 67], strengths: ["My Number health linkage", "Identity-linked access", "MID-NET"], watch: ["Governance and trust management", "Not all domains move at same speed", "Correction separate from maturity"] },
-  Morocco: { score: 55, subtitle: "Ecosystem in transition supported by broader digital transformation, still needing stronger convergence between identity and health interoperability.", values: [58, 49, 52, 61, 56, 34], strengths: ["Digital Morocco 2030", "National ID-based authentication", "State modernization potential"], watch: ["Health interoperability less visible", "Identity and care pathways require tighter integration", "Correction still maturing"] },
-  "New Zealand": { score: 83, subtitle: "Longstanding health-identity environment built around the National Health Index and broad operational use.", values: [81, 82, 90, 77, 84, 66], strengths: ["National Health Index", "Broad cross-setting use", "Clear identity governance"], watch: ["Identity does not equal full interoperability everywhere", "Connected systems still matter", "Correction remains distinct"] },
-  Senegal: { score: 57, subtitle: "Promising but uneven trajectory combining digital economy reforms, identity advances and health-system strengthening.", values: [60, 52, 57, 58, 51, 36], strengths: ["Biometric identity framework", "Digital economy reforms", "Health information-system strengthening"], watch: ["Health interoperability not yet as visible", "Identity-health integration remains partial", "Less documented feedback mechanisms"] },
-  Sweden: { score: 88, subtitle: "Strong medication-centred digital health ecosystem combining e-prescriptions, a national medication list and strict identity safeguards.", values: [86, 90, 84, 85, 92, 70], strengths: ["High e-prescription adoption", "National Medication List", "Strong identity and authorisation requirements"], watch: ["Correction requires governance beyond access control", "Strengths clearer in medicines than every domain", "Feedback channels still matter"] },
-  Tanzania: { score: 67, subtitle: "Structured digital-health trajectory with formal strategy, enterprise architecture and registry ambitions.", values: [69, 70, 61, 68, 63, 55], strengths: ["Digital health strategy", "Center for Digital Health", "Enterprise architecture"], watch: ["Implementation varies across facilities", "Continuity across full care path remains work in progress", "Correction less visible than architecture ambitions"] },
-  "United States": { score: 80, subtitle: "Nationally significant but heterogeneous environment, combining a federal governance floor with major state-level and network-level variation.", values: [82, 83, 72, 76, 84, 63], strengths: ["TEFCA", "USCDI", "Strong federal policy capacity"], watch: ["Major local variation", "Federal floor does not erase disparities", "State-specific reading still needed"] },
+  Argentina: { subtitle: "Nationally coordinated digital-health trajectory built around shared records and distributed interoperability.", values: [78, 74, 72, 77, 73, 63], strengths: ["National interoperability strategy", "Distributed shared health-record model", "Legal framework for electronic clinical records"], watch: ["Operational maturity varies across jurisdictions", "Implementation depends on provincial adoption", "Correction capacity remains uneven"] },
+  Brazil: { subtitle: "Large-scale interoperability effort centred on RNDS, SUS Digital and citizen-facing access.", values: [84, 85, 76, 80, 81, 67], strengths: ["RNDS platform", "Meu SUS Digital", "Nationwide SUS Digital adhesion"], watch: ["Federal complexity", "Uneven local implementation", "Less visible correction layer"] },
+  Canada: { subtitle: "Strong policy vision, but constrained by a multi-jurisdictional landscape and uneven implementation.", values: [71, 76, 68, 74, 77, 58], strengths: ["Pan-Canadian roadmap", "Strong digital health policy capacity", "Connected care priorities"], watch: ["Jurisdictional fragmentation", "Variable implementation maturity", "Coordination complexity"] },
+  China: { subtitle: "Large-scale state-led digital health environment with strong deployment capacity, but more limited transparency on interoperability quality, recourse and practical correction pathways.", values: [74, 76, 70, 73, 71, 45], strengths: ["Large-scale public digital infrastructure", "Strong administrative steering capacity", "Platform-scale deployment potential"], watch: ["Public transparency on interoperability maturity remains more limited than in some peer systems", "Patient-facing correction and redress pathways are harder to read from open documentation", "Cross-actor trust and real-world continuity are more difficult to assess than infrastructure scale alone"] },
+  France: { subtitle: "France combines strong identity and doctrinal foundations with comparatively weak real-world interoperability: connectivity remains concentrated in institutional corridors, DMP feeding is irregular, and correction mechanisms remain largely formal rather than operational.", values: [66, 45, 82, 42, 80, 15], strengths: ["INS identity layer", "Pro Santé Connect", "CI-SIS doctrine"], watch: ["Connectivity remains concentrated in state-centred channels", "DMP and Mon espace santé feeding remain irregular", "Correction and redress remain slow, opaque and frequently ineffective"] },
+  Guatemala: { subtitle: "Foundational identity system exists, but health-sector integration remains comparatively early and uneven.", values: [54, 46, 62, 43, 55, 33], strengths: ["RENAP registry", "RENAP-MSPAS coordination", "Digital transformation agenda"], watch: ["Early-stage health interoperability", "Limited linkage to care pathways", "Weak ecosystem-wide correction loops"] },
+  India: { subtitle: "Large digital-health identity ecosystem built around ABDM, ABHA and structured registries.", values: [80, 81, 86, 74, 79, 61], strengths: ["ABHA", "Health Facility Registry", "Provider Registry"], watch: ["Uneven state-level implementation", "Scale and diversity", "Less legible correction capacity"] },
+  Japan: { subtitle: "Mature identity-linked health access environment combined with strong regulatory data infrastructure.", values: [82, 85, 88, 79, 86, 67], strengths: ["My Number health linkage", "Identity-linked access", "MID-NET"], watch: ["Governance and trust management", "Not all domains move at same speed", "Correction separate from maturity"] },
+  Morocco: { subtitle: "Ecosystem in transition supported by broader digital transformation, still needing stronger convergence between identity and health interoperability.", values: [58, 49, 52, 61, 56, 34], strengths: ["Digital Morocco 2030", "National ID-based authentication", "State modernization potential"], watch: ["Health interoperability less visible", "Identity and care pathways require tighter integration", "Correction still maturing"] },
+  "New Zealand": { subtitle: "Longstanding health-identity environment built around the National Health Index and broad operational use.", values: [81, 82, 90, 77, 84, 66], strengths: ["National Health Index", "Broad cross-setting use", "Clear identity governance"], watch: ["Identity does not equal full interoperability everywhere", "Connected systems still matter", "Correction remains distinct"] },
+  Senegal: { subtitle: "Promising but uneven trajectory combining digital economy reforms, identity advances and health-system strengthening.", values: [60, 52, 57, 58, 51, 36], strengths: ["Biometric identity framework", "Digital economy reforms", "Health information-system strengthening"], watch: ["Health interoperability not yet as visible", "Identity-health integration remains partial", "Less documented feedback mechanisms"] },
+  Sweden: { subtitle: "Strong medication-centred digital health ecosystem combining e-prescriptions, a national medication list and strict identity safeguards.", values: [86, 90, 84, 85, 92, 70], strengths: ["High e-prescription adoption", "National Medication List", "Strong identity and authorisation requirements"], watch: ["Correction requires governance beyond access control", "Strengths clearer in medicines than every domain", "Feedback channels still matter"] },
+  Tanzania: { subtitle: "Structured digital-health trajectory with formal strategy, enterprise architecture and registry ambitions.", values: [69, 70, 61, 68, 63, 55], strengths: ["Digital health strategy", "Center for Digital Health", "Enterprise architecture"], watch: ["Implementation varies across facilities", "Continuity across full care path remains work in progress", "Correction less visible than architecture ambitions"] },
+  "United States": { subtitle: "Nationally significant but heterogeneous environment, combining a federal governance floor with major state-level and network-level variation.", values: [82, 83, 72, 76, 84, 63], strengths: ["TEFCA", "USCDI", "Strong federal policy capacity"], watch: ["Major local variation", "Federal floor does not erase disparities", "State-specific reading still needed"] },
 };
 
 const MARKERS = [
@@ -293,7 +305,7 @@ function WorldTooltip({ marker, country, onEnter, onLeave }) {
       <div className="map-tooltip">
         <div className="map-tooltip-top">
           <div className="map-tooltip-title">{marker.name}</div>
-          <div className="map-tooltip-score">{country.score}%</div>
+          <div className="map-tooltip-score">Working profile</div>
         </div>
         <HexagonChart values={country.values} small />
       </div>
@@ -333,10 +345,10 @@ function WorldMap({ selectedCountry, onSelect }) {
     <div className="world-box">
       <div className="world-box-head">
         <div>
-          <div className="eyebrow">Global coverage in progress</div>
-          <div className="overview-title">Interactive world review map</div>
+          <div className="eyebrow">Exploratory review in progress</div>
+          <div className="overview-title">Interactive maturity profiles</div>
         </div>
-        <div className="helper-pill">Hover a marker to preview the country hexagon. The full note updates below.</div>
+        <div className="helper-pill">Hover a marker to preview a working profile. Select a country to read the full note.</div>
       </div>
       <div className="world-map-wrap">
         <svg viewBox="0 0 900 430" className="world-map" aria-label="Interactive world map">
@@ -390,7 +402,7 @@ function CountryProfile({ selectedCountry }) {
         <div className="content-block">
           <div className="profile-head">
             <h3>{selectedCountry}</h3>
-            <div className="score-pill">Score {selected.score}/100</div>
+            <div className="score-pill">Exploratory profile</div>
           </div>
           <p className="muted-copy">{selected.subtitle}</p>
           <HexagonChart values={selected.values} />
@@ -423,26 +435,40 @@ function HomePage() {
     <section className="hero">
       <div className="container hero-grid">
         <div className="hero-copy">
-          <h1>The framework that makes interoperability maturity visible, comparable and governable.</h1>
-          <p className="hero-text">IML provides a publication-ready framework for assessing health systems, exchange architectures, identity layers and real-world deployment capacity.</p>
+          <div className="section-badge">Open for scientific review</div>
+          <h1>A scientific framework for trusted Health Information Ecosystems.</h1>
+          <div className="principle-stack" aria-label="IML founding principles">
+            <div className="principle-line">Health is the objective.</div>
+            <div className="principle-line">Trustworthy information is the foundation.</div>
+            <div className="principle-line">Interoperability is the path.</div>
+          </div>
+          <p className="hero-text">IML helps researchers, clinicians, institutions, engineers, payers and public decision-makers understand, assess and progressively improve the ecosystems through which health information is generated, trusted, exchanged and used.</p>
           <Card className="note-box">
-            <p>Interoperability maturity depends on how identity, governance, trust, deployment and correction capacity reinforce one another in practice.</p>
+            <p>IML does not rank countries. It creates maturity profiles, identifies weaknesses in information continuity and supports practical improvement pathways.</p>
           </Card>
-          <div className="metric-grid two-up">
-            <MetricCard symbol="6X" title="Assessment model" value="6 criteria" subtitle="Standards, connectivity, identity, adoption, security and correction." />
-            <MetricCard symbol="ID" title="Critical layer" value="Identity & trust" subtitle="The seam between interoperability and confidence." />
+          <div className="button-row">
+            <a className="primary-button" href={MANUSCRIPT_URL} download>Download the Founding Manuscript</a>
+            <a className="secondary-button" href="#methodology">Explore the framework</a>
+          </div>
+          <div className="metric-grid two-up top-gap-small">
+            <MetricCard symbol="5L" title="Interoperability" value="5 layers" subtitle="Technical, semantic, organisational, institutional, and clinical/public health." />
+            <MetricCard symbol="6D" title="Assessment" value="6 domains" subtitle="A health-oriented maturity profile rather than a technological inventory." />
           </div>
         </div>
         <Card className="overview-card">
           <div className="overview-top">
             <LogoMark />
             <div>
-              <div className="eyebrow">Institutional overview</div>
-              <div className="overview-title">Publication-ready structure</div>
+              <div className="eyebrow">Interoperability Maturity Lab</div>
+              <div className="overview-title">From information to better health</div>
             </div>
           </div>
           <div className="tile-grid three-up">
-            {[["Scoring", "A readable maturity score anchored in six criteria."], ["Benchmarks", "Country profiles that quickly open strategic discussion."], ["ID4D", "A trust and inclusion lens for identity-enabled public infrastructure."]].map(([title, text]) => (
+            {[
+              ["Health Information Ecosystems", "The ecosystem, not an isolated application, is the principal unit of analysis."],
+              ["AMR / BMR demonstrator", "UTI and multidrug-resistant E. coli provide the first operational thread."],
+              ["Human responsibility", "AI may assist analysis and learning, but responsibility remains human."],
+            ].map(([title, text]) => (
               <div key={title} className="mini-tile">
                 <div className="mini-tile-title">{title}</div>
                 <div className="mini-tile-text">{text}</div>
@@ -456,18 +482,51 @@ function HomePage() {
 }
 
 function MethodologyPage() {
+  const domains = [
+    { title: "Governance and Standards", symbol: "GOV", text: "Shared responsibilities, standards, legal clarity and accountable ecosystem governance." },
+    { title: "Technical Interoperability", symbol: "TEC", text: "Secure, reliable and maintainable exchange across heterogeneous systems." },
+    { title: "Identity, Consent and Trust", symbol: "ID", text: "Reliable identification, appropriate consent, provenance and confidence in information." },
+    { title: "Adoption and Use", symbol: "USE", text: "Practical integration into clinical, organisational and public health workflows." },
+    { title: "Security and Resilience", symbol: "SEC", text: "Protection, availability, recovery, traceability and continuity under disruption." },
+    { title: "Feedback, Correction and Learning", symbol: "LRN", text: "Correction pathways, feedback loops, evaluation and institutional learning." },
+  ];
+
   return (
     <section className="section">
       <div className="container">
-        <SectionTitle badge="" title="A framework that is simple to read and strong enough to defend" text="IML combines six assessment dimensions, a maturity score and comparative country notes." />
+        <SectionTitle badge="IML Framework" title="A maturity framework for improvement, not ranking" text="Assessment should answer three questions: where are we today, what should improve next, and how will progress be measured?" />
         <div className="tile-grid three-up">
-          {[{ title: "Governance & Standards", symbol: "GV", text: "Institutional ownership, legal frameworks and national steering capacity." }, { title: "Technical Interoperability", symbol: "IO", text: "Exchange models, APIs, semantics and architecture coherence." }, { title: "Identity & Trust", symbol: "ID", text: "Identity matching, authentication, consent and trust services." }, { title: "Security", symbol: "SC", text: "Privacy safeguards, access control and traceability." }, { title: "Adoption", symbol: "AD", text: "Operational rollout, user uptake and workflow integration." }, { title: "Correction & Feedback", symbol: "CF", text: "Redress, correction and institutional learning from failures." }].map((pillar) => (
+          {domains.map((pillar) => (
             <Card key={pillar.title} className="value-card">
               <div className="metric-symbol">{pillar.symbol}</div>
               <h3>{pillar.title}</h3>
               <p>{pillar.text}</p>
             </Card>
           ))}
+        </div>
+        <div className="split-grid top-gap">
+          <Card className="soft-card">
+            <div className="content-block">
+              <h3>Five interacting layers</h3>
+              <ul className="compact-list">
+                <li><strong>Technical:</strong> can systems exchange information securely and reliably?</li>
+                <li><strong>Semantic:</strong> is meaning preserved across systems and contexts?</li>
+                <li><strong>Organisational:</strong> do workflows and responsibilities support action?</li>
+                <li><strong>Institutional:</strong> are institutions ready and willing to collaborate?</li>
+                <li><strong>Clinical and public health:</strong> does information improve care, prevention, surveillance or learning?</li>
+              </ul>
+            </div>
+          </Card>
+          <Card className="soft-card">
+            <div className="content-block">
+              <h3>Cross-cutting dimensions</h3>
+              <ul className="compact-list">
+                <li><strong>Institutional Engagement</strong> examines practical responsiveness and collaboration.</li>
+                <li><strong>Payer Interoperability</strong> recognises public and private financing actors as part of the ecosystem.</li>
+                <li><strong>AI Readiness</strong> examines whether information is trustworthy enough for responsible AI-assisted use.</li>
+              </ul>
+            </div>
+          </Card>
         </div>
       </div>
     </section>
@@ -478,26 +537,16 @@ function Id4dPage() {
   return (
     <section className="section">
       <div className="container">
-
-        
-        
-        
-        
-        <SectionTitle badge="Identity infrastructure" title="Positioning IML in alignment with the ID4D approach" text="Identity is treated as an enabling public infrastructure layer for access, trust and accountability." />
+        <SectionTitle badge="Identity infrastructure" title="Identity, consent and trust across fragmented systems" text="Identity is an enabling layer for continuity, accountability and appropriate access. It is not the whole of interoperability." />
         <Card className="soft-card">
           <div className="content-block">
-            <h3>Identity and trust as a public infrastructure layer</h3>
-            <p>Digital identity is more than a secure authentication mechanism. In a fragmented healthcare ecosystem, it provides the foundation for creating a common interoperability identifier capable of linking information originating from heterogeneous clinical, laboratory, pharmacy and administrative systems. Rather than replacing existing national or local identifiers or requiring a single software platform, the proposed IML approach is based on a federated identity model that generates a shared interoperability identifier through standardized identity matching, trusted governance and interoperability standards. This logical identifier acts as a bridge between heterogeneous information systems, enabling them to recognize the same patient, healthcare professional or organization while preserving existing infrastructures and workflows. By providing this common identification layer, health systems can harmonize data, reduce duplicate records, improve data quality, and support secure information exchange across institutions, regions and countries without replacing existing systems.
-</p>
+            <h3>A federated interoperability identifier</h3>
+            <p>IML explores a shared logical identifier that could help heterogeneous clinical, laboratory, pharmacy and administrative systems recognise the same person, professional or organisation. The proposal is designed to coexist with national and local identifiers rather than replace them.</p>
             <div className="code-box mono">IML1-S-DDMMYYYY-GEO4-HASH-CC</div>
+            <p><strong>IML proposal:</strong> the identifier would require scientific validation, privacy assessment, transparent governance, correction procedures and safeguards against exclusion or misuse before any operational implementation.</p>
             <p className="small-text">
-  <strong>IML1</strong>: algorithm version •
-  <strong>S</strong>: sex •
-  <strong>DDMMYYYY</strong>: date of birth •
-  <strong>GEO4</strong>: standardized geographic code •
-  <strong>HASH</strong>: one-way cryptographic hash generated from normalized demographic attributes •
-  <strong>CC</strong>: checksum for integrity verification.
-</p>
+              <strong>IML1</strong>: algorithm version • <strong>S</strong>: sex • <strong>DDMMYYYY</strong>: date of birth • <strong>GEO4</strong>: standardised geographic code • <strong>HASH</strong>: one-way cryptographic hash generated from normalised demographic attributes • <strong>CC</strong>: checksum for integrity verification.
+            </p>
           </div>
         </Card>
       </div>
@@ -509,15 +558,33 @@ function EvaluationPage() {
   return (
     <section className="section">
       <div className="container">
-        <SectionTitle badge="" title="Evaluation and regulatory shifts in an interoperable environment" text="Interoperability maturity affects clinical evaluation, long-term follow-up and regulatory decision-making." />
-        <Card className="soft-card">
+        <SectionTitle badge="Operational pathway" title="From assessment to action" text="IML connects maturity assessment with concrete clinical and public health problems, while remaining independent of any particular vendor or platform." />
+        <div className="tile-grid three-up">
+          <Card className="value-card">
+            <div className="metric-symbol">AMR</div>
+            <h3>AMR / BMR demonstrator</h3>
+            <p>A resistant isolate is not necessarily a clinically meaningful infection. The first IML demonstrator links microbiology with symptoms, diagnosis, treatment, outcomes and public health learning, beginning with UTI and multidrug-resistant <em>E. coli</em>.</p>
+          </Card>
+          <Card className="value-card">
+            <div className="metric-symbol">OCW</div>
+            <h3>Open Clinical Workspace</h3>
+            <p>Not another electronic health record. The proposed workspace is a vendor-neutral implementation bridge using open standards, import on demand, clinical context, auditability and modular services.</p>
+          </Card>
+          <Card className="value-card">
+            <div className="metric-symbol">Q</div>
+            <h3>Technology quality in health</h3>
+            <p>Operating systems and databases are examined through health-relevant criteria such as reliability, security, resilience, maintainability, traceability, portability, recovery and long-term continuity, never through vendor preference.</p>
+          </Card>
+        </div>
+        <Card className="soft-card top-gap">
           <div className="content-block">
-            <h3>Illustrative progression scale</h3>
+            <h3>Clinical thread for the first demonstrator</h3>
             <div className="stack-list">
-              <div className="list-box"><strong>20%</strong> · Fragmented observation.</div>
-              <div className="list-box"><strong>40%</strong> · Partial visibility.</div>
-              <div className="list-box"><strong>60%</strong> · Structured follow-up.</div>
-              <div className="list-box"><strong>80%</strong> · Advanced continuity.</div>
+              <div className="list-box"><strong>1.</strong> Symptoms, fever and clinical context.</div>
+              <div className="list-box"><strong>2.</strong> Urine testing, culture, bacterial count and antibiogram.</div>
+              <div className="list-box"><strong>3.</strong> Clinical interpretation and retained diagnosis.</div>
+              <div className="list-box"><strong>4.</strong> Treatment, evolution and outcome.</div>
+              <div className="list-box"><strong>5.</strong> Aggregated surveillance, correction and shared learning.</div>
             </div>
           </div>
         </Card>
@@ -533,14 +600,19 @@ function WorldPage() {
   return (
     <section className="section">
       <div className="container">
-        <SectionTitle badge="Country notes" title="A growing global review rather than a closed country list" text="The countries currently included are illustrative, not exhaustive." />
+        <SectionTitle badge="Exploratory country notes" title="Maturity profiles, not country rankings" text="The current country notes are illustrative working material. They are not formal IML assessments and should be refined through evidence review and local expertise." />
         <Card className="soft-card">
           <div className="content-block">
-            <h3>Reading guide for score ranges</h3>
+            <h3>How to read a country profile</h3>
             <div className="tile-grid">
-              {[{ range: "0-39%", title: "Foundational stage", text: "Very limited interoperability maturity." }, { range: "40-59%", title: "Emerging stage", text: "A visible trajectory exists, but continuity remains uneven." }, { range: "60-79%", title: "Structured stage", text: "The system shows coherent architecture with meaningful deployment." }, { range: "80-100%", title: "Advanced stage", text: "Interoperability is broadly structured and operational." }].map((item) => (
-                <div key={item.range} className="mini-tile">
-                  <div className="mini-tile-title">{item.range} · {item.title}</div>
+              {[
+                { title: "Evidence", text: "Document the sources, their date, scope and level of confidence." },
+                { title: "Context", text: "Interpret maturity within the legal, institutional, economic and clinical environment." },
+                { title: "Profile", text: "Show strengths and weaknesses across the six domains without reducing the ecosystem to a league table." },
+                { title: "Pathway", text: "Identify the next realistic improvement and the evidence needed to measure progress." },
+              ].map((item) => (
+                <div key={item.title} className="mini-tile">
+                  <div className="mini-tile-title">{item.title}</div>
                   <div className="mini-tile-text">{item.text}</div>
                 </div>
               ))}
@@ -582,22 +654,22 @@ function ContactPage() {
   return (
     <section className="section">
       <div className="container">
-        <SectionTitle badge="" title="Editorial and institutional contact" text="For publication matters, country notes and methodological discussion, please use the form below or the direct contact details." />
+        <SectionTitle badge="Open for scientific review" title="Scientific review and collaboration" text="IML welcomes methodological criticism, evidence review, clinical expertise, institutional perspectives and proposals for collaborative case studies." />
         <div className="split-grid profile-grid">
           <Card>
             <div className="content-block">
               <h3>Contact form</h3>
               <form className="contact-form" action={CONTACT_FORM_ACTION} method="POST">
-                <input type="hidden" name="subject" value="IML website contact request" />
+                <input type="hidden" name="subject" value="IML scientific review or collaboration" />
                 <div className="form-grid">
                   <label>Name<input name="name" placeholder="Your name" required /></label>
                   <label>Email<input name="email" placeholder="name@organisation.org" type="email" required /></label>
                 </div>
-                <label>Organisation<input name="organisation" placeholder="Institution, ministry, donor, provider, insurer..." /></label>
-                <label>Message<textarea name="message" placeholder="Describe your request or the update you want to discuss." rows="6" required /></label>
+                <label>Organisation<input name="organisation" placeholder="University, health authority, clinical service, payer, research group..." /></label>
+                <label>Message<textarea name="message" placeholder="Share a scientific comment, propose a review, or describe a possible collaboration." rows="6" required /></label>
                 <div className="form-actions">
                   <button type="submit" className="primary-button">Send</button>
-                  <span className="form-note">Formspree HTML form. Preview does not send from this canvas, but the deployed site will post to Formspree.</span>
+                  <span className="form-note">Messages are sent through Formspree.</span>
                 </div>
               </form>
             </div>
@@ -611,6 +683,13 @@ function ContactPage() {
                   <button type="button" className="secondary-button" onClick={copyEmail}>Copy email</button>
                   {copied ? <span className="form-note">Email copied.</span> : null}
                 </div>
+              </div>
+            </Card>
+            <Card className="soft-card">
+              <div className="content-block">
+                <h3>Founding Manuscript</h3>
+                <p>Alpha 0.2.6, Database Quality. Open for scientific review.</p>
+                <a className="text-link" href={MANUSCRIPT_URL} download>Download the PDF</a>
               </div>
             </Card>
           </div>
@@ -629,14 +708,15 @@ function Footer() {
             <LogoMark />
             <div>
               <div className="eyebrow">IML</div>
-              <div className="footer-title">Interoperability Maturity Label</div>
+              <div className="footer-title">Interoperability Maturity Lab</div>
             </div>
           </div>
-          <p className="footer-copy">A structured framework to assess, compare and explain health interoperability maturity.</p>
+          <p className="footer-copy">Health is the objective. Trustworthy information is the foundation. Interoperability is the path.</p>
         </div>
         <div>
-          <div className="footer-label">Positioning</div>
-          <p className="footer-copy">Six-axis benchmark, country notes, identity and trust, regulatory use, and ID4D-aligned framing.</p>
+          <div className="footer-label">Scientific status</div>
+          <p className="footer-copy">Independent, non-commercial and open for scientific review. IML creates maturity profiles and improvement pathways rather than country rankings.</p>
+          <a className="text-link" href={MANUSCRIPT_URL} download>Founding Manuscript Alpha 0.2.6</a>
         </div>
       </div>
     </footer>
@@ -679,7 +759,7 @@ export default function App() {
             <LogoMark />
             <div>
               <div className="eyebrow">IML</div>
-              <div className="brand-title">Interoperability Maturity Label</div>
+              <div className="brand-title">Interoperability Maturity Lab</div>
             </div>
           </button>
           <nav className="topnav desktop-nav">
