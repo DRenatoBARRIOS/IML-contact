@@ -430,7 +430,8 @@ function CountryProfile({ selectedCountry }) {
 
 function HomePage() {
   return (
-    <section className="hero">
+    <>
+      <section className="hero">
       <div className="container hero-grid">
         <div className="hero-copy">
           <div className="section-badge">Open for scientific review</div>
@@ -479,7 +480,34 @@ function HomePage() {
           </div>
         </Card>
       </div>
-    </section>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <Card className="soft-card">
+            <div className="content-block">
+              <div className="section-badge">Complementary positioning</div>
+              <h3>Complementary to existing digital health maturity initiatives</h3>
+              <p>
+                IML is complementary to initiatives such as the{" "}
+                <a
+                  className="text-link"
+                  href="https://monitor.digitalhealthmonitor.org/map"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Global Digital Health Monitor
+                </a>
+                . These tools help describe national digital health capacity and progress.
+                IML focuses on a narrower question: whether this capacity preserves
+                clinical meaning, context, trust and usefulness across Health Information
+                Ecosystems.
+              </p>
+            </div>
+          </Card>
+        </div>
+      </section>
+    </>
   );
 }
 
@@ -497,7 +525,32 @@ function MethodologyPage() {
     <section className="section">
       <div className="container">
         <SectionTitle badge="IML Framework" title="A maturity framework for improvement, not ranking" text="Assessment should answer three questions: where are we today, what should improve next, and how will progress be measured?" />
-        <div className="tile-grid three-up">
+
+        <Card className="soft-card">
+          <div className="content-block">
+            <h3>How IML differs from digital health maturity dashboards</h3>
+            <p>
+              IML does not duplicate national digital health maturity dashboards. Tools such
+              as the Global Digital Health Monitor provide a valuable country-level view of
+              digital health capacity, including governance, strategy, infrastructure,
+              standards, interoperability and workforce. IML adds a clinical and
+              ecosystem-oriented layer of analysis.
+            </p>
+            <p>
+              Rather than asking only whether digital health capacity exists, IML asks
+              whether information remains trustworthy, contextualised, auditable and
+              actionable across care, public health, research and financing.
+            </p>
+            <p>
+              This distinction matters. A health system may have digital strategies,
+              platforms and standards while still losing clinical context between a
+              laboratory result, a diagnosis, a treatment decision and an outcome. IML
+              therefore examines interoperability usefulness, not digital maturity alone.
+            </p>
+          </div>
+        </Card>
+
+        <div className="tile-grid three-up top-gap-small">
           {domains.map((pillar) => (
             <Card key={pillar.title} className="value-card">
               <div className="metric-symbol">{pillar.symbol}</div>
@@ -561,7 +614,20 @@ function EvaluationPage() {
     <section className="section">
       <div className="container">
         <SectionTitle badge="Operational pathway" title="From assessment to action" text="IML connects maturity assessment with concrete clinical and public health problems, while remaining independent of any particular vendor or platform." />
-        <div className="tile-grid three-up">
+
+        <Card className="soft-card">
+          <div className="content-block">
+            <h3>The AMR/BMR demonstrator makes the difference visible</h3>
+            <p>
+              A digital health maturity dashboard can describe whether national digital
+              health capacity exists. IML tests whether that capacity can preserve meaning
+              in a real clinical pathway: symptoms, urine test, culture, antibiogram,
+              diagnosis, treatment, evolution, surveillance and learning.
+            </p>
+          </div>
+        </Card>
+
+        <div className="tile-grid three-up top-gap-small">
           <Card className="value-card">
             <div className="metric-symbol">AMR</div>
             <h3>AMR / BMR demonstrator</h3>
