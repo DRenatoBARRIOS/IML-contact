@@ -595,8 +595,8 @@ function Id4dPage() {
         <SectionTitle badge="Identity infrastructure" title="Identity, consent and trust across fragmented systems" text="Identity is an enabling layer for continuity, accountability and appropriate access. It is not the whole of interoperability." />
         <Card className="soft-card">
           <div className="content-block">
-            <h3>A federated interoperability identifier</h3>
-            <p>IML explores a shared logical identifier that could help heterogeneous clinical, laboratory, pharmacy and administrative systems recognise the same person, professional or organisation. The proposal is designed to coexist with national and local identifiers rather than replace them.</p>
+            <h3>Identity and trust: not a new number, but a secure access layer</h3>
+            <p>IML does not propose a new personal identity number or a replacement for national identity systems. Instead, IML explores how existing national identifiers and emerging digital identity infrastructures, including the European Digital Identity Wallet, could support safer health information interoperability through secure, purpose-limited and auditable access tokens. A QR code or mobile application could be used as a practical access mechanism, but sensitive identity or health information should never be exposed in clear text. Biometric authentication, if used, should remain local to the user’s device and serve only to unlock access or confirm user presence. Any operational implementation would require scientific validation, privacy and security assessment, transparent governance, correction procedures, safeguards against exclusion or misuse, and legal review. At this stage, this is a research hypothesis, not an operational identity system.</p>
             <div className="code-box mono">IML1-S-DDMMYYYY-GEO4-HASH-CC</div>
             <p><strong>IML proposal:</strong> the identifier would require scientific validation, privacy assessment, transparent governance, correction procedures and safeguards against exclusion or misuse before any operational implementation.</p>
             <p className="small-text">
