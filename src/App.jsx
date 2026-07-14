@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import manuscriptPdf from "./IML_Founding_Manuscript.pdf";
 
 const styles = `
   :root {
@@ -121,9 +122,7 @@ const styles = `
     .hero-grid { gap: 22px; }
   }
 `;
-
-const CONTACT_FORM_ACTION = "https://formspree.io/f/xzdorore";
-const MANUSCRIPT_URL = "/documents/IML_Founding_Manuscript_Alpha_0.2.6.pdf";
+const MANUSCRIPT_URL = manuscriptPdf;
 const ROUTES = [
   { key: "home", label: "Home" },
   { key: "id4d", label: "Identity & Trust" },
@@ -431,7 +430,8 @@ function CountryProfile({ selectedCountry }) {
 
 function HomePage() {
   return (
-    <section className="hero">
+    <>
+      <section className="hero">
       <div className="container hero-grid">
         <div className="hero-copy">
           <div className="section-badge">Open for scientific review</div>
@@ -442,12 +442,21 @@ function HomePage() {
             <div className="principle-line">Interoperability is the path.</div>
           </div>
           <p className="hero-text">IML helps researchers, clinicians, institutions, engineers, payers and public decision-makers understand, assess and progressively improve the ecosystems through which health information is generated, trusted, exchanged and used.</p>
+          <p className="hero-text">IML is not intended to remain a repository of ideas. Its next step is to seek institutional collaboration capable of reviewing and testing its methods and of progressively developing an open-source reference environment that can connect existing systems and provide a practical starting point in underserved settings.</p>
           <Card className="note-box">
-            <p>IML does not rank countries. It creates maturity profiles, identifies weaknesses in information continuity and supports practical improvement pathways.</p>
+            <p>
+              IML does not rank countries. It creates maturity profiles, identifies
+              weaknesses in information continuity and supports practical improvement
+              pathways.
+            </p>
           </Card>
           <div className="button-row">
-            <a className="primary-button" href={MANUSCRIPT_URL} download>Download the Founding Manuscript</a>
-            <a className="secondary-button" href="#methodology">Explore the framework</a>
+            <a className="primary-button" href={MANUSCRIPT_URL} download>
+              Download the Founding Manuscript
+            </a>
+            <a className="secondary-button" href="#methodology">
+              Explore the framework
+            </a>
           </div>
           <div className="metric-grid two-up top-gap-small">
             <MetricCard symbol="5L" title="Interoperability" value="5 layers" subtitle="Technical, semantic, organisational, institutional, and clinical/public health." />
@@ -476,7 +485,34 @@ function HomePage() {
           </div>
         </Card>
       </div>
-    </section>
+      </section>
+
+      <section className="section">
+        <div className="container">
+          <Card className="soft-card">
+            <div className="content-block">
+              <div className="section-badge">Complementary positioning</div>
+              <h3>Complementary to existing digital health maturity initiatives</h3>
+              <p>
+                IML is complementary to initiatives such as the{" "}
+                <a
+                  className="text-link"
+                  href="https://monitor.digitalhealthmonitor.org/map"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Global Digital Health Monitor
+                </a>
+                . These tools help describe national digital health capacity and progress.
+                IML focuses on a narrower question: whether this capacity preserves
+                clinical meaning, context, trust and usefulness across Health Information
+                Ecosystems.
+              </p>
+            </div>
+          </Card>
+        </div>
+      </section>
+    </>
   );
 }
 
@@ -485,7 +521,7 @@ function MethodologyPage() {
     { title: "Governance and Standards", symbol: "GOV", text: "Shared responsibilities, standards, legal clarity and accountable ecosystem governance." },
     { title: "Technical Interoperability", symbol: "TEC", text: "Secure, reliable and maintainable exchange across heterogeneous systems." },
     { title: "Identity, Consent and Trust", symbol: "ID", text: "Reliable identification, appropriate consent, provenance and confidence in information." },
-    { title: "Adoption and Use", symbol: "USE", text: "Practical integration into clinical, organisational and public health workflows." },
+    { title: "Adoption and Use", symbol: "USE", text: "Practical integration into workflows, with training, access rights and professional roles aligned with real care activity." },
     { title: "Security and Resilience", symbol: "SEC", text: "Protection, availability, recovery, traceability and continuity under disruption." },
     { title: "Feedback, Correction and Learning", symbol: "LRN", text: "Correction pathways, feedback loops, evaluation and institutional learning." },
   ];
@@ -494,7 +530,32 @@ function MethodologyPage() {
     <section className="section">
       <div className="container">
         <SectionTitle badge="IML Framework" title="A maturity framework for improvement, not ranking" text="Assessment should answer three questions: where are we today, what should improve next, and how will progress be measured?" />
-        <div className="tile-grid three-up">
+
+        <Card className="soft-card">
+          <div className="content-block">
+            <h3>How IML differs from digital health maturity dashboards</h3>
+            <p>
+              IML does not duplicate national digital health maturity dashboards. Tools such
+              as the Global Digital Health Monitor provide a valuable country-level view of
+              digital health capacity, including governance, strategy, infrastructure,
+              standards, interoperability and workforce. IML adds a clinical and
+              ecosystem-oriented layer of analysis.
+            </p>
+            <p>
+              Rather than asking only whether digital health capacity exists, IML asks
+              whether information remains trustworthy, contextualised, auditable and
+              actionable across care, public health, research and financing.
+            </p>
+            <p>
+              This distinction matters. A health system may have digital strategies,
+              platforms and standards while still losing clinical context between a
+              laboratory result, a diagnosis, a treatment decision and an outcome. IML
+              therefore examines interoperability usefulness, not digital maturity alone.
+            </p>
+          </div>
+        </Card>
+
+        <div className="tile-grid three-up top-gap-small">
           {domains.map((pillar) => (
             <Card key={pillar.title} className="value-card">
               <div className="metric-symbol">{pillar.symbol}</div>
@@ -520,7 +581,7 @@ function MethodologyPage() {
             <div className="content-block">
               <h3>Cross-cutting dimensions</h3>
               <ul className="compact-list">
-                <li><strong>Institutional Engagement</strong> examines practical responsiveness and collaboration.</li>
+                <li><strong>Institutional Engagement</strong> examines responsiveness, collaboration and the capacity to receive, review and test proposals.</li>
                 <li><strong>Payer Interoperability</strong> recognises public and private financing actors as part of the ecosystem.</li>
                 <li><strong>AI Readiness</strong> examines whether information is trustworthy enough for responsible AI-assisted use.</li>
               </ul>
@@ -539,14 +600,11 @@ function Id4dPage() {
         <SectionTitle badge="Identity infrastructure" title="Identity, consent and trust across fragmented systems" text="Identity is an enabling layer for continuity, accountability and appropriate access. It is not the whole of interoperability." />
         <Card className="soft-card">
           <div className="content-block">
-            <h3>A federated interoperability identifier</h3>
-            <p>IML explores a shared logical identifier that could help heterogeneous clinical, laboratory, pharmacy and administrative systems recognise the same person, professional or organisation. The proposal is designed to coexist with national and local identifiers rather than replace them.</p>
-            <div className="code-box mono">IML1-S-DDMMYYYY-GEO4-HASH-CC</div>
-            <p><strong>IML proposal:</strong> the identifier would require scientific validation, privacy assessment, transparent governance, correction procedures and safeguards against exclusion or misuse before any operational implementation.</p>
-            <p className="small-text">
-              <strong>IML1</strong>: algorithm version • <strong>S</strong>: sex • <strong>DDMMYYYY</strong>: date of birth • <strong>GEO4</strong>: standardised geographic code • <strong>HASH</strong>: one-way cryptographic hash generated from normalised demographic attributes • <strong>CC</strong>: checksum for integrity verification.
-            </p>
-          </div>
+            <h3>Identity and trust: not a new number, but a secure access layer</h3>
+            <p>IML does not propose a new personal identity number or a replacement for national identity systems. Instead, IML explores how existing national identifiers and emerging digital identity infrastructures, including the European Digital Identity Wallet, could support safer health information interoperability through secure, purpose-limited and auditable access tokens. A QR code or mobile application could be used as a practical access mechanism, but sensitive identity or health information should never be exposed in clear text. Biometric authentication, if used, should remain local to the user’s device and serve only to unlock access or confirm user presence. Any operational implementation would require scientific validation, privacy and security assessment, transparent governance, correction procedures, safeguards against exclusion or misuse, and legal review. At this stage, this is a research hypothesis, not an operational identity system.</p>
+        
+        <p>IML distinguishes identity, identifier, access token and carrier mechanism. It should avoid a new universal identity number and instead explore identity-light mechanisms: temporary signed access tokens, patient-mediated authorisation, trusted identity brokers, contextual pseudonyms and episode-based linkage. A QR code or mobile application would only carry a temporary, auditable and revocable token. The objective is not to expose identity, but to enable legitimate access to trustworthy health information under strict governance.</p> 
+        </div>
         </Card>
       </div>
     </section>
@@ -557,8 +615,21 @@ function EvaluationPage() {
   return (
     <section className="section">
       <div className="container">
-        <SectionTitle badge="Operational pathway" title="From assessment to action" text="IML connects maturity assessment with concrete clinical and public health problems, while remaining independent of any particular vendor or platform." />
-        <div className="tile-grid three-up">
+        <SectionTitle badge="Operational pathway" title="From assessment to action" text="IML connects maturity assessment with practical implementation and concrete clinical and public health problems, while remaining independent of any particular vendor or platform." />
+
+        <Card className="soft-card">
+          <div className="content-block">
+            <h3>The AMR/BMR demonstrator makes the difference visible</h3>
+            <p>
+              A digital health maturity dashboard can describe whether national digital
+              health capacity exists. IML tests whether that capacity can preserve meaning
+              in a real clinical pathway: symptoms, urine test, culture, antibiogram,
+              diagnosis, treatment, evolution, surveillance and learning.
+            </p>
+          </div>
+        </Card>
+
+        <div className="tile-grid three-up top-gap-small">
           <Card className="value-card">
             <div className="metric-symbol">AMR</div>
             <h3>AMR / BMR demonstrator</h3>
@@ -567,12 +638,12 @@ function EvaluationPage() {
           <Card className="value-card">
             <div className="metric-symbol">OCW</div>
             <h3>Open Clinical Workspace</h3>
-            <p>Not another electronic health record. The proposed workspace is a vendor-neutral implementation bridge using open standards, import on demand, clinical context, auditability and modular services.</p>
+            <p>The Open Clinical Workspace is intended as an open-source, vendor-neutral reference environment. In digitally mature settings it should connect and contextualise existing systems; in underserved settings it should provide a progressively deployable clinical and public health foundation. Its design must acknowledge that about 2.2 billion people remain offline and 3.4 billion do not use mobile Internet, supporting local hosting, intermittent connectivity, offline-first workflows, modest hardware and multilingual use. It should reuse and extend mature open-source components rather than rebuild them.</p>
           </Card>
           <Card className="value-card">
             <div className="metric-symbol">Q</div>
             <h3>Technology quality in health</h3>
-            <p>Operating systems and databases are examined through health-relevant criteria such as reliability, security, resilience, maintainability, traceability, portability, recovery and long-term continuity, never through vendor preference.</p>
+            <p>IML treats digital health software quality as a patient-safety issue. Commercial, public and open-source solutions should be assessed through transparent health-oriented criteria, including preservation of meaning and clinical context, auditability, correction, security, resilience, portability, reversibility, accessibility, offline operation and long-term maintainability. Operating systems and databases are evaluated through real health use cases, never through vendor preference.</p>
           </Card>
         </div>
         <Card className="soft-card top-gap">
@@ -599,7 +670,7 @@ function WorldPage() {
   return (
     <section className="section">
       <div className="container">
-        <SectionTitle badge="Exploratory country notes" title="Maturity profiles, not country rankings" text="The current country notes are illustrative working material. They are not formal IML assessments and should be refined through evidence review and local expertise." />
+        <SectionTitle badge="Exploratory country notes" title="Maturity profiles, not country rankings" text="The current country notes are illustrative working material. They are not formal IML assessments and should be refined through evidence review and local expertise. At this stage, IML does not host an operational database and does not provide a production software platform. Database hosting and software deployment are future institutional objectives, conditional on formal partnership, ethical and legal review, cybersecurity safeguards, transparent governance and correction procedures." />
         <Card className="soft-card">
           <div className="content-block">
             <h3>How to read a country profile</h3>
@@ -639,10 +710,12 @@ function WorldPage() {
 }
 
 function ContactPage() {
+  const email = "iml.health@pm.me";
   const [copied, setCopied] = useState(false);
+
   const copyEmail = async () => {
     try {
-      await navigator.clipboard.writeText("iml.health@pm.me");
+      await navigator.clipboard.writeText(email);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
@@ -650,45 +723,57 @@ function ContactPage() {
     }
   };
 
+  const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(
+    "IML scientific review or collaboration"
+  )}`;
+
   return (
     <section className="section">
       <div className="container">
-        <SectionTitle badge="Open for scientific review" title="Scientific review and collaboration" text="IML welcomes methodological criticism, evidence review, clinical expertise, institutional perspectives and proposals for collaborative case studies." />
+        <SectionTitle
+          badge="Open for scientific review"
+          title="Scientific review and collaboration"
+          text="IML welcomes methodological criticism, evidence review, clinical expertise, institutional perspectives and proposals for collaborative case studies."
+        />
         <div className="split-grid profile-grid">
           <Card>
             <div className="content-block">
-              <h3>Contact form</h3>
-              <form className="contact-form" action={CONTACT_FORM_ACTION} method="POST">
-                <input type="hidden" name="subject" value="IML scientific review or collaboration" />
-                <div className="form-grid">
-                  <label>Name<input name="name" placeholder="Your name" required /></label>
-                  <label>Email<input name="email" placeholder="name@organisation.org" type="email" required /></label>
-                </div>
-                <label>Organisation<input name="organisation" placeholder="University, health authority, clinical service, payer, research group..." /></label>
-                <label>Message<textarea name="message" placeholder="Share a scientific comment, propose a review, or describe a possible collaboration." rows="6" required /></label>
-                <div className="form-actions">
-                  <button type="submit" className="primary-button">Send</button>
-                  <span className="form-note">Messages are sent through Formspree.</span>
-                </div>
-              </form>
+              <h3>Direct contact</h3>
+              <p>
+                For scientific review, collaboration or questions about the
+                framework, contact IML directly by email.
+              </p>
+              <div className="mail-box">
+                <a className="text-link" href={`mailto:${email}`}>
+                  {email}
+                </a>
+              </div>
+              <div className="form-actions top-gap-small">
+                <a className="primary-button" href={mailtoLink}>
+                  Send email
+                </a>
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={copyEmail}
+                >
+                  Copy email
+                </button>
+              </div>
+              {copied ? (
+                <p className="form-note top-gap-small">Email copied.</p>
+              ) : null}
             </div>
           </Card>
           <div className="stack-layout">
             <Card className="soft-card">
               <div className="content-block">
-                <h3>Direct contact</h3>
-                <div className="mail-box">iml.health@pm.me</div>
-                <div className="form-actions top-gap-small">
-                  <button type="button" className="secondary-button" onClick={copyEmail}>Copy email</button>
-                  {copied ? <span className="form-note">Email copied.</span> : null}
-                </div>
-              </div>
-            </Card>
-            <Card className="soft-card">
-              <div className="content-block">
-                <h3>Founding Manuscript</h3>
-                <p>Alpha 0.2.6, Database Quality. Open for scientific review.</p>
-                <a className="text-link" href={MANUSCRIPT_URL} download>Download the PDF</a>
+                <h3>Scientific contributions</h3>
+                <p>
+                  Messages may concern methodology, evidence review, clinical
+                  or public health use cases, institutional collaboration,
+                  payer interoperability or responsible AI.
+                </p>
               </div>
             </Card>
           </div>
@@ -715,7 +800,6 @@ function Footer() {
         <div>
           <div className="footer-label">Scientific status</div>
           <p className="footer-copy">Independent, non-commercial and open for scientific review. IML creates maturity profiles and improvement pathways rather than country rankings.</p>
-          <a className="text-link" href={MANUSCRIPT_URL} download>Founding Manuscript Alpha 0.2.6</a>
         </div>
       </div>
     </footer>
