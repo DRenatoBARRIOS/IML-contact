@@ -492,7 +492,7 @@ function HomePage() {
           <Card className="soft-card">
             <div className="content-block">
               <div className="section-badge">Positioning</div>
- <h3>Existing digital health maturity initiatives</h3>             
+              <h3>Health maturity initiatives</h3>
               <p>
                 IML is complementary to initiatives such as the{" "}
                 <a
