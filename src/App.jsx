@@ -668,7 +668,7 @@ function WorldPage() {
   return (
     <section className="section">
       <div className="container">
-        <SectionTitle badge="Exploratory country notes" title="Maturity profiles, not country rankings" text="The current country notes are illustrative working material. They are not formal IML assessments and should be refined through evidence review and local expertise." />
+        <SectionTitle badge="Exploratory country notes" title="Maturity profiles, not country rankings" text="The current country notes are illustrative working material. They are not formal IML assessments and should be refined through evidence review and local expertise. At this stage, IML does not host an operational database and does not provide a production software platform. Database hosting and software deployment are future institutional objectives, conditional on formal partnership, ethical and legal review, cybersecurity safeguards, transparent governance and correction procedures." />
         <Card className="soft-card">
           <div className="content-block">
             <h3>How to read a country profile</h3>
