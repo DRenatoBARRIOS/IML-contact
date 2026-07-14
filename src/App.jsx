@@ -442,9 +442,10 @@ function HomePage() {
             <div className="principle-line">Interoperability is the path.</div>
           </div>
           <p className="hero-text">IML helps researchers, clinicians, institutions, engineers, payers and public decision-makers understand, assess and progressively improve the ecosystems through which health information is generated, trusted, exchanged and used.</p>
+         IML is not intended to remain a repository of ideas. Its next step is to seek institutional collaboration with digital public health research centres capable of reviewing, testing and progressively hosting IML methods, indicators and future datasets under transparent governance.</p>
           <Card className="note-box">
             <p>IML does not rank countries. It creates maturity profiles, identifies weaknesses in information continuity and supports practical improvement pathways.
-         IML is not intended to remain a repository of ideas. Its next step is to seek institutional collaboration with digital public health research centres capable of reviewing, testing and progressively hosting IML methods, indicators and future datasets under transparent governance.</p> </Card>
+          </Card>
           <div className="button-row">
             <a className="primary-button" href={MANUSCRIPT_URL} download>
               Download the Founding Manuscript
