@@ -171,62 +171,20 @@ function cls(...items) {
   return items.filter(Boolean).join(" ");
 }
 
-function assertDataIntegrity(countries = COUNTRIES, markers = MARKERS) {
-  Object.entries(countries).forEach(([name, country]) => {
+function assertDataIntegrity() {
+  Object.entries(COUNTRIES).forEach(([name, country]) => {
     if (!Array.isArray(country.values) || country.values.length !== AXES.length) {
       throw new Error(`Country data for ${name} must provide ${AXES.length} axis values.`);
-    }
-    if (!country.values.every((value) => Number.isFinite(Number(value)))) {
-      throw new Error(`Country data for ${name} contains an invalid axis value.`);
     }
     if (!Array.isArray(country.strengths) || !Array.isArray(country.watch)) {
       throw new Error(`Country data for ${name} must include strengths and watch arrays.`);
     }
   });
-
-  markers.forEach((marker) => {
-    if (!countries[marker.name]) {
+  MARKERS.forEach((marker) => {
+    if (!COUNTRIES[marker.name]) {
       throw new Error(`Marker ${marker.name} must match a country entry.`);
     }
-    if (!Number.isFinite(Number(marker.x)) || !Number.isFinite(Number(marker.y))) {
-      throw new Error(`Marker ${marker.name} must provide valid map coordinates.`);
-    }
   });
-}
-
-function buildCountryData(apiCountries) {
-  if (!Array.isArray(apiCountries) || apiCountries.length === 0) {
-    throw new Error("The countries API returned no country profiles.");
-  }
-
-  const countries = {};
-  const markers = [];
-
-  apiCountries.forEach((item) => {
-    const name = String(item?.name || "").trim();
-    if (!name) {
-      throw new Error("A country profile is missing its name.");
-    }
-
-    countries[name] = {
-      subtitle: String(item?.subtitle || ""),
-      values: Array.isArray(item?.values) ? item.values.map(Number) : [],
-      strengths: Array.isArray(item?.strengths) ? item.strengths.map(String) : [],
-      watch: Array.isArray(item?.watch) ? item.watch.map(String) : [],
-    };
-
-    markers.push({
-      name,
-      x: Number(item?.map_x),
-      y: Number(item?.map_y),
-      labelDx: Number(item?.label_dx ?? 14),
-      labelDy: Number(item?.label_dy ?? 4),
-      textSize: Number(item?.text_size ?? 13),
-    });
-  });
-
-  assertDataIntegrity(countries, markers);
-  return { countries, markers };
 }
 
 function polar(angle, radius, center) {
@@ -353,7 +311,7 @@ function WorldTooltip({ marker, country, onEnter, onLeave }) {
   );
 }
 
-function WorldMap({ selectedCountry, onSelect, countries, markers }) {
+function WorldMap({ selectedCountry, onSelect }) {
   const [hoveredCountry, setHoveredCountry] = useState("");
   const closeTimerRef = useRef(null);
 
@@ -378,8 +336,8 @@ function WorldMap({ selectedCountry, onSelect, countries, markers }) {
     }, 140);
   };
 
-  const activeMarker = markers.find((marker) => marker.name === hoveredCountry) || null;
-  const activeCountry = hoveredCountry ? countries[hoveredCountry] : null;
+  const activeMarker = MARKERS.find((marker) => marker.name === hoveredCountry) || null;
+  const activeCountry = hoveredCountry ? COUNTRIES[hoveredCountry] : null;
 
   return (
     <div className="world-box">
@@ -413,7 +371,7 @@ function WorldMap({ selectedCountry, onSelect, countries, markers }) {
             <ellipse cx="805" cy="350" rx="17" ry="10" />
           </g>
           <g>
-            {markers.map((marker) => {
+            {MARKERS.map((marker) => {
               const selected = selectedCountry === marker.name;
               const hovered = hoveredCountry === marker.name;
               return (
@@ -432,8 +390,8 @@ function WorldMap({ selectedCountry, onSelect, countries, markers }) {
   );
 }
 
-function CountryProfile({ selectedCountry, countries }) {
-  const selected = selectedCountry ? countries[selectedCountry] : null;
+function CountryProfile({ selectedCountry }) {
+  const selected = selectedCountry ? COUNTRIES[selectedCountry] : null;
   if (!selected) return null;
 
   return (
@@ -707,53 +665,7 @@ function EvaluationPage() {
 
 function WorldPage() {
   const [selectedCountry, setSelectedCountry] = useState("");
-  const [countries, setCountries] = useState(COUNTRIES);
-  const [markers, setMarkers] = useState(MARKERS);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    const loadCountries = async () => {
-      try {
-        const response = await fetch("/api/countries", {
-          method: "GET",
-          headers: { Accept: "application/json" },
-          signal: controller.signal,
-        });
-
-        if (!response.ok) {
-          throw new Error(`Countries API returned HTTP ${response.status}.`);
-        }
-
-        const payload = await response.json();
-        const next = buildCountryData(payload?.countries);
-
-        setCountries(next.countries);
-        setMarkers(next.markers);
-      } catch (error) {
-        if (error?.name !== "AbortError") {
-          console.warn(
-            "Unable to load country profiles from PostgreSQL. Local fallback data remain active.",
-            error
-          );
-        }
-      }
-    };
-
-    loadCountries();
-    return () => controller.abort();
-  }, []);
-
-  useEffect(() => {
-    if (selectedCountry && !countries[selectedCountry]) {
-      setSelectedCountry("");
-    }
-  }, [countries, selectedCountry]);
-
-  const options = useMemo(
-    () => Object.keys(countries).sort((a, b) => a.localeCompare(b)),
-    [countries]
-  );
+  const options = useMemo(() => Object.keys(COUNTRIES).sort((a, b) => a.localeCompare(b)), []);
 
   return (
     <section className="section">
@@ -785,16 +697,11 @@ function WorldPage() {
           </select>
         </div>
         <div className="top-gap">
-          <WorldMap
-            selectedCountry={selectedCountry}
-            onSelect={setSelectedCountry}
-            countries={countries}
-            markers={markers}
-          />
+          <WorldMap selectedCountry={selectedCountry} onSelect={setSelectedCountry} />
         </div>
         {selectedCountry ? (
           <div className="top-gap">
-            <CountryProfile selectedCountry={selectedCountry} countries={countries} />
+            <CountryProfile selectedCountry={selectedCountry} />
           </div>
         ) : null}
       </div>
