@@ -926,10 +926,6 @@ function WorldPage() {
         <Card className="soft-card">
           <div className="content-block">
             <div className="profile-head">
-              <div>
-                <h3>Database-connected interface</h3>
-                <p>This Preview calls <span className="mono">/api/countries</span>, the PostgreSQL endpoint already connected to Neon and Vercel. If the endpoint is temporarily unavailable, the interface automatically retains the current 14 illustrative profiles as a local fallback.</p>
-              </div>
               <div className={cls("data-source-pill", dataSource === "database" && "data-source-live")}>
                 <span className="status-dot" />
                 {dataSource === "loading" ? "Loading" : dataSource === "database" ? "PostgreSQL API" : "Prototype fallback"}
