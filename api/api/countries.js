@@ -3,9 +3,7 @@ import { neon } from "@neondatabase/serverless";
 export async function GET() {
   if (!process.env.DATABASE_URL) {
     return Response.json(
-      {
-        error: "DATABASE_URL is not available.",
-      },
+      { error: "DATABASE_URL is not available." },
       { status: 500 }
     );
   }
@@ -13,12 +11,11 @@ export async function GET() {
   try {
     const sql = neon(process.env.DATABASE_URL);
 
-    const rows = await sql`
+    const countries = await sql`
       SELECT
         c.iso3,
         c.slug,
         c.name_en AS name,
-
         c.map_x::double precision AS map_x,
         c.map_y::double precision AS map_y,
         c.label_dx::double precision AS label_dx,
@@ -32,10 +29,7 @@ export async function GET() {
 
         COALESCE(
           (
-            SELECT json_agg(
-              s.score
-              ORDER BY d.display_order
-            )
+            SELECT json_agg(s.score ORDER BY d.display_order)
             FROM country_profile_scores s
             JOIN iml_domains d
               ON d.code = s.domain_code
@@ -46,10 +40,7 @@ export async function GET() {
 
         COALESCE(
           (
-            SELECT json_agg(
-              n.note_text
-              ORDER BY n.display_order
-            )
+            SELECT json_agg(n.note_text ORDER BY n.display_order)
             FROM country_profile_notes n
             WHERE n.profile_id = cp.id
               AND n.note_type = 'strength'
@@ -59,10 +50,7 @@ export async function GET() {
 
         COALESCE(
           (
-            SELECT json_agg(
-              n.note_text
-              ORDER BY n.display_order
-            )
+            SELECT json_agg(n.note_text ORDER BY n.display_order)
             FROM country_profile_notes n
             WHERE n.profile_id = cp.id
               AND n.note_type = 'watch'
@@ -71,7 +59,6 @@ export async function GET() {
         ) AS watch
 
       FROM countries c
-
       JOIN country_profiles cp
         ON cp.country_id = c.id
 
@@ -83,8 +70,8 @@ export async function GET() {
 
     return Response.json(
       {
-        count: rows.length,
-        countries: rows,
+        count: countries.length,
+        countries,
       },
       {
         status: 200,
@@ -98,9 +85,7 @@ export async function GET() {
     console.error("Unable to load IML country profiles:", error);
 
     return Response.json(
-      {
-        error: "Unable to load country profiles.",
-      },
+      { error: "Unable to load country profiles." },
       { status: 500 }
     );
   }
