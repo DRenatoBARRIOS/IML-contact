@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import manuscriptPdf from "./IML_Founding_Manuscript_Alpha_0.2.6.pdf";
+import manuscriptPdf from "./IML_Founding_Manuscript.pdf";
 
 const styles = `
   :root {
