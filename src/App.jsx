@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import manuscriptPdf from "./IML_Founding_Manuscript.pdf";
+import worldCountries from "./world-countries.json";
 
 const styles = `
   :root {
@@ -110,8 +111,34 @@ const styles = `
   .compact-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; color: #475569; }
   .compact-list li { line-height: 1.65; }
   .status-pill { display: inline-flex; align-items: center; border-radius: 999px; background: #f1f5f9; color: #334155; padding: 7px 11px; font-size: 12px; font-weight: 800; }
+
+  .map-controls { display: grid; grid-template-columns: minmax(0, 320px); gap: 16px; align-items: end; }
+  .control-field label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 800; color: #334155; }
+  .control-field select { width: 100%; border: 1px solid #cbd5e1; border-radius: 16px; background: #ffffff; padding: 12px 14px; color: #0f172a; outline: none; }
+  .map-stage { overflow: hidden; border-radius: 24px; background: #f8fbff; }
+  .country-shape { cursor: pointer; transition: fill 150ms ease, stroke 150ms ease, opacity 150ms ease; outline: none; }
+  .country-shape:hover, .country-shape:focus { stroke: #0f172a; stroke-width: 1.4; opacity: 0.94; }
+  .country-shape-profile { cursor: pointer; }
+  .country-shape-selected { filter: drop-shadow(0 0 5px rgba(217, 119, 6, 0.42)); }
+  .map-tooltip-floating { position: absolute; z-index: 12; display: grid; gap: 3px; width: max-content; max-width: 220px; pointer-events: none; border: 1px solid rgba(203, 213, 225, 0.95); border-radius: 14px; background: rgba(255,255,255,0.96); padding: 9px 11px; box-shadow: 0 14px 36px rgba(15,23,42,0.18); font-size: 12px; }
+  .map-tooltip-floating span { color: #64748b; }
+  .map-legend { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 14px; color: #64748b; font-size: 11px; }
+  .legend-swatches { display: grid; grid-template-columns: repeat(6, 24px); overflow: hidden; border: 1px solid #cbd5e1; border-radius: 999px; }
+  .legend-swatches span { height: 10px; }
+  .legend-selected { display: inline-flex; align-items: center; gap: 6px; margin-left: 8px; color: #92400e; font-weight: 800; }
+  .legend-selected-swatch { width: 14px; height: 14px; border-radius: 4px; border: 2px solid #92400e; background: #f59e0b; }
+  .data-source-pill { display: inline-flex; align-items: center; gap: 8px; flex: 0 0 auto; border: 1px solid #cbd5e1; border-radius: 999px; background: white; padding: 8px 12px; color: #475569; font-size: 12px; font-weight: 800; }
+  .data-source-live { color: #14532d; border-color: #86efac; background: #f0fdf4; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  .profile-meta { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0 4px; }
+  .profile-meta span { border-radius: 999px; background: #f1f5f9; padding: 6px 9px; color: #475569; font-size: 11px; font-weight: 700; }
+  .profile-stat-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .profile-stat { display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid #e2e8f0; border-radius: 12px; padding: 9px 10px; font-size: 12px; color: #64748b; }
+  .profile-stat strong { color: #0f172a; font-size: 15px; }
+  .map-empty { max-width: 760px; }
   @media (max-width: 1100px) {
     .hero-grid, .split-grid, .footer-grid, .profile-grid, .metric-grid.two-up, .tile-grid, .tile-grid.three-up, .form-grid { grid-template-columns: 1fr; }
+    .map-controls { grid-template-columns: 1fr; }
     .helper-pill { display: none; }
   }
   @media (max-width: 820px) {
@@ -120,6 +147,8 @@ const styles = `
     .container { width: min(100% - 28px, 1180px); }
     .section, .hero-grid { padding-top: 56px; padding-bottom: 56px; }
     .hero-grid { gap: 22px; }
+    .map-legend { justify-content: flex-start; flex-wrap: wrap; }
+    .profile-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
 `;
 const MANUSCRIPT_URL = manuscriptPdf;
@@ -150,22 +179,85 @@ const COUNTRIES = {
   "United States": { subtitle: "Nationally significant but heterogeneous environment, combining a federal governance floor with major state-level and network-level variation.", values: [82, 83, 72, 76, 84, 63], strengths: ["TEFCA", "USCDI", "Strong federal policy capacity"], watch: ["Major local variation", "Federal floor does not erase disparities", "State-specific reading still needed"] },
 };
 
-const MARKERS = [
-  { name: "Argentina", x: 246, y: 302 },
-  { name: "Brazil", x: 223, y: 258, labelDx: 12, labelDy: 16 },
-  { name: "Canada", x: 140, y: 110, labelDx: 12, labelDy: -2, textSize: 11.5 },
-  { name: "China", x: 730, y: 155, labelDx: 12, labelDy: -10 },
-  { name: "France", x: 470, y: 125 },
-  { name: "Guatemala", x: 178, y: 184, labelDx: -82, labelDy: -10 },
-  { name: "India", x: 662, y: 186, labelDx: 12, labelDy: 18 },
-  { name: "Japan", x: 812, y: 166, labelDx: 10, labelDy: -8 },
-  { name: "Morocco", x: 446, y: 170, labelDx: -36, labelDy: -10 },
-  { name: "New Zealand", x: 805, y: 350 },
-  { name: "Senegal", x: 428, y: 205, labelDx: -48, labelDy: 10 },
-  { name: "Sweden", x: 490, y: 88 },
-  { name: "Tanzania", x: 505, y: 274, labelDx: 12, labelDy: 18 },
-  { name: "United States", x: 120, y: 138, labelDx: 12, labelDy: 18, textSize: 12.4 },
-];
+const COUNTRY_ISO3 = {
+  Argentina: "ARG",
+  Brazil: "BRA",
+  Canada: "CAN",
+  China: "CHN",
+  France: "FRA",
+  Guatemala: "GTM",
+  India: "IND",
+  Japan: "JPN",
+  Morocco: "MAR",
+  "New Zealand": "NZL",
+  Senegal: "SEN",
+  Sweden: "SWE",
+  Tanzania: "TZA",
+  "United States": "USA",
+};
+
+const AXIS_KEYS = ["governance", "technical", "identity", "adoption", "security", "learning"];
+const MAP_WIDTH = 1000;
+const MAP_HEIGHT = 500;
+const MAP_VISIBLE_HEIGHT = 420;
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || "";
+
+function fallbackProfiles() {
+  return Object.entries(COUNTRIES).map(([name, country]) => ({
+    iso3: COUNTRY_ISO3[name],
+    name,
+    slug: name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
+    status: "exploratory",
+    version: "prototype-0.1",
+    updatedAt: "2026-07-15",
+    evidenceLevel: "Illustrative working note",
+    subtitle: country.subtitle,
+    values: country.values,
+    strengths: country.strengths,
+    watch: country.watch,
+    sources: [],
+  }));
+}
+
+function normalizeProfile(profile) {
+  const scores = profile.scores || profile.domainScores || {};
+  const values = Array.isArray(profile.values)
+    ? profile.values
+    : AXIS_KEYS.map((key) => Number(scores[key] ?? 0));
+
+  return {
+    iso3: String(profile.iso3 || profile.country_iso3 || "").toUpperCase(),
+    name: profile.name || profile.country_name || profile.countryName || "Unnamed country",
+    slug: profile.slug || "",
+    status: profile.status || profile.assessment_status || "published",
+    version: profile.version || "",
+    updatedAt: profile.updatedAt || profile.updated_at || profile.assessment_date || profile.assessed_at || profile.published_at || "",
+    evidenceLevel: profile.evidenceLevel || profile.evidence_level || "Exploratory working profile",
+    subtitle: profile.subtitle || profile.summary || "",
+    values,
+    strengths: profile.strengths || [],
+    watch: profile.watch || profile.pointsToWatch || [],
+    sources: profile.sources || [],
+  };
+}
+
+async function loadGlobalMapProfiles(signal) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/countries`, {
+      headers: { Accept: "application/json" },
+      signal,
+    });
+    if (!response.ok) throw new Error(`Countries API returned ${response.status}.`);
+    const payload = await response.json();
+    const rows = Array.isArray(payload) ? payload : payload.countries;
+    if (!Array.isArray(rows)) throw new Error("Countries API payload must contain a countries array.");
+    if (rows.length === 0) throw new Error("The countries API contains no published country profiles yet.");
+    return { profiles: rows.map(normalizeProfile), source: "database" };
+  } catch (error) {
+    if (error?.name === "AbortError") throw error;
+    return { profiles: fallbackProfiles(), source: "prototype", warning: error?.message || "API unavailable" };
+  }
+}
 
 function cls(...items) {
   return items.filter(Boolean).join(" ");
@@ -173,16 +265,14 @@ function cls(...items) {
 
 function assertDataIntegrity() {
   Object.entries(COUNTRIES).forEach(([name, country]) => {
+    if (!COUNTRY_ISO3[name]) {
+      throw new Error(`Country data for ${name} must provide an ISO 3166-1 alpha-3 code.`);
+    }
     if (!Array.isArray(country.values) || country.values.length !== AXES.length) {
       throw new Error(`Country data for ${name} must provide ${AXES.length} axis values.`);
     }
     if (!Array.isArray(country.strengths) || !Array.isArray(country.watch)) {
       throw new Error(`Country data for ${name} must include strengths and watch arrays.`);
-    }
-  });
-  MARKERS.forEach((marker) => {
-    if (!COUNTRIES[marker.name]) {
-      throw new Error(`Marker ${marker.name} must match a country entry.`);
     }
   });
 }
@@ -292,118 +382,243 @@ function HexagonChart({ values, small = false }) {
   );
 }
 
-function WorldTooltip({ marker, country, onEnter, onLeave }) {
-  if (!marker || !country) return null;
-  const left = `${(marker.x / 900) * 100}%`;
-  const top = `${(marker.y / 430) * 100}%`;
-  const horizontal = marker.x > 650 ? "translate(calc(-100% - 18px), -16px)" : "translate(18px, -16px)";
+function projectCoordinate([longitude, latitude]) {
+  return [
+    ((longitude + 180) / 360) * MAP_WIDTH,
+    ((90 - latitude) / 180) * MAP_HEIGHT,
+  ];
+}
+
+function ringToPath(coordinates) {
+  if (!coordinates?.length) return "";
+  let path = "";
+  let previousX = null;
+
+  coordinates.forEach((coordinate, index) => {
+    const [x, y] = projectCoordinate(coordinate);
+    const crossesDateLine = previousX !== null && Math.abs(x - previousX) > MAP_WIDTH / 2;
+    path += index === 0 || crossesDateLine ? ` M ${x.toFixed(2)} ${y.toFixed(2)}` : ` L ${x.toFixed(2)} ${y.toFixed(2)}`;
+    previousX = x;
+  });
+
+  return `${path} Z`;
+}
+
+function geometryToPath(geometry) {
+  if (!geometry) return "";
+  if (geometry.type === "Polygon") {
+    return geometry.coordinates.map(ringToPath).join(" ");
+  }
+  if (geometry.type === "MultiPolygon") {
+    return geometry.coordinates.flatMap((polygon) => polygon.map(ringToPath)).join(" ");
+  }
+  return "";
+}
+
+function averageScore(values = []) {
+  if (!values.length) return 0;
+  return Math.round(values.reduce((total, value) => total + Number(value || 0), 0) / values.length);
+}
+
+function metricScore(profile, metric) {
+  if (!profile) return null;
+  if (metric === "overall") return averageScore(profile.values);
+  const index = AXIS_KEYS.indexOf(metric);
+  return index >= 0 ? Number(profile.values[index] || 0) : null;
+}
+
+function scoreFill(score, hasProfile) {
+  if (!hasProfile || score === null) return "#e6edf5";
+  if (score >= 85) return "#164e63";
+  if (score >= 70) return "#0e7490";
+  if (score >= 55) return "#67a8bb";
+  if (score >= 40) return "#a8ced8";
+  return "#d8e8ed";
+}
+
+function isAntarcticaFeature(feature) {
+  const properties = feature?.properties || {};
+  const iso3 = String(
+    properties.iso3 ||
+      properties.ISO_A3 ||
+      properties.adm0_a3 ||
+      properties.ADM0_A3 ||
+      ""
+  )
+    .trim()
+    .toUpperCase();
+
+  const name = String(
+    properties.name ||
+      properties.NAME ||
+      properties.admin ||
+      properties.ADMIN ||
+      ""
+  )
+    .trim()
+    .toLowerCase();
+
+  const continent = String(
+    properties.continent ||
+      properties.CONTINENT ||
+      ""
+  )
+    .trim()
+    .toLowerCase();
 
   return (
-    <div className="tooltip-anchor" style={{ left, top, transform: horizontal }} onMouseEnter={onEnter} onMouseLeave={onLeave}>
-      <div className="map-tooltip">
-        <div className="map-tooltip-top">
-          <div className="map-tooltip-title">{marker.name}</div>
-          <div className="map-tooltip-score">Working profile</div>
-        </div>
-        <HexagonChart values={country.values} small />
-      </div>
-    </div>
+    iso3 === "ATA" ||
+    name === "antarctica" ||
+    name.includes("antarctica") ||
+    continent === "antarctica"
   );
 }
 
-function WorldMap({ selectedCountry, onSelect }) {
-  const [hoveredCountry, setHoveredCountry] = useState("");
-  const closeTimerRef = useRef(null);
+function WorldMap({ profiles, selectedCountry, onSelect, metric }) {
+  const [hovered, setHovered] = useState(null);
+  const profileByIso3 = useMemo(
+    () => Object.fromEntries(profiles.map((profile) => [profile.iso3, profile])),
+    [profiles]
+  );
 
-  const clearCloseTimer = () => {
-    if (closeTimerRef.current) {
-      clearTimeout(closeTimerRef.current);
-      closeTimerRef.current = null;
-    }
+  const showTooltip = (event, feature) => {
+    const svg = event.currentTarget.ownerSVGElement;
+    const bounds = svg.getBoundingClientRect();
+    const iso3 = feature.properties.iso3;
+    const profile = profileByIso3[iso3];
+    setHovered({
+      x: event.clientX - bounds.left,
+      y: event.clientY - bounds.top,
+      iso3,
+      name: profile?.name || feature.properties.name,
+      score: metricScore(profile, metric),
+      hasProfile: Boolean(profile),
+    });
   };
 
-  const openTooltip = (name) => {
-    clearCloseTimer();
-    setHoveredCountry(name);
-    onSelect(name);
+  const selectFeature = (feature) => {
+    const iso3 = feature.properties.iso3;
+    if (!iso3 || iso3 === "-99") return;
+    const profile = profileByIso3[iso3];
+    onSelect({ iso3, name: profile?.name || feature.properties.name });
   };
-
-  const scheduleClose = () => {
-    clearCloseTimer();
-    closeTimerRef.current = setTimeout(() => {
-      setHoveredCountry("");
-      closeTimerRef.current = null;
-    }, 140);
-  };
-
-  const activeMarker = MARKERS.find((marker) => marker.name === hoveredCountry) || null;
-  const activeCountry = hoveredCountry ? COUNTRIES[hoveredCountry] : null;
 
   return (
     <div className="world-box">
       <div className="world-box-head">
         <div>
-          <div className="eyebrow">Exploratory review in progress</div>
-          <div className="overview-title">Interactive maturity profiles</div>
+          <div className="eyebrow">PostgreSQL-ready prototype</div>
+          <div className="overview-title">Interactive country profiles</div>
         </div>
-        <div className="helper-pill">Hover a marker to preview a working profile. Select a country to read the full note.</div>
+        <div className="helper-pill">Move over a country to preview it. Amber means selected for viewing, never scored.</div>
       </div>
-      <div className="world-map-wrap">
-        <svg viewBox="0 0 900 430" className="world-map" aria-label="Interactive world map">
-          <defs>
-            <linearGradient id="oceanFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#f8fbff" />
-              <stop offset="100%" stopColor="#eef3f9" />
-            </linearGradient>
-            <linearGradient id="landFill" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#e7eef6" />
-              <stop offset="100%" stopColor="#d5e0ec" />
-            </linearGradient>
-          </defs>
-          <rect x="0" y="0" width="900" height="430" rx="28" fill="url(#oceanFill)" />
-          <g fill="url(#landFill)" stroke="#9fb0c4" strokeWidth="1.1">
-            <path d="M88 112 C108 80, 170 70, 214 90 C248 105, 254 144, 232 170 C214 192, 174 197, 155 220 C139 240, 101 236, 79 207 C59 180, 58 141, 88 112 Z" />
-            <path d="M180 233 C199 228, 226 239, 239 259 C251 276, 245 305, 223 319 C204 332, 176 326, 164 305 C154 287, 160 241, 180 233 Z" />
-            <path d="M372 92 C422 70, 498 75, 548 103 C580 122, 595 160, 572 187 C551 211, 504 214, 482 233 C456 254, 417 247, 395 228 C376 211, 337 212, 320 189 C304 166, 317 116, 372 92 Z" />
-            <path d="M468 238 C489 228, 523 235, 542 255 C559 271, 563 308, 538 333 C515 355, 479 354, 455 338 C433 323, 420 297, 428 273 C435 255, 448 247, 468 238 Z" />
-            <path d="M609 103 C654 85, 730 92, 775 118 C816 141, 829 182, 806 212 C781 244, 733 246, 694 241 C657 236, 623 214, 604 190 C584 163, 579 118, 609 103 Z" />
-            <ellipse cx="742" cy="324" rx="34" ry="18" />
-            <ellipse cx="805" cy="350" rx="17" ry="10" />
-          </g>
+      <div className="world-map-wrap map-stage">
+        <svg viewBox={`0 0 ${MAP_WIDTH} ${MAP_VISIBLE_HEIGHT}`} className="world-map" aria-label="Interactive IML world map">
+          <rect width={MAP_WIDTH} height={MAP_VISIBLE_HEIGHT} rx="26" fill="#f8fbff" />
           <g>
-            {MARKERS.map((marker) => {
-              const selected = selectedCountry === marker.name;
-              const hovered = hoveredCountry === marker.name;
+            {worldCountries.features
+              .filter((feature) => !isAntarcticaFeature(feature))
+              .map((feature) => {
+              const iso3 = feature.properties.iso3;
+              const profile = profileByIso3[iso3];
+              const selected = selectedCountry?.iso3 === iso3;
+              const score = metricScore(profile, metric);
               return (
-                <g key={marker.name} className="marker-group" onClick={() => onSelect(marker.name)} onMouseEnter={() => openTooltip(marker.name)} onMouseLeave={scheduleClose}>
-                  <circle cx={marker.x} cy={marker.y} r={selected || hovered ? 12 : 8} fill={selected || hovered ? "#0f172a" : "#334155"} />
-                  <circle cx={marker.x} cy={marker.y} r={selected || hovered ? 22 : 15} fill="rgba(15,23,42,0.10)" />
-                  <text x={marker.x + (marker.labelDx ?? 14)} y={marker.y + (marker.labelDy ?? 4)} fill="#0f172a" style={{ fontSize: marker.textSize ?? 13, fontWeight: 600 }}>{marker.name}</text>
-                </g>
+                <path
+                  key={`${iso3}-${feature.properties.name}`}
+                  d={geometryToPath(feature.geometry)}
+                  className={cls("country-shape", profile && "country-shape-profile", selected && "country-shape-selected")}
+                  fill={selected ? "#f59e0b" : scoreFill(score, Boolean(profile))}
+                  stroke={selected ? "#92400e" : "#9fb0c4"}
+                  strokeWidth={selected ? 2.2 : 0.65}
+                  vectorEffect="non-scaling-stroke"
+                  tabIndex={iso3 && iso3 !== "-99" ? 0 : undefined}
+                  role={iso3 && iso3 !== "-99" ? "button" : undefined}
+                  aria-label={`${profile?.name || feature.properties.name}${profile ? ", IML profile available" : ", profile not yet available"}`}
+                  onMouseEnter={(event) => showTooltip(event, feature)}
+                  onMouseMove={(event) => showTooltip(event, feature)}
+                  onMouseLeave={() => setHovered(null)}
+                  onClick={() => selectFeature(feature)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") selectFeature(feature);
+                  }}
+                />
               );
             })}
           </g>
         </svg>
-        {activeMarker && activeCountry ? <WorldTooltip marker={activeMarker} country={activeCountry} onEnter={() => openTooltip(activeMarker.name)} onLeave={scheduleClose} /> : null}
+        {hovered ? (
+          <div
+            className="map-tooltip-floating"
+            style={{
+              left: Math.min(hovered.x + 14, 820),
+              top: Math.max(12, hovered.y - 18),
+            }}
+          >
+            <strong>{hovered.name}</strong>
+            <span>{hovered.hasProfile ? `${hovered.score}/100 · working profile` : "Profile not yet available"}</span>
+          </div>
+        ) : null}
+      </div>
+      <div className="map-legend" aria-label="Map legend">
+        <span>No profile</span>
+        <div className="legend-swatches">
+          {["#e6edf5", "#d8e8ed", "#a8ced8", "#67a8bb", "#0e7490", "#164e63"].map((color) => (
+            <span key={color} style={{ background: color }} />
+          ))}
+        </div>
+        <span>Higher maturity signal</span>
+        <span className="legend-selected">
+          <span className="legend-selected-swatch" aria-hidden="true" />
+          Selected country · viewing only, not a score
+        </span>
       </div>
     </div>
   );
 }
 
-function CountryProfile({ selectedCountry }) {
-  const selected = selectedCountry ? COUNTRIES[selectedCountry] : null;
-  if (!selected) return null;
+function CountryProfile({ selectedCountry, profile }) {
+  if (!selectedCountry) return null;
+
+  if (!profile) {
+    return (
+      <Card className="soft-card">
+        <div className="content-block map-empty">
+          <div className="section-badge">Profile not yet available</div>
+          <h3>{selectedCountry.name}</h3>
+          <p><strong>Selection only:</strong> this highlight means that the country is being viewed. It does not represent an IML score or assessment.</p>
+          <p>This country already exists on the map, but no IML evidence profile has been published in the database. The future editorial workflow can create a draft, attach sources, request local review and publish it without changing the map code.</p>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <div className="split-grid profile-grid">
       <Card>
         <div className="content-block">
           <div className="profile-head">
-            <h3>{selectedCountry}</h3>
-            <div className="score-pill">Exploratory profile</div>
+            <div>
+              <div className="eyebrow">{profile.iso3}</div>
+              <h3>{profile.name}</h3>
+            </div>
+            <div className="score-pill">{profile.status}</div>
           </div>
-          <p className="muted-copy">{selected.subtitle}</p>
-          <HexagonChart values={selected.values} />
+          <p className="muted-copy">{profile.subtitle}</p>
+          <div className="profile-meta">
+            <span>Version {profile.version || "pending"}</span>
+            <span>{profile.evidenceLevel}</span>
+            <span>{profile.updatedAt ? `Updated ${profile.updatedAt}` : "Review date pending"}</span>
+          </div>
+          <HexagonChart values={profile.values} />
+          <div className="profile-stat-grid">
+            {AXES.map((axis, index) => (
+              <div className="profile-stat" key={axis}>
+                <span>{axis}</span>
+                <strong>{profile.values[index]}</strong>
+              </div>
+            ))}
+          </div>
         </div>
       </Card>
       <div className="stack-layout">
@@ -411,7 +626,7 @@ function CountryProfile({ selectedCountry }) {
           <div className="content-block">
             <h3>Strengths</h3>
             <ul className="plain-list">
-              {selected.strengths.map((item) => <li key={item}>• {item}</li>)}
+              {profile.strengths.map((item) => <li key={item}>• {item}</li>)}
             </ul>
           </div>
         </Card>
@@ -419,8 +634,14 @@ function CountryProfile({ selectedCountry }) {
           <div className="content-block">
             <h3>Points to watch</h3>
             <ul className="plain-list">
-              {selected.watch.map((item) => <li key={item}>• {item}</li>)}
+              {profile.watch.map((item) => <li key={item}>• {item}</li>)}
             </ul>
+          </div>
+        </Card>
+        <Card className="soft-card">
+          <div className="content-block">
+            <h3>Evidence</h3>
+            <p>{profile.sources.length ? `${profile.sources.length} source(s) attached to this profile.` : "No documentary sources are attached to this illustrative seed profile yet."}</p>
           </div>
         </Card>
       </div>
@@ -442,8 +663,13 @@ function HomePage() {
             <div className="principle-line">Interoperability is the path.</div>
           </div>
           <p className="hero-text">IML helps researchers, clinicians, institutions, engineers, payers and public decision-makers understand, assess and progressively improve the ecosystems through which health information is generated, trusted, exchanged and used.</p>
+          <p className="hero-text">IML is not intended to remain a repository of ideas. Its next step is to seek institutional collaboration capable of reviewing and testing its methods and of progressively developing an open-source reference environment that can connect existing systems and provide a practical starting point in underserved settings.</p>
           <Card className="note-box">
-            <p>IML does not rank countries. It creates maturity profiles, identifies weaknesses in information continuity and supports practical improvement pathways.</p>
+            <p>
+              IML does not rank countries. It creates maturity profiles, identifies
+              weaknesses in information continuity and supports practical improvement
+              pathways.
+            </p>
           </Card>
           <div className="button-row">
             <a className="primary-button" href={MANUSCRIPT_URL} download>
@@ -486,8 +712,8 @@ function HomePage() {
         <div className="container">
           <Card className="soft-card">
             <div className="content-block">
-              <div className="section-badge">Complementary positioning</div>
-              <h3>Complementary to existing digital health maturity initiatives</h3>
+              <div className="section-badge">Positioning</div>
+              <h3>Existing digital health maturity initiatives</h3>
               <p>
                 IML is complementary to initiatives such as the{" "}
                 <a
@@ -516,7 +742,7 @@ function MethodologyPage() {
     { title: "Governance and Standards", symbol: "GOV", text: "Shared responsibilities, standards, legal clarity and accountable ecosystem governance." },
     { title: "Technical Interoperability", symbol: "TEC", text: "Secure, reliable and maintainable exchange across heterogeneous systems." },
     { title: "Identity, Consent and Trust", symbol: "ID", text: "Reliable identification, appropriate consent, provenance and confidence in information." },
-    { title: "Adoption and Use", symbol: "USE", text: "Practical integration into clinical, organisational and public health workflows." },
+    { title: "Adoption and Use", symbol: "USE", text: "Practical integration into workflows, with training, access rights and professional roles aligned with real care activity." },
     { title: "Security and Resilience", symbol: "SEC", text: "Protection, availability, recovery, traceability and continuity under disruption." },
     { title: "Feedback, Correction and Learning", symbol: "LRN", text: "Correction pathways, feedback loops, evaluation and institutional learning." },
   ];
@@ -576,7 +802,7 @@ function MethodologyPage() {
             <div className="content-block">
               <h3>Cross-cutting dimensions</h3>
               <ul className="compact-list">
-                <li><strong>Institutional Engagement</strong> examines practical responsiveness and collaboration.</li>
+                <li><strong>Institutional Engagement</strong> examines responsiveness, collaboration and the capacity to receive, review and test proposals.</li>
                 <li><strong>Payer Interoperability</strong> recognises public and private financing actors as part of the ecosystem.</li>
                 <li><strong>AI Readiness</strong> examines whether information is trustworthy enough for responsible AI-assisted use.</li>
               </ul>
@@ -592,91 +818,14 @@ function Id4dPage() {
   return (
     <section className="section">
       <div className="container">
-        <SectionTitle
-          badge="Identity & trust"
-          title="Secure access without creating a new number"
-          text="Identity is necessary for continuity, accountability and appropriate access. IML does not propose a new personal identity number. It explores how existing identity systems can support safer health information interoperability."
-        />
-
+        <SectionTitle badge="Identity infrastructure" title="Identity, consent and trust across fragmented systems" text="Identity is an enabling layer for continuity, accountability and appropriate access. It is not the whole of interoperability." />
         <Card className="soft-card">
           <div className="content-block">
-            <h3>Building on existing identity systems</h3>
-            <p>
-              IML should build on national, local and foundational identity systems rather
-              than duplicate them. The World Bank Group's{" "}
-              <a
-                className="text-link"
-                href="https://id4d.worldbank.org/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Identification for Development (ID4D)
-              </a>{" "}
-              initiative is an important reference because it promotes inclusive,
-              trusted and privacy-preserving identification systems that help people
-              access services and exercise their rights.
-            </p>
-            <p>
-              IML does not treat ID4D as a ready-made health solution. It uses ID4D as a
-              reference framework for thinking about trust, inclusion, privacy,
-              accountability, open standards, vendor neutrality and safeguards against
-              exclusion or misuse.
-            </p>
-          </div>
-        </Card>
-
-        <div className="split-grid top-gap-small">
-          <Card>
-            <div className="content-block">
-              <h3>Identity-access layer</h3>
-              <p>
-                The preferred direction is not a new IML identifier, but a secure
-                identity-access layer. Existing identifiers remain under the authority of
-                the relevant national or institutional systems. IML explores whether a
-                verified identity assertion can be transformed into a purpose-limited,
-                auditable and privacy-preserving access token for a specific health use.
-              </p>
-              <div className="code-box mono">verified identity → access token → authorised health use</div>
-              <p>
-                Such uses could include care coordination, AMR/BMR review, public health
-                reporting, research linkage under governance or patient-mediated access.
-              </p>
-            </div>
-          </Card>
-
-          <Card>
-            <div className="content-block">
-              <h3>QR code, wallet and biometrics</h3>
-              <p>
-                A QR code or mobile application could carry a temporary verification token,
-                but it should never contain sensitive identity or health information in
-                clear text. Biometric authentication, if used, should remain local to the
-                user's device and serve only to unlock access or confirm presence.
-              </p>
-              <p>
-                This approach is compatible with emerging European digital identity and
-                health data governance frameworks, including the European Digital Identity
-                Wallet and the European Health Data Space.
-              </p>
-            </div>
-          </Card>
+            <h3>Identity and trust: not a new number, but a secure access layer</h3>
+            <p>IML does not propose a new personal identity number or a replacement for national identity systems. Instead, IML explores how existing national identifiers and emerging digital identity infrastructures, including the European Digital Identity Wallet, could support safer health information interoperability through secure, purpose-limited and auditable access tokens. A QR code or mobile application could be used as a practical access mechanism, but sensitive identity or health information should never be exposed in clear text. Biometric authentication, if used, should remain local to the user’s device and serve only to unlock access or confirm user presence. Any operational implementation would require scientific validation, privacy and security assessment, transparent governance, correction procedures, safeguards against exclusion or misuse, and legal review. At this stage, this is a research hypothesis, not an operational identity system.</p>
+        
+        <p>IML distinguishes identity, identifier, access token and carrier mechanism. It should avoid a new universal identity number and instead explore identity-light mechanisms: temporary signed access tokens, patient-mediated authorisation, trusted identity brokers, contextual pseudonyms and episode-based linkage. A QR code or mobile application would only carry a temporary, auditable and revocable token. The objective is not to expose identity, but to enable legitimate access to trustworthy health information under strict governance.</p> 
         </div>
-
-        <Card className="soft-card top-gap-small">
-          <div className="content-block">
-            <h3>IML proposal</h3>
-            <p>
-              Before any operational implementation, an IML identity-access layer would
-              require scientific validation, privacy and security assessment, transparent
-              governance, correction procedures, safeguards against exclusion or misuse,
-              legal review and alignment with ID4D principles, European frameworks and
-              national health data laws.
-            </p>
-            <p>
-              At this stage, this is a research hypothesis, not an operational identity
-              system.
-            </p>
-          </div>
         </Card>
       </div>
     </section>
@@ -687,7 +836,7 @@ function EvaluationPage() {
   return (
     <section className="section">
       <div className="container">
-        <SectionTitle badge="Operational pathway" title="From assessment to action" text="IML connects maturity assessment with concrete clinical and public health problems, while remaining independent of any particular vendor or platform." />
+        <SectionTitle badge="Operational pathway" title="From assessment to action" text="IML connects maturity assessment with practical implementation and concrete clinical and public health problems, while remaining independent of any particular vendor or platform." />
 
         <Card className="soft-card">
           <div className="content-block">
@@ -710,12 +859,12 @@ function EvaluationPage() {
           <Card className="value-card">
             <div className="metric-symbol">OCW</div>
             <h3>Open Clinical Workspace</h3>
-            <p>The proposed workspace is a vendor-neutral implementation bridge using open standards, import on demand, clinical context, auditability and modular services.</p>
+            <p>The Open Clinical Workspace is intended as an open-source, vendor-neutral reference environment. In digitally mature settings it should connect and contextualise existing systems; in underserved settings it should provide a progressively deployable clinical and public health foundation. Its design must acknowledge that about 2.2 billion people remain offline and 3.4 billion do not use mobile Internet, supporting local hosting, intermittent connectivity, offline-first workflows, modest hardware and multilingual use. It should reuse and extend mature open-source components rather than rebuild them.</p>
           </Card>
           <Card className="value-card">
             <div className="metric-symbol">Q</div>
             <h3>Technology quality in health</h3>
-            <p>Operating systems and databases are examined through health-relevant criteria such as reliability, security, resilience, maintainability, traceability, portability, recovery and long-term continuity, never through vendor preference.</p>
+            <p>IML treats digital health software quality as a patient-safety issue. Commercial, public and open-source solutions should be assessed through transparent health-oriented criteria, including preservation of meaning and clinical context, auditability, correction, security, resilience, portability, reversibility, accessibility, offline operation and long-term maintainability. Operating systems and databases are evaluated through real health use cases, never through vendor preference.</p>
           </Card>
         </div>
         <Card className="soft-card top-gap">
@@ -736,46 +885,84 @@ function EvaluationPage() {
 }
 
 function WorldPage() {
-  const [selectedCountry, setSelectedCountry] = useState("");
-  const options = useMemo(() => Object.keys(COUNTRIES).sort((a, b) => a.localeCompare(b)), []);
+  const [profiles, setProfiles] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [dataSource, setDataSource] = useState("loading");
+  const [warning, setWarning] = useState("");
+
+  useEffect(() => {
+    const controller = new AbortController();
+    loadGlobalMapProfiles(controller.signal)
+      .then((result) => {
+        setProfiles(result.profiles);
+        setDataSource(result.source);
+        setWarning(result.warning || "");
+      })
+      .catch((error) => {
+        if (error?.name !== "AbortError") {
+          setProfiles(fallbackProfiles());
+          setDataSource("prototype");
+          setWarning(error?.message || "Unable to load the Global Map API.");
+        }
+      });
+    return () => controller.abort();
+  }, []);
+
+  const profileByIso3 = useMemo(
+    () => Object.fromEntries(profiles.map((profile) => [profile.iso3, profile])),
+    [profiles]
+  );
+  const options = useMemo(
+    () => [...profiles].sort((a, b) => a.name.localeCompare(b.name)),
+    [profiles]
+  );
+  const selectedProfile = selectedCountry ? profileByIso3[selectedCountry.iso3] : null;
 
   return (
     <section className="section">
       <div className="container">
-        <SectionTitle badge="Exploratory country notes" title="Maturity profiles, not country rankings" text="The current country notes are illustrative working material. They are not formal IML assessments and should be refined through evidence review and local expertise." />
+        <SectionTitle badge="Global Map prototype" title="Maturity profiles, not country rankings" text="The map now treats every country as a stable geographic entity identified by its ISO alpha-3 code. PostgreSQL will store the evolving IML profile, six domain scores, evidence, strengths and improvement pathways. The map geometry remains independent from editorial data, so profiles can be added country by country without rewriting the interface." />
+
         <Card className="soft-card">
           <div className="content-block">
-            <h3>How to read a country profile</h3>
-            <div className="tile-grid">
-              {[
-                { title: "Evidence", text: "Document the sources, their date, scope and level of confidence." },
-                { title: "Context", text: "Interpret maturity within the legal, institutional, economic and clinical environment." },
-                { title: "Profile", text: "Show strengths and weaknesses across the six domains without reducing the ecosystem to a league table." },
-                { title: "Pathway", text: "Identify the next realistic improvement and the evidence needed to measure progress." },
-              ].map((item) => (
-                <div key={item.title} className="mini-tile">
-                  <div className="mini-tile-title">{item.title}</div>
-                  <div className="mini-tile-text">{item.text}</div>
-                </div>
-              ))}
+            <div className="profile-head">
+              <div>
+                <h3>Database-connected interface</h3>
+                <p>This Preview calls <span className="mono">/api/countries</span>, the PostgreSQL endpoint already connected to Neon and Vercel. If the endpoint is temporarily unavailable, the interface automatically retains the current 14 illustrative profiles as a local fallback.</p>
+              </div>
+              <div className={cls("data-source-pill", dataSource === "database" && "data-source-live")}>
+                <span className="status-dot" />
+                {dataSource === "loading" ? "Loading" : dataSource === "database" ? "PostgreSQL API" : "Prototype fallback"}
+              </div>
             </div>
+            {warning && dataSource === "prototype" ? <p className="form-note">API status: {warning}</p> : null}
           </div>
         </Card>
-        <div className="select-wrap top-gap">
-          <label>Choose a country</label>
-          <select value={selectedCountry} onChange={(event) => setSelectedCountry(event.target.value)}>
-            <option value="">Choose a country</option>
-            {options.map((country) => <option key={country} value={country}>{country}</option>)}
-          </select>
-        </div>
-        <div className="top-gap">
-          <WorldMap selectedCountry={selectedCountry} onSelect={setSelectedCountry} />
-        </div>
-        {selectedCountry ? (
-          <div className="top-gap">
-            <CountryProfile selectedCountry={selectedCountry} />
+
+        <div className="map-controls top-gap">
+          <div className="control-field">
+            <label htmlFor="country-select">Choose a published profile</label>
+            <select
+              id="country-select"
+              value={selectedProfile?.iso3 || ""}
+              onChange={(event) => {
+                const profile = profileByIso3[event.target.value];
+                if (profile) setSelectedCountry({ iso3: profile.iso3, name: profile.name });
+              }}
+            >
+              <option value="">Choose a country</option>
+              {options.map((profile) => <option key={profile.iso3} value={profile.iso3}>{profile.name}</option>)}
+            </select>
           </div>
-        ) : null}
+        </div>
+
+        <div className="top-gap-small">
+          <WorldMap profiles={profiles} selectedCountry={selectedCountry} onSelect={setSelectedCountry} metric="overall" />
+        </div>
+
+        <div className="top-gap">
+          <CountryProfile selectedCountry={selectedCountry} profile={selectedProfile} />
+        </div>
       </div>
     </section>
   );
