@@ -923,39 +923,6 @@ function WorldPage() {
       <div className="container">
         <SectionTitle badge="Global Map prototype" title="Maturity profiles, not country rankings" text="The map now treats every country as a stable geographic entity identified by its ISO alpha-3 code. PostgreSQL will store the evolving IML profile, six domain scores, evidence, strengths and improvement pathways. The map geometry remains independent from editorial data, so profiles can be added country by country without rewriting the interface." />
 
-        <Card className="soft-card">
-          <div className="content-block">
-            <div className="profile-head">
-              <div>
-                <h3>Database-connected interface</h3>
-                <p>This Preview calls <span className="mono">/api/countries</span>, the PostgreSQL endpoint already connected to Neon and Vercel. If the endpoint is temporarily unavailable, the interface automatically retains the current 14 illustrative profiles as a local fallback.</p>
-              </div>
-              <div className={cls("data-source-pill", dataSource === "database" && "data-source-live")}>
-                <span className="status-dot" />
-                {dataSource === "loading" ? "Loading" : dataSource === "database" ? "PostgreSQL API" : "Prototype fallback"}
-              </div>
-            </div>
-            {warning && dataSource === "prototype" ? <p className="form-note">API status: {warning}</p> : null}
-          </div>
-        </Card>
-
-        <div className="map-controls top-gap">
-          <div className="control-field">
-            <label htmlFor="country-select">Choose a published profile</label>
-            <select
-              id="country-select"
-              value={selectedProfile?.iso3 || ""}
-              onChange={(event) => {
-                const profile = profileByIso3[event.target.value];
-                if (profile) setSelectedCountry({ iso3: profile.iso3, name: profile.name });
-              }}
-            >
-              <option value="">Choose a country</option>
-              {options.map((profile) => <option key={profile.iso3} value={profile.iso3}>{profile.name}</option>)}
-            </select>
-          </div>
-        </div>
-
         <div className="top-gap-small">
           <WorldMap profiles={profiles} selectedCountry={selectedCountry} onSelect={setSelectedCountry} metric="overall" />
         </div>
