@@ -171,20 +171,62 @@ function cls(...items) {
   return items.filter(Boolean).join(" ");
 }
 
-function assertDataIntegrity() {
-  Object.entries(COUNTRIES).forEach(([name, country]) => {
+function assertDataIntegrity(countries = COUNTRIES, markers = MARKERS) {
+  Object.entries(countries).forEach(([name, country]) => {
     if (!Array.isArray(country.values) || country.values.length !== AXES.length) {
       throw new Error(`Country data for ${name} must provide ${AXES.length} axis values.`);
+    }
+    if (!country.values.every((value) => Number.isFinite(Number(value)))) {
+      throw new Error(`Country data for ${name} contains an invalid axis value.`);
     }
     if (!Array.isArray(country.strengths) || !Array.isArray(country.watch)) {
       throw new Error(`Country data for ${name} must include strengths and watch arrays.`);
     }
   });
-  MARKERS.forEach((marker) => {
-    if (!COUNTRIES[marker.name]) {
+
+  markers.forEach((marker) => {
+    if (!countries[marker.name]) {
       throw new Error(`Marker ${marker.name} must match a country entry.`);
     }
+    if (!Number.isFinite(Number(marker.x)) || !Number.isFinite(Number(marker.y))) {
+      throw new Error(`Marker ${marker.name} must provide valid map coordinates.`);
+    }
   });
+}
+
+function buildCountryData(apiCountries) {
+  if (!Array.isArray(apiCountries) || apiCountries.length === 0) {
+    throw new Error("The countries API returned no country profiles.");
+  }
+
+  const countries = {};
+  const markers = [];
+
+  apiCountries.forEach((item) => {
+    const name = String(item?.name || "").trim();
+    if (!name) {
+      throw new Error("A country profile is missing its name.");
+    }
+
+    countries[name] = {
+      subtitle: String(item?.subtitle || ""),
+      values: Array.isArray(item?.values) ? item.values.map(Number) : [],
+      strengths: Array.isArray(item?.strengths) ? item.strengths.map(String) : [],
+      watch: Array.isArray(item?.watch) ? item.watch.map(String) : [],
+    };
+
+    markers.push({
+      name,
+      x: Number(item?.map_x),
+      y: Number(item?.map_y),
+      labelDx: Number(item?.label_dx ?? 14),
+      labelDy: Number(item?.label_dy ?? 4),
+      textSize: Number(item?.text_size ?? 13),
+    });
+  });
+
+  assertDataIntegrity(countries, markers);
+  return { countries, markers };
 }
 
 function polar(angle, radius, center) {
@@ -311,7 +353,7 @@ function WorldTooltip({ marker, country, onEnter, onLeave }) {
   );
 }
 
-function WorldMap({ selectedCountry, onSelect }) {
+function WorldMap({ selectedCountry, onSelect, countries, markers }) {
   const [hoveredCountry, setHoveredCountry] = useState("");
   const closeTimerRef = useRef(null);
 
@@ -336,8 +378,8 @@ function WorldMap({ selectedCountry, onSelect }) {
     }, 140);
   };
 
-  const activeMarker = MARKERS.find((marker) => marker.name === hoveredCountry) || null;
-  const activeCountry = hoveredCountry ? COUNTRIES[hoveredCountry] : null;
+  const activeMarker = markers.find((marker) => marker.name === hoveredCountry) || null;
+  const activeCountry = hoveredCountry ? countries[hoveredCountry] : null;
 
   return (
     <div className="world-box">
@@ -371,7 +413,7 @@ function WorldMap({ selectedCountry, onSelect }) {
             <ellipse cx="805" cy="350" rx="17" ry="10" />
           </g>
           <g>
-            {MARKERS.map((marker) => {
+            {markers.map((marker) => {
               const selected = selectedCountry === marker.name;
               const hovered = hoveredCountry === marker.name;
               return (
@@ -390,8 +432,8 @@ function WorldMap({ selectedCountry, onSelect }) {
   );
 }
 
-function CountryProfile({ selectedCountry }) {
-  const selected = selectedCountry ? COUNTRIES[selectedCountry] : null;
+function CountryProfile({ selectedCountry, countries }) {
+  const selected = selectedCountry ? countries[selectedCountry] : null;
   if (!selected) return null;
 
   return (
@@ -442,8 +484,13 @@ function HomePage() {
             <div className="principle-line">Interoperability is the path.</div>
           </div>
           <p className="hero-text">IML helps researchers, clinicians, institutions, engineers, payers and public decision-makers understand, assess and progressively improve the ecosystems through which health information is generated, trusted, exchanged and used.</p>
+          <p className="hero-text">IML is not intended to remain a repository of ideas. Its next step is to seek institutional collaboration capable of reviewing and testing its methods and of progressively developing an open-source reference environment that can connect existing systems and provide a practical starting point in underserved settings.</p>
           <Card className="note-box">
-            <p>IML does not rank countries. It creates maturity profiles, identifies weaknesses in information continuity and supports practical improvement pathways.</p>
+            <p>
+              IML does not rank countries. It creates maturity profiles, identifies
+              weaknesses in information continuity and supports practical improvement
+              pathways.
+            </p>
           </Card>
           <div className="button-row">
             <a className="primary-button" href={MANUSCRIPT_URL} download>
@@ -486,8 +533,8 @@ function HomePage() {
         <div className="container">
           <Card className="soft-card">
             <div className="content-block">
-              <div className="section-badge">Complementary positioning</div>
-              <h3>Complementary to existing digital health maturity initiatives</h3>
+              <div className="section-badge">Positioning</div>
+              <h3>Existing digital health maturity initiatives</h3>
               <p>
                 IML is complementary to initiatives such as the{" "}
                 <a
@@ -516,7 +563,7 @@ function MethodologyPage() {
     { title: "Governance and Standards", symbol: "GOV", text: "Shared responsibilities, standards, legal clarity and accountable ecosystem governance." },
     { title: "Technical Interoperability", symbol: "TEC", text: "Secure, reliable and maintainable exchange across heterogeneous systems." },
     { title: "Identity, Consent and Trust", symbol: "ID", text: "Reliable identification, appropriate consent, provenance and confidence in information." },
-    { title: "Adoption and Use", symbol: "USE", text: "Practical integration into clinical, organisational and public health workflows." },
+    { title: "Adoption and Use", symbol: "USE", text: "Practical integration into workflows, with training, access rights and professional roles aligned with real care activity." },
     { title: "Security and Resilience", symbol: "SEC", text: "Protection, availability, recovery, traceability and continuity under disruption." },
     { title: "Feedback, Correction and Learning", symbol: "LRN", text: "Correction pathways, feedback loops, evaluation and institutional learning." },
   ];
@@ -576,7 +623,7 @@ function MethodologyPage() {
             <div className="content-block">
               <h3>Cross-cutting dimensions</h3>
               <ul className="compact-list">
-                <li><strong>Institutional Engagement</strong> examines practical responsiveness and collaboration.</li>
+                <li><strong>Institutional Engagement</strong> examines responsiveness, collaboration and the capacity to receive, review and test proposals.</li>
                 <li><strong>Payer Interoperability</strong> recognises public and private financing actors as part of the ecosystem.</li>
                 <li><strong>AI Readiness</strong> examines whether information is trustworthy enough for responsible AI-assisted use.</li>
               </ul>
@@ -592,91 +639,14 @@ function Id4dPage() {
   return (
     <section className="section">
       <div className="container">
-        <SectionTitle
-          badge="Identity & trust"
-          title="Secure access without creating a new number"
-          text="Identity is necessary for continuity, accountability and appropriate access. IML does not propose a new personal identity number. It explores how existing identity systems can support safer health information interoperability."
-        />
-
+        <SectionTitle badge="Identity infrastructure" title="Identity, consent and trust across fragmented systems" text="Identity is an enabling layer for continuity, accountability and appropriate access. It is not the whole of interoperability." />
         <Card className="soft-card">
           <div className="content-block">
-            <h3>Building on existing identity systems</h3>
-            <p>
-              IML should build on national, local and foundational identity systems rather
-              than duplicate them. The World Bank Group's{" "}
-              <a
-                className="text-link"
-                href="https://id4d.worldbank.org/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Identification for Development (ID4D)
-              </a>{" "}
-              initiative is an important reference because it promotes inclusive,
-              trusted and privacy-preserving identification systems that help people
-              access services and exercise their rights.
-            </p>
-            <p>
-              IML does not treat ID4D as a ready-made health solution. It uses ID4D as a
-              reference framework for thinking about trust, inclusion, privacy,
-              accountability, open standards, vendor neutrality and safeguards against
-              exclusion or misuse.
-            </p>
-          </div>
-        </Card>
-
-        <div className="split-grid top-gap-small">
-          <Card>
-            <div className="content-block">
-              <h3>Identity-access layer</h3>
-              <p>
-                The preferred direction is not a new IML identifier, but a secure
-                identity-access layer. Existing identifiers remain under the authority of
-                the relevant national or institutional systems. IML explores whether a
-                verified identity assertion can be transformed into a purpose-limited,
-                auditable and privacy-preserving access token for a specific health use.
-              </p>
-              <div className="code-box mono">verified identity → access token → authorised health use</div>
-              <p>
-                Such uses could include care coordination, AMR/BMR review, public health
-                reporting, research linkage under governance or patient-mediated access.
-              </p>
-            </div>
-          </Card>
-
-          <Card>
-            <div className="content-block">
-              <h3>QR code, wallet and biometrics</h3>
-              <p>
-                A QR code or mobile application could carry a temporary verification token,
-                but it should never contain sensitive identity or health information in
-                clear text. Biometric authentication, if used, should remain local to the
-                user's device and serve only to unlock access or confirm presence.
-              </p>
-              <p>
-                This approach is compatible with emerging European digital identity and
-                health data governance frameworks, including the European Digital Identity
-                Wallet and the European Health Data Space.
-              </p>
-            </div>
-          </Card>
+            <h3>Identity and trust: not a new number, but a secure access layer</h3>
+            <p>IML does not propose a new personal identity number or a replacement for national identity systems. Instead, IML explores how existing national identifiers and emerging digital identity infrastructures, including the European Digital Identity Wallet, could support safer health information interoperability through secure, purpose-limited and auditable access tokens. A QR code or mobile application could be used as a practical access mechanism, but sensitive identity or health information should never be exposed in clear text. Biometric authentication, if used, should remain local to the user’s device and serve only to unlock access or confirm user presence. Any operational implementation would require scientific validation, privacy and security assessment, transparent governance, correction procedures, safeguards against exclusion or misuse, and legal review. At this stage, this is a research hypothesis, not an operational identity system.</p>
+        
+        <p>IML distinguishes identity, identifier, access token and carrier mechanism. It should avoid a new universal identity number and instead explore identity-light mechanisms: temporary signed access tokens, patient-mediated authorisation, trusted identity brokers, contextual pseudonyms and episode-based linkage. A QR code or mobile application would only carry a temporary, auditable and revocable token. The objective is not to expose identity, but to enable legitimate access to trustworthy health information under strict governance.</p> 
         </div>
-
-        <Card className="soft-card top-gap-small">
-          <div className="content-block">
-            <h3>IML proposal</h3>
-            <p>
-              Before any operational implementation, an IML identity-access layer would
-              require scientific validation, privacy and security assessment, transparent
-              governance, correction procedures, safeguards against exclusion or misuse,
-              legal review and alignment with ID4D principles, European frameworks and
-              national health data laws.
-            </p>
-            <p>
-              At this stage, this is a research hypothesis, not an operational identity
-              system.
-            </p>
-          </div>
         </Card>
       </div>
     </section>
@@ -687,7 +657,7 @@ function EvaluationPage() {
   return (
     <section className="section">
       <div className="container">
-        <SectionTitle badge="Operational pathway" title="From assessment to action" text="IML connects maturity assessment with concrete clinical and public health problems, while remaining independent of any particular vendor or platform." />
+        <SectionTitle badge="Operational pathway" title="From assessment to action" text="IML connects maturity assessment with practical implementation and concrete clinical and public health problems, while remaining independent of any particular vendor or platform." />
 
         <Card className="soft-card">
           <div className="content-block">
@@ -710,12 +680,12 @@ function EvaluationPage() {
           <Card className="value-card">
             <div className="metric-symbol">OCW</div>
             <h3>Open Clinical Workspace</h3>
-            <p>The proposed workspace is a vendor-neutral implementation bridge using open standards, import on demand, clinical context, auditability and modular services.</p>
+            <p>The Open Clinical Workspace is intended as an open-source, vendor-neutral reference environment. In digitally mature settings it should connect and contextualise existing systems; in underserved settings it should provide a progressively deployable clinical and public health foundation. Its design must acknowledge that about 2.2 billion people remain offline and 3.4 billion do not use mobile Internet, supporting local hosting, intermittent connectivity, offline-first workflows, modest hardware and multilingual use. It should reuse and extend mature open-source components rather than rebuild them.</p>
           </Card>
           <Card className="value-card">
             <div className="metric-symbol">Q</div>
             <h3>Technology quality in health</h3>
-            <p>Operating systems and databases are examined through health-relevant criteria such as reliability, security, resilience, maintainability, traceability, portability, recovery and long-term continuity, never through vendor preference.</p>
+            <p>IML treats digital health software quality as a patient-safety issue. Commercial, public and open-source solutions should be assessed through transparent health-oriented criteria, including preservation of meaning and clinical context, auditability, correction, security, resilience, portability, reversibility, accessibility, offline operation and long-term maintainability. Operating systems and databases are evaluated through real health use cases, never through vendor preference.</p>
           </Card>
         </div>
         <Card className="soft-card top-gap">
@@ -737,12 +707,58 @@ function EvaluationPage() {
 
 function WorldPage() {
   const [selectedCountry, setSelectedCountry] = useState("");
-  const options = useMemo(() => Object.keys(COUNTRIES).sort((a, b) => a.localeCompare(b)), []);
+  const [countries, setCountries] = useState(COUNTRIES);
+  const [markers, setMarkers] = useState(MARKERS);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadCountries = async () => {
+      try {
+        const response = await fetch("/api/countries", {
+          method: "GET",
+          headers: { Accept: "application/json" },
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Countries API returned HTTP ${response.status}.`);
+        }
+
+        const payload = await response.json();
+        const next = buildCountryData(payload?.countries);
+
+        setCountries(next.countries);
+        setMarkers(next.markers);
+      } catch (error) {
+        if (error?.name !== "AbortError") {
+          console.warn(
+            "Unable to load country profiles from PostgreSQL. Local fallback data remain active.",
+            error
+          );
+        }
+      }
+    };
+
+    loadCountries();
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    if (selectedCountry && !countries[selectedCountry]) {
+      setSelectedCountry("");
+    }
+  }, [countries, selectedCountry]);
+
+  const options = useMemo(
+    () => Object.keys(countries).sort((a, b) => a.localeCompare(b)),
+    [countries]
+  );
 
   return (
     <section className="section">
       <div className="container">
-        <SectionTitle badge="Exploratory country notes" title="Maturity profiles, not country rankings" text="The current country notes are illustrative working material. They are not formal IML assessments and should be refined through evidence review and local expertise." />
+        <SectionTitle badge="Exploratory country notes" title="Maturity profiles, not country rankings" text="The current country notes are illustrative working material. They are not formal IML assessments and should be refined through evidence review and local expertise. At this stage, IML does not host an operational database and does not provide a production software platform. Database hosting and software deployment are future institutional objectives, conditional on formal partnership, ethical and legal review, cybersecurity safeguards, transparent governance and correction procedures." />
         <Card className="soft-card">
           <div className="content-block">
             <h3>How to read a country profile</h3>
@@ -769,11 +785,16 @@ function WorldPage() {
           </select>
         </div>
         <div className="top-gap">
-          <WorldMap selectedCountry={selectedCountry} onSelect={setSelectedCountry} />
+          <WorldMap
+            selectedCountry={selectedCountry}
+            onSelect={setSelectedCountry}
+            countries={countries}
+            markers={markers}
+          />
         </div>
         {selectedCountry ? (
           <div className="top-gap">
-            <CountryProfile selectedCountry={selectedCountry} />
+            <CountryProfile selectedCountry={selectedCountry} countries={countries} />
           </div>
         ) : null}
       </div>
