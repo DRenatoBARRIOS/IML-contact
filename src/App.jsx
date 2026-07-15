@@ -921,7 +921,7 @@ function WorldPage() {
   return (
     <section className="section">
       <div className="container">
-        <SectionTitle badge="Global Map prototype" title="Maturity profiles, not country rankings" text="The map now treats every country as a stable geographic entity identified by its ISO alpha-3 code. PostgreSQL will store the evolving IML profile, six domain scores, evidence, strengths and improvement pathways. The map geometry remains independent from editorial data, so profiles can be added country by country without rewriting the interface." />
+        <SectionTitle badge="Global Map prototype" title="Maturity profiles, not country rankings" text="The map treats every country as a stable geographic entity identified by its ISO alpha-3 code with six domain scores, evidence, strengths and improvement pathways." />
 
         <div className="top-gap-small">
           <WorldMap profiles={profiles} selectedCountry={selectedCountry} onSelect={setSelectedCountry} metric="overall" />
