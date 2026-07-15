@@ -435,6 +435,29 @@ function scoreFill(score, hasProfile) {
   return "#d8e8ed";
 }
 
+function isAntarcticaFeature(feature) {
+  const properties = feature?.properties || {};
+  const iso3 = String(
+    properties.iso3 ||
+      properties.ISO_A3 ||
+      properties.adm0_a3 ||
+      properties.ADM0_A3 ||
+      ""
+  )
+    .trim()
+    .toUpperCase();
+  const name = String(
+    properties.name || properties.NAME || properties.admin || properties.ADMIN || ""
+  )
+    .trim()
+    .toLowerCase();
+  const continent = String(properties.continent || properties.CONTINENT || "")
+    .trim()
+    .toLowerCase();
+
+  return iso3 === "ATA" || name === "antarctica" || continent === "antarctica";
+}
+
 function WorldMap({ profiles, selectedCountry, onSelect, metric }) {
   const [hovered, setHovered] = useState(null);
   const profileByIso3 = useMemo(
@@ -471,26 +494,25 @@ function WorldMap({ profiles, selectedCountry, onSelect, metric }) {
           <div className="eyebrow">PostgreSQL-ready prototype</div>
           <div className="overview-title">Interactive country profiles</div>
         </div>
-        <div className="helper-pill">Move over a country to preview it. Click to open its IML profile.</div>
+        <div className="helper-pill">Move over a country to preview it. Amber means selected for viewing, never scored.</div>
       </div>
       <div className="world-map-wrap map-stage">
         <svg viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`} className="world-map" aria-label="Interactive IML world map">
           <rect width={MAP_WIDTH} height={MAP_HEIGHT} rx="26" fill="#f8fbff" />
           <g>
             {worldCountries.features
-              .filter((feature) => feature.properties.iso3 !== "ATA")
+              .filter((feature) => !isAntarcticaFeature(feature))
               .map((feature) => {
               const iso3 = feature.properties.iso3;
               const profile = profileByIso3[iso3];
               const selected = selectedCountry?.iso3 === iso3;
               const score = metricScore(profile, metric);
-              const selectedWithoutProfile = selected && !profile;
               return (
                 <path
                   key={`${iso3}-${feature.properties.name}`}
                   d={geometryToPath(feature.geometry)}
                   className={cls("country-shape", profile && "country-shape-profile", selected && "country-shape-selected")}
-                  fill={selectedWithoutProfile ? "#f59e0b" : scoreFill(score, Boolean(profile))}
+                  fill={selected ? "#f59e0b" : scoreFill(score, Boolean(profile))}
                   stroke={selected ? "#92400e" : "#9fb0c4"}
                   strokeWidth={selected ? 2.2 : 0.65}
                   vectorEffect="non-scaling-stroke"
@@ -532,7 +554,7 @@ function WorldMap({ profiles, selectedCountry, onSelect, metric }) {
         <span>Higher maturity signal</span>
         <span className="legend-selected">
           <span className="legend-selected-swatch" aria-hidden="true" />
-          Selected country · no score
+          Selected country · viewing only, not a score
         </span>
       </div>
     </div>
@@ -848,7 +870,7 @@ function EvaluationPage() {
 
 function WorldPage() {
   const [profiles, setProfiles] = useState([]);
-  const [selectedCountry, setSelectedCountry] = useState({ iso3: "FRA", name: "France" });
+  const [selectedCountry, setSelectedCountry] = useState(null);
   const [metric, setMetric] = useState("overall");
   const [dataSource, setDataSource] = useState("loading");
   const [warning, setWarning] = useState("");
