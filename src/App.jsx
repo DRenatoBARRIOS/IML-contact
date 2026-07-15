@@ -119,12 +119,14 @@ const styles = `
   .country-shape { cursor: pointer; transition: fill 150ms ease, stroke 150ms ease, opacity 150ms ease; outline: none; }
   .country-shape:hover, .country-shape:focus { stroke: #0f172a; stroke-width: 1.4; opacity: 0.94; }
   .country-shape-profile { cursor: pointer; }
-  .country-shape-selected { filter: drop-shadow(0 2px 3px rgba(15, 23, 42, 0.28)); }
+  .country-shape-selected { filter: drop-shadow(0 0 5px rgba(217, 119, 6, 0.42)); }
   .map-tooltip-floating { position: absolute; z-index: 12; display: grid; gap: 3px; width: max-content; max-width: 220px; pointer-events: none; border: 1px solid rgba(203, 213, 225, 0.95); border-radius: 14px; background: rgba(255,255,255,0.96); padding: 9px 11px; box-shadow: 0 14px 36px rgba(15,23,42,0.18); font-size: 12px; }
   .map-tooltip-floating span { color: #64748b; }
   .map-legend { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 14px; color: #64748b; font-size: 11px; }
   .legend-swatches { display: grid; grid-template-columns: repeat(6, 24px); overflow: hidden; border: 1px solid #cbd5e1; border-radius: 999px; }
   .legend-swatches span { height: 10px; }
+  .legend-selected { display: inline-flex; align-items: center; gap: 6px; margin-left: 8px; color: #92400e; font-weight: 800; }
+  .legend-selected-swatch { width: 14px; height: 14px; border-radius: 4px; border: 2px solid #92400e; background: #f59e0b; }
   .data-source-pill { display: inline-flex; align-items: center; gap: 8px; flex: 0 0 auto; border: 1px solid #cbd5e1; border-radius: 999px; background: white; padding: 8px 12px; color: #475569; font-size: 12px; font-weight: 800; }
   .data-source-live { color: #14532d; border-color: #86efac; background: #f0fdf4; }
   .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
@@ -424,8 +426,7 @@ function metricScore(profile, metric) {
   return index >= 0 ? Number(profile.values[index] || 0) : null;
 }
 
-function scoreFill(score, hasProfile, selected) {
-  if (selected) return "#0f172a";
+function scoreFill(score, hasProfile) {
   if (!hasProfile || score === null) return "#e6edf5";
   if (score >= 85) return "#164e63";
   if (score >= 70) return "#0e7490";
@@ -476,19 +477,22 @@ function WorldMap({ profiles, selectedCountry, onSelect, metric }) {
         <svg viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`} className="world-map" aria-label="Interactive IML world map">
           <rect width={MAP_WIDTH} height={MAP_HEIGHT} rx="26" fill="#f8fbff" />
           <g>
-            {worldCountries.features.map((feature) => {
+            {worldCountries.features
+              .filter((feature) => feature.properties.iso3 !== "ATA")
+              .map((feature) => {
               const iso3 = feature.properties.iso3;
               const profile = profileByIso3[iso3];
               const selected = selectedCountry?.iso3 === iso3;
               const score = metricScore(profile, metric);
+              const selectedWithoutProfile = selected && !profile;
               return (
                 <path
                   key={`${iso3}-${feature.properties.name}`}
                   d={geometryToPath(feature.geometry)}
                   className={cls("country-shape", profile && "country-shape-profile", selected && "country-shape-selected")}
-                  fill={scoreFill(score, Boolean(profile), selected)}
-                  stroke={selected ? "#0f172a" : "#9fb0c4"}
-                  strokeWidth={selected ? 1.8 : 0.65}
+                  fill={selectedWithoutProfile ? "#f59e0b" : scoreFill(score, Boolean(profile))}
+                  stroke={selected ? "#92400e" : "#9fb0c4"}
+                  strokeWidth={selected ? 2.2 : 0.65}
                   vectorEffect="non-scaling-stroke"
                   tabIndex={iso3 && iso3 !== "-99" ? 0 : undefined}
                   role={iso3 && iso3 !== "-99" ? "button" : undefined}
@@ -526,6 +530,10 @@ function WorldMap({ profiles, selectedCountry, onSelect, metric }) {
           ))}
         </div>
         <span>Higher maturity signal</span>
+        <span className="legend-selected">
+          <span className="legend-selected-swatch" aria-hidden="true" />
+          Selected country · no score
+        </span>
       </div>
     </div>
   );
@@ -540,6 +548,7 @@ function CountryProfile({ selectedCountry, profile }) {
         <div className="content-block map-empty">
           <div className="section-badge">Profile not yet available</div>
           <h3>{selectedCountry.name}</h3>
+          <p><strong>Selection only:</strong> this highlight means that the country is being viewed. It does not represent an IML score or assessment.</p>
           <p>This country already exists on the map, but no IML evidence profile has been published in the database. The future editorial workflow can create a draft, attach sources, request local review and publish it without changing the map code.</p>
         </div>
       </Card>
