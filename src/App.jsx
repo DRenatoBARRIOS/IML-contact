@@ -112,7 +112,7 @@ const styles = `
   .compact-list li { line-height: 1.65; }
   .status-pill { display: inline-flex; align-items: center; border-radius: 999px; background: #f1f5f9; color: #334155; padding: 7px 11px; font-size: 12px; font-weight: 800; }
 
-  .map-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 320px)); gap: 16px; align-items: end; }
+  .map-controls { display: grid; grid-template-columns: minmax(0, 320px); gap: 16px; align-items: end; }
   .control-field label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 800; color: #334155; }
   .control-field select { width: 100%; border: 1px solid #cbd5e1; border-radius: 16px; background: #ffffff; padding: 12px 14px; color: #0f172a; outline: none; }
   .map-stage { overflow: hidden; border-radius: 24px; background: #f8fbff; }
@@ -199,6 +199,7 @@ const COUNTRY_ISO3 = {
 const AXIS_KEYS = ["governance", "technical", "identity", "adoption", "security", "learning"];
 const MAP_WIDTH = 1000;
 const MAP_HEIGHT = 500;
+const MAP_VISIBLE_HEIGHT = 420;
 const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || "";
 
 function fallbackProfiles() {
@@ -446,16 +447,31 @@ function isAntarcticaFeature(feature) {
   )
     .trim()
     .toUpperCase();
+
   const name = String(
-    properties.name || properties.NAME || properties.admin || properties.ADMIN || ""
+    properties.name ||
+      properties.NAME ||
+      properties.admin ||
+      properties.ADMIN ||
+      ""
   )
     .trim()
     .toLowerCase();
-  const continent = String(properties.continent || properties.CONTINENT || "")
+
+  const continent = String(
+    properties.continent ||
+      properties.CONTINENT ||
+      ""
+  )
     .trim()
     .toLowerCase();
 
-  return iso3 === "ATA" || name === "antarctica" || continent === "antarctica";
+  return (
+    iso3 === "ATA" ||
+    name === "antarctica" ||
+    name.includes("antarctica") ||
+    continent === "antarctica"
+  );
 }
 
 function WorldMap({ profiles, selectedCountry, onSelect, metric }) {
@@ -497,8 +513,8 @@ function WorldMap({ profiles, selectedCountry, onSelect, metric }) {
         <div className="helper-pill">Move over a country to preview it. Amber means selected for viewing, never scored.</div>
       </div>
       <div className="world-map-wrap map-stage">
-        <svg viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`} className="world-map" aria-label="Interactive IML world map">
-          <rect width={MAP_WIDTH} height={MAP_HEIGHT} rx="26" fill="#f8fbff" />
+        <svg viewBox={`0 0 ${MAP_WIDTH} ${MAP_VISIBLE_HEIGHT}`} className="world-map" aria-label="Interactive IML world map">
+          <rect width={MAP_WIDTH} height={MAP_VISIBLE_HEIGHT} rx="26" fill="#f8fbff" />
           <g>
             {worldCountries.features
               .filter((feature) => !isAntarcticaFeature(feature))
@@ -871,7 +887,6 @@ function EvaluationPage() {
 function WorldPage() {
   const [profiles, setProfiles] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState(null);
-  const [metric, setMetric] = useState("overall");
   const [dataSource, setDataSource] = useState("loading");
   const [warning, setWarning] = useState("");
 
@@ -939,17 +954,10 @@ function WorldPage() {
               {options.map((profile) => <option key={profile.iso3} value={profile.iso3}>{profile.name}</option>)}
             </select>
           </div>
-          <div className="control-field">
-            <label htmlFor="metric-select">Colour the map by</label>
-            <select id="metric-select" value={metric} onChange={(event) => setMetric(event.target.value)}>
-              <option value="overall">Six-domain overview</option>
-              {AXES.map((axis, index) => <option key={AXIS_KEYS[index]} value={AXIS_KEYS[index]}>{axis}</option>)}
-            </select>
-          </div>
         </div>
 
         <div className="top-gap-small">
-          <WorldMap profiles={profiles} selectedCountry={selectedCountry} onSelect={setSelectedCountry} metric={metric} />
+          <WorldMap profiles={profiles} selectedCountry={selectedCountry} onSelect={setSelectedCountry} metric="overall" />
         </div>
 
         <div className="top-gap">
