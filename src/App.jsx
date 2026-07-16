@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import manuscriptPdf from "./IML_Founding_Manuscript.pdf";
+import logoImage from "./assets/iml-logo.png";
 import worldCountries from "./world-countries.json";
 
 const styles = `
@@ -21,7 +22,7 @@ const styles = `
   .brand-button { display: flex; align-items: center; gap: 12px; border: 0; background: transparent; cursor: pointer; text-align: left; padding: 0; }
   .brand-title { font-size: 14px; color: #334155; }
   .logo-box { height: 56px; width: 56px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 18px; border: 1px solid #dbe2ea; background: #ffffff; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06); }
-  .logo-svg { height: 44px; width: 44px; }
+  .logo-svg { display: block; width: 52px; height: 52px; object-fit: contain; }
   .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em; color: #64748b; }
   .topnav, .mobile-nav { display: flex; gap: 8px; flex-wrap: wrap; }
   .mobile-nav { display: none; padding-bottom: 16px; overflow-x: auto; }
@@ -288,15 +289,11 @@ function polar(angle, radius, center) {
 function LogoMark() {
   return (
     <div className="logo-box">
-      <svg viewBox="0 0 64 64" className="logo-svg" aria-label="IML logo">
-        <g fill="none" stroke="#0f172a" strokeWidth="1.45" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="10.5" y="10.5" width="43" height="43" rx="1.6" />
-          <path d="M32 15.5 L46 44 H18 Z" />
-          <path d="M20.6 33 C23.7 28.1, 28.7 25.6, 31.7 25.6 C34.8 25.6, 39.8 28.1, 43.4 33 C39.8 37.9, 34.8 40.4, 31.7 40.4 C28.7 40.4, 23.7 37.9, 20.6 33 Z" />
-          <circle cx="30.7" cy="33" r="4.2" fill="#0f172a" stroke="none" />
-          <circle cx="32" cy="31.7" r="0.95" fill="white" stroke="none" />
-        </g>
-      </svg>
+      <img
+        src={logoImage}
+        className="logo-svg"
+        alt="IML logo"
+      />
     </div>
   );
 }
