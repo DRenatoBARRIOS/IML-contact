@@ -1,7 +1,5 @@
 import { neon } from "@neondatabase/serverless";
-git add .
-git commit -m "Add documentary sources to country API"
-git push
+
 export async function GET() {
   if (!process.env.DATABASE_URL) {
     return Response.json(
@@ -58,7 +56,26 @@ export async function GET() {
               AND n.note_type = 'watch'
           ),
           '[]'::json
-        ) AS watch
+        ) AS watch,
+
+        COALESCE(
+          (
+            SELECT json_agg(
+              json_build_object(
+                'title', s.title,
+                'publisher', s.publisher,
+                'url', s.source_url,
+                'publication_date', s.publication_date,
+                'accessed_at', s.accessed_at,
+                'note', s.evidence_note
+              )
+              ORDER BY s.id
+            )
+            FROM country_profile_sources s
+            WHERE s.profile_id = cp.id
+          ),
+          '[]'::json
+        ) AS sources
 
       FROM countries c
       JOIN country_profiles cp
