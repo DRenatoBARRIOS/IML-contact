@@ -987,10 +987,9 @@ function CountryProfile({ selectedCountry, profile }) {
             assessment.
           </p>
           <p>
-            This country already exists on the map, but no IML evidence profile
-            has been published in the database. The future editorial workflow
+            The future editorial workflow
             can create a draft, attach sources, request local review and publish
-            it without changing the map code.
+            it.
           </p>
         </div>
       </Card>
