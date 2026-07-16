@@ -230,7 +230,6 @@ function normalizeProfile(profile) {
     iso3: String(profile.iso3 || profile.country_iso3 || "").toUpperCase(),
     name: profile.name || profile.country_name || profile.countryName || "Unnamed country",
     slug: profile.slug || "",
-    status: profile.status || profile.assessment_status || "published",
     version: profile.version || "",
     updatedAt: profile.updatedAt || profile.updated_at || profile.assessment_date || profile.assessed_at || profile.published_at || "",
     evidenceLevel: profile.evidenceLevel || profile.evidence_level || "Exploratory working profile",
