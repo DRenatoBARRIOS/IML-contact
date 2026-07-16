@@ -674,15 +674,95 @@ function CountryProfile({ selectedCountry, profile }) {
         </Card>
 
         <Card className="soft-card">
-          <div className="content-block">
-            <h3>Evidence</h3>
-            <p>
-              {profile.sources.length
-                ? `${profile.sources.length} source(s) attached to this profile.`
-                : "No documentary sources are attached to this illustrative seed profile yet."}
-            </p>
-          </div>
-        </Card>
+  <div className="content-block">
+    <h3>Evidence</h3>
+
+    {profile.sources.length ? (
+      <div className="stack-list">
+        {profile.sources.map((source, sourceIndex) => (
+          <details
+            className="list-box"
+            key={`${source.url || source.title || "source"}-${sourceIndex}`}
+          >
+            <summary
+              style={{
+                cursor: "pointer",
+                fontWeight: 800,
+                color: "#0f172a",
+              }}
+            >
+              {source.title || `Source ${sourceIndex + 1}`}
+              {source.publisher ? ` — ${source.publisher}` : ""}
+            </summary>
+
+            {source.note ? (
+              <p style={{ marginBottom: source.url ? "10px" : 0 }}>
+                {source.note}
+              </p>
+            ) : null}
+
+            {Array.isArray(source.indicators) &&
+            source.indicators.length > 0 ? (
+              <div className="stack-list top-gap-small">
+                {source.indicators.map(
+                  (indicator, indicatorIndex) => (
+                    <div
+                      className="mini-tile"
+                      key={`${
+                        indicator.code || "indicator"
+                      }-${indicatorIndex}`}
+                    >
+                      <div className="mini-tile-title">
+                        {indicator.code || "IML indicator"}
+                        {indicator.evidence_level
+                          ? ` · Evidence ${indicator.evidence_level}`
+                          : ""}
+                      </div>
+
+                      {indicator.summary ? (
+                        <div className="mini-tile-text">
+                          {indicator.summary}
+                        </div>
+                      ) : null}
+
+                      {indicator.limitation ? (
+                        <div
+                          className="mini-tile-text"
+                          style={{ marginTop: "8px" }}
+                        >
+                          <strong>Limitation:</strong>{" "}
+                          {indicator.limitation}
+                        </div>
+                      ) : null}
+                    </div>
+                  )
+                )}
+              </div>
+            ) : null}
+
+            {source.url ? (
+              <p style={{ marginBottom: 0 }}>
+                <a
+                  className="text-link"
+                  href={source.url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Open official source
+                </a>
+              </p>
+            ) : null}
+          </details>
+        ))}
+      </div>
+    ) : (
+      <p>
+        No documentary sources are attached to this illustrative seed
+        profile yet.
+      </p>
+    )}
+  </div>
+</Card>
       </div>
     </div>
   );
