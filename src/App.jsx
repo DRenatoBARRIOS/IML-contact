@@ -636,11 +636,60 @@ function CountryProfile({ selectedCountry, profile }) {
           </div>
         </Card>
         <Card className="soft-card">
-          <div className="content-block">
-            <h3>Evidence</h3>
-            <p>{profile.sources.length ? `${profile.sources.length} source(s) attached to this profile.` : "No documentary sources are attached to this illustrative seed profile yet."}</p>
+  <div className="content-block">
+    <h3>Evidence</h3>
+
+    <p className="muted-copy" style={{ marginBottom: "1rem" }}>
+      Documentary evidence supporting this exploratory profile.
+    </p>
+
+    {profile.sources?.length ? (
+      <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+        {profile.sources.map((source, index) => (
+          <div
+            key={index}
+            style={{
+              paddingBottom: "1rem",
+              borderBottom: "1px solid rgba(15,23,42,.08)"
+            }}
+          >
+            <div style={{ fontWeight: 600 }}>
+              {source.title}
+            </div>
+
+            <div
+              className="muted-copy"
+              style={{ marginTop: ".2rem", marginBottom: ".6rem" }}
+            >
+              {source.publisher}
+            </div>
+
+            {source.note && (
+              <p style={{ marginBottom: ".6rem" }}>
+                {source.note}
+              </p>
+            )}
+
+            <a
+              href={source.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                fontWeight: 500,
+                color: "#2563eb",
+                textDecoration: "none"
+              }}
+            >
+              Official documentation ↗
+            </a>
           </div>
-        </Card>
+        ))}
+      </div>
+    ) : (
+      <p>No documentary sources are attached to this profile yet.</p>
+    )}
+  </div>
+</Card>
       </div>
     </div>
   );
