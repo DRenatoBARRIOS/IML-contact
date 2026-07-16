@@ -1017,35 +1017,58 @@ function ContactPage() {
           text="IML welcomes methodological criticism, evidence review, clinical expertise, institutional perspectives and proposals for collaborative case studies."
         />
         <div className="split-grid profile-grid">
-          <Card>
-            <div className="content-block">
-              <h3>Direct contact</h3>
-              <p>
-                For scientific review, collaboration or questions about the
-                framework, contact IML directly by email.
-              </p>
-              <div className="mail-box">
-                <a className="text-link" href={`mailto:${email}`}>
-                  {email}
-                </a>
-              </div>
-              <div className="form-actions top-gap-small">
-                <a className="primary-button" href={mailtoLink}>
-                  Send email
-                </a>
-                <button
-                  type="button"
-                  className="secondary-button"
-                  onClick={copyEmail}
-                >
-                  Copy email
-                </button>
-              </div>
-              {copied ? (
-                <p className="form-note top-gap-small">Email copied.</p>
-              ) : null}
-            </div>
-          </Card>
+         <Card>
+  <div className="content-block">
+    <div className="profile-head">
+      <div>
+        <div className="eyebrow">{profile.iso3}</div>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            flexWrap: "wrap",
+          }}
+        >
+          <h3 style={{ margin: 0 }}>{profile.name}</h3>
+
+          <div
+            className="score-pill"
+            title="Exploratory overall signal, not a country ranking"
+          >
+            {averageScore(profile.values)}/100
+          </div>
+        </div>
+      </div>
+
+      <div className="status-pill">{profile.status}</div>
+    </div>
+
+    <p className="muted-copy">{profile.subtitle}</p>
+
+    <div className="profile-meta">
+      <span>Version {profile.version || "pending"}</span>
+      <span>{profile.evidenceLevel}</span>
+      <span>
+        {profile.updatedAt
+          ? `Updated ${profile.updatedAt}`
+          : "Review date pending"}
+      </span>
+    </div>
+
+    <HexagonChart values={profile.values} />
+
+    <div className="profile-stat-grid">
+      {AXES.map((axis, index) => (
+        <div className="profile-stat" key={axis}>
+          <span>{axis}</span>
+          <strong>{profile.values[index]}</strong>
+        </div>
+      ))}
+    </div>
+  </div>
+</Card>
           <div className="stack-layout">
             <Card className="soft-card">
               <div className="content-block">
