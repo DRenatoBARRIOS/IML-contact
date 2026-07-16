@@ -137,6 +137,38 @@ const styles = `
   .profile-stat { display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid #e2e8f0; border-radius: 12px; padding: 9px 10px; font-size: 12px; color: #64748b; }
   .profile-stat strong { color: #0f172a; font-size: 15px; }
   .map-empty { max-width: 760px; }
+  .profile-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .profile-title-row h3 { margin: 0; }
+  .country-report { margin-top: 28px; overflow: hidden; }
+  .country-report > summary { display: flex; align-items: center; justify-content: space-between; gap: 14px; cursor: pointer; list-style: none; padding: 22px 28px; font-weight: 800; color: #0f172a; }
+  .country-report > summary::-webkit-details-marker { display: none; }
+  .country-report > summary::after { content: "Open"; border-radius: 999px; background: #0f172a; color: white; padding: 6px 10px; font-size: 12px; }
+  .country-report[open] > summary { border-bottom: 1px solid #e2e8f0; }
+  .country-report[open] > summary::after { content: "Close"; }
+  .report-body { padding: 28px; background: #ffffff; }
+  .report-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+  .report-heading h2 { margin: 4px 0 6px; font-size: 2rem; letter-spacing: -0.03em; }
+  .report-overall { border-radius: 22px; background: #0f172a; color: white; padding: 14px 18px; min-width: 112px; text-align: center; }
+  .report-overall strong { display: block; font-size: 1.7rem; line-height: 1; }
+  .report-overall span { font-size: 11px; opacity: 0.78; }
+  .report-actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 20px 0 4px; }
+  .report-section { margin-top: 28px; }
+  .report-section h3 { margin-bottom: 12px; }
+  .report-score-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .report-domain { border: 1px solid #e2e8f0; border-radius: 18px; padding: 16px; background: #f8fafc; break-inside: avoid; }
+  .report-domain-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+  .report-domain-head strong { font-size: 15px; }
+  .report-domain-score { border-radius: 999px; background: #0f172a; color: white; padding: 4px 8px; font-size: 12px; font-weight: 800; }
+  .report-domain p { margin: 0; font-size: 14px; line-height: 1.65; }
+  .report-domain-evidence { margin-top: 12px; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+  .report-domain-evidence ul { margin: 7px 0 0; padding-left: 18px; color: #475569; }
+  .report-domain-evidence li { margin-bottom: 7px; font-size: 13px; line-height: 1.55; }
+  .report-source { border: 1px solid #e2e8f0; border-radius: 18px; padding: 16px; background: #ffffff; break-inside: avoid; }
+  .report-source + .report-source { margin-top: 12px; }
+  .report-source-title { font-weight: 800; color: #0f172a; }
+  .report-source-meta { margin-top: 3px; color: #64748b; font-size: 12px; }
+  .report-indicator { margin-top: 12px; border-left: 3px solid #cbd5e1; padding-left: 12px; }
+  .report-disclaimer { border-left: 3px solid #0f172a; padding-left: 14px; color: #475569; }
   @media (max-width: 1100px) {
     .hero-grid, .split-grid, .footer-grid, .profile-grid, .metric-grid.two-up, .tile-grid, .tile-grid.three-up, .form-grid { grid-template-columns: 1fr; }
     .map-controls { grid-template-columns: 1fr; }
@@ -150,6 +182,19 @@ const styles = `
     .hero-grid { gap: 22px; }
     .map-legend { justify-content: flex-start; flex-wrap: wrap; }
     .profile-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 820px) {
+    .report-score-grid { grid-template-columns: 1fr; }
+  }
+  @media print {
+    body * { visibility: hidden !important; }
+    .country-report, .country-report * { visibility: visible !important; }
+    .country-report { position: absolute; inset: 0 auto auto 0; width: 100%; margin: 0; border: 0; border-radius: 0; box-shadow: none; }
+    .country-report > summary, .report-actions { display: none !important; }
+    .report-body { display: block !important; padding: 0; }
+    .report-score-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .report-domain, .report-source { background: white; }
+    a { color: #0f172a !important; text-decoration: none !important; }
   }
 `;
 const MANUSCRIPT_URL = manuscriptPdf;
@@ -168,7 +213,7 @@ const COUNTRIES = {
   Brazil: { subtitle: "Large-scale interoperability effort centred on RNDS, SUS Digital and citizen-facing access.", values: [84, 85, 76, 80, 81, 67], strengths: ["RNDS platform", "Meu SUS Digital", "Nationwide SUS Digital adhesion"], watch: ["Federal complexity", "Uneven local implementation", "Less visible correction layer"] },
   Canada: { subtitle: "Strong policy vision, but constrained by a multi-jurisdictional landscape and uneven implementation.", values: [71, 76, 68, 74, 77, 58], strengths: ["Pan-Canadian roadmap", "Strong digital health policy capacity", "Connected care priorities"], watch: ["Jurisdictional fragmentation", "Variable implementation maturity", "Coordination complexity"] },
   China: { subtitle: "Large-scale state-led digital health environment with strong deployment capacity, but more limited transparency on interoperability quality, recourse and practical correction pathways.", values: [74, 76, 70, 73, 71, 45], strengths: ["Large-scale public digital infrastructure", "Strong administrative steering capacity", "Platform-scale deployment potential"], watch: ["Public transparency on interoperability maturity remains more limited than in some peer systems", "Patient-facing correction and redress pathways are harder to read from open documentation", "Cross-actor trust and real-world continuity are more difficult to assess than infrastructure scale alone"] },
-  France: { subtitle: "France combines strong identity and doctrinal foundations with comparatively weak real-world interoperability: connectivity remains concentrated in institutional corridors, DMP feeding is irregular, and correction mechanisms remain largely formal rather than operational.", values: [66, 45, 82, 42, 80, 15], strengths: ["INS identity layer", "Pro Santé Connect", "CI-SIS doctrine"], watch: ["Connectivity remains concentrated in state-centred channels", "DMP and Mon espace santé feeding remain irregular", "Correction and redress remain slow, opaque and frequently ineffective"] },
+  France: { subtitle: "France combines strong identity and doctrinal foundations with comparatively weak real-world interoperability: connectivity remains concentrated in institutional corridors, DMP feeding is irregular, and correction mechanisms remain largely formal rather than operational.", values: [50, 45, 82, 42, 80, 15], strengths: ["INS identity layer", "Pro Santé Connect", "CI-SIS doctrine"], watch: ["Connectivity remains concentrated in state-centred channels", "DMP and Mon espace santé feeding remain irregular", "Correction and redress remain slow, opaque and frequently ineffective"] },
   Guatemala: { subtitle: "Foundational identity system exists, but health-sector integration remains comparatively early and uneven.", values: [54, 46, 62, 43, 55, 33], strengths: ["RENAP registry", "RENAP-MSPAS coordination", "Digital transformation agenda"], watch: ["Early-stage health interoperability", "Limited linkage to care pathways", "Weak ecosystem-wide correction loops"] },
   India: { subtitle: "Large digital-health identity ecosystem built around ABDM, ABHA and structured registries.", values: [80, 81, 86, 74, 79, 61], strengths: ["ABHA", "Health Facility Registry", "Provider Registry"], watch: ["Uneven state-level implementation", "Scale and diversity", "Less legible correction capacity"] },
   Japan: { subtitle: "Mature identity-linked health access environment combined with strong regulatory data infrastructure.", values: [82, 85, 88, 79, 86, 67], strengths: ["My Number health linkage", "Identity-linked access", "MID-NET"], watch: ["Governance and trust management", "Not all domains move at same speed", "Correction separate from maturity"] },
@@ -208,6 +253,7 @@ function fallbackProfiles() {
     iso3: COUNTRY_ISO3[name],
     name,
     slug: name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
+    status: "exploratory",
     version: "prototype-0.1",
     updatedAt: "2026-07-15",
     evidenceLevel: "Illustrative working note",
@@ -229,6 +275,7 @@ function normalizeProfile(profile) {
     iso3: String(profile.iso3 || profile.country_iso3 || "").toUpperCase(),
     name: profile.name || profile.country_name || profile.countryName || "Unnamed country",
     slug: profile.slug || "",
+    status: profile.status || profile.assessment_status || "published",
     version: profile.version || "",
     updatedAt: profile.updatedAt || profile.updated_at || profile.assessment_date || profile.assessed_at || profile.published_at || "",
     evidenceLevel: profile.evidenceLevel || profile.evidence_level || "Exploratory working profile",
@@ -572,6 +619,359 @@ function WorldMap({ profiles, selectedCountry, onSelect, metric }) {
   );
 }
 
+const DOMAIN_REPORT_GUIDANCE = {
+  Governance:
+    "Examines whether standards, responsibilities, oversight and institutional decisions produce accountable and coordinated action.",
+  Technical:
+    "Examines whether systems can exchange structured information securely, reliably and without avoidable document-only barriers.",
+  Identity:
+    "Examines identification, trusted professional access, consent, provenance and confidence in the information exchanged.",
+  Adoption:
+    "Examines whether infrastructure and standards are actually integrated into routine clinical, organisational and public-health workflows.",
+  Security:
+    "Examines protection, availability, traceability, recovery and continuity under disruption.",
+  Learning:
+    "Examines whether errors, complaints, audits and outcomes lead to timely correction, propagation of corrections and durable institutional learning.",
+};
+
+const DOMAIN_INDICATOR_PREFIX = {
+  Governance: "GOV",
+  Technical: "TEC",
+  Identity: "IDT",
+  Adoption: "ADP",
+  Security: "SEC",
+  Learning: "LRN",
+};
+
+function domainEvidence(profile, axis) {
+  const prefix = DOMAIN_INDICATOR_PREFIX[axis];
+  if (!prefix || !Array.isArray(profile?.sources)) return [];
+
+  return profile.sources.flatMap((source) =>
+    (Array.isArray(source.indicators) ? source.indicators : [])
+      .filter((indicator) =>
+        String(indicator.code || "")
+          .toUpperCase()
+          .startsWith(prefix)
+      )
+      .map((indicator) => ({ source, indicator }))
+  );
+}
+
+function scoreInterpretation(score) {
+  const value = Number(score || 0);
+  if (value >= 80) {
+    return "Strong documented foundations are present, but the score should still be read alongside implementation limits and source coverage.";
+  }
+  if (value >= 60) {
+    return "The profile indicates substantial foundations with material variation, incomplete adoption or unresolved operational gaps.";
+  }
+  if (value >= 40) {
+    return "The profile indicates partial maturity: formal structures exist, but delivery, consistency or practical implementation remains limited.";
+  }
+  return "The profile indicates major unresolved gaps and limited evidence that correction, continuity or implementation works reliably in practice.";
+}
+
+function countryReportText(profile) {
+  const lines = [
+    `IML EXPLANATION REPORT — ${profile.name}`,
+    `ISO3: ${profile.iso3}`,
+    `Overall exploratory signal: ${averageScore(profile.values)}/100`,
+    `Version: ${profile.version || "pending"}`,
+    `Evidence status: ${profile.evidenceLevel || "Exploratory working profile"}`,
+    `Updated: ${profile.updatedAt || "Review date pending"}`,
+    "",
+    "STATUS AND SCOPE",
+    "This profile is an exploratory IML assessment. It is not a country ranking, certification or substitute for indicator-by-indicator review.",
+    "",
+    "PROFILE SUMMARY",
+    profile.subtitle || "No profile summary is available.",
+    "",
+    "DOMAIN SCORES",
+  ];
+
+  AXES.forEach((axis, index) => {
+    const score = Number(profile.values?.[index] || 0);
+    const linkedEvidence = domainEvidence(profile, axis);
+
+    lines.push(`${axis}: ${score}/100`);
+    lines.push(`${DOMAIN_REPORT_GUIDANCE[axis]} ${scoreInterpretation(score)}`);
+
+    if (linkedEvidence.length) {
+      lines.push("Linked evidence:");
+      linkedEvidence.forEach(({ source, indicator }) => {
+        lines.push(
+          `• ${indicator.code || "Indicator"} — ${source.title || "Untitled source"}`
+        );
+        if (indicator.summary) lines.push(`  Support: ${indicator.summary}`);
+        if (indicator.limitation)
+          lines.push(`  Limitation: ${indicator.limitation}`);
+      });
+    } else {
+      lines.push("Linked evidence: no source-indicator link is currently attached to this domain.");
+    }
+
+    lines.push("");
+  });
+
+  lines.push("STRENGTHS");
+  (profile.strengths || []).forEach((item) => lines.push(`• ${item}`));
+  lines.push("", "POINTS TO WATCH");
+  (profile.watch || []).forEach((item) => lines.push(`• ${item}`));
+  lines.push("", "EVIDENCE REGISTER");
+
+  if (profile.sources?.length) {
+    profile.sources.forEach((source, sourceIndex) => {
+      lines.push(
+        `${sourceIndex + 1}. ${source.title || "Untitled source"}${source.publisher ? ` — ${source.publisher}` : ""}`
+      );
+      if (source.note) lines.push(`   Note: ${source.note}`);
+      if (source.url) lines.push(`   URL: ${source.url}`);
+      if (Array.isArray(source.indicators)) {
+        source.indicators.forEach((indicator) => {
+          lines.push(
+            `   Indicator ${indicator.code || "not specified"}${indicator.evidence_level ? `, evidence ${indicator.evidence_level}` : ""}${indicator.support_type ? `, ${indicator.support_type}` : ""}`
+          );
+          if (indicator.summary) lines.push(`   Support: ${indicator.summary}`);
+          if (indicator.limitation) lines.push(`   Limitation: ${indicator.limitation}`);
+        });
+      }
+      lines.push("");
+    });
+  } else {
+    lines.push("No documentary sources are attached to this profile.");
+  }
+
+  lines.push(
+    "METHODOLOGICAL NOTE",
+    "The overall signal is the rounded arithmetic mean of the six current domain scores. It summarises the profile but does not replace the underlying evidence, limitations and review process."
+  );
+
+  return lines.join("\n");
+}
+
+async function copyCountryReport(profile) {
+  try {
+    await navigator.clipboard.writeText(countryReportText(profile));
+  } catch {
+    window.alert("The report could not be copied automatically. Please use Print or save as PDF.");
+  }
+}
+
+function CountryReport({ profile }) {
+  if (!profile) return null;
+
+  const overall = averageScore(profile.values);
+
+  return (
+    <details className="card soft-card country-report">
+      <summary>
+        <span>Generate explanation report for {profile.name}</span>
+      </summary>
+
+      <article className="report-body">
+        <div className="report-heading">
+          <div>
+            <div className="eyebrow">IML explanation report · {profile.iso3}</div>
+            <h2>{profile.name}</h2>
+            <p className="muted-copy">
+              Generated from the current country profile, domain scores,
+              strengths, points to watch and attached documentary evidence.
+            </p>
+          </div>
+
+          <div className="report-overall">
+            <strong>{overall}/100</strong>
+            <span>Exploratory signal</span>
+          </div>
+        </div>
+
+        <div className="report-actions">
+          <button
+            type="button"
+            className="primary-button"
+            onClick={() => window.print()}
+          >
+            Print or save as PDF
+          </button>
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() => copyCountryReport(profile)}
+          >
+            Copy report
+          </button>
+        </div>
+
+        <section className="report-section">
+          <h3>Status and scope</h3>
+          <p className="report-disclaimer">
+            This is an exploratory IML profile. It is not a country ranking,
+            certification or substitute for an indicator-by-indicator review.
+            The overall signal is the rounded arithmetic mean of the six
+            current domain scores.
+          </p>
+        </section>
+
+        <section className="report-section">
+          <h3>Profile summary</h3>
+          <p>{profile.subtitle || "No profile summary is available."}</p>
+          <div className="profile-meta">
+            <span>Version {profile.version || "pending"}</span>
+            <span>{profile.evidenceLevel || "Exploratory working profile"}</span>
+            <span>
+              {profile.updatedAt
+                ? `Updated ${profile.updatedAt}`
+                : "Review date pending"}
+            </span>
+          </div>
+        </section>
+
+        <section className="report-section">
+          <h3>Domain explanations</h3>
+          <div className="report-score-grid">
+            {AXES.map((axis, index) => {
+              const score = Number(profile.values?.[index] || 0);
+              const linkedEvidence = domainEvidence(profile, axis);
+
+              return (
+                <div className="report-domain" key={axis}>
+                  <div className="report-domain-head">
+                    <strong>{axis}</strong>
+                    <span className="report-domain-score">{score}/100</span>
+                  </div>
+
+                  <p>
+                    {DOMAIN_REPORT_GUIDANCE[axis]} {scoreInterpretation(score)}
+                  </p>
+
+                  <div className="report-domain-evidence">
+                    <strong>Linked evidence</strong>
+
+                    {linkedEvidence.length ? (
+                      <ul>
+                        {linkedEvidence.map(
+                          ({ source, indicator }, evidenceIndex) => (
+                            <li
+                              key={`${axis}-${
+                                indicator.code || "indicator"
+                              }-${evidenceIndex}`}
+                            >
+                              <strong>{indicator.code || "Indicator"}:</strong>{" "}
+                              {source.title || "Untitled source"}
+                              {indicator.summary
+                                ? ` — ${indicator.summary}`
+                                : ""}
+                              {indicator.limitation
+                                ? ` Limitation: ${indicator.limitation}`
+                                : ""}
+                            </li>
+                          )
+                        )}
+                      </ul>
+                    ) : (
+                      <p>
+                        No source-indicator link is currently attached to this
+                        domain.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="report-section">
+          <h3>Strengths</h3>
+          <ul className="plain-list">
+            {(profile.strengths || []).map((item) => (
+              <li key={item}>• {item}</li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="report-section">
+          <h3>Points to watch</h3>
+          <ul className="plain-list">
+            {(profile.watch || []).map((item) => (
+              <li key={item}>• {item}</li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="report-section">
+          <h3>Evidence register</h3>
+
+          {profile.sources?.length ? (
+            profile.sources.map((source, sourceIndex) => (
+              <div
+                className="report-source"
+                key={`${source.url || source.title || "source"}-${sourceIndex}`}
+              >
+                <div className="report-source-title">
+                  {source.title || `Source ${sourceIndex + 1}`}
+                </div>
+
+                <div className="report-source-meta">
+                  {source.publisher || "Publisher not specified"}
+                  {source.publication_date
+                    ? ` · ${source.publication_date}`
+                    : ""}
+                </div>
+
+                {source.note ? <p>{source.note}</p> : null}
+
+                {Array.isArray(source.indicators) &&
+                source.indicators.length > 0
+                  ? source.indicators.map((indicator, indicatorIndex) => (
+                      <div
+                        className="report-indicator"
+                        key={`${indicator.code || "indicator"}-${indicatorIndex}`}
+                      >
+                        <strong>
+                          {indicator.code || "IML indicator"}
+                          {indicator.evidence_level
+                            ? ` · Evidence ${indicator.evidence_level}`
+                            : ""}
+                          {indicator.support_type
+                            ? ` · ${indicator.support_type}`
+                            : ""}
+                        </strong>
+                        {indicator.summary ? <p>{indicator.summary}</p> : null}
+                        {indicator.limitation ? (
+                          <p>
+                            <strong>Limitation:</strong>{" "}
+                            {indicator.limitation}
+                          </p>
+                        ) : null}
+                      </div>
+                    ))
+                  : null}
+
+                {source.url ? (
+                  <p>
+                    <a
+                      className="text-link"
+                      href={source.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Open official source
+                    </a>
+                  </p>
+                ) : null}
+              </div>
+            ))
+          ) : (
+            <p>No documentary sources are attached to this profile yet.</p>
+          )}
+        </section>
+      </article>
+    </details>
+  );
+}
+
 function CountryProfile({ selectedCountry, profile }) {
   if (!selectedCountry) return null;
 
@@ -598,173 +998,166 @@ function CountryProfile({ selectedCountry, profile }) {
   }
 
   return (
-    <div className="split-grid profile-grid">
-      <Card>
-        <div className="content-block">
-          <div className="profile-head">
-            <div>
-              <div className="eyebrow">{profile.iso3}</div>
-
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  flexWrap: "wrap",
-                }}
-              >
-                <h3 style={{ margin: 0 }}>{profile.name}</h3>
-
-                <div
-                  className="score-pill"
-                  title="Exploratory overall signal, not a country ranking"
-                >
-                  {averageScore(profile.values)}/100
+    <>
+      <div className="split-grid profile-grid">
+        <Card>
+          <div className="content-block">
+            <div className="profile-head">
+              <div>
+                <div className="eyebrow">{profile.iso3}</div>
+                <div className="profile-title-row">
+                  <h3>{profile.name}</h3>
+                  <div
+                    className="score-pill"
+                    title="Exploratory overall signal, not a country ranking"
+                  >
+                    {averageScore(profile.values)}/100
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <p className="muted-copy">{profile.subtitle}</p>
+            <p className="muted-copy">{profile.subtitle}</p>
 
-          <div className="profile-meta">
-            <span>Version {profile.version || "pending"}</span>
-            <span>{profile.evidenceLevel}</span>
-            <span>
-              {profile.updatedAt
-                ? `Updated ${profile.updatedAt}`
-                : "Review date pending"}
-            </span>
-          </div>
+            <div className="profile-meta">
+              <span>Version {profile.version || "pending"}</span>
+              <span>{profile.evidenceLevel}</span>
+              <span>
+                {profile.updatedAt
+                  ? `Updated ${profile.updatedAt}`
+                  : "Review date pending"}
+              </span>
+            </div>
 
-          <HexagonChart values={profile.values} />
+            <HexagonChart values={profile.values} />
 
-          <div className="profile-stat-grid">
-            {AXES.map((axis, index) => (
-              <div className="profile-stat" key={axis}>
-                <span>{axis}</span>
-                <strong>{profile.values[index]}</strong>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Card>
-
-      <div className="stack-layout">
-        <Card>
-          <div className="content-block">
-            <h3>Strengths</h3>
-            <ul className="plain-list">
-              {profile.strengths.map((item) => (
-                <li key={item}>• {item}</li>
+            <div className="profile-stat-grid">
+              {AXES.map((axis, index) => (
+                <div className="profile-stat" key={axis}>
+                  <span>{axis}</span>
+                  <strong>{profile.values[index]}</strong>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         </Card>
 
-        <Card>
-          <div className="content-block">
-            <h3>Points to watch</h3>
-            <ul className="plain-list">
-              {profile.watch.map((item) => (
-                <li key={item}>• {item}</li>
-              ))}
-            </ul>
-          </div>
-        </Card>
+        <div className="stack-layout">
+          <Card>
+            <div className="content-block">
+              <h3>Strengths</h3>
+              <ul className="plain-list">
+                {profile.strengths.map((item) => (
+                  <li key={item}>• {item}</li>
+                ))}
+              </ul>
+            </div>
+          </Card>
 
-        <Card className="soft-card">
-  <div className="content-block">
-    <h3>Evidence</h3>
+          <Card>
+            <div className="content-block">
+              <h3>Points to watch</h3>
+              <ul className="plain-list">
+                {profile.watch.map((item) => (
+                  <li key={item}>• {item}</li>
+                ))}
+              </ul>
+            </div>
+          </Card>
 
-    {profile.sources.length ? (
-      <div className="stack-list">
-        {profile.sources.map((source, sourceIndex) => (
-          <details
-            className="list-box"
-            key={`${source.url || source.title || "source"}-${sourceIndex}`}
-          >
-            <summary
-              style={{
-                cursor: "pointer",
-                fontWeight: 800,
-                color: "#0f172a",
-              }}
-            >
-              {source.title || `Source ${sourceIndex + 1}`}
-              {source.publisher ? ` — ${source.publisher}` : ""}
-            </summary>
-
-            {source.note ? (
-              <p style={{ marginBottom: source.url ? "10px" : 0 }}>
-                {source.note}
+          <Card className="soft-card">
+            <div className="content-block">
+              <h3>Evidence</h3>
+              <p className="muted-copy">
+                Documentary evidence supporting this exploratory profile.
               </p>
-            ) : null}
 
-            {Array.isArray(source.indicators) &&
-            source.indicators.length > 0 ? (
-              <div className="stack-list top-gap-small">
-                {source.indicators.map(
-                  (indicator, indicatorIndex) => (
-                    <div
-                      className="mini-tile"
+              {profile.sources?.length ? (
+                <div className="stack-layout">
+                  {profile.sources.map((source, sourceIndex) => (
+                    <details
                       key={`${
-                        indicator.code || "indicator"
-                      }-${indicatorIndex}`}
+                        source.url || source.title || "source"
+                      }-${sourceIndex}`}
+                      className="list-box"
                     >
-                      <div className="mini-tile-title">
-                        {indicator.code || "IML indicator"}
-                        {indicator.evidence_level
-                          ? ` · Evidence ${indicator.evidence_level}`
-                          : ""}
+                      <summary
+                        style={{ cursor: "pointer", fontWeight: 800 }}
+                      >
+                        {source.title || `Source ${sourceIndex + 1}`}
+                        {source.publisher ? ` — ${source.publisher}` : ""}
+                      </summary>
+
+                      <div className="top-gap-small">
+                        {source.note ? <p>{source.note}</p> : null}
+
+                        {Array.isArray(source.indicators) &&
+                        source.indicators.length > 0 ? (
+                          <div className="stack-list">
+                            {source.indicators.map(
+                              (indicator, indicatorIndex) => (
+                                <div
+                                  className="mini-tile"
+                                  key={`${
+                                    indicator.code || "indicator"
+                                  }-${indicatorIndex}`}
+                                >
+                                  <div className="mini-tile-title">
+                                    {indicator.code || "IML indicator"}
+                                    {indicator.evidence_level
+                                      ? ` · Evidence ${indicator.evidence_level}`
+                                      : ""}
+                                    {indicator.support_type
+                                      ? ` · ${indicator.support_type}`
+                                      : ""}
+                                  </div>
+
+                                  {indicator.summary ? (
+                                    <div className="mini-tile-text">
+                                      {indicator.summary}
+                                    </div>
+                                  ) : null}
+
+                                  {indicator.limitation ? (
+                                    <div className="mini-tile-text top-gap-small">
+                                      <strong>Limitation:</strong>{" "}
+                                      {indicator.limitation}
+                                    </div>
+                                  ) : null}
+                                </div>
+                              )
+                            )}
+                          </div>
+                        ) : null}
+
+                        {source.url ? (
+                          <div className="button-row">
+                            <a
+                              className="text-link"
+                              href={source.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              Official documentation ↗
+                            </a>
+                          </div>
+                        ) : null}
                       </div>
-
-                      {indicator.summary ? (
-                        <div className="mini-tile-text">
-                          {indicator.summary}
-                        </div>
-                      ) : null}
-
-                      {indicator.limitation ? (
-                        <div
-                          className="mini-tile-text"
-                          style={{ marginTop: "8px" }}
-                        >
-                          <strong>Limitation:</strong>{" "}
-                          {indicator.limitation}
-                        </div>
-                      ) : null}
-                    </div>
-                  )
-                )}
-              </div>
-            ) : null}
-
-            {source.url ? (
-              <p style={{ marginBottom: 0 }}>
-                <a
-                  className="text-link"
-                  href={source.url}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Open official source
-                </a>
-              </p>
-            ) : null}
-          </details>
-        ))}
+                    </details>
+                  ))}
+                </div>
+              ) : (
+                <p>
+                  No documentary sources are attached to this profile yet.
+                </p>
+              )}
+            </div>
+          </Card>
+        </div>
       </div>
-    ) : (
-      <p>
-        No documentary sources are attached to this illustrative seed
-        profile yet.
-      </p>
-    )}
-  </div>
-</Card>
-      </div>
-    </div>
+
+      <CountryReport profile={profile} />
+    </>
   );
 }
 
@@ -1081,58 +1474,35 @@ function ContactPage() {
           text="IML welcomes methodological criticism, evidence review, clinical expertise, institutional perspectives and proposals for collaborative case studies."
         />
         <div className="split-grid profile-grid">
-         <Card>
-  <div className="content-block">
-    <div className="profile-head">
-      <div>
-        <div className="eyebrow">{profile.iso3}</div>
-
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            flexWrap: "wrap",
-          }}
-        >
-          <h3 style={{ margin: 0 }}>{profile.name}</h3>
-
-          <div
-            className="score-pill"
-            title="Exploratory overall signal, not a country ranking"
-          >
-            {averageScore(profile.values)}/100
-          </div>
-        </div>
-      </div>
-
-      <div className="status-pill">{profile.status}</div>
-    </div>
-
-    <p className="muted-copy">{profile.subtitle}</p>
-
-    <div className="profile-meta">
-      <span>Version {profile.version || "pending"}</span>
-      <span>{profile.evidenceLevel}</span>
-      <span>
-        {profile.updatedAt
-          ? `Updated ${profile.updatedAt}`
-          : "Review date pending"}
-      </span>
-    </div>
-
-    <HexagonChart values={profile.values} />
-
-    <div className="profile-stat-grid">
-      {AXES.map((axis, index) => (
-        <div className="profile-stat" key={axis}>
-          <span>{axis}</span>
-          <strong>{profile.values[index]}</strong>
-        </div>
-      ))}
-    </div>
-  </div>
-</Card>
+          <Card>
+            <div className="content-block">
+              <h3>Direct contact</h3>
+              <p>
+                For scientific review, collaboration or questions about the
+                framework, contact IML directly by email.
+              </p>
+              <div className="mail-box">
+                <a className="text-link" href={`mailto:${email}`}>
+                  {email}
+                </a>
+              </div>
+              <div className="form-actions top-gap-small">
+                <a className="primary-button" href={mailtoLink}>
+                  Send email
+                </a>
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={copyEmail}
+                >
+                  Copy email
+                </button>
+              </div>
+              {copied ? (
+                <p className="form-note top-gap-small">Email copied.</p>
+              ) : null}
+            </div>
+          </Card>
           <div className="stack-layout">
             <Card className="soft-card">
               <div className="content-block">
