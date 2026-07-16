@@ -62,13 +62,32 @@ export async function GET() {
           (
             SELECT json_agg(
               json_build_object(
-                'title', s.title,
-                'publisher', s.publisher,
-                'url', s.source_url,
-                'publication_date', s.publication_date,
-                'accessed_at', s.accessed_at,
-                'note', s.evidence_note
-              )
+  'title', s.title,
+  'publisher', s.publisher,
+  'url', s.source_url,
+  'publication_date', s.publication_date,
+  'accessed_at', s.accessed_at,
+  'note', s.evidence_note,
+
+  'indicators',
+  COALESCE(
+    (
+      SELECT json_agg(
+        json_build_object(
+          'code', i.indicator_code,
+          'evidence_level', i.evidence_level,
+          'support_type', i.support_type,
+          'summary', i.evidence_summary,
+          'limitation', i.limitation_note
+        )
+        ORDER BY i.indicator_code
+      )
+      FROM country_profile_source_indicators i
+      WHERE i.source_id = s.id
+    ),
+    '[]'::json
+  )
+)
               ORDER BY s.id
             )
             FROM country_profile_sources s
