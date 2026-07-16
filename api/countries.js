@@ -1,5 +1,7 @@
 import { neon } from "@neondatabase/serverless";
-
+git add .
+git commit -m "Add documentary sources to country API"
+git push
 export async function GET() {
   if (!process.env.DATABASE_URL) {
     return Response.json(
