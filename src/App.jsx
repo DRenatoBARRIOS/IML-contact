@@ -637,7 +637,6 @@ function CountryProfile({ selectedCountry, profile }) {
             ))}
           </div>
         </div>
-    </div>
       </Card>
       <div className="stack-layout">
         <Card>
