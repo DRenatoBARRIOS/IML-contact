@@ -208,7 +208,6 @@ function fallbackProfiles() {
     iso3: COUNTRY_ISO3[name],
     name,
     slug: name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
-    status: "exploratory",
     version: "prototype-0.1",
     updatedAt: "2026-07-15",
     evidenceLevel: "Illustrative working note",
