@@ -636,60 +636,49 @@ function CountryProfile({ selectedCountry, profile }) {
           </div>
         </Card>
         <Card className="soft-card">
-  <div className="content-block">
-    <h3>Evidence</h3>
+          <div className="content-block">
+            <h3>Evidence</h3>
 
-    <p className="muted-copy" style={{ marginBottom: "1rem" }}>
-      Documentary evidence supporting this exploratory profile.
-    </p>
+            <p className="muted-copy">
+              Documentary evidence supporting this exploratory profile.
+            </p>
 
-    {profile.sources?.length ? (
-      <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-        {profile.sources.map((source, index) => (
-          <div
-            key={index}
-            style={{
-              paddingBottom: "1rem",
-              borderBottom: "1px solid rgba(15,23,42,.08)"
-            }}
-          >
-            <div style={{ fontWeight: 600 }}>
-              {source.title}
-            </div>
+            {profile.sources?.length ? (
+              <div className="stack-layout">
+                {profile.sources.map((source, index) => (
+                  <details
+                    key={`${source.url || source.title}-${index}`}
+                    className="list-box"
+                  >
+                    <summary style={{ cursor: "pointer", fontWeight: 800 }}>
+                      {source.title}
+                      {source.publisher ? ` — ${source.publisher}` : ""}
+                    </summary>
 
-            <div
-              className="muted-copy"
-              style={{ marginTop: ".2rem", marginBottom: ".6rem" }}
-            >
-              {source.publisher}
-            </div>
+                    <div className="top-gap-small">
+                      {source.note ? <p>{source.note}</p> : null}
 
-            {source.note && (
-              <p style={{ marginBottom: ".6rem" }}>
-                {source.note}
-              </p>
+                      <div className="button-row">
+                        {source.url ? (
+                          <a
+                            className="text-link"
+                            href={source.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Official documentation ↗
+                          </a>
+                        ) : null}
+                      </div>
+                    </div>
+                  </details>
+                ))}
+              </div>
+            ) : (
+              <p>No documentary sources are attached to this profile yet.</p>
             )}
-
-            <a
-              href={source.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                fontWeight: 500,
-                color: "#2563eb",
-                textDecoration: "none"
-              }}
-            >
-              Official documentation ↗
-            </a>
           </div>
-        ))}
-      </div>
-    ) : (
-      <p>No documentary sources are attached to this profile yet.</p>
-    )}
-  </div>
-</Card>
+        </Card>
       </div>
     </div>
   );
