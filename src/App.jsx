@@ -581,8 +581,17 @@ function CountryProfile({ selectedCountry, profile }) {
         <div className="content-block map-empty">
           <div className="section-badge">Profile not yet available</div>
           <h3>{selectedCountry.name}</h3>
-          <p><strong>Selection only:</strong> this highlight means that the country is being viewed. It does not represent an IML score or assessment.</p>
-          <p>This country already exists on the map, but no IML evidence profile has been published in the database. The future editorial workflow can create a draft, attach sources, request local review and publish it without changing the map code.</p>
+          <p>
+            <strong>Selection only:</strong> this highlight means that the
+            country is being viewed. It does not represent an IML score or
+            assessment.
+          </p>
+          <p>
+            This country already exists on the map, but no IML evidence profile
+            has been published in the database. The future editorial workflow
+            can create a draft, attach sources, request local review and publish
+            it without changing the map code.
+          </p>
         </div>
       </Card>
     );
@@ -591,43 +600,45 @@ function CountryProfile({ selectedCountry, profile }) {
   return (
     <div className="split-grid profile-grid">
       <Card>
-        <div className="profile-head">
-  <div>
-    <div className="eyebrow">{profile.iso3}</div>
+        <div className="content-block">
+          <div className="profile-head">
+            <div>
+              <div className="eyebrow">{profile.iso3}</div>
 
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-        flexWrap: "wrap",
-      }}
-    >
-      <h3 style={{ margin: 0 }}>{profile.name}</h3>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  flexWrap: "wrap",
+                }}
+              >
+                <h3 style={{ margin: 0 }}>{profile.name}</h3>
 
-      <span
-        title="Exploratory overall signal, not a country ranking"
-        style={{
-          padding: "4px 9px",
-          borderRadius: "999px",
-          border: "1px solid rgba(255,255,255,0.18)",
-          fontSize: "0.78rem",
-          fontWeight: 700,
-          whiteSpace: "nowrap",
-        }}
-      >
-        {averageScore(profile.values)}/100
-      </span>
-    </div>
-  </div>
-</div>
+                <div
+                  className="score-pill"
+                  title="Exploratory overall signal, not a country ranking"
+                >
+                  {averageScore(profile.values)}/100
+                </div>
+              </div>
+            </div>
+          </div>
+
           <p className="muted-copy">{profile.subtitle}</p>
+
           <div className="profile-meta">
             <span>Version {profile.version || "pending"}</span>
             <span>{profile.evidenceLevel}</span>
-            <span>{profile.updatedAt ? `Updated ${profile.updatedAt}` : "Review date pending"}</span>
+            <span>
+              {profile.updatedAt
+                ? `Updated ${profile.updatedAt}`
+                : "Review date pending"}
+            </span>
           </div>
+
           <HexagonChart values={profile.values} />
+
           <div className="profile-stat-grid">
             {AXES.map((axis, index) => (
               <div className="profile-stat" key={axis}>
@@ -638,65 +649,38 @@ function CountryProfile({ selectedCountry, profile }) {
           </div>
         </div>
       </Card>
+
       <div className="stack-layout">
         <Card>
           <div className="content-block">
             <h3>Strengths</h3>
             <ul className="plain-list">
-              {profile.strengths.map((item) => <li key={item}>• {item}</li>)}
+              {profile.strengths.map((item) => (
+                <li key={item}>• {item}</li>
+              ))}
             </ul>
           </div>
         </Card>
+
         <Card>
           <div className="content-block">
             <h3>Points to watch</h3>
             <ul className="plain-list">
-              {profile.watch.map((item) => <li key={item}>• {item}</li>)}
+              {profile.watch.map((item) => (
+                <li key={item}>• {item}</li>
+              ))}
             </ul>
           </div>
         </Card>
+
         <Card className="soft-card">
           <div className="content-block">
             <h3>Evidence</h3>
-
-            <p className="muted-copy">
-              Documentary evidence supporting this exploratory profile.
+            <p>
+              {profile.sources.length
+                ? `${profile.sources.length} source(s) attached to this profile.`
+                : "No documentary sources are attached to this illustrative seed profile yet."}
             </p>
-
-            {profile.sources?.length ? (
-              <div className="stack-layout">
-                {profile.sources.map((source, index) => (
-                  <details
-                    key={`${source.url || source.title}-${index}`}
-                    className="list-box"
-                  >
-                    <summary style={{ cursor: "pointer", fontWeight: 800 }}>
-                      {source.title}
-                      {source.publisher ? ` — ${source.publisher}` : ""}
-                    </summary>
-
-                    <div className="top-gap-small">
-                      {source.note ? <p>{source.note}</p> : null}
-
-                      <div className="button-row">
-                        {source.url ? (
-                          <a
-                            className="text-link"
-                            href={source.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            Official documentation ↗
-                          </a>
-                        ) : null}
-                      </div>
-                    </div>
-                  </details>
-                ))}
-              </div>
-            ) : (
-              <p>No documentary sources are attached to this profile yet.</p>
-            )}
           </div>
         </Card>
       </div>
