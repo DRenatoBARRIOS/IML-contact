@@ -591,13 +591,36 @@ function CountryProfile({ selectedCountry, profile }) {
   return (
     <div className="split-grid profile-grid">
       <Card>
-        <div className="content-block">
-          <div className="profile-head">
-            <div>
-              <div className="eyebrow">{profile.iso3}</div>
-              <h3>{profile.name}</h3>
-            </div>
-          </div>
+        <div className="profile-head">
+  <div>
+    <div className="eyebrow">{profile.iso3}</div>
+
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "10px",
+        flexWrap: "wrap",
+      }}
+    >
+      <h3 style={{ margin: 0 }}>{profile.name}</h3>
+
+      <span
+        title="Exploratory overall signal, not a country ranking"
+        style={{
+          padding: "4px 9px",
+          borderRadius: "999px",
+          border: "1px solid rgba(255,255,255,0.18)",
+          fontSize: "0.78rem",
+          fontWeight: 700,
+          whiteSpace: "nowrap",
+        }}
+      >
+        {averageScore(profile.values)}/100
+      </span>
+    </div>
+  </div>
+</div>
           <p className="muted-copy">{profile.subtitle}</p>
           <div className="profile-meta">
             <span>Version {profile.version || "pending"}</span>
