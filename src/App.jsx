@@ -599,7 +599,6 @@ function CountryProfile({ selectedCountry, profile }) {
               <div className="eyebrow">{profile.iso3}</div>
               <h3>{profile.name}</h3>
             </div>
-            <div className="score-pill">{profile.status}</div>
           </div>
           <p className="muted-copy">{profile.subtitle}</p>
           <div className="profile-meta">
