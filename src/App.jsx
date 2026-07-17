@@ -1017,20 +1017,8 @@ function CountryProfile({ selectedCountry, profile }) {
             </div>
 
             <p className="muted-copy">{profile.subtitle}</p>
-
-            <div className="profile-meta">
-              <span>Version {profile.version || "pending"}</span>
-              <span>{profile.evidenceLevel}</span>
-              <span>
-                {profile.updatedAt
-                  ? `Updated ${profile.updatedAt}`
-                  : "Review date pending"}
-              </span>
-            </div>
-
-            <HexagonChart values={profile.values} />
-
-            <div className="profile-stat-grid">
+    <HexagonChart values={profile.values} />
+ <div className="profile-stat-grid">
               {AXES.map((axis, index) => (
                 <div className="profile-stat" key={axis}>
                   <span>{axis}</span>
