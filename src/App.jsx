@@ -1017,9 +1017,6 @@ function CountryProfile({ selectedCountry, profile }) {
             </div>
 
             <p className="muted-copy">{profile.subtitle}</p>
-            <HexagonChart values={profile.values} />
-
-            <div className="profile-stat-grid">
     <HexagonChart values={profile.values} />
  <div className="profile-stat-grid">
               {AXES.map((axis, index) => (
