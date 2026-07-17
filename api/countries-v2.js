@@ -42,7 +42,8 @@ export async function GET() {
           (
             SELECT json_agg(s.score ORDER BY d.display_order)
             FROM country_profile_scores s
-            JOIN iml_domains d ON d.code = s.domain_code
+            JOIN iml_domains d
+              ON d.code = s.domain_code
             WHERE s.profile_id = cp.id
           ),
           '[]'::json
@@ -59,7 +60,8 @@ export async function GET() {
               ORDER BY d.display_order
             )
             FROM country_profile_scores s
-            JOIN iml_domains d ON d.code = s.domain_code
+            JOIN iml_domains d
+              ON d.code = s.domain_code
             WHERE s.profile_id = cp.id
           ),
           '[]'::json
@@ -95,24 +97,7 @@ export async function GET() {
                 'publication_date', src.publication_date,
                 'accessed_at', src.accessed_at,
                 'note', src.evidence_note,
-                'indicators',
-                COALESCE(
-                  (
-                    SELECT json_agg(
-                      json_build_object(
-                        'code', link.indicator_code,
-                        'evidence_level', link.evidence_level,
-                        'support_type', link.support_type,
-                        'summary', link.evidence_summary,
-                        'limitation', link.limitation_note
-                      )
-                      ORDER BY link.indicator_code
-                    )
-                    FROM country_profile_source_indicators link
-                    WHERE link.source_id = src.id
-                  ),
-                  '[]'::json
-                )
+                'indicators', '[]'::json
               )
               ORDER BY src.id
             )
@@ -122,26 +107,7 @@ export async function GET() {
           '[]'::json
         ) AS sources,
 
-        COALESCE(
-          (
-            SELECT json_build_object(
-              'assessment_status', a.assessment_status,
-              'assessment_method', a.assessment_method,
-              'reviewer_name', a.reviewer_name,
-              'reviewer_organisation', a.reviewer_organisation,
-              'reviewer_role', a.reviewer_role,
-              'confidence_level', a.confidence_level,
-              'review_notes', a.review_notes,
-              'reviewed_at', a.reviewed_at,
-              'published_at', a.published_at
-            )
-            FROM country_profile_assessments a
-            WHERE a.profile_id = cp.id
-            ORDER BY COALESCE(a.reviewed_at, a.created_at) DESC
-            LIMIT 1
-          ),
-          '{}'::json
-        ) AS assessment
+        '{}'::json AS assessment
 
       FROM countries c
       JOIN country_profiles cp
@@ -155,7 +121,7 @@ export async function GET() {
 
     return Response.json(
       {
-        api_version: "2",
+        api_version: "2-preview",
         generated_at: new Date().toISOString(),
         count: countries.length,
         countries,
@@ -168,10 +134,10 @@ export async function GET() {
       }
     );
   } catch (error) {
-    console.error("Unable to load IML country profiles v2:", error);
+    console.error("Unable to load IML country profiles v2 preview:", error);
 
     return Response.json(
-      { error: "Unable to load country profiles v2." },
+      { error: "Unable to load country profiles v2 preview." },
       {
         status: 500,
         headers: {
