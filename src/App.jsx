@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import manuscriptPdf from "./IML_Founding_Manuscript.pdf";
 import logoImage from "./assets/iml-logo.png";
 import worldCountries from "./world-countries.json";
-
 const styles = `
   :root {
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
