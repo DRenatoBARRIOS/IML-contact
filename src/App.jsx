@@ -1020,6 +1020,8 @@ function CountryProfile({ selectedCountry, profile }) {
             <HexagonChart values={profile.values} />
 
             <div className="profile-stat-grid">
+    <HexagonChart values={profile.values} />
+ <div className="profile-stat-grid">
               {AXES.map((axis, index) => (
                 <div className="profile-stat" key={axis}>
                   <span>{axis}</span>
