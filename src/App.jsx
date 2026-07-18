@@ -4,7 +4,6 @@ import logoImage from "./assets/iml-logo.png";
 import worldCountries from "./world-countries.json";
 import { loadGlobalMapProfiles } from "./services/countriesApi.js";
 import CountryReport from "./components/CountryReport.jsx";
-
 const styles = `
   :root {
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
