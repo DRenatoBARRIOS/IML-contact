@@ -8,7 +8,7 @@ import "./App.css";
 
 const MANUSCRIPT_URL = manuscriptPdf;
 const TECHNICAL_MANUSCRIPT_URL =
-  "/IML_Technical_Manuscript_Database_and_Country_Evaluation_Engine.docx";
+  "/IML_Technical_Manuscript.pdf";
 
 const ROUTES = [
   ["home", "Home"],
