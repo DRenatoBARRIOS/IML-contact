@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import manuscriptPdf from "./IML_Founding_Manuscript.pdf";
+import manuscriptPdf from "./public/IML_Founding_Manuscript.pdf";
 import logoImage from "./assets/iml-logo.png";
 import worldCountries from "./world-countries.json";
 import { loadGlobalMapProfiles } from "./services/countriesApi.js";
