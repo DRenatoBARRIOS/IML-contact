@@ -548,8 +548,6 @@ function MethodologyPage() {
     </div></section>
   );
 }
-
-
 function Id4dPage() {
   return (
     <section className="section">
@@ -557,20 +555,15 @@ function Id4dPage() {
         <SectionTitle
           badge="Identity infrastructure"
           title="Identity, consent and trust across fragmented systems"
-          text="Identity is an enabling layer for continuity and accountability, not the whole of interoperability."
-        />
-
+          text="Identity is an enabling layer for continuity and accountability, not the whole of interoperability." />
         <Card className="soft-card">
           <div className="content-block">
             <h3>A secure access layer, not a new personal number</h3>
-
             <p>
               IML does not propose replacing national identity systems. It
               explores how recognised national identifiers could contribute to
-              a future universal health and research number for authorised multicentre clinical, public health and epidemiological studies
-It complements the existing ID4D workflow.
+              a future universal health and research number for authorised multicentre clinical, public health and epidemiological studies. It complements the existing ID4D workflow.
             </p>
-
             <p>
               National models already differ. A future IML model could combine
               the national identifier namespace, a governed geographic
@@ -578,32 +571,27 @@ It complements the existing ID4D workflow.
               remain regulated personal data and would require legal, ethical,
               security and equity review before implementation.
             </p>
-
             <p>
               Identity, identifier, access token and carrier mechanism must
               remain distinct. A QR code or mobile application should carry
               only a temporary signed token, never sensitive identity or
               health information in clear text.
             </p>
-
             <div className="button-row">
               <a
                 className="text-link"
                 href="https://id4d.worldbank.org/"
                 target="_blank"
-                rel="noopener noreferrer"
-              >
+                rel="noopener noreferrer">
                 Learn more about the World Bank ID4D initiative ↗
               </a>
             </div>
-
           </div>
         </Card>
       </div>
     </section>
   );
 }
-
 function EvaluationPage() {
   return <section className="section"><div className="container"><SectionTitle badge="Operational pathway" title="From assessment to action" text="IML connects documented maturity profiles with practical improvement and concrete clinical or public-health pathways." />
     <div className="tile-grid three-up">
