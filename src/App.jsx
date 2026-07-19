@@ -555,15 +555,25 @@ function Id4dPage() {
         <SectionTitle
           badge="Identity infrastructure"
           title="Identity, consent and trust across fragmented systems"
-          text="Identity is an enabling layer for continuity and accountability, not the whole of interoperability." />
+          text="Identity is an enabling layer for continuity and accountability, not the whole of interoperability."
+        />
+
         <Card className="soft-card">
           <div className="content-block">
-            <h3>A secure access layer, not a new personal number</h3>
+            <h3>
+              From trusted identity to authorised health and research linkage
+            </h3>
+
             <p>
               IML does not propose replacing national identity systems. It
               explores how recognised national identifiers could contribute to
-              a future universal health and research number for authorised multicentre clinical, public health and epidemiological studies. It complements the existing ID4D workflow.
+              a future universal health and research number for authorised
+              multicentre, longitudinal and epidemiological studies. It
+              complements the ID4D workflow and may build on trust
+              infrastructures such as the WHO Global Digital Health
+              Certification Network (GDHCN).
             </p>
+
             <p>
               National models already differ. A future IML model could combine
               the national identifier namespace, a governed geographic
@@ -571,19 +581,32 @@ function Id4dPage() {
               remain regulated personal data and would require legal, ethical,
               security and equity review before implementation.
             </p>
+
             <p>
               Identity, identifier, access token and carrier mechanism must
               remain distinct. A QR code or mobile application should carry
-              only a temporary signed token, never sensitive identity or
-              health information in clear text.
+              only a temporary signed token or a verifiable digital
+              certificate, never sensitive identity or health information in
+              clear text.
             </p>
+
             <div className="button-row">
               <a
                 className="text-link"
                 href="https://id4d.worldbank.org/"
                 target="_blank"
-                rel="noopener noreferrer">
-                Learn more about the World Bank ID4D initiative ↗
+                rel="noopener noreferrer"
+              >
+                World Bank ID4D initiative ↗
+              </a>
+
+              <a
+                className="text-link"
+                href="https://www.who.int/initiatives/global-digital-health-certification-network"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                WHO Global Digital Health Certification Network ↗
               </a>
             </div>
           </div>
