@@ -590,6 +590,13 @@ function Id4dPage() {
               clear text.
             </p>
 
+            <p>
+              Country-level digital health information can be explored through
+              the Global Digital Health Monitor. IML uses this type of
+              comparative information as a starting point for structured
+              country research, documentary verification and human validation.
+            </p>
+
             <div className="button-row">
               <a
                 className="text-link"
@@ -607,6 +614,15 @@ function Id4dPage() {
                 rel="noopener noreferrer"
               >
                 WHO Global Digital Health Certification Network ↗
+              </a>
+
+              <a
+                className="text-link"
+                href="https://monitor.digitalhealthmonitor.org/map"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Explore the Global Digital Health Monitor map ↗
               </a>
             </div>
           </div>
