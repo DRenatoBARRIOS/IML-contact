@@ -3,7 +3,6 @@ import logoImage from "./assets/iml-logo.png";
 import worldCountries from "./world-countries.json";
 import { loadGlobalMapProfiles } from "./services/countriesApi.js";
 import "./App.css";
-
 const MANUSCRIPT_URL = `${import.meta.env.BASE_URL}IML_Founding_Manuscript.pdf`;
 const TECHNICAL_MANUSCRIPT_URL = `${import.meta.env.BASE_URL}IML_Technical_Manuscript.pdf`;
 
