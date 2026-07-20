@@ -3,8 +3,70 @@ import logoImage from "./assets/iml-logo.png";
 import worldCountries from "./world-countries.json";
 import { loadGlobalMapProfiles } from "./services/countriesApi.js";
 import CountryReport from "./components/CountryReport.jsx";
-import { MANUSCRIPT_URL, TECHNICAL_MANUSCRIPT_URL } from "./constants/documents.js";
 import "./App.css";
+
+const MANUSCRIPT_URL = `${import.meta.env.BASE_URL}IML_Founding_Manuscript.pdf`;
+const TECHNICAL_MANUSCRIPT_URL = `${import.meta.env.BASE_URL}IML_Technical_Manuscript.pdf`;
+
+const ROUTES = [
+  ["home", "Home"],
+  ["id4d", "Identity & Trust"],
+  ["evaluation", "From assessment to action"],
+  ["methodology", "Methodology"],
+  ["world", "World Map"],
+  ["contact", "Scientific Review"],
+].map(([key, label]) => ({ key, label }));
+
+const IML_DOMAINS = [
+  {
+    key: "governance",
+    short: "GOV",
+    axis: "Governance",
+    title: "Governance and Standards",
+    description: "Responsibilities, standards, legal clarity and accountable ecosystem governance.",
+  },
+  {
+    key: "technical",
+    short: "TEC",
+    axis: "Technical",
+    title: "Technical Interoperability",
+    description: "Secure, reliable and maintainable exchange across heterogeneous systems.",
+  },
+  {
+    key: "identity",
+    short: "ID",
+    axis: "Identity",
+    title: "Identity, Consent and Trust",
+    description: "Reliable identification, appropriate consent, provenance and confidence.",
+  },
+  {
+    key: "adoption",
+    short: "USE",
+    axis: "Adoption",
+    title: "Adoption and Use",
+    description: "Integration into workflows, training, access rights and professional roles.",
+  },
+  {
+    key: "security",
+    short: "SEC",
+    axis: "Security",
+    title: "Security and Resilience",
+    description: "Protection, availability, recovery, traceability and continuity.",
+  },
+  {
+    key: "learning",
+    short: "LRN",
+    axis: "Learning",
+    title: "Feedback, Correction and Learning",
+    description: "Correction pathways, evaluation and institutional learning.",
+  },
+];
+
+const AXES = IML_DOMAINS.map((domain) => domain.axis);
+const AXIS_KEYS = IML_DOMAINS.map((domain) => domain.key);
+const MAP_WIDTH = 1000;
+const MAP_HEIGHT = 500;
+const MAP_VISIBLE_HEIGHT = 420;
 
 // Country codes are handled consistently as ISO 3166-1 alpha-3 values.
 function normalizeIso3(value) {
