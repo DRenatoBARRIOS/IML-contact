@@ -1,12 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import logoImage from "./assets/iml-logo.png";
+import worldCountries from "./world-countries.json";
 import { loadGlobalMapProfiles } from "./services/countriesApi.js";
-import WorldMap from "./components/WorldMap.jsx";
-import CountryProfile from "./components/CountryProfile.jsx";
-import {
-  asArray,
-  normalizeIso3,
-} from "./utils/countryMapUtils.js";
+import CountryReport from "./components/CountryReport.jsx";
 import "./App.css";
 
 const MANUSCRIPT_URL = `${import.meta.env.BASE_URL}IML_Founding_Manuscript.pdf`;
@@ -66,7 +62,20 @@ const IML_DOMAINS = [
   },
 ];
 
+const AXES = IML_DOMAINS.map((domain) => domain.axis);
+const AXIS_KEYS = IML_DOMAINS.map((domain) => domain.key);
+const MAP_WIDTH = 1000;
+const MAP_HEIGHT = 500;
+const MAP_VISIBLE_HEIGHT = 420;
+
+// Country codes are handled consistently as ISO 3166-1 alpha-3 values.
+function normalizeIso3(value) {
+  return String(value || "").trim().toUpperCase();
+}
+
 const cls = (...items) => items.filter(Boolean).join(" ");
+const asArray = (value) => (Array.isArray(value) ? value : []);
+const firstDefined = (...values) => values.find((value) => value !== undefined && value !== null && value !== "");
 
 function Card({ children, className = "" }) {
   return <div className={cls("card", className)}>{children}</div>;
@@ -108,6 +117,403 @@ function MetricCard({ symbol, title, value, subtitle }) {
         <div className="metric-subtitle">{subtitle}</div>
       </div>
     </Card>
+  );
+}
+
+function polar(angle, radius, center) {
+  const rad = (angle - 90) * (Math.PI / 180);
+  return { x: center + radius * Math.cos(rad), y: center + radius * Math.sin(rad) };
+}
+
+function HexagonChart({ values }) {
+  const size = 360;
+  const center = size / 2;
+  const radius = 118;
+  const safe = AXES.map((_, index) => Math.max(0, Math.min(100, Number(values?.[index]) || 0)));
+  const polygon = (scale) =>
+    AXES.map((_, index) => {
+      const point = polar((360 / AXES.length) * index, radius * scale, center);
+      return `${point.x},${point.y}`;
+    }).join(" ");
+  const data = safe.map((value, index) => {
+    const point = polar((360 / AXES.length) * index, radius * (value / 100), center);
+    return `${point.x},${point.y}`;
+  }).join(" ");
+
+  return (
+    <svg viewBox={`0 0 ${size} ${size}`} className="hex-chart" aria-label="IML six-domain profile">
+      {Array.from({ length: 5 }).map((_, index) => (
+        <polygon key={index} points={polygon((index + 1) / 5)} fill="none" stroke="#d8dee7" strokeWidth="1" />
+      ))}
+      {AXES.map((axis, index) => {
+        const end = polar((360 / AXES.length) * index, radius, center);
+        const label = polar((360 / AXES.length) * index, radius + 30, center);
+        return (
+          <g key={axis}>
+            <line x1={center} y1={center} x2={end.x} y2={end.y} stroke="#d8dee7" strokeWidth="1" />
+            <text x={label.x} y={label.y} textAnchor="middle" style={{ fontSize: 11, fontWeight: 600, fill: "#64748b" }}>
+              {axis}
+            </text>
+          </g>
+        );
+      })}
+      <polygon points={data} fill="rgba(15,23,42,0.14)" stroke="#0f172a" strokeWidth="2" />
+      {safe.map((value, index) => {
+        const point = polar((360 / AXES.length) * index, radius * (value / 100), center);
+        return <circle key={AXES[index]} cx={point.x} cy={point.y} r="4" fill="#0f172a" />;
+      })}
+    </svg>
+  );
+}
+
+function projectCoordinate([longitude, latitude]) {
+  return [((longitude + 180) / 360) * MAP_WIDTH, ((90 - latitude) / 180) * MAP_HEIGHT];
+}
+
+function ringToPath(coordinates = []) {
+  let path = "";
+  let previousX = null;
+  coordinates.forEach((coordinate, index) => {
+    const [x, y] = projectCoordinate(coordinate);
+    const dateLine = previousX !== null && Math.abs(x - previousX) > MAP_WIDTH / 2;
+    path += index === 0 || dateLine ? ` M ${x.toFixed(2)} ${y.toFixed(2)}` : ` L ${x.toFixed(2)} ${y.toFixed(2)}`;
+    previousX = x;
+  });
+  return path ? `${path} Z` : "";
+}
+
+function geometryToPath(geometry) {
+  if (geometry?.type === "Polygon") return geometry.coordinates.map(ringToPath).join(" ");
+  if (geometry?.type === "MultiPolygon") return geometry.coordinates.flatMap((polygon) => polygon.map(ringToPath)).join(" ");
+  return "";
+}
+
+function featureIso3(feature) {
+  const properties = feature?.properties || {};
+  return normalizeIso3(
+    properties.iso3 || properties.ISO_A3 || properties.adm0_a3 || properties.ADM0_A3 || ""
+  );
+}
+
+function featureName(feature) {
+  const properties = feature?.properties || {};
+  return String(properties.name || properties.NAME || properties.admin || properties.ADMIN || "Unknown country").trim();
+}
+
+function isAntarcticaFeature(feature) {
+  const properties = feature?.properties || {};
+  const name = featureName(feature).toLowerCase();
+  const continent = String(properties.continent || properties.CONTINENT || "").toLowerCase();
+  return featureIso3(feature) === "ATA" || name.includes("antarctica") || continent === "antarctica";
+}
+
+function averageScore(values = []) {
+  return values.length ? Math.round(values.reduce((total, value) => total + Number(value || 0), 0) / values.length) : 0;
+}
+
+function metricScore(profile, metric = "overall") {
+  if (!profile) return null;
+  if (metric === "overall") return averageScore(asArray(profile.values));
+  const index = AXIS_KEYS.indexOf(metric);
+  return index >= 0 ? Number(profile.values?.[index] || 0) : null;
+}
+
+function scoreFill(score, hasProfile) {
+  if (!hasProfile || score === null) return "#e6edf5";
+  if (score >= 85) return "#164e63";
+  if (score >= 70) return "#0e7490";
+  if (score >= 55) return "#67a8bb";
+  if (score >= 40) return "#a8ced8";
+  return "#d8e8ed";
+}
+
+function normaliseEvidenceLevel(level) {
+  const match = String(level || "").toUpperCase().match(/[A-D]/);
+  return match ? match[0] : null;
+}
+
+function collectIndicators(profile) {
+  return asArray(profile?.sources).flatMap((source) =>
+    asArray(source.indicators).map((indicator) => ({ ...indicator, source }))
+  );
+}
+
+function evidenceAudit(profile) {
+  const sources = asArray(profile?.sources);
+  const indicators = collectIndicators(profile);
+  const domainCodes = new Set(
+    indicators
+      .map((indicator) => String(firstDefined(indicator.domain_code, indicator.domain, indicator.code, "")).split(/[.-]/)[0].toUpperCase())
+      .filter(Boolean)
+  );
+  const levels = { A: 0, B: 0, C: 0, D: 0 };
+  indicators.forEach((indicator) => {
+    const level = normaliseEvidenceLevel(indicator.evidence_level);
+    if (level) levels[level] += 1;
+  });
+  return {
+    sourceCount: Number(firstDefined(profile?.source_count, profile?.sources_count, sources.length)),
+    evidenceLinkCount: Number(firstDefined(profile?.evidence_link_count, profile?.evidence_links_count, indicators.length)),
+    coveredDomainCount: Number(firstDefined(profile?.covered_domain_count, profile?.covered_domains_count, domainCodes.size)),
+    levels,
+  };
+}
+
+function humanLabel(value, fallback = "Not recorded") {
+  if (!value) return fallback;
+  return String(value).replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function formatDate(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? String(value) : new Intl.DateTimeFormat("en-GB", { dateStyle: "medium" }).format(date);
+}
+
+function WorldMap({ profiles, selectedCountry, onSelect }) {
+  const [hovered, setHovered] = useState(null);
+  const profileByIso3 = useMemo(
+    () =>
+      Object.fromEntries(
+        profiles
+          .map((profile) => [normalizeIso3(profile?.iso3), profile])
+          .filter(([iso3]) => Boolean(iso3))
+      ),
+    [profiles]
+  );
+
+  // Draw Germany last so its border cannot be visually swallowed by neighbouring
+  // polygons. This changes layer order only, not geography, scores or behaviour.
+  const mapFeatures = useMemo(
+    () =>
+      worldCountries.features
+        .filter((feature) => !isAntarcticaFeature(feature))
+        .slice()
+        .sort((left, right) => {
+          const leftIso3 = featureIso3(left);
+          const rightIso3 = featureIso3(right);
+          if (leftIso3 === "DEU" && rightIso3 !== "DEU") return 1;
+          if (rightIso3 === "DEU" && leftIso3 !== "DEU") return -1;
+          return 0;
+        }),
+    []
+  );
+
+  const showTooltip = (event, feature) => {
+    const svg = event.currentTarget.ownerSVGElement;
+    const bounds = svg.getBoundingClientRect();
+    const iso3 = featureIso3(feature);
+    const profile = profileByIso3[iso3];
+    setHovered({
+      x: event.clientX - bounds.left,
+      y: event.clientY - bounds.top,
+      name: profile?.name || featureName(feature),
+      score: metricScore(profile),
+      hasProfile: Boolean(profile),
+    });
+  };
+
+  const selectFeature = (feature) => {
+    const iso3 = featureIso3(feature);
+    if (!iso3 || iso3 === "-99") return;
+    onSelect({ iso3, name: profileByIso3[iso3]?.name || featureName(feature) });
+  };
+
+  return (
+    <div className="world-box">
+      <div className="world-box-head">
+        <div>
+          <div className="eyebrow">PostgreSQL test environment</div>
+          <div className="overview-title">Evidence-linked country profiles</div>
+        </div>
+        <div className="helper-pill">Amber marks the country being viewed. It is not a score.</div>
+      </div>
+      <div className="world-map-wrap map-stage">
+        <svg viewBox={`0 0 ${MAP_WIDTH} ${MAP_VISIBLE_HEIGHT}`} className="world-map" aria-label="Interactive IML world map">
+          <rect width={MAP_WIDTH} height={MAP_VISIBLE_HEIGHT} rx="26" fill="#f8fbff" />
+          <g>
+            {mapFeatures.map((feature) => {
+              const iso3 = featureIso3(feature);
+              const profile = profileByIso3[iso3];
+              const selected = normalizeIso3(selectedCountry?.iso3) === iso3;
+              const score = metricScore(profile);
+              return (
+                <path
+                  key={`${iso3}-${featureName(feature)}`}
+                  d={geometryToPath(feature.geometry)}
+                  className={cls("country-shape", profile && "country-shape-profile", selected && "country-shape-selected")}
+                  fill={selected ? "#f59e0b" : scoreFill(score, Boolean(profile))}
+                  stroke={selected ? "#92400e" : iso3 === "DEU" ? "#64748b" : "#9fb0c4"}
+                  strokeWidth={selected ? 2.2 : iso3 === "DEU" ? 1.15 : 0.65}
+                  vectorEffect="non-scaling-stroke"
+                  data-country-iso3={iso3}
+                  tabIndex={iso3 && iso3 !== "-99" ? 0 : undefined}
+                  role={iso3 && iso3 !== "-99" ? "button" : undefined}
+                  aria-label={`${profile?.name || featureName(feature)}${profile ? ", IML profile available" : ", profile not yet available"}`}
+                  onMouseEnter={(event) => showTooltip(event, feature)}
+                  onMouseMove={(event) => showTooltip(event, feature)}
+                  onMouseLeave={() => setHovered(null)}
+                  onClick={() => selectFeature(feature)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") selectFeature(feature);
+                  }}
+                >
+                  <title>{profile?.name || featureName(feature)}</title>
+                </path>
+              );
+            })}
+          </g>
+        </svg>
+        {hovered ? (
+          <div className="map-tooltip-floating" style={{ left: Math.min(hovered.x + 14, 820), top: Math.max(12, hovered.y - 18) }}>
+            <strong>{hovered.name}</strong>
+            <span>{hovered.hasProfile ? `${hovered.score}/100 · documented working profile` : "Profile not yet available"}</span>
+          </div>
+        ) : null}
+      </div>
+      <div className="map-legend" aria-label="Map legend">
+        <span>No profile</span>
+        <div className="legend-swatches">
+          {["#e6edf5", "#d8e8ed", "#a8ced8", "#67a8bb", "#0e7490", "#164e63"].map((color) => (
+            <span key={color} style={{ background: color }} />
+          ))}
+        </div>
+        <span>Higher maturity signal</span>
+        <span className="legend-selected"><span className="legend-selected-swatch" />Selected country · viewing only</span>
+      </div>
+    </div>
+  );
+}
+
+function DatabaseProfileSummary({ profile }) {
+  const audit = evidenceAudit(profile);
+  const assessment = profile?.assessment || {};
+  const status = firstDefined(assessment.status, assessment.assessment_status, profile?.assessment_status, profile?.status);
+  const method = firstDefined(assessment.method, assessment.assessment_method, profile?.assessment_method);
+  const confidence = firstDefined(assessment.confidence, assessment.confidence_level, profile?.confidence_level);
+  const verifiedAt = formatDate(firstDefined(assessment.last_verified_at, profile?.last_verified_at, profile?.updated_at));
+
+  return (
+    <Card className="soft-card">
+      <div className="content-block">
+        <h3>Database and evidence record</h3>
+        <p className="muted-copy">The PostgreSQL test model separates country scores from the documentary confidence supporting them.</p>
+        <div className="database-stat-grid">
+          <div className="database-stat"><span>Sources</span><strong>{audit.sourceCount}</strong></div>
+          <div className="database-stat"><span>Evidence links</span><strong>{audit.evidenceLinkCount}</strong></div>
+          <div className="database-stat"><span>Domains covered</span><strong>{audit.coveredDomainCount}/6</strong></div>
+        </div>
+        <div className="evidence-level-row" aria-label="Evidence links by level">
+          {Object.entries(audit.levels).map(([level, count]) => <span key={level}>Level {level}: <strong>{count}</strong></span>)}
+        </div>
+        <ul className="compact-list top-gap-small">
+          <li><strong>Assessment status:</strong> {humanLabel(status)}</li>
+          <li><strong>Documentary confidence:</strong> {humanLabel(confidence)}</li>
+          <li><strong>Method:</strong> {humanLabel(method, "Documentary audit with human validation")}</li>
+          {verifiedAt ? <li><strong>Last verification:</strong> {verifiedAt}</li> : null}
+        </ul>
+      </div>
+    </Card>
+  );
+}
+
+function SourceRecord({ source, index }) {
+  const indicators = asArray(source.indicators);
+  const status = firstDefined(source.link_status, source.url_status, source.access_status, source.status);
+  const verifiedAt = formatDate(firstDefined(source.last_verified_at, source.checked_at, source.updated_at));
+  const publisher = firstDefined(source.publisher, source.institution, source.organisation);
+  return (
+    <details className="list-box" key={`${source.url || source.title || "source"}-${index}`}>
+      <summary style={{ cursor: "pointer", fontWeight: 800 }}>
+        {source.title || `Source ${index + 1}`}{publisher ? ` — ${publisher}` : ""}
+      </summary>
+      <div className="top-gap-small">
+        <div className="source-audit-line">
+          {status ? <span>{humanLabel(status)}</span> : null}
+          {verifiedAt ? <span>Checked {verifiedAt}</span> : null}
+          {source.source_type ? <span>{humanLabel(source.source_type)}</span> : null}
+        </div>
+        {source.note ? <p>{source.note}</p> : null}
+        {source.scope ? <p><strong>Scope:</strong> {source.scope}</p> : null}
+        {indicators.length ? (
+          <div className="stack-list">
+            {indicators.map((indicator, indicatorIndex) => (
+              <div className="mini-tile" key={`${indicator.code || "indicator"}-${indicatorIndex}`}>
+                <div className="mini-tile-title">
+                  {indicator.code || "IML indicator"}
+                  {indicator.evidence_level ? ` · Evidence ${indicator.evidence_level}` : ""}
+                  {indicator.support_type ? ` · ${indicator.support_type}` : ""}
+                </div>
+                {indicator.summary ? <div className="mini-tile-text">{indicator.summary}</div> : null}
+                {indicator.limitation ? <div className="mini-tile-text top-gap-small"><strong>Limitation:</strong> {indicator.limitation}</div> : null}
+              </div>
+            ))}
+          </div>
+        ) : null}
+        {source.url ? (
+          <div className="button-row"><a className="text-link" href={source.url} target="_blank" rel="noopener noreferrer">Open precise institutional source ↗</a></div>
+        ) : null}
+      </div>
+    </details>
+  );
+}
+
+function CountryProfile({ selectedCountry, profile }) {
+  if (!selectedCountry) return null;
+  if (!profile) {
+    return (
+      <Card className="soft-card">
+        <div className="content-block map-empty">
+          <div className="section-badge">Profile not yet available</div>
+          <h3>{selectedCountry.name}</h3>
+          <p><strong>Selection only:</strong> the amber highlight means that the country is being viewed. It is not an assessment.</p>
+          <p>A future editorial workflow can create a draft, attach institutional sources, link evidence to indicators, request local review and publish a versioned profile.</p>
+        </div>
+      </Card>
+    );
+  }
+
+  return (
+    <>
+      <div className="split-grid profile-grid">
+        <Card>
+          <div className="content-block">
+            <div className="profile-head">
+              <div>
+                <div className="eyebrow">{profile.iso3}</div>
+                <div className="profile-title-row">
+                  <h3>{profile.name}</h3>
+                  <div className="score-pill" title="Overall maturity signal, not a country ranking">{averageScore(asArray(profile.values))}/100</div>
+                </div>
+              </div>
+            </div>
+            <p className="muted-copy">{profile.subtitle}</p>
+            <HexagonChart values={profile.values} />
+            <div className="profile-stat-grid">
+              {IML_DOMAINS.map((domain, index) => (
+                <div className="profile-stat" key={domain.key}>
+                  <span>{domain.axis}</span>
+                  <strong>{profile.values?.[index] ?? 0}</strong>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+        <div className="stack-layout">
+          <DatabaseProfileSummary profile={profile} />
+          <Card><div className="content-block"><h3>Strengths</h3><ul className="plain-list">{asArray(profile.strengths).map((item) => <li key={item}>• {item}</li>)}</ul></div></Card>
+          <Card><div className="content-block"><h3>Points to watch</h3><ul className="plain-list">{asArray(profile.watch).map((item) => <li key={item}>• {item}</li>)}</ul></div></Card>
+          <Card className="soft-card">
+            <div className="content-block">
+              <h3>Evidence</h3>
+              <p className="muted-copy">Each source should point to the precise institutional page supporting a defined indicator. Homepage links are used only when no more specific official page exists.</p>
+              {asArray(profile.sources).length ? <div className="stack-layout">{profile.sources.map((source, index) => <SourceRecord source={source} index={index} key={`${source.url || source.title}-${index}`} />)}</div> : <p>No documentary sources are attached to this profile yet.</p>}
+            </div>
+          </Card>
+        </div>
+      </div>
+      <CountryReport profile={profile} />
+    </>
   );
 }
 
@@ -211,7 +617,7 @@ function WorldPage() {
   const selectedProfile = selectedCountry
     ? profileByIso3[normalizeIso3(selectedCountry.iso3)]
     : null;
-  return <section className="section"><div className="container"><SectionTitle badge="Global Map · PostgreSQL test" title="Maturity profiles, not country rankings" text="Country records use ISO alpha-3 codes and connect six domain scores to documented sources, evidence links, limitations and review status." />{warning ? <Card className="highlight-card"><div className="content-block"><h3>Country profiles temporarily unavailable</h3><p>{warning}</p></div></Card> : null}<div className="top-gap-small"><WorldMap profiles={profiles} selectedCountry={selectedCountry} onSelect={setSelectedCountry} /></div><div className="top-gap"><CountryProfile selectedCountry={selectedCountry} profile={selectedProfile} domains={IML_DOMAINS} /></div></div></section>;
+  return <section className="section"><div className="container"><SectionTitle badge="Global Map · PostgreSQL test" title="Maturity profiles, not country rankings" text="Country records use ISO alpha-3 codes and connect six domain scores to documented sources, evidence links, limitations and review status." />{warning ? <Card className="highlight-card"><div className="content-block"><h3>Country profiles temporarily unavailable</h3><p>{warning}</p></div></Card> : null}<div className="top-gap-small"><WorldMap profiles={profiles} selectedCountry={selectedCountry} onSelect={setSelectedCountry} /></div><div className="top-gap"><CountryProfile selectedCountry={selectedCountry} profile={selectedProfile} /></div></div></section>;
 }
 
 function ContactPage() {
