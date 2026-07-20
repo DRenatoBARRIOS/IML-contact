@@ -3,9 +3,6 @@ import logoImage from "./assets/iml-logo.png";
 import worldCountries from "./world-countries.json";
 import { loadGlobalMapProfiles } from "./services/countriesApi.js";
 import CountryReport from "./components/CountryReport.jsx";
-import { ROUTES } from "./constants/routes.js";
-import { IML_DOMAINS, AXES, AXIS_KEYS } from "./constants/domains.js";
-import { MAP_WIDTH, MAP_HEIGHT, MAP_VISIBLE_HEIGHT } from "./constants/map.js";
 import { MANUSCRIPT_URL, TECHNICAL_MANUSCRIPT_URL } from "./constants/documents.js";
 import "./App.css";
 
