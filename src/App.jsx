@@ -544,26 +544,35 @@ function CountryExplorer() {
  * current file on site-test without requiring another CSS upload.
  */
 const REFERENCE_ADJUSTMENTS = `
-  #page-content {
-    position: relative;
-    isolation: isolate;
+  /* Visible connective mesh: the same quiet network runs through every page
+     background, while all content remains above it. */
+  .hero,
+  .page-masthead,
+  .vision,
+  .current-state,
+  .clinical-section,
+  .route-overview,
+  .next-paths,
+  .methodology-section,
+  .profiles-section,
+  .manuscripts-section {
+    background-color: var(--light);
+    background-image:
+      radial-gradient(circle at 22px 22px, rgba(46, 111, 106, .34) 0 1.45px, transparent 1.7px),
+      repeating-linear-gradient(45deg, transparent 0 21px, rgba(46, 111, 106, .15) 21px 22px, transparent 22px 43px),
+      repeating-linear-gradient(-45deg, transparent 0 21px, rgba(46, 111, 106, .15) 21px 22px, transparent 22px 43px),
+      linear-gradient(145deg, var(--light), var(--paper));
+    background-size: 44px 44px, 44px 44px, 44px 44px, auto;
   }
 
-  #page-content::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    opacity: .22;
+  .interoperability-section,
+  .collaborate-section {
     background-image:
-      radial-gradient(circle, rgba(26, 87, 102, .5) 0 1px, transparent 1.25px),
-      linear-gradient(30deg, transparent 49.3%, rgba(26, 87, 102, .25) 49.7%, rgba(26, 87, 102, .25) 50.3%, transparent 50.7%),
-      linear-gradient(-30deg, transparent 49.3%, rgba(26, 87, 102, .25) 49.7%, rgba(26, 87, 102, .25) 50.3%, transparent 50.7%);
-    background-size: 24px 24px, 48px 42px, 48px 42px;
-    background-position: 0 0, 0 0, 0 0;
-    -webkit-mask-image: radial-gradient(ellipse 90% 75% at 50% 42%, #000 0%, rgba(0, 0, 0, .65) 54%, transparent 100%);
-    mask-image: radial-gradient(ellipse 90% 75% at 50% 42%, #000 0%, rgba(0, 0, 0, .65) 54%, transparent 100%);
+      radial-gradient(circle at 22px 22px, rgba(226, 166, 71, .50) 0 1.35px, transparent 1.65px),
+      repeating-linear-gradient(45deg, transparent 0 21px, rgba(255, 255, 255, .14) 21px 22px, transparent 22px 43px),
+      repeating-linear-gradient(-45deg, transparent 0 21px, rgba(255, 255, 255, .14) 21px 22px, transparent 22px 43px),
+      linear-gradient(145deg, var(--navy), var(--teal-deep));
+    background-size: 44px 44px, 44px 44px, 44px 44px, auto;
   }
 
   .page-ornament {
