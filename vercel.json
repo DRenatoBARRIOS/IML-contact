@@ -1,49 +1,65 @@
-	
-$schema	"https://openapi.vercel.sh/vercel.json"
-redirects	
-0	
-source	"/world"
-destination	"/country-profiles"
-permanent	true
-1	
-source	"/profiles"
-destination	"/country-profiles"
-permanent	true
-2	
-source	"/contact"
-destination	"/collaborate"
-permanent	true
-3	
-source	"/evaluation"
-destination	"/interoperability"
-permanent	true
-4	
-source	"/methodology"
-destination	"/interoperability#methodology"
-permanent	true
-5	
-source	"/id4d"
-destination	"/identity-trust"
-permanent	true
-rewrites	
-0	
-source	"/vision"
-destination	"/index.html"
-1	
-source	"/identity-trust"
-destination	"/index.html"
-2	
-source	"/clinical-workspace"
-destination	"/index.html"
-3	
-source	"/interoperability"
-destination	"/index.html"
-4	
-source	"/country-profiles"
-destination	"/index.html"
-5	
-source	"/manuscripts"
-destination	"/index.html"
-6	
-source	"/collaborate"
-destination	"/index.html"
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/world",
+      "destination": "/country-profiles",
+      "permanent": true
+    },
+    {
+      "source": "/profiles",
+      "destination": "/country-profiles",
+      "permanent": true
+    },
+    {
+      "source": "/contact",
+      "destination": "/collaborate",
+      "permanent": true
+    },
+    {
+      "source": "/evaluation",
+      "destination": "/interoperability",
+      "permanent": true
+    },
+    {
+      "source": "/methodology",
+      "destination": "/interoperability#methodology",
+      "permanent": true
+    },
+    {
+      "source": "/id4d",
+      "destination": "/identity-trust",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/vision",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/identity-trust",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/clinical-workspace",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/interoperability",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/country-profiles",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/manuscripts",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/collaborate",
+      "destination": "/index.html"
+    }
+  ]
+}
