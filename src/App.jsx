@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import worldCountries from "./world-countries.json";
 import logoImage from "./assets/iml-logo.png";
+import heroLampImage from "./assets/hero-lamp-editorial.png";
 
 const BASE_URL = import.meta.env.BASE_URL || "/";
 
@@ -95,7 +96,7 @@ function PageFrame({ active, home = false, children }) {
   );
 }
 
-function PageMasthead({ title, lede, compact = false }) {
+function PageMasthead({ title, lede, compact = false, mirroredLamp = false }) {
   return (
     <section className={`page-masthead${compact ? " page-masthead-compact" : ""}`}>
       <div className="shell page-masthead-grid">
@@ -103,7 +104,16 @@ function PageMasthead({ title, lede, compact = false }) {
           <a className="back-home" href="/">← IML Health home</a>
           <h1>{title}</h1>
         </div>
-        <p>{lede}</p>
+        {mirroredLamp ? (
+          <div className="collaborate-masthead-aside">
+            <img
+              src={heroLampImage}
+              alt=""
+              aria-hidden="true"
+            />
+            <p>{lede}</p>
+          </div>
+        ) : <p>{lede}</p>}
       </div>
     </section>
   );
@@ -634,6 +644,32 @@ const REFERENCE_ADJUSTMENTS = `
     font-size: clamp(3rem, 4.8vw, 5.15rem);
   }
 
+  .collaborate-masthead-aside {
+    align-self: stretch;
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 18px;
+  }
+
+  .collaborate-masthead-aside img {
+    display: block;
+    width: 100%;
+    height: 230px;
+    object-fit: cover;
+    object-position: center;
+    transform: scaleX(-1);
+    mix-blend-mode: multiply;
+  }
+
+  .collaborate-masthead-aside p {
+    margin: 0;
+    color: var(--soft);
+    font-size: clamp(1.03rem, 1.3vw, 1.22rem);
+    line-height: 1.75;
+  }
+
   .identity-trust-section {
     background: var(--light);
     padding-block: clamp(48px, 6vw, 86px);
@@ -681,6 +717,15 @@ const REFERENCE_ADJUSTMENTS = `
 
     .identity-trust-card {
       border-radius: 18px;
+    }
+
+    .collaborate-masthead-aside {
+      max-width: 760px;
+    }
+
+    .collaborate-masthead-aside img {
+      width: min(520px, 100%);
+      max-height: none;
     }
 
     .report-toolbar-action {
@@ -745,7 +790,7 @@ function HomePage() {
           </div>
           <div className="hero-art">
             <div className="hero-art-frame">
-              <img src={`${BASE_URL}hero-lamp-editorial.png`} alt="Hand-drawn IML lamp illuminating connected evidence paths" />
+              <img src={heroLampImage} alt="Hand-drawn IML lamp illuminating connected evidence paths" />
             </div>
           </div>
         </div>
@@ -962,7 +1007,7 @@ function InteroperabilityPage() {
 function CollaboratePage() {
   return (
     <PageFrame active="/collaborate">
-      <PageMasthead title="Bring evidence, clinical reality or implementation experience." lede="IML is independent, non-commercial and open to rigorous contribution." />
+      <PageMasthead title="Bring evidence, clinical reality or implementation experience." lede="IML is independent, non-commercial and open to rigorous contribution." mirroredLamp />
       <section className="section collaborate-section" aria-labelledby="collaborate-heading">
         <div className="shell collaborate-layout">
           <div><h2 id="collaborate-heading">A concrete contribution is better than a broad endorsement.</h2><p>Tell us what you know, what should be corrected and what you would be prepared to test.</p><a className="button amber-button" href="mailto:iml.health@pm.me?subject=IML%20collaboration">Write to iml.health@pm.me</a></div>
