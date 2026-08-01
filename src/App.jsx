@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import worldCountries from "./world-countries.json";
-import logoImage from "./assets/iml-logo.png";
-import heroLampImage from "./assets/hero-lamp-editorial.png";
 
 const BASE_URL = import.meta.env.BASE_URL || "/";
 
@@ -27,9 +25,11 @@ function SiteHeader({ active, home }) {
     <header className="site-header">
       <div className="shell header-inner">
         <a className={`brand${home ? " brand-home" : ""}`} href="/" aria-label="IML Health home">
-          <span className="brand-mark" aria-hidden="true">
-            <img src={logoImage} alt="" width="54" height="64" />
-          </span>
+          {!home ? (
+            <span className="brand-mark" aria-hidden="true">
+              <img src="/favicon.svg" alt="" width="54" height="64" />
+            </span>
+          ) : null}
           <span className="brand-copy">
             <strong>IML Health</strong>
             <span>Open Health Information Environment</span>
@@ -91,18 +91,12 @@ function PageFrame({ active, home = false, children }) {
       <a className="skip-link" href="#page-content">Skip to the content</a>
       <SiteHeader active={active} home={home} />
       <main id="page-content">{children}</main>
-      <div className="page-ornament" aria-hidden="true">
-        <span />
-        <i />
-        <i />
-        <span />
-      </div>
       <SiteFooter />
     </>
   );
 }
 
-function PageMasthead({ title, lede, compact = false, mirroredLamp = false }) {
+function PageMasthead({ title, lede, compact = false }) {
   return (
     <section className={`page-masthead${compact ? " page-masthead-compact" : ""}`}>
       <div className="shell page-masthead-grid">
@@ -110,14 +104,7 @@ function PageMasthead({ title, lede, compact = false, mirroredLamp = false }) {
           <a className="back-home" href="/">← IML Health home</a>
           <h1>{title}</h1>
         </div>
-        {mirroredLamp ? (
-          <div className="collaborate-masthead-aside">
-            <div className="collaborate-lamp-frame" aria-hidden="true">
-              <img src={heroLampImage} alt="" />
-            </div>
-            <p>{lede}</p>
-          </div>
-        ) : <p>{lede}</p>}
+        <p>{lede}</p>
       </div>
     </section>
   );
@@ -239,176 +226,6 @@ function humanize(value) {
   return value ? String(value).replaceAll("_", " ") : "not recorded";
 }
 
-const DOMAIN_REPORT_GUIDANCE = {
-  Governance: "Standards, responsibilities, oversight and institutional coordination.",
-  Technical: "Structured, secure and reliable exchange between information systems.",
-  Identity: "Identification, trusted access, consent and information provenance.",
-  Adoption: "Use of standards and infrastructure in routine clinical and public-health work.",
-  Security: "Protection, availability, traceability, recovery and continuity.",
-  Learning: "Use of audits, incidents, complaints and outcomes to improve the system.",
-};
-
-function escapeReportHtml(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function safeReportUrl(value) {
-  try {
-    const url = new URL(String(value || ""), window.location.href);
-    return ["http:", "https:"].includes(url.protocol) ? url.href : "";
-  } catch {
-    return "";
-  }
-}
-
-function scoreInterpretation(score) {
-  const value = Number(score || 0);
-  if (value >= 80) return "Strong documented foundations, to be read alongside implementation limits and source coverage.";
-  if (value >= 60) return "Substantial foundations with material variation, incomplete adoption or operational gaps.";
-  if (value >= 40) return "Partial maturity: formal structures exist, but delivery or practical implementation remains limited.";
-  return "Major unresolved gaps or limited evidence of reliable implementation and continuity.";
-}
-
-function listReportItems(items, emptyText) {
-  const rows = asArray(items);
-  if (!rows.length) return `<p class="empty">${escapeReportHtml(emptyText)}</p>`;
-  return `<ul>${rows.map((item) => `<li>${escapeReportHtml(item)}</li>`).join("")}</ul>`;
-}
-
-function sourceReportHtml(source, index) {
-  const publicUrl = safeReportUrl(source?.url);
-  const indicators = asArray(source?.indicators);
-  return `
-    <article class="source">
-      <h3>${String(index + 1).padStart(2, "0")} · ${escapeReportHtml(source?.title || `Source ${index + 1}`)}</h3>
-      <p class="source-meta">${escapeReportHtml(source?.publisher || "Publisher not recorded")}${source?.publication_date ? ` · ${escapeReportHtml(formatDate(source.publication_date))}` : ""}</p>
-      ${source?.note ? `<p>${escapeReportHtml(source.note)}</p>` : ""}
-      ${publicUrl ? `<p><a href="${escapeReportHtml(publicUrl)}">${escapeReportHtml(publicUrl)}</a></p>` : '<p class="empty">No public link recorded.</p>'}
-      ${indicators.map((indicator) => `
-        <div class="indicator">
-          <strong>${escapeReportHtml(indicator?.code || "IML indicator")} · evidence ${escapeReportHtml(indicator?.evidence_level || "ungraded")}</strong>
-          <p>${escapeReportHtml(indicator?.summary || "Evidence summary not recorded.")}</p>
-          ${indicator?.limitation ? `<p><b>Limitation:</b> ${escapeReportHtml(indicator.limitation)}</p>` : ""}
-        </div>
-      `).join("")}
-    </article>
-  `;
-}
-
-function openCountryPdfReport(profile) {
-  if (!profile) return;
-
-  const reportWindow = window.open("", "_blank");
-  if (!reportWindow) {
-    window.alert("Please allow pop-ups to generate the country PDF report.");
-    return;
-  }
-
-  reportWindow.opener = null;
-  const values = asArray(profile.values).length === 6 ? profile.values.map(Number) : [0, 0, 0, 0, 0, 0];
-  const sources = asArray(profile.sources);
-  const score = profileScore(profile);
-  const generatedAt = new Intl.DateTimeFormat("en-GB", { dateStyle: "long" }).format(new Date());
-  const logoUrl = new URL(logoImage, window.location.href).href;
-  const reportTitle = `IML-${normalizeIso3(profile.iso3)}-country-report-${new Date().toISOString().slice(0, 10)}`;
-  const domainRows = RADAR_LABELS.map((axis, index) => `
-    <tr>
-      <th>${escapeReportHtml(axis)}</th>
-      <td class="score">${escapeReportHtml(values[index])}/100</td>
-      <td><strong>${escapeReportHtml(DOMAIN_REPORT_GUIDANCE[axis])}</strong><br>${escapeReportHtml(scoreInterpretation(values[index]))}</td>
-    </tr>
-  `).join("");
-
-  reportWindow.document.open();
-  reportWindow.document.write(`<!doctype html>
-  <html lang="en">
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>${escapeReportHtml(reportTitle)}</title>
-      <style>
-        @page { size: A4; margin: 16mm 15mm 18mm; }
-        * { box-sizing: border-box; }
-        body { margin: 0; color: #13283a; font: 10.5pt/1.48 Arial, Helvetica, sans-serif; }
-        header { display: flex; align-items: center; justify-content: space-between; gap: 18px; border-bottom: 2px solid #2e6f6a; padding-bottom: 12px; }
-        header img { width: 55px; height: 55px; object-fit: contain; }
-        .brand { display: flex; align-items: center; gap: 12px; }
-        .brand strong { display: block; font-family: Georgia, serif; font-size: 19pt; font-weight: 600; }
-        .brand span, .meta, .source-meta, .empty { color: #546775; }
-        .report-type { color: #2e6f6a; font-size: 8.5pt; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-        h1 { margin: 24px 0 4px; font-family: Georgia, serif; font-size: 30pt; font-weight: 600; letter-spacing: -.025em; }
-        h2 { margin: 26px 0 10px; border-bottom: 1px solid #d8cdbb; padding-bottom: 5px; font-family: Georgia, serif; font-size: 17pt; font-weight: 600; page-break-after: avoid; }
-        h3 { margin: 0 0 4px; font-size: 10.5pt; page-break-after: avoid; }
-        p { margin: 7px 0; }
-        a { color: #245b57; overflow-wrap: anywhere; }
-        .summary { margin: 18px 0; border-left: 4px solid #e2a647; background: #fbf4e7; padding: 12px 14px; }
-        .headline { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 20px; }
-        .overall { min-width: 88px; border-radius: 12px; background: #2e6f6a; color: white; padding: 10px 13px; text-align: center; }
-        .overall strong { display: block; font-size: 19pt; line-height: 1; }
-        .overall span { font-size: 7.5pt; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border-bottom: 1px solid #ded6c8; padding: 8px 7px; vertical-align: top; text-align: left; }
-        th { width: 21%; color: #245b57; }
-        td.score { width: 13%; font-weight: 700; white-space: nowrap; }
-        ul { margin: 6px 0 0; padding-left: 20px; }
-        li { margin-bottom: 5px; }
-        .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-        .panel { border: 1px solid #d8cdbb; border-radius: 10px; padding: 12px 14px; break-inside: avoid; }
-        .panel h2 { margin-top: 0; font-size: 14pt; }
-        .source { border: 1px solid #d8cdbb; border-radius: 10px; margin-bottom: 10px; padding: 12px 14px; break-inside: avoid; }
-        .indicator { margin-top: 9px; border-left: 3px solid #2e6f6a; background: #eef5f2; padding: 8px 10px; }
-        .indicator p { margin: 3px 0; }
-        .method { margin-top: 24px; border-top: 1px solid #d8cdbb; color: #546775; padding-top: 10px; font-size: 8.5pt; }
-        .print-actions { position: sticky; top: 0; z-index: 2; display: flex; justify-content: center; gap: 10px; background: #eef5f2; padding: 12px; }
-        button { cursor: pointer; border: 0; border-radius: 8px; background: #2e6f6a; color: white; padding: 10px 16px; font: 700 10pt Arial, sans-serif; }
-        @media print {
-          .print-actions { display: none; }
-          .two-columns { grid-template-columns: 1fr 1fr; }
-          a { color: #13283a; text-decoration: none; }
-        }
-        @media screen and (max-width: 700px) { .two-columns { grid-template-columns: 1fr; } }
-      </style>
-    </head>
-    <body>
-      <div class="print-actions"><button type="button" onclick="window.print()">Save as PDF</button></div>
-      <header>
-        <div class="brand"><img src="${escapeReportHtml(logoUrl)}" alt=""><div><strong>IML Health</strong><span>Open Health Information Environment</span></div></div>
-        <div class="report-type">Country evidence report</div>
-      </header>
-      <main>
-        <div class="headline">
-          <div><h1>${escapeReportHtml(profile.name)}</h1><p class="meta">ISO3 ${escapeReportHtml(profile.iso3)} · Profile v${escapeReportHtml(profile.version || "working")} · Generated ${escapeReportHtml(generatedAt)}</p></div>
-          <div class="overall"><strong>${escapeReportHtml(score)}/100</strong><span>orientation signal</span></div>
-        </div>
-        <div class="summary"><strong>Exploratory profile - not a ranking or certification.</strong><br>${escapeReportHtml(profile.subtitle || "Evidence-oriented working country profile.")}</div>
-
-        <h2>Assessment overview</h2>
-        <p><strong>Status:</strong> ${escapeReportHtml(humanize(profile?.assessment?.assessment_status || profile.status))} · <strong>Evidence:</strong> ${escapeReportHtml(humanize(profile?.assessment?.confidence_level || profile.evidenceLevel))} · <strong>Updated:</strong> ${escapeReportHtml(formatDate(profile.updatedAt || profile.published_at))}</p>
-
-        <h2>Six-domain assessment</h2>
-        <table><tbody>${domainRows}</tbody></table>
-
-        <div class="two-columns">
-          <section class="panel"><h2>Documented strengths</h2>${listReportItems(profile.strengths, "No reviewed strength recorded.")}</section>
-          <section class="panel"><h2>Points to examine</h2>${listReportItems(profile.watch, "No reviewed watch point recorded.")}</section>
-        </div>
-
-        <h2>Evidence register</h2>
-        ${sources.length ? sources.map(sourceReportHtml).join("") : '<p class="empty">No documentary source is attached to this working profile.</p>'}
-
-        <p class="method"><strong>Methodological note.</strong> The overall orientation signal is the rounded arithmetic mean of the six current domain scores unless an explicitly reviewed overall score is stored. It summarises the profile but does not replace the underlying sources, limitations and indicator-by-indicator review.</p>
-      </main>
-    </body>
-  </html>`);
-  reportWindow.document.close();
-  reportWindow.focus();
-}
-
 function ProfilePanel({ country, profile }) {
   if (!profile) {
     return (
@@ -505,17 +322,6 @@ function CountryExplorer() {
     <div className="country-explorer">
       <div className="explorer-toolbar">
         <label><span>Choose a country</span><select value={selectedIso3} onChange={(event) => setSelectedIso3(event.target.value)}>{countryOptions.map((country) => <option value={country.iso3} key={country.iso3}>{country.name} — {profilesByIso3.has(country.iso3) ? "examined" : "not examined"}</option>)}</select></label>
-        <div className="report-toolbar-action">
-          <button
-            type="button"
-            className="button primary"
-            disabled={!selectedProfile}
-            onClick={() => openCountryPdfReport(selectedProfile)}
-          >
-            Download PDF report
-          </button>
-          <small>{selectedProfile ? `Report for ${selectedProfile.name}` : "Select an examined country to enable the report."}</small>
-        </div>
       </div>
       {status.warning ? <div className="explorer-warning" role="status"><strong>Country profiles could not be loaded.</strong><span>{status.warning}</span></div> : null}
       <div className="explorer-grid">
@@ -544,102 +350,16 @@ function CountryExplorer() {
  * current file on site-test without requiring another CSS upload.
  */
 const REFERENCE_ADJUSTMENTS = `
-  /* Visible connective mesh: the same quiet network runs through every page
-     background, while all content remains above it. */
-  .hero,
-  .page-masthead,
-  .vision,
-  .current-state,
-  .clinical-section,
-  .route-overview,
-  .next-paths,
-  .methodology-section,
-  .profiles-section,
-  .manuscripts-section {
-    background-color: var(--light);
-    background-image:
-      radial-gradient(circle at 22px 22px, rgba(46, 111, 106, .34) 0 1.45px, transparent 1.7px),
-      repeating-linear-gradient(45deg, transparent 0 21px, rgba(46, 111, 106, .15) 21px 22px, transparent 22px 43px),
-      repeating-linear-gradient(-45deg, transparent 0 21px, rgba(46, 111, 106, .15) 21px 22px, transparent 22px 43px),
-      linear-gradient(145deg, var(--light), var(--paper));
-    background-size: 44px 44px, 44px 44px, 44px 44px, auto;
-  }
-
-  .interoperability-section,
-  .collaborate-section {
-    background-image:
-      radial-gradient(circle at 22px 22px, rgba(226, 166, 71, .50) 0 1.35px, transparent 1.65px),
-      repeating-linear-gradient(45deg, transparent 0 21px, rgba(255, 255, 255, .14) 21px 22px, transparent 22px 43px),
-      repeating-linear-gradient(-45deg, transparent 0 21px, rgba(255, 255, 255, .14) 21px 22px, transparent 22px 43px),
-      linear-gradient(145deg, var(--navy), var(--teal-deep));
-    background-size: 44px 44px, 44px 44px, 44px 44px, auto;
-  }
-
-  .page-ornament {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: min(1160px, calc(100% - 48px));
-    margin: 0 auto;
-    padding: 18px 0;
-    color: color-mix(in srgb, var(--teal) 50%, var(--line));
-  }
-
-  .page-ornament span {
-    height: 1px;
-    flex: 1;
-    background: currentColor;
-    opacity: .65;
-  }
-
-  .page-ornament i {
-    box-sizing: border-box;
-    display: block;
-    width: 7px;
-    height: 7px;
-    flex: 0 0 7px;
-    border: 1px solid currentColor;
-    border-radius: 50%;
-  }
-
-  .brand-home {
-    min-width: 320px;
-    gap: 14px;
+  .footer-brand > img {
+    display: none !important;
   }
 
   .hero-grid {
-    grid-template-columns: minmax(0, 1.02fr) minmax(430px, .98fr);
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .hero-copy {
-    max-width: 760px;
-  }
-
-  .brand-mark img,
-  .footer-logo img {
-    transform: scale(1.52);
-    mix-blend-mode: multiply;
-  }
-
-  .footer-brand {
-    gap: 14px;
-  }
-
-  .footer-logo {
-    width: 62px;
-    height: 62px;
-    display: grid;
-    place-items: center;
-    flex: 0 0 auto;
-    overflow: hidden;
-    border-radius: 14px;
-    background: #f5efe4;
-  }
-
-  .footer-logo img {
-    width: 58px;
-    height: 58px;
-    object-fit: contain;
+    max-width: 980px;
   }
 
   .page-masthead-grid {
@@ -647,33 +367,7 @@ const REFERENCE_ADJUSTMENTS = `
   }
 
   .explorer-toolbar {
-    justify-content: space-between;
-  }
-
-  .report-toolbar-action {
-    display: grid;
-    justify-items: end;
-    gap: 7px;
-  }
-
-  .report-toolbar-action button {
-    cursor: pointer;
-    font-family: inherit;
-  }
-
-  .report-toolbar-action button:disabled {
-    cursor: not-allowed;
-    opacity: .48;
-    transform: none;
-    box-shadow: none;
-  }
-
-  .report-toolbar-action small {
-    margin: 0;
-    color: var(--soft);
-    font-size: .68rem;
-    line-height: 1.35;
-    text-align: right;
+    justify-content: flex-end;
   }
 
   .manuscript-cards h3 {
@@ -704,42 +398,6 @@ const REFERENCE_ADJUSTMENTS = `
   body[data-iml-route="/identity-trust"] .page-masthead h1 {
     max-width: 1050px;
     font-size: clamp(3rem, 4.8vw, 5.15rem);
-  }
-
-  .collaborate-masthead-aside {
-    align-self: stretch;
-    display: flex;
-    min-width: 0;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 18px;
-  }
-
-  .collaborate-lamp-frame {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 3 / 2;
-    overflow: hidden;
-    border-radius: 46% 54% 51% 49% / 58% 44% 56% 42%;
-    -webkit-mask-image: radial-gradient(ellipse at center, #000 54%, rgba(0, 0, 0, .96) 69%, transparent 100%);
-    mask-image: radial-gradient(ellipse at center, #000 54%, rgba(0, 0, 0, .96) 69%, transparent 100%);
-  }
-
-  .collaborate-lamp-frame img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    transform: scaleX(-1);
-    mix-blend-mode: multiply;
-  }
-
-  .collaborate-masthead-aside p {
-    margin: 0;
-    color: var(--soft);
-    font-size: clamp(1.03rem, 1.3vw, 1.22rem);
-    line-height: 1.75;
   }
 
   .identity-trust-section {
@@ -790,41 +448,6 @@ const REFERENCE_ADJUSTMENTS = `
     .identity-trust-card {
       border-radius: 18px;
     }
-
-    .collaborate-masthead-aside {
-      max-width: 760px;
-    }
-
-    .collaborate-lamp-frame {
-      width: min(520px, 100%);
-    }
-
-    .report-toolbar-action {
-      justify-items: stretch;
-    }
-
-    .report-toolbar-action small {
-      text-align: left;
-    }
-
-    .brand-home {
-      min-width: 0;
-    }
-
-    .footer-logo {
-      width: 54px;
-      height: 54px;
-    }
-  }
-
-  @media (max-width: 1180px) {
-    .hero-grid {
-      grid-template-columns: minmax(0, 1fr);
-    }
-
-    .hero-copy {
-      max-width: 880px;
-    }
   }
 `;
 
@@ -857,11 +480,6 @@ function HomePage() {
                   <small>Connect systems, preserve meaning, document evidence.</small>
                 </span>
               </a>
-            </div>
-          </div>
-          <div className="hero-art">
-            <div className="hero-art-frame">
-              <img src={heroLampImage} alt="Hand-drawn IML lamp illuminating connected evidence paths" />
             </div>
           </div>
         </div>
@@ -1078,7 +696,7 @@ function InteroperabilityPage() {
 function CollaboratePage() {
   return (
     <PageFrame active="/collaborate">
-      <PageMasthead title="Bring evidence, clinical reality or implementation experience." lede="IML is independent, non-commercial and open to rigorous contribution." mirroredLamp />
+      <PageMasthead title="Bring evidence, clinical reality or implementation experience." lede="IML is independent, non-commercial and open to rigorous contribution." />
       <section className="section collaborate-section" aria-labelledby="collaborate-heading">
         <div className="shell collaborate-layout">
           <div><h2 id="collaborate-heading">A concrete contribution is better than a broad endorsement.</h2><p>Tell us what you know, what should be corrected and what you would be prepared to test.</p><a className="button amber-button" href="mailto:iml.health@pm.me?subject=IML%20collaboration">Write to iml.health@pm.me</a></div>
