@@ -21,17 +21,8 @@ export function normalizeProfile(profile) {
     slug: profile.slug || "",
     status: profile.status || profile.assessment_status || "published",
     version: profile.version || "",
-    updatedAt:
-      profile.updatedAt ||
-      profile.updated_at ||
-      profile.assessment_date ||
-      profile.assessed_at ||
-      profile.published_at ||
-      "",
-    evidenceLevel:
-      profile.evidenceLevel ||
-      profile.evidence_level ||
-      "Exploratory working profile",
+    updatedAt: profile.updatedAt || profile.updated_at || profile.assessment_date || profile.assessed_at || profile.published_at || "",
+    evidenceLevel: profile.evidenceLevel || profile.evidence_level || "Exploratory working profile",
     subtitle: profile.subtitle || profile.summary || "",
     values,
     strengths: profile.strengths || [],
@@ -42,35 +33,18 @@ export function normalizeProfile(profile) {
 
 export async function loadGlobalMapProfiles(signal) {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/countries`, {
+    const response = await fetch(`${API_BASE_URL}/api/countries-v2`, {
       headers: { Accept: "application/json" },
       signal,
     });
-
-    if (!response.ok) {
-      throw new Error(`Countries API returned ${response.status}.`);
-    }
-
+    if (!response.ok) throw new Error(`Countries API returned ${response.status}.`);
     const payload = await response.json();
     const rows = Array.isArray(payload) ? payload : payload.countries;
-
-    if (!Array.isArray(rows)) {
-      throw new Error("Countries API payload must contain a countries array.");
-    }
-
-    if (rows.length === 0) {
-      throw new Error(
-        "The countries API contains no published country profiles yet."
-      );
-    }
-
-    return {
-      profiles: rows.map(normalizeProfile),
-      source: "database",
-    };
+    if (!Array.isArray(rows)) throw new Error("Countries API payload must contain a countries array.");
+    if (rows.length === 0) throw new Error("The countries API contains no published country profiles yet.");
+    return { profiles: rows.map(normalizeProfile), source: "database" };
   } catch (error) {
     if (error?.name === "AbortError") throw error;
-
     return {
       profiles: [],
       source: "unavailable",

@@ -1,0 +1,38 @@
+{
+  "artifact": "IML Health multipage GitHub update",
+  "scope": "frontend, country API and Vercel route compatibility",
+  "replace": [
+    "package.json",
+    "index.html",
+    "vercel.json",
+    "src/App.jsx",
+    "src/App.css",
+    "src/main.jsx",
+    "api/countries.js"
+  ],
+  "add": [
+    "src/components/",
+    "src/pages/",
+    "src/services/profileService.js",
+    "src/data/world-countries.json",
+    "src/assets/iml-logo.png",
+    "public/hero-lamp-editorial.png",
+    "public/favicon.svg"
+  ],
+  "preserve": [
+    "api/countries-v2.js",
+    "PostgreSQL or Neon database",
+    "Vercel DATABASE_URL",
+    "public/IML_Founding_Manuscript.pdf",
+    "public/IML_Technical_Manuscript.pdf",
+    "all unrelated public assets"
+  ],
+  "legacy_hashes": {
+    "#id4d": "/vision#identity-trust",
+    "#evaluation": "/interoperability",
+    "#methodology": "/interoperability#methodology",
+    "#world": "/country-profiles",
+    "#profiles": "/country-profiles",
+    "#contact": "/collaborate"
+  }
+}

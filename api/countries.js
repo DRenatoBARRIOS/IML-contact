@@ -22,55 +22,21 @@ export async function GET() {
         c.label_dy::double precision AS label_dy,
         c.text_size::double precision AS text_size,
 
-        cp.id AS profile_id,
         cp.version,
-        cp.status,
         cp.subtitle,
         cp.assessment_date,
         cp.published_at,
 
         COALESCE(
           (
-            SELECT NULLIF(to_jsonb(a)->>'overall_score', '')::numeric::integer
-            FROM country_profile_assessments a
-            WHERE a.profile_id = cp.id
-            ORDER BY COALESCE(a.reviewed_at, a.created_at) DESC
-            LIMIT 1
-          ),
-          (
-            SELECT ROUND(AVG(s.score))::integer
-            FROM country_profile_scores s
-            WHERE s.profile_id = cp.id
-          ),
-          0
-        ) AS overall_score,
-
-        COALESCE(
-          (
             SELECT json_agg(s.score ORDER BY d.display_order)
             FROM country_profile_scores s
-            JOIN iml_domains d ON d.code = s.domain_code
+            JOIN iml_domains d
+              ON d.code = s.domain_code
             WHERE s.profile_id = cp.id
           ),
           '[]'::json
         ) AS values,
-
-        COALESCE(
-          (
-            SELECT json_agg(
-              json_build_object(
-                'code', s.domain_code,
-                'score', s.score,
-                'display_order', d.display_order
-              )
-              ORDER BY d.display_order
-            )
-            FROM country_profile_scores s
-            JOIN iml_domains d ON d.code = s.domain_code
-            WHERE s.profile_id = cp.id
-          ),
-          '[]'::json
-        ) AS domains,
 
         COALESCE(
           (
@@ -96,70 +62,38 @@ export async function GET() {
           (
             SELECT json_agg(
               json_build_object(
-                'title', src.title,
-                'publisher', src.publisher,
-                'url',
-                  CASE
-                    WHEN src.url_status IN ('verified', 'redirected')
-                      THEN COALESCE(src.public_url, src.source_url)
-                    ELSE NULL
-                  END,
-                'url_status', src.url_status,
-                'documentary_url', src.source_url,
-                'last_checked_at', src.last_checked_at,
-                'replacement_reason', src.replacement_reason,
-                'publication_date', src.publication_date,
-                'accessed_at', src.accessed_at,
-                'note', src.evidence_note,
+                'title', s.title,
+                'publisher', s.publisher,
+                'url', s.source_url,
+                'publication_date', s.publication_date,
+                'accessed_at', s.accessed_at,
+                'note', s.evidence_note,
                 'indicators',
                 COALESCE(
                   (
                     SELECT json_agg(
                       json_build_object(
-                        'code', link.indicator_code,
-                        'evidence_level', link.evidence_level,
-                        'support_type', link.support_type,
-                        'summary', link.evidence_summary,
-                        'limitation', link.limitation_note
+                        'code', i.indicator_code,
+                        'evidence_level', i.evidence_level,
+                        'support_type', i.support_type,
+                        'summary', i.evidence_summary,
+                        'limitation', i.limitation_note
                       )
-                      ORDER BY link.indicator_code
+                      ORDER BY i.indicator_code
                     )
-                    FROM country_profile_source_indicators link
-                    WHERE link.source_id = src.id
+                    FROM country_profile_source_indicators i
+                    WHERE i.source_id = s.id
                   ),
                   '[]'::json
                 )
               )
-              ORDER BY src.id
+              ORDER BY s.id
             )
-            FROM country_profile_sources src
-            WHERE src.profile_id = cp.id
+            FROM country_profile_sources s
+            WHERE s.profile_id = cp.id
           ),
           '[]'::json
-        ) AS sources,
-
-        COALESCE(
-          (
-            SELECT json_build_object(
-              'overall_score',
-                NULLIF(to_jsonb(a)->>'overall_score', '')::numeric::integer,
-              'assessment_status', a.assessment_status,
-              'assessment_method', a.assessment_method,
-              'reviewer_name', a.reviewer_name,
-              'reviewer_organisation', a.reviewer_organisation,
-              'reviewer_role', a.reviewer_role,
-              'confidence_level', a.confidence_level,
-              'review_notes', a.review_notes,
-              'reviewed_at', a.reviewed_at,
-              'published_at', a.published_at
-            )
-            FROM country_profile_assessments a
-            WHERE a.profile_id = cp.id
-            ORDER BY COALESCE(a.reviewed_at, a.created_at) DESC
-            LIMIT 1
-          ),
-          '{}'::json
-        ) AS assessment
+        ) AS sources
 
       FROM countries c
       JOIN country_profiles cp
@@ -173,15 +107,14 @@ export async function GET() {
 
     return Response.json(
       {
-        api_version: "2",
-        generated_at: new Date().toISOString(),
         count: countries.length,
         countries,
       },
       {
         status: 200,
         headers: {
-          "Cache-Control": "no-store",
+          "Cache-Control":
+            "public, s-maxage=300, stale-while-revalidate=3600",
         },
       }
     );
@@ -190,12 +123,7 @@ export async function GET() {
 
     return Response.json(
       { error: "Unable to load country profiles." },
-      {
-        status: 500,
-        headers: {
-          "Cache-Control": "no-store",
-        },
-      }
+      { status: 500 }
     );
   }
 }

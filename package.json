@@ -1,23 +1,24 @@
 {
-  "name": "imlhealth-full",
+  "name": "iml-health-website",
   "private": true,
-  "version": "0.0.2",
+  "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check": "node --test tests/*.test.mjs"
   },
   "dependencies": {
-     "@neondatabase/serverless": "^1.0.0",
-    "framer-motion": "^11.18.2",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "@neondatabase/serverless": "^1.0.2",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.1.4",
-    "@vitejs/plugin-react": "^4.3.4",
-    "tailwindcss": "^4.1.4",
-    "vite": "^5.4.10"
+    "@vitejs/plugin-react": "6.0.4",
+    "vite": "8.2.0"
   }
 }
