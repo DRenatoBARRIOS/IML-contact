@@ -192,7 +192,7 @@ function ClinicalWorkspacePage() {
             <span className="status-chip amber">Reference prototype</span>
             <h2 id="clinical-heading">Build on proven open-source foundations.</h2>
             <p>
-              <a className="text-link" href="https://o3.openmrs.org/" target="_blank" rel="noopener noreferrer">OpenMRS O3 ↗</a> is an important reference for the clinical workspace. IML explores how it can be complemented by regional packs and an independent integration layer.
+              <a className="text-link" href="https://openmrs.org/" target="_blank" rel="noopener noreferrer">OpenMRS O3 ↗</a> is an important reference for the clinical workspace. IML explores how it can be complemented by regional packs and an independent integration layer.
             </p>
             <a className="text-link" href="/collaborate">Join the clinical workstream →</a>
           </div>
