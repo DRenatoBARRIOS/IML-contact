@@ -8,13 +8,23 @@ const TECHNICAL_MANUSCRIPT_URL = `${import.meta.env.BASE_URL}IML_Technical_Manus
 
 const ROUTES = [
   ["home", "Home"],
-  ["id4d", "Identity & Trust"],
-  ["evaluation", "From assessment to action"],
-  ["methodology", "Methodology"],
-  ["world", "World Map"],
+  ["vision", "Vision"],
+  ["clinical-workspace", "Clinical Workspace"],
+  ["interoperability", "Interoperability"],
+  ["country-profiles", "Country Profiles"],
   ["manuscripts", "Manuscripts"],
-  ["contact", "Scientific Review"],
+  ["collaborate", "Collaborate"],
 ].map(([key, label]) => ({ key, label }));
+
+// Keep every previously published hash working after the navigation update.
+// This lets old bookmarks and search results land on the closest new page.
+const LEGACY_ROUTE_ALIASES = {
+  id4d: "interoperability",
+  evaluation: "clinical-workspace",
+  methodology: "interoperability",
+  world: "country-profiles",
+  contact: "collaborate",
+};
 
 const IML_DOMAINS = [
   {
@@ -219,11 +229,10 @@ function metricScore(profile, metric = "overall") {
 
 function scoreFill(score, hasProfile) {
   if (!hasProfile || score === null) return "#e6edf5";
-  if (score >= 85) return "#164e63";
-  if (score >= 70) return "#0e7490";
-  if (score >= 55) return "#67a8bb";
-  if (score >= 40) return "#a8ced8";
-  return "#d8e8ed";
+  if (score >= 75) return "#176c7e";
+  if (score >= 50) return "#5ca5b3";
+  if (score >= 25) return "#acd6dc";
+  return "#d9eef2";
 }
 
 function normaliseEvidenceLevel(level) {
@@ -322,13 +331,19 @@ function WorldMap({ profiles, selectedCountry, onSelect }) {
     <div className="world-box">
       <div className="world-box-head">
         <div>
-          <div className="eyebrow">Country profiles</div>
+          <div className="eyebrow">PostgreSQL test environment</div>
           <div className="overview-title">Evidence-linked country profiles</div>
         </div>
-        <div className="helper-pill">Amber outline = selected country, not a score.</div>
+        <div className="helper-pill">The amber outline marks the country being viewed. It is not a score.</div>
       </div>
-      <div className="world-map-wrap map-stage" style={{ width: "100%" }}>
-        <svg viewBox={`0 0 ${MAP_WIDTH} ${MAP_VISIBLE_HEIGHT}`} className="world-map" style={{ display: "block", width: "100%", minHeight: 430 }} aria-label="Interactive IML world map">
+      <div className="world-map-wrap map-stage">
+        <svg
+          viewBox={`0 0 ${MAP_WIDTH} ${MAP_VISIBLE_HEIGHT}`}
+          preserveAspectRatio="xMidYMid meet"
+          className="world-map"
+          style={{ width: "100%", minHeight: "clamp(220px, 42vw, 620px)", display: "block" }}
+          aria-label="Interactive IML world map"
+        >
           <rect width={MAP_WIDTH} height={MAP_VISIBLE_HEIGHT} rx="26" fill="#f8fbff" />
           <g>
             {mapFeatures.map((feature) => {
@@ -371,14 +386,16 @@ function WorldMap({ profiles, selectedCountry, onSelect }) {
         ) : null}
       </div>
       <div className="map-legend" aria-label="Map legend">
-        <span>No profile</span>
+        <span>Not examined</span>
         <div className="legend-swatches">
-          {["#e6edf5", "#d8e8ed", "#a8ced8", "#67a8bb", "#0e7490", "#164e63"].map((color) => (
-            <span key={color} style={{ background: color }} />
-          ))}
+          <span title="Not examined" style={{ background: "#e6edf5" }} />
+          <span title="Examined · 0–24" style={{ background: "#d9eef2" }} />
+          <span title="Examined · 25–49" style={{ background: "#acd6dc" }} />
+          <span title="Examined · 50–74" style={{ background: "#5ca5b3" }} />
+          <span title="Examined · 75–100" style={{ background: "#176c7e" }} />
         </div>
-        <span>Higher maturity signal</span>
-        <span className="legend-selected"><span className="legend-selected-swatch" />Amber outline · selected country</span>
+        <span>Examined · orientation signal 0–100</span>
+        <span className="legend-selected"><span className="legend-selected-swatch" style={{ background: "transparent", border: "3px solid #d97706" }} />Selected country · viewing only</span>
       </div>
     </div>
   );
@@ -855,8 +872,8 @@ function CountryProfile({ selectedCountry, profile }) {
         <div className="content-block map-empty">
           <div className="section-badge">Profile not yet available</div>
           <h3>{selectedCountry.name}</h3>
-          <p><strong>Not yet examined.</strong> The amber outline means only that this country is selected; it is not an assessment.</p>
-          <p>A profile can be added once documentary sources and local review are available.</p>
+          <p><strong>Selection only:</strong> the amber outline means that the country is being viewed. It is not an assessment.</p>
+          <p>A future editorial workflow can create a draft, attach institutional sources, link evidence to indicators, request local review and publish a versioned profile.</p>
         </div>
       </Card>
     );
@@ -911,37 +928,56 @@ function HomePage() {
     <>
       <section className="hero"><div className="container hero-grid">
         <div className="hero-copy">
-          <div className="section-badge">Open for scientific review</div>
-          <h1>A scientific framework for trusted Health Information Ecosystems.</h1>
+          <div className="section-badge">Open · vendor-neutral · academic</div>
+          <h1>Health information should illuminate care — not fragment it.</h1>
           <div className="principle-stack">
             <div className="principle-line">Health is the objective.</div>
             <div className="principle-line">Trustworthy information is the foundation.</div>
             <div className="principle-line">Interoperability is the path.</div>
           </div>
-          <p className="hero-text">IML helps clinicians, researchers and institutions understand how health information is generated, trusted, exchanged and used.</p>
-          <Card className="note-box"><p>IML is an orientation framework, not a certification system. It makes information pathways, gaps and possible next investigations visible. Human review remains necessary when a result is used as validated evidence or to support a decision.</p></Card>
+          <p className="hero-text">IML unites two complementary paths: an open-source clinical workspace and an open integration layer for existing systems.</p>
           <div className="button-row">
-            <a className="primary-button" href={MANUSCRIPT_URL} download>Download the Founding Manuscript</a>
-            <a className="secondary-button" href="#methodology">Explore the methodology</a>
+            <a className="primary-button" href="#vision">Explore the project</a>
+            <a className="secondary-button" href="#country-profiles">View country profiles</a>
           </div>
           <div className="metric-grid two-up top-gap-small">
-            <MetricCard symbol="5L" title="Interoperability" value="5 layers" subtitle="Technical, semantic, organisational, institutional, and clinical/public health." />
-            <MetricCard symbol="6D" title="Assessment" value="6 domains" subtitle="A health-oriented maturity profile linked to documentary evidence." />
+            <MetricCard symbol="01" title="Open Clinical Workspace" value="Clinical foundation" subtitle="A progressively deployable, modular and inspectable workspace." />
+            <MetricCard symbol="02" title="Integration & evidence" value="Open connection layer" subtitle="Connect systems, preserve meaning and document evidence." />
           </div>
         </div>
-        <Card className="overview-card"><div className="overview-top"><div><div className="eyebrow">IML Health</div><div className="overview-title">From information to better health</div></div></div>
-          <p className="muted-copy">The first demonstrator links clinical care, microbiology and public-health learning around urinary infection and multidrug-resistant <em>E. coli</em>.</p>
+        <Card className="overview-card"><div className="overview-top"><div><div className="eyebrow">IML Health</div><div className="overview-title">One environment · two complementary paths</div></div></div>
+          <Card className="note-box"><p>IML is a lamp rather than a verdict. It helps make visible the information pathways surrounding disease, the places where meaning is lost and the points where human review remains essential.</p></Card>
+          <div className="stack-list top-gap-small">{[
+            ["Open Clinical Workspace", "A reference open-source foundation that can start small and grow with care."],
+            ["Interoperability and evidence", "A layer connecting software, laboratories, registries, payers and national services."],
+            ["Human accountability", "Automated support may organise evidence; clinical and scientific responsibility remains human."],
+          ].map(([title, text]) => <div key={title} className="mini-tile"><div className="mini-tile-title">{title}</div><div className="mini-tile-text">{text}</div></div>)}</div>
         </Card>
       </div></section>
-      <section className="section"><div className="container"><Card className="soft-card"><div className="content-block"><div className="section-badge">Positioning</div><h3>Complementary to digital health maturity initiatives</h3><p>IML does not duplicate national digital health dashboards. It asks a narrower question: whether documented capacity preserves clinical meaning, context, trust, correction and usefulness across Health Information Ecosystems.</p></div></Card></div></section>
     </>
+  );
+}
+
+function VisionPage() {
+  return (
+    <section className="section"><div className="container">
+      <SectionTitle badge="Vision" title="An open environment built around care, trust and learning" text="IML combines a reference clinical workspace with an open integration layer. Systems can cooperate without surrendering clinical meaning or public accountability." />
+      <div className="split-grid profile-grid">
+        <Card className="soft-card"><div className="content-block"><h3>One environment, two paths</h3><p>IML does not impose an exclusive monolith. It brings together a modular clinical foundation and an integration approach for software, laboratories, registries, payers and national infrastructure.</p><p>The objective is practical continuity: trustworthy information that remains understandable, correctable and useful across the human journey of care.</p></div></Card>
+        <div className="stack-layout">
+          <Card><div className="content-block"><div className="section-badge">01 · Active public foundation</div><h3>Vision and evidence</h3><p>Core manuscripts and evidence-oriented country profiles are available for scientific review.</p></div></Card>
+          <Card><div className="content-block"><div className="section-badge">02 · Reference prototype</div><h3>Clinical workspace</h3><p>The clinical workspace is an evolving workstream, not a finished or certified product.</p></div></Card>
+          <Card><div className="content-block"><div className="section-badge">03 · Open integration</div><h3>Connect what already exists</h3><p>The integration layer preserves provenance, meaning, correction and institutional responsibility.</p></div></Card>
+        </div>
+      </div>
+    </div></section>
   );
 }
 
 function MethodologyPage() {
   return (
     <section className="section"><div className="container">
-      <SectionTitle badge="IML Framework" title="Evidence-guided, human-validated country profiles" text="The PostgreSQL model records countries, profile versions, six domain scores, indicators, institutional sources, evidence links, limitations and review status." />
+      <SectionTitle badge="Path 02 · Integration & evidence" title="Interoperability is a clinical capability, not a cable between databases" text="Technical exchange becomes useful only when shared meaning, workflow, governance and clinical purpose hold together." />
       <Card className="soft-card"><div className="content-block">
         <h3>What the country engine does</h3>
         <p>It provides a documented starting point for research, not an automatic verdict. Documentary discovery and link checks can be assisted by software, while source selection, interpretation, score attribution and publication remain human responsibilities.</p>
@@ -966,24 +1002,22 @@ function MethodologyPage() {
     </div></section>
   );
 }
-function ManuscriptsPage() {
-  return <section className="section"><div className="container">
-    <SectionTitle badge="Reference documents" title="IML manuscripts" text="The founding vision and technical architecture documents of the IML project." />
-    <div className="split-grid profile-grid">
-      <Card className="soft-card"><div className="content-block"><h3>Founding Manuscript</h3><p>The vision, principles and scope of IML as an open health information environment.</p><a className="primary-button" href={MANUSCRIPT_URL} download>Download PDF</a></div></Card>
-      <Card className="soft-card"><div className="content-block"><h3>Technical Manuscript</h3><p>The proposed architecture, evidence model and implementation approach.</p><a className="primary-button" href={TECHNICAL_MANUSCRIPT_URL} download>Download PDF</a></div></Card>
-    </div>
-  </div></section>;
-}
 function Id4dPage() { return (<section className="section"><div className="container"><SectionTitle badge="Identity infrastructure" title="Identity, consent and trust across fragmented systems" text="Identity is an enabling layer for continuity and accountability, not the whole of interoperability." /><Card className="soft-card"><div className="content-block"><h3>From trusted identity to authorised health and research linkage</h3><p>IML does not propose replacing national identity systems. It explores how recognised national identifiers could contribute to a future universal health and research number for authorised multicentre, longitudinal and epidemiological studies. It complements the <a className="text-link" href="https://id4d.worldbank.org/" target="_blank" rel="noopener noreferrer">World Bank ID4D initiative ↗</a> and may build on trust infrastructures such as the <a className="text-link" href="https://www.who.int/initiatives/global-digital-health-certification-network" target="_blank" rel="noopener noreferrer">WHO Global Digital Health Certification Network ↗</a>.</p><p>National models already differ. A future IML model could combine the national identifier namespace, a governed geographic reference and a protected keyed hash. The resulting number would remain regulated personal data and would require legal, ethical, security and equity review before implementation.</p><p>Identity, identifier, access token and carrier mechanism must remain distinct. A QR code or mobile application should carry only a temporary signed token or a verifiable digital certificate, never sensitive identity or health information in clear text.</p><p>The Country-level digital health <a className="text-link" href="https://monitor.digitalhealthmonitor.org/map" target="_blank" rel="noopener noreferrer">Global Digital Health Monitor map ↗</a>. provides country-level information on digital health. IML is different: it develops an independent comparative framework designed to guide structured country research, verify documentary evidence, identify information gaps, and support contextual human validation.</p></div></Card></div></section>); }
-function EvaluationPage() {
-  return <section className="section"><div className="container"><SectionTitle badge="Operational pathway" title="From assessment to action" text="IML connects documented maturity profiles with practical improvement and concrete clinical or public-health pathways." />
+
+function InteroperabilityPage() {
+  return <><MethodologyPage /><Id4dPage /></>;
+}
+function ClinicalWorkspacePage() {
+  return <section className="section"><div className="container"><SectionTitle badge="Path 01 · Clinical foundation" title="A modular workspace that can start small and grow with care" text="A coherent clinical foundation for settings that need deployable, inspectable software—especially where resources, infrastructure or vendor choice are constrained." />
     <div className="tile-grid three-up">
-      <Card className="value-card"><div className="metric-symbol">AMR</div><h3>AMR / BMR demonstrator</h3><p>Links microbiology with symptoms, diagnosis, treatment, outcomes and public-health learning, beginning with UTI and multidrug-resistant <em>E. coli</em>.</p></Card>
-      <Card className="value-card"><div className="metric-symbol">OCW</div><h3>Open Clinical Workspace</h3><p>An open-source, vendor-neutral and academically governed reference environment that can connect existing systems or provide a progressively deployable foundation where services are limited.</p></Card>
-      <Card className="value-card"><div className="metric-symbol">Q</div><h3>Software quality</h3><p>Digital health quality is assessed through preservation of meaning, correction, auditability, security, resilience, portability, reversibility, accessibility and long-term maintainability.</p></Card>
+      <Card className="value-card"><div className="metric-symbol">ID</div><h3>Patient identity</h3><p>Local and national identifiers, duplicate prevention, contextual access and patient-controlled correction pathways.</p></Card>
+      <Card className="value-card"><div className="metric-symbol">CLN</div><h3>Consultation & terminology</h3><p>A coherent encounter record using shared concepts while leaving room for local clinical language.</p></Card>
+      <Card className="value-card"><div className="metric-symbol">LAB</div><h3>Laboratories & results</h3><p>Structured requests, traceable results and explicit provenance across organisational boundaries.</p></Card>
+      <Card className="value-card"><div className="metric-symbol">AUD</div><h3>Audit & correction</h3><p>Meaningful actions remain attributable; corrections are visible and can propagate safely.</p></Card>
+      <Card className="value-card"><div className="metric-symbol">AMR</div><h3>AMR / BMR demonstrator</h3><p>Microbiology remains connected to symptoms, diagnosis, treatment, outcomes and public-health learning.</p></Card>
+      <Card className="value-card"><div className="metric-symbol">Q</div><h3>Software quality</h3><p>Meaning, correction, auditability, security, resilience, portability and maintainability are part of clinical quality.</p></Card>
     </div>
-    <Card className="soft-card top-gap"><div className="content-block"><h3>First demonstrator pathway</h3><div className="stack-list">{["Symptoms, fever and clinical context.", "Urine testing, culture, bacterial count and antibiogram.", "Clinical interpretation and retained diagnosis.", "Treatment, evolution and outcome.", "Aggregated surveillance, correction and shared learning."].map((text, index) => <div className="list-box" key={text}><strong>{index + 1}.</strong> {text}</div>)}</div></div></Card>
+    <Card className="soft-card top-gap"><div className="content-block"><h3>Progressive deployment</h3><p>A useful first installation should not depend on buying an entire national architecture. Modules can be adopted, integrated and governed in stages. Regional packs remain separate from the international core.</p></div></Card>
   </div></section>;
 }
 
@@ -1010,28 +1044,41 @@ function WorldPage() {
   const selectedProfile = selectedCountry
     ? profileByIso3[normalizeIso3(selectedCountry.iso3)]
     : null;
-  return <section className="section"><div className="container"><SectionTitle badge="Global Map" title="Country profiles" text="Colours show the current documented profile signal. Countries without a profile remain neutral." />{warning ? <Card className="highlight-card"><div className="content-block"><h3>Country profiles temporarily unavailable</h3><p>{warning}</p></div></Card> : null}<div className="top-gap-small"><WorldMap profiles={profiles} selectedCountry={selectedCountry} onSelect={setSelectedCountry} /></div><div className="top-gap"><CountryProfile selectedCountry={selectedCountry} profile={selectedProfile} /></div></div></section>;
+  return <section className="section"><div className="container" style={{ maxWidth: "min(1600px, calc(100% - 32px))" }}><SectionTitle badge="Global Map · PostgreSQL test" title="Maturity profiles, not country rankings" text="Country records use ISO alpha-3 codes and connect six domain scores to documented sources, evidence links, limitations and review status." />{warning ? <Card className="highlight-card"><div className="content-block"><h3>Country profiles temporarily unavailable</h3><p>{warning}</p></div></Card> : null}<div className="top-gap-small"><WorldMap profiles={profiles} selectedCountry={selectedCountry} onSelect={setSelectedCountry} /></div><div className="top-gap"><CountryProfile selectedCountry={selectedCountry} profile={selectedProfile} /></div></div></section>;
 }
 
-function ContactPage() {
+function ManuscriptsPage() {
+  return (
+    <section className="section"><div className="container">
+      <SectionTitle badge="Scientific foundations" title="The argument and the architecture, open to review" text="The manuscripts are working foundations for critique, extension and validation—not a claim of completed implementation." />
+      <div className="split-grid profile-grid">
+        <Card><div className="content-block"><div className="section-badge">Manuscript 01</div><h3>Founding vision</h3><p>Why fragmented information harms care, and why a health information environment must be open, accountable and clinically grounded.</p><div className="button-row"><a className="primary-button" href={MANUSCRIPT_URL} target="_blank" rel="noopener noreferrer">Read founding manuscript ↗</a></div></div></Card>
+        <Card className="soft-card"><div className="content-block"><div className="section-badge">Manuscript 02</div><h3>Technical architecture</h3><p>How modular software, interoperability layers, evidence and correction can form a coherent implementation path.</p><div className="button-row"><a className="secondary-button" href={TECHNICAL_MANUSCRIPT_URL} target="_blank" rel="noopener noreferrer">Read technical manuscript ↗</a></div></div></Card>
+      </div>
+    </div></section>
+  );
+}
+
+function CollaboratePage() {
   const email = "iml.health@pm.me";
   const [copied, setCopied] = useState(false);
   const copyEmail = async () => {
     try { await navigator.clipboard.writeText(email); setCopied(true); window.setTimeout(() => setCopied(false), 1800); }
     catch { setCopied(false); }
   };
-  return <section className="section"><div className="container"><SectionTitle badge="Open for scientific review" title="Scientific review and collaboration" text="IML welcomes methodological criticism, documentary review, local country expertise, clinical validation and proposals for institutional collaboration." /><div className="split-grid profile-grid"><Card><div className="content-block"><h3>Direct contact</h3><p>For scientific review, collaboration or questions about the framework, contact IML directly.</p><div className="mail-box"><a className="text-link" href={`mailto:${email}`}>{email}</a></div><div className="form-actions top-gap-small"><a className="primary-button" href={`mailto:${email}?subject=${encodeURIComponent("IML scientific review or collaboration")}`}>Send email</a><button type="button" className="secondary-button" onClick={copyEmail}>Copy email</button></div>{copied ? <p className="form-note top-gap-small">Email copied.</p> : null}</div></Card><Card className="soft-card"><div className="content-block"><h3>Country review</h3><p>Reviewers may propose a more precise institutional source, correct an interpretation, document implementation, identify a technical access block, or challenge a domain score. Every accepted change should remain traceable and versioned.</p></div></Card></div></div></section>;
+  return <section className="section"><div className="container"><SectionTitle badge="Open invitation" title="Bring evidence, clinical reality or implementation experience" text="IML welcomes methodological criticism, documentary review, local country expertise, clinical validation and proposals for institutional collaboration." /><div className="split-grid profile-grid"><Card><div className="content-block"><h3>Direct contact</h3><p>For scientific review, collaboration or questions about the framework, contact IML directly.</p><div className="mail-box"><a className="text-link" href={`mailto:${email}`}>{email}</a></div><div className="form-actions top-gap-small"><a className="primary-button" href={`mailto:${email}?subject=${encodeURIComponent("IML scientific review or collaboration")}`}>Send email</a><button type="button" className="secondary-button" onClick={copyEmail}>Copy email</button></div>{copied ? <p className="form-note top-gap-small">Email copied.</p> : null}</div></Card><Card className="soft-card"><div className="content-block"><h3>Concrete contributions</h3><p>Reviewers may propose a more precise institutional source, correct an interpretation, document implementation, identify a technical access block or challenge a domain score. Developers and institutions may also propose a small, reviewable pilot. Every accepted change should remain traceable and versioned.</p></div></Card></div></div></section>;
 }
 
 function Footer() {
-  return <footer className="footer"><div className="container footer-grid"><div><div className="footer-brand"><div><div className="eyebrow">IML</div><div className="footer-title">Interoperability Maturity Lab</div></div></div><p className="footer-copy">Health is the objective. Trustworthy information is the foundation. Interoperability is the path.</p></div><div><div className="footer-label">Scientific status</div><p className="footer-copy">Independent, non-commercial and open for scientific review.</p></div></div></footer>;
+  return <footer className="footer"><div className="container footer-grid"><div><div className="footer-brand"><div><div className="eyebrow">IML Health</div><div className="footer-title">Open Health Information Environment</div></div></div><p className="footer-copy">Health is the objective. Trustworthy information is the foundation. Interoperability is the path.</p></div><div><div className="footer-label">Scientific status</div><p className="footer-copy">Independent, non-commercial and open for scientific review. Country profiles are evidence-linked orientation tools, never rankings.</p></div></div></footer>;
 }
 
 export default function App() {
   const getHash = () => {
     if (typeof window === "undefined") return "home";
-    const hash = window.location.hash.replace("#", "").trim();
-    return ROUTES.some((route) => route.key === hash) ? hash : "home";
+    const hash = window.location.hash.replace(/^#\/?/, "").trim();
+    const canonical = LEGACY_ROUTE_ALIASES[hash] || hash;
+    return ROUTES.some((route) => route.key === canonical) ? canonical : "home";
   };
   const [route, setRoute] = useState(getHash);
   useEffect(() => {
@@ -1039,10 +1086,41 @@ export default function App() {
     window.addEventListener("hashchange", sync);
     return () => window.removeEventListener("hashchange", sync);
   }, []);
+  useEffect(() => {
+    const current = ROUTES.find((item) => item.key === route);
+    document.title = current?.key === "home" ? "IML Health — Open Health Information Environment" : `${current?.label || "IML Health"} — IML Health`;
+  }, [route]);
   const goTo = (key) => {
-    window.location.hash = key;
+    window.location.hash = `#${key}`;
     window.scrollTo({ top: 0, behavior: "smooth" });
     setRoute(key);
   };
-  return <div className="app-shell"><header className="topbar"><div className="container topbar-inner"><button type="button" className="brand-button" onClick={() => goTo("home")}>{route !== "home" ? <LogoMark /> : null}<div><div className="eyebrow">IML</div><div className="brand-title">Interoperability Maturity Lab</div></div></button><nav className="topnav desktop-nav">{ROUTES.map((item) => <NavButton key={item.key} active={route === item.key} onClick={() => goTo(item.key)}>{item.label}</NavButton>)}</nav></div><div className="container mobile-nav">{ROUTES.map((item) => <NavButton key={item.key} active={route === item.key} onClick={() => goTo(item.key)}>{item.label}</NavButton>)}</div></header><main>{route === "home" ? <HomePage /> : null}{route === "id4d" ? <Id4dPage /> : null}{route === "evaluation" ? <EvaluationPage /> : null}{route === "methodology" ? <MethodologyPage /> : null}{route === "world" ? <WorldPage /> : null}{route === "manuscripts" ? <ManuscriptsPage /> : null}{route === "contact" ? <ContactPage /> : null}</main><Footer /></div>;
+  return (
+    <div className="app-shell">
+      <header className="topbar">
+        <div className="container topbar-inner">
+          <button type="button" className="brand-button" onClick={() => goTo("home")} aria-label="IML Health home">
+            {route !== "home" ? <LogoMark /> : null}
+            <div><div className="eyebrow">IML Health</div><div className="brand-title">Open Health Information Environment</div></div>
+          </button>
+          <nav className="topnav desktop-nav" aria-label="Primary navigation">
+            {ROUTES.map((item) => <NavButton key={item.key} active={route === item.key} onClick={() => goTo(item.key)}>{item.label}</NavButton>)}
+          </nav>
+        </div>
+        <div className="container mobile-nav">
+          {ROUTES.map((item) => <NavButton key={item.key} active={route === item.key} onClick={() => goTo(item.key)}>{item.label}</NavButton>)}
+        </div>
+      </header>
+      <main>
+        {route === "home" ? <HomePage /> : null}
+        {route === "vision" ? <VisionPage /> : null}
+        {route === "clinical-workspace" ? <ClinicalWorkspacePage /> : null}
+        {route === "interoperability" ? <InteroperabilityPage /> : null}
+        {route === "country-profiles" ? <WorldPage /> : null}
+        {route === "manuscripts" ? <ManuscriptsPage /> : null}
+        {route === "collaborate" ? <CollaboratePage /> : null}
+      </main>
+      <Footer />
+    </div>
+  );
 }
