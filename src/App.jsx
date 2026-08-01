@@ -106,11 +106,9 @@ function PageMasthead({ title, lede, compact = false, mirroredLamp = false }) {
         </div>
         {mirroredLamp ? (
           <div className="collaborate-masthead-aside">
-            <img
-              src={heroLampImage}
-              alt=""
-              aria-hidden="true"
-            />
+            <div className="collaborate-lamp-frame" aria-hidden="true">
+              <img src={heroLampImage} alt="" />
+            </div>
             <p>{lede}</p>
           </div>
         ) : <p>{lede}</p>}
@@ -653,10 +651,20 @@ const REFERENCE_ADJUSTMENTS = `
     gap: 18px;
   }
 
-  .collaborate-masthead-aside img {
+  .collaborate-lamp-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    border-radius: 46% 54% 51% 49% / 58% 44% 56% 42%;
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 54%, rgba(0, 0, 0, .96) 69%, transparent 100%);
+    mask-image: radial-gradient(ellipse at center, #000 54%, rgba(0, 0, 0, .96) 69%, transparent 100%);
+  }
+
+  .collaborate-lamp-frame img {
     display: block;
     width: 100%;
-    height: 230px;
+    height: 100%;
     object-fit: cover;
     object-position: center;
     transform: scaleX(-1);
@@ -723,9 +731,8 @@ const REFERENCE_ADJUSTMENTS = `
       max-width: 760px;
     }
 
-    .collaborate-masthead-aside img {
+    .collaborate-lamp-frame {
       width: min(520px, 100%);
-      max-height: none;
     }
 
     .report-toolbar-action {
