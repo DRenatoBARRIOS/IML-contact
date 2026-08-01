@@ -91,6 +91,12 @@ function PageFrame({ active, home = false, children }) {
       <a className="skip-link" href="#page-content">Skip to the content</a>
       <SiteHeader active={active} home={home} />
       <main id="page-content">{children}</main>
+      <div className="page-ornament" aria-hidden="true">
+        <span />
+        <i />
+        <i />
+        <span />
+      </div>
       <SiteFooter />
     </>
   );
@@ -538,6 +544,55 @@ function CountryExplorer() {
  * current file on site-test without requiring another CSS upload.
  */
 const REFERENCE_ADJUSTMENTS = `
+  #page-content {
+    position: relative;
+    isolation: isolate;
+  }
+
+  #page-content::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: .22;
+    background-image:
+      radial-gradient(circle, rgba(26, 87, 102, .5) 0 1px, transparent 1.25px),
+      linear-gradient(30deg, transparent 49.3%, rgba(26, 87, 102, .25) 49.7%, rgba(26, 87, 102, .25) 50.3%, transparent 50.7%),
+      linear-gradient(-30deg, transparent 49.3%, rgba(26, 87, 102, .25) 49.7%, rgba(26, 87, 102, .25) 50.3%, transparent 50.7%);
+    background-size: 24px 24px, 48px 42px, 48px 42px;
+    background-position: 0 0, 0 0, 0 0;
+    -webkit-mask-image: radial-gradient(ellipse 90% 75% at 50% 42%, #000 0%, rgba(0, 0, 0, .65) 54%, transparent 100%);
+    mask-image: radial-gradient(ellipse 90% 75% at 50% 42%, #000 0%, rgba(0, 0, 0, .65) 54%, transparent 100%);
+  }
+
+  .page-ornament {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: min(1160px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 18px 0;
+    color: color-mix(in srgb, var(--teal) 50%, var(--line));
+  }
+
+  .page-ornament span {
+    height: 1px;
+    flex: 1;
+    background: currentColor;
+    opacity: .65;
+  }
+
+  .page-ornament i {
+    box-sizing: border-box;
+    display: block;
+    width: 7px;
+    height: 7px;
+    flex: 0 0 7px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+  }
+
   .brand-home {
     min-width: 320px;
     gap: 14px;
