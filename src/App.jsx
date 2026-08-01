@@ -39,10 +39,64 @@ const REFERENCE_ADJUSTMENTS = `
     margin-bottom: 30px;
   }
 
+  body[data-iml-route="/identity-trust"] .page-masthead-grid {
+    min-height: 320px;
+    grid-template-columns: minmax(0, 1.45fr) minmax(280px, .55fr);
+    padding-block: 52px 62px;
+  }
+
+  body[data-iml-route="/identity-trust"] .page-masthead h1 {
+    max-width: 1050px;
+    font-size: clamp(3rem, 4.8vw, 5.15rem);
+  }
+
+  .identity-trust-section {
+    background: var(--light);
+    padding-block: clamp(48px, 6vw, 86px);
+  }
+
+  .identity-trust-card {
+    border: 1px solid color-mix(in srgb, var(--teal) 42%, var(--line));
+    border-radius: 24px;
+    background: color-mix(in srgb, var(--teal-wash) 34%, var(--light));
+    padding: clamp(28px, 4vw, 48px);
+    box-shadow: 0 18px 48px rgba(19, 40, 58, .07);
+  }
+
+  .identity-trust-card h2 {
+    margin: 0 0 20px;
+    font-family: var(--font-source-serif), Georgia, serif;
+    font-size: clamp(1.55rem, 2.2vw, 2.2rem);
+    font-weight: 650;
+    letter-spacing: -.025em;
+    line-height: 1.15;
+  }
+
+  .identity-trust-card p {
+    margin: 0;
+    color: var(--soft);
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .identity-trust-card p + p {
+    margin-top: 18px;
+  }
+
   @media (max-width: 760px) {
     body[data-iml-route="/country-profiles"] .page-masthead-grid,
     body[data-iml-route="/manuscripts"] .page-masthead-grid {
       padding-block: 38px 48px;
+    }
+
+    body[data-iml-route="/identity-trust"] .page-masthead-grid {
+      min-height: auto;
+      grid-template-columns: 1fr;
+      padding-block: 38px 48px;
+    }
+
+    .identity-trust-card {
+      border-radius: 18px;
     }
   }
 `;
@@ -138,7 +192,7 @@ function ClinicalWorkspacePage() {
             <span className="status-chip amber">Reference prototype</span>
             <h2 id="clinical-heading">Build on proven open-source foundations.</h2>
             <p>
-              <a className="text-link" href="https://openmrs.org/" target="_blank" rel="noopener noreferrer">OpenMRS O3 ↗</a> is an important reference for the clinical workspace. IML explores how it can be complemented by regional packs and an independent integration layer.
+              <a className="text-link" href="https://o3.openmrs.org/" target="_blank" rel="noopener noreferrer">OpenMRS O3 ↗</a> is an important reference for the clinical workspace. IML explores how it can be complemented by regional packs and an independent integration layer.
             </p>
             <a className="text-link" href="/collaborate">Join the clinical workstream →</a>
           </div>
@@ -224,29 +278,26 @@ function IdentityTrustPage() {
     <PageFrame active="/identity-trust">
       <PageMasthead
         eyebrow="Identity infrastructure"
-        title="Identity & Trust"
+        title="Identity, consent and trust across fragmented systems"
         lede="Identity is an enabling layer for continuity and accountability, not the whole of interoperability."
       />
-      <section className="section vision-page" id="identity-trust" aria-labelledby="identity-trust-heading">
-        <div className="shell next-paths-grid">
-          <div className="section-intro">
-            <p className="section-kicker">Identity · consent · provenance</p>
-            <h2 id="identity-trust-heading">From trusted identity to authorised health and research linkage.</h2>
-          </div>
-          <div className="vision-prose">
+      <section className="identity-trust-section" id="identity-trust" aria-labelledby="identity-trust-heading">
+        <div className="shell">
+          <article className="identity-trust-card">
+            <h2 id="identity-trust-heading">From trusted identity to authorised health and research linkage</h2>
             <p>
-              IML does not replace national identity systems. It explores how recognised national identifiers can support authorised multicentre, longitudinal and epidemiological work while preserving national governance.
+              IML does not propose replacing national identity systems. It explores how recognised national identifiers could contribute to a future universal health and research number for authorised multicentre, longitudinal and epidemiological studies. It complements the <a className="text-link" href="https://id4d.worldbank.org/" target="_blank" rel="noopener noreferrer">World Bank ID4D initiative ↗</a> and may build on trust infrastructures such as the <a className="text-link" href="https://www.who.int/initiatives/global-digital-health-certification-network" target="_blank" rel="noopener noreferrer">WHO Global Digital Health Certification Network ↗</a>.
+            </p>
+            <p>
+              National models already differ. A future IML model could combine the national identifier namespace, a governed geographic reference and a protected keyed hash. The resulting number would remain regulated personal data and would require legal, ethical, security and equity review before implementation.
             </p>
             <p>
               Identity, identifier, access token and carrier mechanism must remain distinct. A QR code or mobile application should carry only a temporary signed token or a verifiable digital certificate, never sensitive identity or health information in clear text.
             </p>
             <p>
-              The approach complements the <a className="text-link" href="https://id4d.worldbank.org/" target="_blank" rel="noopener noreferrer">World Bank ID4D initiative ↗</a> and may build on trust infrastructures such as the <a className="text-link" href="https://www.who.int/initiatives/global-digital-health-certification-network" target="_blank" rel="noopener noreferrer">WHO Global Digital Health Certification Network ↗</a>.
+              The country-level <a className="text-link" href="https://monitor.digitalhealthmonitor.org/map" target="_blank" rel="noopener noreferrer">Global Digital Health Monitor map ↗</a> provides information on digital health. IML is different: it develops an independent comparative framework designed to guide structured country research, verify documentary evidence, identify information gaps and support contextual human validation.
             </p>
-            <div className="not-ranking">
-              <strong>Governance boundary.</strong> Any universal linkage mechanism would remain regulated personal data and would require legal, ethical, security and equity review before implementation.
-            </div>
-          </div>
+          </article>
         </div>
       </section>
     </PageFrame>
