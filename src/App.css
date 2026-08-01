@@ -1,1256 +1,2366 @@
-import { useEffect, useMemo, useState } from "react";
-import worldCountries from "./world-countries.json";
-import logoImage from "./assets/iml-logo.png";
-import heroLampImage from "./assets/hero-lamp-editorial.png";
-
-const BASE_URL = import.meta.env.BASE_URL || "/";
-
-const clinicalModules = [
-  ["Patient identity", "Reliable identification, duplicate prevention and correction."],
-  ["Consultation & terminology", "A coherent encounter record that preserves local clinical language."],
-  ["Laboratories & results", "Structured requests and traceable results with explicit provenance."],
-  ["Audit & correction", "Attributable actions and visible, safely propagated corrections."],
-];
-
-const navigation = [
-  { href: "/vision", label: "Vision" },
-  { href: "/identity-trust", label: "Identity & Trust" },
-  { href: "/clinical-workspace", label: "Clinical Workspace" },
-  { href: "/interoperability", label: "Interoperability" },
-  { href: "/country-profiles", label: "Country Profiles" },
-  { href: "/manuscripts", label: "Manuscripts" },
-  { href: "/collaborate", label: "Collaborate" },
-];
-
-function SiteHeader({ active, home }) {
-  return (
-    <header className="site-header">
-      <div className="shell header-inner">
-        <a className={`brand${home ? " brand-home" : ""}`} href="/" aria-label="IML Health home">
-          <span className="brand-mark" aria-hidden="true">
-            <img src={logoImage} alt="" width="54" height="64" />
-          </span>
-          <span className="brand-copy">
-            <strong>IML Health</strong>
-            <span>Open Health Information Environment</span>
-          </span>
-        </a>
-        <nav className="desktop-nav" aria-label="Primary navigation">
-          {navigation.map((item) => (
-            <a href={item.href} key={item.href} aria-current={active === item.href ? "page" : undefined}>{item.label}</a>
-          ))}
-        </nav>
-        <details className="mobile-menu">
-          <summary>Menu</summary>
-          <nav aria-label="Mobile navigation">
-            <a href="/" aria-current={active === "/" ? "page" : undefined}>Home</a>
-            {navigation.map((item) => (
-              <a href={item.href} key={item.href} aria-current={active === item.href ? "page" : undefined}>{item.label}</a>
-            ))}
-          </nav>
-        </details>
-      </div>
-    </header>
-  );
-}
-
-function SiteFooter() {
-  return (
-    <footer className="site-footer">
-      <div className="shell footer-grid">
-        <div className="footer-brand">
-          <div>
-            <strong>IML Health</strong>
-            <p>Independent, non-commercial and open for scientific review.</p>
-          </div>
-        </div>
-        <div>
-          <h3>Explore</h3>
-          <a href="/clinical-workspace">Clinical workspace</a>
-          <a href="/interoperability">Integration layer</a>
-          <a href="/country-profiles">Country profiles</a>
-        </div>
-        <div>
-          <h3>Project</h3>
-          <a href="/vision">Vision</a>
-          <a href="/identity-trust">Identity &amp; Trust</a>
-          <a href="/manuscripts">Manuscripts</a>
-          <a href="/collaborate">Collaborate</a>
-        </div>
-      </div>
-      <div className="shell footer-bottom">
-        <span>© {new Date().getFullYear()} IML Health</span>
-      </div>
-    </footer>
-  );
-}
-
-function PageFrame({ active, home = false, children }) {
-  return (
-    <>
-      <a className="skip-link" href="#page-content">Skip to the content</a>
-      <SiteHeader active={active} home={home} />
-      <main id="page-content">{children}</main>
-      <div className="page-ornament" aria-hidden="true">
-        <span />
-        <i />
-        <i />
-        <span />
-      </div>
-      <SiteFooter />
-    </>
-  );
-}
-
-function PageMasthead({ title, lede, compact = false, mirroredLamp = false }) {
-  return (
-    <section className={`page-masthead${compact ? " page-masthead-compact" : ""}`}>
-      <div className="shell page-masthead-grid">
-        <div>
-          <a className="back-home" href="/">← IML Health home</a>
-          <h1>{title}</h1>
-        </div>
-        {mirroredLamp ? (
-          <div className="collaborate-masthead-aside">
-            <div className="collaborate-lamp-frame" aria-hidden="true">
-              <img src={heroLampImage} alt="" />
-            </div>
-            <p>{lede}</p>
-          </div>
-        ) : <p>{lede}</p>}
-      </div>
-    </section>
-  );
-}
-
-const MAP_WIDTH = 1000;
-const MAP_HEIGHT = 500;
-const MAP_VISIBLE_HEIGHT = 430;
-const RADAR_LABELS = ["Governance", "Technical", "Identity", "Adoption", "Security", "Learning"];
-const AXIS_KEYS = ["governance", "technical", "identity", "adoption", "security", "learning"];
-
-const normalizeIso3 = (value) => String(value || "").trim().toUpperCase();
-const asArray = (value) => (Array.isArray(value) ? value : []);
-
-function normalizeProfile(profile) {
-  const scores = profile.scores || profile.domainScores || {};
-  const values = Array.isArray(profile.values)
-    ? profile.values
-    : AXIS_KEYS.map((key) => Number(scores[key] ?? 0));
-  return {
-    ...profile,
-    iso3: normalizeIso3(profile.iso3 || profile.country_iso3),
-    name: profile.name || profile.country_name || profile.countryName || "Unnamed country",
-    status: profile.status || profile.assessment_status || "published",
-    version: profile.version || "",
-    updatedAt: profile.updatedAt || profile.updated_at || profile.assessment_date || profile.assessed_at || profile.published_at || "",
-    evidenceLevel: profile.evidenceLevel || profile.evidence_level || "Exploratory working profile",
-    subtitle: profile.subtitle || profile.summary || "",
-    values,
-    strengths: asArray(profile.strengths),
-    watch: asArray(profile.watch || profile.pointsToWatch),
-    sources: asArray(profile.sources),
-  };
-}
-
-async function loadCountryProfiles(signal) {
-  const response = await fetch("/api/countries", { headers: { Accept: "application/json" }, signal });
-  if (!response.ok) throw new Error(`Countries API returned ${response.status}.`);
-  const payload = await response.json();
-  const rows = Array.isArray(payload) ? payload : payload.countries;
-  if (!Array.isArray(rows) || rows.length === 0) throw new Error("No published country profile is available.");
-  return {
-    profiles: rows.map(normalizeProfile),
-    apiVersion: payload.api_version || "current",
-  };
-}
-
-function featureIso3(feature) {
-  const properties = feature?.properties || {};
-  return normalizeIso3(properties.iso3 || properties.ISO_A3 || properties.adm0_a3 || properties.ADM0_A3);
-}
-
-function featureName(feature) {
-  const properties = feature?.properties || {};
-  return String(properties.name || properties.NAME || properties.admin || properties.ADMIN || "Unknown country").trim();
-}
-
-function isAntarctica(feature) {
-  const name = featureName(feature).toLowerCase();
-  const continent = String(feature?.properties?.continent || feature?.properties?.CONTINENT || "").toLowerCase();
-  return featureIso3(feature) === "ATA" || name.includes("antarctica") || continent === "antarctica";
-}
-
-function projectCoordinate([longitude, latitude]) {
-  return [((longitude + 180) / 360) * MAP_WIDTH, ((90 - latitude) / 180) * MAP_HEIGHT];
-}
-
-function ringToPath(coordinates = []) {
-  let path = "";
-  let previousX = null;
-  coordinates.forEach((coordinate, index) => {
-    const [x, y] = projectCoordinate(coordinate);
-    const crossesDateLine = previousX !== null && Math.abs(x - previousX) > MAP_WIDTH / 2;
-    path += index === 0 || crossesDateLine ? ` M ${x.toFixed(2)} ${y.toFixed(2)}` : ` L ${x.toFixed(2)} ${y.toFixed(2)}`;
-    previousX = x;
-  });
-  return path ? `${path} Z` : "";
-}
-
-function geometryToPath(geometry) {
-  if (geometry?.type === "Polygon") return geometry.coordinates.map(ringToPath).join(" ");
-  if (geometry?.type === "MultiPolygon") return geometry.coordinates.flatMap((polygon) => polygon.map(ringToPath)).join(" ");
-  return "";
-}
-
-function averageScore(values = []) {
-  const scores = asArray(values).map(Number).filter(Number.isFinite);
-  return scores.length ? Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length) : 0;
-}
-
-function profileScore(profile) {
-  const recorded = Number(profile?.overall_score);
-  return Number.isFinite(recorded) ? recorded : averageScore(profile?.values);
-}
-
-function scoreBand(score) {
-  if (score >= 75) return 4;
-  if (score >= 50) return 3;
-  if (score >= 25) return 2;
-  return 1;
-}
-
-function polygonPoints(values, radius, center = 120) {
-  return values.map((value, index) => {
-    const angle = -Math.PI / 2 + (index * Math.PI * 2) / values.length;
-    const scaled = radius * (Math.max(0, Math.min(100, Number(value) || 0)) / 100);
-    return `${center + Math.cos(angle) * scaled},${center + Math.sin(angle) * scaled}`;
-  }).join(" ");
-}
-
-function formatDate(value) {
-  if (!value) return "Not recorded";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return String(value);
-  return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" }).format(date);
-}
-
-function humanize(value) {
-  return value ? String(value).replaceAll("_", " ") : "not recorded";
-}
-
-const DOMAIN_REPORT_GUIDANCE = {
-  Governance: "Standards, responsibilities, oversight and institutional coordination.",
-  Technical: "Structured, secure and reliable exchange between information systems.",
-  Identity: "Identification, trusted access, consent and information provenance.",
-  Adoption: "Use of standards and infrastructure in routine clinical and public-health work.",
-  Security: "Protection, availability, traceability, recovery and continuity.",
-  Learning: "Use of audits, incidents, complaints and outcomes to improve the system.",
-};
-
-function escapeReportHtml(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function safeReportUrl(value) {
-  try {
-    const url = new URL(String(value || ""), window.location.href);
-    return ["http:", "https:"].includes(url.protocol) ? url.href : "";
-  } catch {
-    return "";
+:root {
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #0f172a;
+    background: #ffffff;
+    line-height: 1.5;
+    font-weight: 400;
   }
-}
+  * { box-sizing: border-box; }
+  html, body, #root { margin: 0; min-height: 100%; }
+  body { background: #ffffff; color: #0f172a; }
+  button, input, textarea, select { font: inherit; }
+  .app-shell { min-height: 100vh; background: #ffffff; }
+  .container { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+  .topbar { position: sticky; top: 0; z-index: 50; border-bottom: 1px solid #e2e8f0; background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); }
+  .topbar-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 0; }
+  .brand-button { display: flex; align-items: center; gap: 12px; border: 0; background: transparent; cursor: pointer; text-align: left; padding: 0; }
+  .brand-title { font-size: 14px; color: #334155; }
+  .logo-box { height: 56px; width: 56px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 18px; border: 1px solid #dbe2ea; background: #ffffff; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06); }
+  .logo-svg { display: block; width: 52px; height: 52px; object-fit: contain; }
+  .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em; color: #64748b; }
+  .topnav, .mobile-nav { display: flex; gap: 8px; flex-wrap: wrap; }
+  .mobile-nav { display: none; padding-bottom: 16px; overflow-x: auto; }
+  .nav-button, .secondary-button { border: 0; cursor: pointer; }
+  .nav-button { border-radius: 18px; background: #0f172a; color: white; padding: 10px 16px; font-size: 14px; font-weight: 700; transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease; }
+  .nav-button:hover { background: #1e293b; }
+  .nav-button-active { padding: 12px 20px; font-size: 16px; transform: scale(1.08); box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18); outline: 2px solid #cbd5e1; }
+  .hero { overflow: hidden; border-bottom: 1px solid #e2e8f0; background: radial-gradient(circle at top left, rgba(15,23,42,0.06), transparent 34%), radial-gradient(circle at bottom right, rgba(15,23,42,0.05), transparent 30%); }
+  .hero-grid, .split-grid, .footer-grid, .profile-grid { display: grid; gap: 28px; }
+  .hero-grid { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); padding: 72px 0 88px; }
+  .hero-copy h1, .section-heading h2 { margin: 0; line-height: 1.05; letter-spacing: -0.03em; }
+  .hero-copy h1 { max-width: 760px; font-size: clamp(2.7rem, 5vw, 4.4rem); }
+  .hero-text, .section-heading p, .content-block p, .value-card p, .muted-copy, .footer-copy, .list-box, .plain-list, .form-note { color: #475569; }
+  .hero-text { max-width: 720px; font-size: 19px; line-height: 1.8; }
+  .section { padding: 72px 0; }
+  .section-heading { max-width: 820px; margin-bottom: 32px; }
+  .section-heading h2 { font-size: clamp(2rem, 3vw, 3rem); margin-bottom: 12px; }
+  .section-heading p { font-size: 18px; line-height: 1.75; margin: 0; }
+  .section-badge { display: inline-flex; align-items: center; border-radius: 999px; border: 1px solid #dbe2ea; background: #ffffff; padding: 6px 12px; margin-bottom: 14px; font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #64748b; }
+  .card { border: 1px solid #e2e8f0; border-radius: 28px; background: #ffffff; box-shadow: 0 10px 32px rgba(15, 23, 42, 0.05); }
+  .soft-card { background: #f8fafc; }
+  .highlight-card { border-color: #fde68a; background: #fef3c7; }
+  .content-block { padding: 28px; }
+  .content-block h3, .value-card h3, .profile-head h3 { margin: 0 0 14px; font-size: 1.32rem; letter-spacing: -0.02em; }
+  .content-block p, .value-card p, .plain-list li, .list-box, .metric-subtitle, .form-note { font-size: 15px; line-height: 1.8; }
+  .note-box { padding: 22px 24px; max-width: 860px; }
+  .note-box p { margin: 0; }
+  .metric-grid, .tile-grid, .form-grid, .stack-list { display: grid; gap: 18px; }
+  .metric-grid.two-up, .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tile-grid.three-up, .tile-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .value-card, .metric-card, .mini-tile { padding: 24px; }
+  .metric-card { display: flex; gap: 16px; align-items: flex-start; }
+  .metric-symbol { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 44px; height: 44px; border-radius: 16px; border: 1px solid #dbe2ea; background: #f1f5f9; color: #0f172a; font-weight: 800; }
+  .metric-title { font-size: 14px; color: #64748b; }
+  .metric-value { margin-top: 2px; font-size: 30px; font-weight: 800; letter-spacing: -0.03em; }
+  .metric-subtitle { margin-top: 4px; }
+  .overview-card { padding: 30px; }
+  .overview-top { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .overview-title, .mail-box { font-size: 1.2rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; }
+  .mini-tile { border: 1px solid #e2e8f0; border-radius: 22px; }
+  .mini-tile-title { margin-bottom: 8px; font-size: 14px; font-weight: 800; }
+  .mini-tile-text { font-size: 14px; color: #475569; line-height: 1.7; }
+  .top-gap { margin-top: 36px; }
+  .top-gap-small { margin-top: 20px; }
+  .split-grid, .footer-grid, .profile-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stack-layout { display: grid; gap: 18px; }
+  .list-box, .code-box { border: 1px solid #e2e8f0; border-radius: 20px; padding: 16px 18px; background: #ffffff; }
+  .code-box { margin-top: 18px; background: #f8fafc; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  .hex-chart { display: block; width: 100%; max-width: 390px; margin: 0 auto; }
+  .mini-hex { width: 88px; height: 88px; }
+  .world-box { position: relative; overflow: hidden; border-radius: 32px; border: 1px solid #e2e8f0; background: linear-gradient(180deg, #fbfdff 0%, #f2f6fb 100%); padding: 20px; box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08); }
+  .world-box-head { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 14px; }
+  .helper-pill { border-radius: 999px; border: 1px solid #e2e8f0; background: white; padding: 10px 14px; color: #64748b; font-size: 12px; }
+  .world-map-wrap { position: relative; width: 100%; aspect-ratio: 900 / 430; }
+  .world-map { width: 100%; height: 100%; }
+  .marker-group { cursor: pointer; }
+  .tooltip-anchor { pointer-events: auto; position: absolute; z-index: 10; }
+  .map-tooltip { width: 160px; border-radius: 22px; border: 1px solid rgba(226,232,240,0.95); background: rgba(255,255,255,0.95); padding: 12px; box-shadow: 0 18px 50px rgba(15, 23, 42, 0.18); backdrop-filter: blur(8px); }
+  .map-tooltip-top, .profile-head, .form-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .map-tooltip-title { font-size: 14px; font-weight: 800; }
+  .map-tooltip-score, .score-pill { border-radius: 999px; background: #0f172a; color: white; padding: 6px 10px; font-size: 12px; font-weight: 700; }
+  .muted-copy { margin-top: 0; margin-bottom: 12px; }
+  .select-wrap { max-width: 360px; }
+  .select-wrap label { display: block; font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 8px; }
+  .select-wrap select { width: 100%; border: 1px solid #cbd5e1; border-radius: 18px; background: #ffffff; padding: 14px 16px; color: #0f172a; outline: none; }
+  .contact-form { display: grid; gap: 16px; }
+  .contact-form label { display: block; font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 8px; }
+  .contact-form input, .contact-form textarea { width: 100%; border: 1px solid #cbd5e1; border-radius: 18px; background: #ffffff; padding: 14px 16px; color: #0f172a; outline: none; }
+  .contact-form textarea { resize: vertical; }
+  .primary-button { border: 0; cursor: pointer; border-radius: 16px; padding: 12px 16px; font-weight: 700; background: #0f172a; color: white; }
+  .secondary-button { border: 0; cursor: pointer; border-radius: 16px; padding: 12px 16px; font-weight: 700; background: #ffffff; color: #0f172a; border: 1px solid #dbe2ea; }
+  .mail-box { border-radius: 18px; border: 1px solid #e2e8f0; background: white; padding: 14px 16px; }
+  .footer { border-top: 1px solid #e2e8f0; background: #f8fafc; margin-top: 40px; }
+  .footer-grid { padding: 36px 0; }
+  .footer-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .footer-title { font-size: 14px; color: #334155; }
+  .footer-label { margin-bottom: 12px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em; color: #64748b; font-weight: 800; }
+  .plain-list { margin: 0; padding: 0; list-style: none; }
 
-function scoreInterpretation(score) {
-  const value = Number(score || 0);
-  if (value >= 80) return "Strong documented foundations, to be read alongside implementation limits and source coverage.";
-  if (value >= 60) return "Substantial foundations with material variation, incomplete adoption or operational gaps.";
-  if (value >= 40) return "Partial maturity: formal structures exist, but delivery or practical implementation remains limited.";
-  return "Major unresolved gaps or limited evidence of reliable implementation and continuity.";
-}
+  .button-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 22px; }
+  .primary-button, .secondary-button { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+  .text-link { color: #0f172a; font-weight: 800; text-decoration: underline; text-decoration-color: #cbd5e1; text-underline-offset: 4px; }
+  .text-link:hover { text-decoration-color: #0f172a; }
+  .principle-stack { display: grid; gap: 10px; margin-top: 22px; }
+  .principle-line { border-left: 3px solid #0f172a; padding: 4px 0 4px 14px; font-size: 16px; font-weight: 700; color: #334155; }
+  .compact-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; color: #475569; }
+  .compact-list li { line-height: 1.65; }
+  .status-pill { display: inline-flex; align-items: center; border-radius: 999px; background: #f1f5f9; color: #334155; padding: 7px 11px; font-size: 12px; font-weight: 800; }
 
-function listReportItems(items, emptyText) {
-  const rows = asArray(items);
-  if (!rows.length) return `<p class="empty">${escapeReportHtml(emptyText)}</p>`;
-  return `<ul>${rows.map((item) => `<li>${escapeReportHtml(item)}</li>`).join("")}</ul>`;
-}
+  .map-controls { display: grid; grid-template-columns: minmax(0, 320px); gap: 16px; align-items: end; }
+  .control-field label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 800; color: #334155; }
+  .control-field select { width: 100%; border: 1px solid #cbd5e1; border-radius: 16px; background: #ffffff; padding: 12px 14px; color: #0f172a; outline: none; }
+  .map-stage { overflow: hidden; border-radius: 24px; background: #f8fbff; }
+  .country-shape { cursor: pointer; transition: fill 150ms ease, stroke 150ms ease, opacity 150ms ease; outline: none; }
+  .country-shape:hover, .country-shape:focus { stroke: #0f172a; stroke-width: 1.4; opacity: 0.94; }
+  .country-shape-profile { cursor: pointer; }
+  .country-shape-selected { filter: drop-shadow(0 0 5px rgba(217, 119, 6, 0.42)); }
+  .map-tooltip-floating { position: absolute; z-index: 12; display: grid; gap: 3px; width: max-content; max-width: 220px; pointer-events: none; border: 1px solid rgba(203, 213, 225, 0.95); border-radius: 14px; background: rgba(255,255,255,0.96); padding: 9px 11px; box-shadow: 0 14px 36px rgba(15,23,42,0.18); font-size: 12px; }
+  .map-tooltip-floating span { color: #64748b; }
+  .map-legend { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 14px; color: #64748b; font-size: 11px; }
+  .legend-swatches { display: grid; grid-template-columns: repeat(6, 24px); overflow: hidden; border: 1px solid #cbd5e1; border-radius: 999px; }
+  .legend-swatches span { height: 10px; }
+  .legend-selected { display: inline-flex; align-items: center; gap: 6px; margin-left: 8px; color: #92400e; font-weight: 800; }
+  .legend-selected-swatch { width: 14px; height: 14px; border-radius: 4px; border: 2px solid #92400e; background: #f59e0b; }
+  .data-source-pill { display: inline-flex; align-items: center; gap: 8px; flex: 0 0 auto; border: 1px solid #cbd5e1; border-radius: 999px; background: white; padding: 8px 12px; color: #475569; font-size: 12px; font-weight: 800; }
+  .data-source-live { color: #14532d; border-color: #86efac; background: #f0fdf4; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  .profile-meta { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0 4px; }
+  .profile-meta span { border-radius: 999px; background: #f1f5f9; padding: 6px 9px; color: #475569; font-size: 11px; font-weight: 700; }
+  .profile-stat-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .profile-stat { display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid #e2e8f0; border-radius: 12px; padding: 9px 10px; font-size: 12px; color: #64748b; }
+  .profile-stat strong { color: #0f172a; font-size: 15px; }
+  .map-empty { max-width: 760px; }
+  .profile-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .profile-title-row h3 { margin: 0; }
+  .country-report { margin-top: 28px; overflow: hidden; }
+  .country-report > summary { display: flex; align-items: center; justify-content: space-between; gap: 14px; cursor: pointer; list-style: none; padding: 22px 28px; font-weight: 800; color: #0f172a; }
+  .country-report > summary::-webkit-details-marker { display: none; }
+  .country-report > summary::after { content: "Open"; border-radius: 999px; background: #0f172a; color: white; padding: 6px 10px; font-size: 12px; }
+  .country-report[open] > summary { border-bottom: 1px solid #e2e8f0; }
+  .country-report[open] > summary::after { content: "Close"; }
+  .report-body { padding: 28px; background: #ffffff; }
+  .report-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+  .report-heading h2 { margin: 4px 0 6px; font-size: 2rem; letter-spacing: -0.03em; }
+  .report-overall { border-radius: 22px; background: #0f172a; color: white; padding: 14px 18px; min-width: 112px; text-align: center; }
+  .report-overall strong { display: block; font-size: 1.7rem; line-height: 1; }
+  .report-overall span { font-size: 11px; opacity: 0.78; }
+  .report-actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 20px 0 4px; }
+  .report-section { margin-top: 28px; }
+  .report-section h3 { margin-bottom: 12px; }
+  .report-score-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .report-domain { border: 1px solid #e2e8f0; border-radius: 18px; padding: 16px; background: #f8fafc; break-inside: avoid; }
+  .report-domain-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+  .report-domain-head strong { font-size: 15px; }
+  .report-domain-score { border-radius: 999px; background: #0f172a; color: white; padding: 4px 8px; font-size: 12px; font-weight: 800; }
+  .report-domain p { margin: 0; font-size: 14px; line-height: 1.65; }
+  .report-domain-evidence { margin-top: 12px; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+  .report-domain-evidence ul { margin: 7px 0 0; padding-left: 18px; color: #475569; }
+  .report-domain-evidence li { margin-bottom: 7px; font-size: 13px; line-height: 1.55; }
+  .report-source { border: 1px solid #e2e8f0; border-radius: 18px; padding: 16px; background: #ffffff; break-inside: avoid; }
+  .report-source + .report-source { margin-top: 12px; }
+  .report-source-title { font-weight: 800; color: #0f172a; }
+  .report-source-meta { margin-top: 3px; color: #64748b; font-size: 12px; }
+  .report-indicator { margin-top: 12px; border-left: 3px solid #cbd5e1; padding-left: 12px; }
+  .report-disclaimer { border-left: 3px solid #0f172a; padding-left: 14px; color: #475569; }
 
-function sourceReportHtml(source, index) {
-  const publicUrl = safeReportUrl(source?.url);
-  const indicators = asArray(source?.indicators);
-  return `
-    <article class="source">
-      <h3>${String(index + 1).padStart(2, "0")} · ${escapeReportHtml(source?.title || `Source ${index + 1}`)}</h3>
-      <p class="source-meta">${escapeReportHtml(source?.publisher || "Publisher not recorded")}${source?.publication_date ? ` · ${escapeReportHtml(formatDate(source.publication_date))}` : ""}</p>
-      ${source?.note ? `<p>${escapeReportHtml(source.note)}</p>` : ""}
-      ${publicUrl ? `<p><a href="${escapeReportHtml(publicUrl)}">${escapeReportHtml(publicUrl)}</a></p>` : '<p class="empty">No public link recorded.</p>'}
-      ${indicators.map((indicator) => `
-        <div class="indicator">
-          <strong>${escapeReportHtml(indicator?.code || "IML indicator")} · evidence ${escapeReportHtml(indicator?.evidence_level || "ungraded")}</strong>
-          <p>${escapeReportHtml(indicator?.summary || "Evidence summary not recorded.")}</p>
-          ${indicator?.limitation ? `<p><b>Limitation:</b> ${escapeReportHtml(indicator.limitation)}</p>` : ""}
-        </div>
-      `).join("")}
-    </article>
-  `;
-}
+  
 
-function openCountryPdfReport(profile) {
-  if (!profile) return;
-
-  const reportWindow = window.open("", "_blank");
-  if (!reportWindow) {
-    window.alert("Please allow pop-ups to generate the country PDF report.");
-    return;
+  @media (max-width: 1100px) {
+    .hero-grid, .split-grid, .footer-grid, .profile-grid, .metric-grid.two-up, .tile-grid, .tile-grid.three-up, .form-grid { grid-template-columns: 1fr; }
+    .map-controls { grid-template-columns: 1fr; }
+    .helper-pill { display: none; }
+  }
+  @media (max-width: 820px) {
+    .desktop-nav { display: none; }
+    .mobile-nav { display: flex; }
+    .container { width: min(100% - 28px, 1180px); }
+    .section, .hero-grid { padding-top: 56px; padding-bottom: 56px; }
+    .hero-grid { gap: 22px; }
+    .map-legend { justify-content: flex-start; flex-wrap: wrap; }
+    .profile-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 820px) {
+    .report-score-grid { grid-template-columns: 1fr; }
+  }
+  @media print {
+    body * { visibility: hidden !important; }
+    .country-report, .country-report * { visibility: visible !important; }
+    .country-report { position: absolute; inset: 0 auto auto 0; width: 100%; margin: 0; border: 0; border-radius: 0; box-shadow: none; }
+    .country-report > summary, .report-actions { display: none !important; }
+    .report-body { display: block !important; padding: 0; }
+    .report-score-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .report-domain, .report-source { background: white; }
+    a { color: #0f172a !important; text-decoration: none !important; }
   }
 
-  reportWindow.opener = null;
-  const values = asArray(profile.values).length === 6 ? profile.values.map(Number) : [0, 0, 0, 0, 0, 0];
-  const sources = asArray(profile.sources);
-  const score = profileScore(profile);
-  const generatedAt = new Intl.DateTimeFormat("en-GB", { dateStyle: "long" }).format(new Date());
-  const logoUrl = new URL(logoImage, window.location.href).href;
-  const reportTitle = `IML-${normalizeIso3(profile.iso3)}-country-report-${new Date().toISOString().slice(0, 10)}`;
-  const domainRows = RADAR_LABELS.map((axis, index) => `
-    <tr>
-      <th>${escapeReportHtml(axis)}</th>
-      <td class="score">${escapeReportHtml(values[index])}/100</td>
-      <td><strong>${escapeReportHtml(DOMAIN_REPORT_GUIDANCE[axis])}</strong><br>${escapeReportHtml(scoreInterpretation(values[index]))}</td>
-    </tr>
-  `).join("");
+.database-stat-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 16px; }
+.database-stat { display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; padding: 9px 10px; font-size: 12px; color: #64748b; }
+.database-stat strong { color: #0f172a; font-size: 15px; }
+.evidence-level-row, .source-audit-line { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.evidence-level-row span, .source-audit-line span { border-radius: 999px; border: 1px solid #dbe2ea; background: #fff; padding: 6px 9px; color: #475569; font-size: 11px; font-weight: 700; }
+@media (max-width: 620px) { .database-stat-grid { grid-template-columns: 1fr; } }
 
-  reportWindow.document.open();
-  reportWindow.document.write(`<!doctype html>
-  <html lang="en">
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <title>${escapeReportHtml(reportTitle)}</title>
-      <style>
-        @page { size: A4; margin: 16mm 15mm 18mm; }
-        * { box-sizing: border-box; }
-        body { margin: 0; color: #13283a; font: 10.5pt/1.48 Arial, Helvetica, sans-serif; }
-        header { display: flex; align-items: center; justify-content: space-between; gap: 18px; border-bottom: 2px solid #2e6f6a; padding-bottom: 12px; }
-        header img { width: 55px; height: 55px; object-fit: contain; }
-        .brand { display: flex; align-items: center; gap: 12px; }
-        .brand strong { display: block; font-family: Georgia, serif; font-size: 19pt; font-weight: 600; }
-        .brand span, .meta, .source-meta, .empty { color: #546775; }
-        .report-type { color: #2e6f6a; font-size: 8.5pt; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-        h1 { margin: 24px 0 4px; font-family: Georgia, serif; font-size: 30pt; font-weight: 600; letter-spacing: -.025em; }
-        h2 { margin: 26px 0 10px; border-bottom: 1px solid #d8cdbb; padding-bottom: 5px; font-family: Georgia, serif; font-size: 17pt; font-weight: 600; page-break-after: avoid; }
-        h3 { margin: 0 0 4px; font-size: 10.5pt; page-break-after: avoid; }
-        p { margin: 7px 0; }
-        a { color: #245b57; overflow-wrap: anywhere; }
-        .summary { margin: 18px 0; border-left: 4px solid #e2a647; background: #fbf4e7; padding: 12px 14px; }
-        .headline { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 20px; }
-        .overall { min-width: 88px; border-radius: 12px; background: #2e6f6a; color: white; padding: 10px 13px; text-align: center; }
-        .overall strong { display: block; font-size: 19pt; line-height: 1; }
-        .overall span { font-size: 7.5pt; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border-bottom: 1px solid #ded6c8; padding: 8px 7px; vertical-align: top; text-align: left; }
-        th { width: 21%; color: #245b57; }
-        td.score { width: 13%; font-weight: 700; white-space: nowrap; }
-        ul { margin: 6px 0 0; padding-left: 20px; }
-        li { margin-bottom: 5px; }
-        .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-        .panel { border: 1px solid #d8cdbb; border-radius: 10px; padding: 12px 14px; break-inside: avoid; }
-        .panel h2 { margin-top: 0; font-size: 14pt; }
-        .source { border: 1px solid #d8cdbb; border-radius: 10px; margin-bottom: 10px; padding: 12px 14px; break-inside: avoid; }
-        .indicator { margin-top: 9px; border-left: 3px solid #2e6f6a; background: #eef5f2; padding: 8px 10px; }
-        .indicator p { margin: 3px 0; }
-        .method { margin-top: 24px; border-top: 1px solid #d8cdbb; color: #546775; padding-top: 10px; font-size: 8.5pt; }
-        .print-actions { position: sticky; top: 0; z-index: 2; display: flex; justify-content: center; gap: 10px; background: #eef5f2; padding: 12px; }
-        button { cursor: pointer; border: 0; border-radius: 8px; background: #2e6f6a; color: white; padding: 10px 16px; font: 700 10pt Arial, sans-serif; }
-        @media print {
-          .print-actions { display: none; }
-          .two-columns { grid-template-columns: 1fr 1fr; }
-          a { color: #13283a; text-decoration: none; }
-        }
-        @media screen and (max-width: 700px) { .two-columns { grid-template-columns: 1fr; } }
-      </style>
-    </head>
-    <body>
-      <div class="print-actions"><button type="button" onclick="window.print()">Save as PDF</button></div>
-      <header>
-        <div class="brand"><img src="${escapeReportHtml(logoUrl)}" alt=""><div><strong>IML Health</strong><span>Open Health Information Environment</span></div></div>
-        <div class="report-type">Country evidence report</div>
-      </header>
-      <main>
-        <div class="headline">
-          <div><h1>${escapeReportHtml(profile.name)}</h1><p class="meta">ISO3 ${escapeReportHtml(profile.iso3)} · Profile v${escapeReportHtml(profile.version || "working")} · Generated ${escapeReportHtml(generatedAt)}</p></div>
-          <div class="overall"><strong>${escapeReportHtml(score)}/100</strong><span>orientation signal</span></div>
-        </div>
-        <div class="summary"><strong>Exploratory profile - not a ranking or certification.</strong><br>${escapeReportHtml(profile.subtitle || "Evidence-oriented working country profile.")}</div>
+/* =========================================================
+     IML visual refresh — Palier 1
+     Presentation only: typography, palette, spacing, navigation,
+     buttons and cards. No content, route, API or data change.
+     ========================================================= */
 
-        <h2>Assessment overview</h2>
-        <p><strong>Status:</strong> ${escapeReportHtml(humanize(profile?.assessment?.assessment_status || profile.status))} · <strong>Evidence:</strong> ${escapeReportHtml(humanize(profile?.assessment?.confidence_level || profile.evidenceLevel))} · <strong>Updated:</strong> ${escapeReportHtml(formatDate(profile.updatedAt || profile.published_at))}</p>
-
-        <h2>Six-domain assessment</h2>
-        <table><tbody>${domainRows}</tbody></table>
-
-        <div class="two-columns">
-          <section class="panel"><h2>Documented strengths</h2>${listReportItems(profile.strengths, "No reviewed strength recorded.")}</section>
-          <section class="panel"><h2>Points to examine</h2>${listReportItems(profile.watch, "No reviewed watch point recorded.")}</section>
-        </div>
-
-        <h2>Evidence register</h2>
-        ${sources.length ? sources.map(sourceReportHtml).join("") : '<p class="empty">No documentary source is attached to this working profile.</p>'}
-
-        <p class="method"><strong>Methodological note.</strong> The overall orientation signal is the rounded arithmetic mean of the six current domain scores unless an explicitly reviewed overall score is stored. It summarises the profile but does not replace the underlying sources, limitations and indicator-by-indicator review.</p>
-      </main>
-    </body>
-  </html>`);
-  reportWindow.document.close();
-  reportWindow.focus();
-}
-
-function ProfilePanel({ country, profile }) {
-  if (!profile) {
-    return (
-      <article className="profile-panel empty-profile" aria-live="polite">
-        <div>
-          <p className="profile-overline">{country?.iso3 || "Country"} · documentary coverage</p>
-          <h3>{country?.name || "Select a country"}</h3>
-          <p>This country has not yet been examined in the current IML evidence register. Neutral colour means absence of a reviewed profile, never low maturity.</p>
-          <div className="not-ranking"><strong>Not yet examined.</strong> The selected outline identifies what you are viewing; it does not assign a score.</div>
-        </div>
-      </article>
-    );
+  :root {
+    --iml-ink: #102433;
+    --iml-ink-soft: #294150;
+    --iml-muted: #5a6d78;
+    --iml-line: #d9e2e7;
+    --iml-paper: #ffffff;
+    --iml-wash: #f3f7f8;
+    --iml-wash-deep: #e8f0f2;
+    --iml-navy: #102d42;
+    --iml-teal: #246f78;
+    --iml-teal-soft: #dcebed;
+    --iml-amber: #d59422;
+    --iml-shadow: 0 18px 48px rgba(16, 45, 66, 0.08);
+    color: var(--iml-ink);
+    background: var(--iml-wash);
   }
 
-  const score = profileScore(profile);
-  const values = asArray(profile.values).length === 6 ? profile.values.map(Number) : [0, 0, 0, 0, 0, 0];
-  const sources = asArray(profile.sources);
-  const assessment = profile.assessment || {};
-  const evidenceCount = sources.flatMap((source) => asArray(source.indicators)).length;
-
-  return (
-    <article className="profile-panel" aria-live="polite">
-      <div className="profile-heading">
-        <div><p className="profile-overline">{profile.iso3} · profile v{profile.version || "working"}</p><h3>{profile.name}</h3></div>
-        <div className="orientation-score" aria-label={`Indicative orientation signal ${score} out of 100`}><strong>{score}</strong><span>/100</span><small>orientation signal</small></div>
-      </div>
-      <p className="profile-subtitle">{profile.subtitle || "Exploratory, evidence-oriented country profile."}</p>
-      <div className="not-ranking"><strong>Not a ranking.</strong> Scores help structure inquiry across six domains; they are provisional and evidence-dependent.</div>
-      <div className="radar-wrap">
-        <svg className="radar" viewBox="0 0 240 240" role="img" aria-label={`Six-domain orientation for ${profile.name}`}>
-          {[25, 50, 75, 100].map((level) => <polygon key={level} points={polygonPoints([level, level, level, level, level, level], 78)} className="radar-grid" />)}
-          {[0, 1, 2, 3, 4, 5].map((index) => { const angle = -Math.PI / 2 + (index * Math.PI * 2) / 6; return <line key={index} x1="120" y1="120" x2={120 + Math.cos(angle) * 78} y2={120 + Math.sin(angle) * 78} className="radar-axis" />; })}
-          <polygon points={polygonPoints(values, 78)} className="radar-value" />
-          {values.map((value, index) => { const angle = -Math.PI / 2 + (index * Math.PI * 2) / 6; const x = 120 + Math.cos(angle) * 99; const y = 120 + Math.sin(angle) * 99; return <text key={RADAR_LABELS[index]} x={x} y={y} textAnchor={x < 110 ? "end" : x > 130 ? "start" : "middle"} dominantBaseline="middle">{RADAR_LABELS[index]} · {value}</text>; })}
-        </svg>
-        <dl className="profile-meta">
-          <div><dt>Assessment</dt><dd>{humanize(assessment.assessment_status || profile.status)}</dd></div>
-          <div><dt>Evidence</dt><dd>{humanize(assessment.confidence_level || profile.evidenceLevel)}</dd></div>
-          <div><dt>Sources</dt><dd>{sources.length}</dd></div>
-          <div><dt>Evidence links</dt><dd>{evidenceCount}</dd></div>
-          <div><dt>Updated</dt><dd>{formatDate(profile.updatedAt || profile.published_at)}</dd></div>
-        </dl>
-      </div>
-      <div className="profile-lists">
-        <div><h4>Documented strengths</h4><ul>{asArray(profile.strengths).length ? profile.strengths.map((item, index) => <li key={index}>{item}</li>) : <li>No reviewed strength recorded.</li>}</ul></div>
-        <div><h4>Points to examine</h4><ul>{asArray(profile.watch).length ? profile.watch.map((item, index) => <li key={index}>{item}</li>) : <li>No reviewed watch point recorded.</li>}</ul></div>
-      </div>
-      <details className="evidence-register">
-        <summary><span><strong>Evidence register</strong><small>{sources.length} source{sources.length === 1 ? "" : "s"} · {evidenceCount} linked indicator{evidenceCount === 1 ? "" : "s"}</small></span><span>+</span></summary>
-        <div className="evidence-list">
-          {sources.length ? sources.map((source, index) => (
-            <article className="evidence-item" key={`${source.url || source.title || "source"}-${index}`}>
-              <div className="evidence-title"><span>{String(index + 1).padStart(2, "0")}</span><div><h5>{source.title || `Source ${index + 1}`}</h5><p>{source.publisher || "Publisher not recorded"}</p></div>{source.url ? <a href={source.url} target="_blank" rel="noreferrer">Open source ↗</a> : <span className="restricted-link">No public link</span>}</div>
-              {source.note ? <p>{source.note}</p> : null}
-              {asArray(source.indicators).map((indicator, indicatorIndex) => <div className="evidence-claim" key={`${indicator.code || "indicator"}-${indicatorIndex}`}><span>{indicator.code || "IML indicator"} · evidence {indicator.evidence_level || "ungraded"}</span><p>{indicator.summary || "Evidence summary not recorded."}</p>{indicator.limitation ? <small><strong>Limit:</strong> {indicator.limitation}</small> : null}</div>)}
-            </article>
-          )) : <p>No source record is publicly available for this working profile.</p>}
-        </div>
-      </details>
-    </article>
-  );
-}
-
-function CountryExplorer() {
-  const [profiles, setProfiles] = useState([]);
-  const [selectedIso3, setSelectedIso3] = useState("FRA");
-  const [hovered, setHovered] = useState(null);
-  const [status, setStatus] = useState({ loading: true, warning: "" });
-
-  useEffect(() => {
-    const controller = new AbortController();
-    loadCountryProfiles(controller.signal)
-      .then((result) => {
-        setProfiles(result.profiles);
-        setStatus({ loading: false, warning: "" });
-        if (!result.profiles.some((profile) => profile.iso3 === "FRA") && result.profiles[0]) setSelectedIso3(result.profiles[0].iso3);
-      })
-      .catch((error) => {
-        if (error?.name !== "AbortError") setStatus({ loading: false, warning: error?.message || "Profile service unavailable." });
-      });
-    return () => controller.abort();
-  }, []);
-
-  const profilesByIso3 = useMemo(() => new Map(profiles.map((profile) => [profile.iso3, profile])), [profiles]);
-  const features = useMemo(() => worldCountries.features.filter((feature) => !isAntarctica(feature) && featureIso3(feature) && featureIso3(feature) !== "-99"), []);
-  const countryOptions = useMemo(() => Array.from(new Map(features.map((feature) => [featureIso3(feature), { iso3: featureIso3(feature), name: profilesByIso3.get(featureIso3(feature))?.name || featureName(feature) }])).values()).sort((a, b) => a.name.localeCompare(b.name)), [features, profilesByIso3]);
-  const selectedFeature = features.find((feature) => featureIso3(feature) === selectedIso3);
-  const selectedCountry = selectedFeature ? { iso3: selectedIso3, name: profilesByIso3.get(selectedIso3)?.name || featureName(selectedFeature) } : null;
-  const selectedProfile = profilesByIso3.get(selectedIso3) || null;
-
-  if (status.loading) return <div className="explorer-loading" role="status"><span />Loading country profiles…</div>;
-
-  return (
-    <div className="country-explorer">
-      <div className="explorer-toolbar">
-        <label><span>Choose a country</span><select value={selectedIso3} onChange={(event) => setSelectedIso3(event.target.value)}>{countryOptions.map((country) => <option value={country.iso3} key={country.iso3}>{country.name} — {profilesByIso3.has(country.iso3) ? "examined" : "not examined"}</option>)}</select></label>
-        <div className="report-toolbar-action">
-          <button
-            type="button"
-            className="button primary"
-            disabled={!selectedProfile}
-            onClick={() => openCountryPdfReport(selectedProfile)}
-          >
-            Download PDF report
-          </button>
-          <small>{selectedProfile ? `Report for ${selectedProfile.name}` : "Select an examined country to enable the report."}</small>
-        </div>
-      </div>
-      {status.warning ? <div className="explorer-warning" role="status"><strong>Country profiles could not be loaded.</strong><span>{status.warning}</span></div> : null}
-      <div className="explorer-grid">
-        <div className="map-panel">
-          <div className="map-legend" aria-label="Map colour scale"><span><i className="legend-unexamined" /> Not examined</span><span className="legend-scale-label">Examined · orientation signal</span><span><i className="legend-band-1" /> 0–24</span><span><i className="legend-band-2" /> 25–49</span><span><i className="legend-band-3" /> 50–74</span><span><i className="legend-band-4" /> 75–100</span><span><i className="legend-selected" /> Selection</span></div>
-          <div className="map-stage">
-            <svg className="world-map" viewBox={`0 0 ${MAP_WIDTH} ${MAP_VISIBLE_HEIGHT}`} role="img" aria-labelledby="map-title map-description">
-              <title id="map-title">IML country profiles world map</title><desc id="map-description">Examined countries use a four-step colour scale. Countries not yet examined are neutral. Every country can be selected.</desc>
-              {features.map((feature) => {
-                const iso3 = featureIso3(feature); const profile = profilesByIso3.get(iso3); const selected = selectedIso3 === iso3; const score = profile ? profileScore(profile) : null;
-                return <path key={`${iso3}-${featureName(feature)}`} d={geometryToPath(feature.geometry)} fillRule="evenodd" className={`map-country${profile ? ` is-examined score-band-${scoreBand(score)}` : " is-unexamined"}${selected ? " is-selected" : ""}`} aria-label={profile ? `${profile.name}: examined, orientation signal ${score} out of 100` : `${featureName(feature)}: not yet examined`} aria-current={selected ? "true" : undefined} role="button" tabIndex={0} onClick={() => setSelectedIso3(iso3)} onMouseMove={(event) => { const bounds = event.currentTarget.ownerSVGElement.getBoundingClientRect(); setHovered({ x: event.clientX - bounds.left, y: event.clientY - bounds.top, name: profile?.name || featureName(feature), profile, score }); }} onMouseLeave={() => setHovered(null)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedIso3(iso3); } }}><title>{profile ? `${profile.name} — examined · orientation signal ${score}/100` : `${featureName(feature)} — not yet examined`}</title></path>;
-              })}
-            </svg>
-            {hovered ? <div className="map-tooltip" style={{ left: `${Math.min(hovered.x + 14, 820)}px`, top: `${Math.max(12, hovered.y - 24)}px` }}><strong>{hovered.name}</strong><span>{hovered.profile ? `${hovered.score}/100 · examined profile` : "Not yet examined"}</span></div> : null}
-          </div>
-          <p className="map-caption">Colour distinguishes documentary coverage and groups examined profiles by their provisional orientation signal. It is not a ranking.</p>
-        </div>
-        <ProfilePanel country={selectedCountry} profile={selectedProfile} />
-      </div>
-    </div>
-  );
-}
-
-/*
- * These few rules are deliberately kept here so this App.jsx can replace the
- * current file on site-test without requiring another CSS upload.
- */
-const REFERENCE_ADJUSTMENTS = `
-  /* Visible connective mesh: the same quiet network runs through every page
-     background, while all content remains above it. */
-  .hero,
-  .page-masthead,
-  .vision,
-  .current-state,
-  .clinical-section,
-  .route-overview,
-  .next-paths,
-  .methodology-section,
-  .profiles-section,
-  .manuscripts-section {
-    background-color: var(--light);
-    background-image:
-      radial-gradient(circle at 22px 22px, rgba(46, 111, 106, .34) 0 1.45px, transparent 1.7px),
-      repeating-linear-gradient(45deg, transparent 0 21px, rgba(46, 111, 106, .15) 21px 22px, transparent 22px 43px),
-      repeating-linear-gradient(-45deg, transparent 0 21px, rgba(46, 111, 106, .15) 21px 22px, transparent 22px 43px),
-      linear-gradient(145deg, var(--light), var(--paper));
-    background-size: 44px 44px, 44px 44px, 44px 44px, auto;
+  body {
+    color: var(--iml-ink);
+    background:
+      radial-gradient(circle at 8% 0%, rgba(36, 111, 120, 0.06), transparent 28rem),
+      linear-gradient(180deg, #f8fbfb 0%, #ffffff 30%, #ffffff 100%);
   }
 
-  .interoperability-section,
-  .collaborate-section {
-    background-image:
-      radial-gradient(circle at 22px 22px, rgba(226, 166, 71, .50) 0 1.35px, transparent 1.65px),
-      repeating-linear-gradient(45deg, transparent 0 21px, rgba(255, 255, 255, .14) 21px 22px, transparent 22px 43px),
-      repeating-linear-gradient(-45deg, transparent 0 21px, rgba(255, 255, 255, .14) 21px 22px, transparent 22px 43px),
-      linear-gradient(145deg, var(--navy), var(--teal-deep));
-    background-size: 44px 44px, 44px 44px, 44px 44px, auto;
+  .container {
+    width: min(1220px, calc(100% - 48px));
   }
 
-  .page-ornament {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: min(1160px, calc(100% - 48px));
-    margin: 0 auto;
-    padding: 18px 0;
-    color: color-mix(in srgb, var(--teal) 50%, var(--line));
+  .topbar {
+    border-bottom: 1px solid rgba(16, 45, 66, 0.10);
+    background: rgba(248, 251, 251, 0.90);
+    box-shadow: 0 8px 28px rgba(16, 45, 66, 0.035);
   }
 
-  .page-ornament span {
-    height: 1px;
-    flex: 1;
-    background: currentColor;
-    opacity: .65;
+  .topbar-inner {
+    padding: 12px 0;
   }
 
-  .page-ornament i {
-    box-sizing: border-box;
-    display: block;
-    width: 7px;
-    height: 7px;
-    flex: 0 0 7px;
-    border: 1px solid currentColor;
-    border-radius: 50%;
+  .brand-button {
+    gap: 11px;
   }
 
-  .brand-home {
-    min-width: 320px;
-    gap: 14px;
+  .brand-title {
+    color: var(--iml-ink-soft);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  .logo-box {
+    width: 50px;
+    height: 50px;
+    border-color: rgba(36, 111, 120, 0.18);
+    border-radius: 14px;
+    box-shadow: 0 9px 24px rgba(16, 45, 66, 0.07);
+  }
+
+  .logo-svg {
+    width: 46px;
+    height: 46px;
+  }
+
+  .eyebrow {
+    color: var(--iml-teal);
+    font-weight: 800;
+    letter-spacing: 0.18em;
+  }
+
+  .nav-button {
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--iml-ink-soft);
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .nav-button:hover {
+    border-color: rgba(36, 111, 120, 0.16);
+    background: var(--iml-teal-soft);
+    color: var(--iml-navy);
+  }
+
+  .nav-button-active {
+    border-color: var(--iml-navy);
+    background: var(--iml-navy);
+    color: #ffffff;
+    padding: 8px 13px;
+    font-size: 13px;
+    transform: none;
+    outline: none;
+    box-shadow: 0 7px 18px rgba(16, 45, 66, 0.16);
+  }
+
+  .hero {
+    border-bottom-color: var(--iml-line);
+    background:
+      radial-gradient(circle at 12% 5%, rgba(36, 111, 120, 0.12), transparent 32rem),
+      radial-gradient(circle at 88% 22%, rgba(213, 148, 34, 0.08), transparent 24rem),
+      linear-gradient(145deg, #f7fbfb 0%, #ffffff 56%, #f4f8f8 100%);
   }
 
   .hero-grid {
-    grid-template-columns: minmax(0, 1.02fr) minmax(430px, .98fr);
+    align-items: start;
+    gap: 48px;
+    padding: 88px 0 100px;
   }
 
-  .hero-copy {
+  .hero-copy h1,
+  .section-heading h2,
+  .report-heading h2 {
+    font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    color: var(--iml-navy);
+    font-weight: 650;
+  }
+
+  .hero-copy h1 {
+    max-width: 820px;
+    font-size: clamp(3rem, 5.2vw, 5rem);
+    line-height: 0.99;
+    letter-spacing: -0.045em;
+  }
+
+  .hero-text {
     max-width: 760px;
+    color: var(--iml-ink-soft);
+    font-size: 18px;
+    line-height: 1.78;
   }
 
-  .brand-mark img,
-  .footer-logo img {
-    transform: scale(1.52);
-    mix-blend-mode: multiply;
+  .principle-stack {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 28px;
   }
 
-  .footer-brand {
-    gap: 14px;
+  .principle-line {
+    border-left: 0;
+    border-top: 3px solid var(--iml-teal);
+    padding: 12px 2px 0;
+    color: var(--iml-ink-soft);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    line-height: 1.45;
+    text-transform: uppercase;
   }
 
-  .footer-logo {
-    width: 62px;
-    height: 62px;
-    display: grid;
-    place-items: center;
-    flex: 0 0 auto;
-    overflow: hidden;
+  .section {
+    padding: 84px 0;
+  }
+
+  .section-heading {
+    margin-bottom: 38px;
+  }
+
+  .section-heading h2 {
+    margin-bottom: 15px;
+    font-size: clamp(2.25rem, 3.4vw, 3.5rem);
+    line-height: 1.04;
+  }
+
+  .section-heading p {
+    max-width: 780px;
+    color: var(--iml-muted);
+    font-size: 17px;
+    line-height: 1.76;
+  }
+
+  .section-badge {
+    border-color: rgba(36, 111, 120, 0.18);
+    background: var(--iml-teal-soft);
+    color: var(--iml-teal);
+    padding: 7px 12px;
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .card {
+    border-color: var(--iml-line);
+    border-radius: 21px;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: var(--iml-shadow);
+  }
+
+  .soft-card {
+    background: linear-gradient(145deg, #f7fafb 0%, #f1f6f7 100%);
+  }
+
+  .highlight-card {
+    border-color: rgba(213, 148, 34, 0.34);
+    background: #fff8e8;
+  }
+
+  .content-block {
+    padding: 32px;
+  }
+
+  .content-block h3,
+  .value-card h3,
+  .profile-head h3 {
+    color: var(--iml-navy);
+    font-size: 1.28rem;
+    line-height: 1.25;
+  }
+
+  .content-block p,
+  .value-card p,
+  .plain-list li,
+  .list-box,
+  .metric-subtitle,
+  .form-note,
+  .muted-copy,
+  .footer-copy {
+    color: var(--iml-muted);
+  }
+
+  .metric-grid,
+  .tile-grid,
+  .form-grid,
+  .stack-list {
+    gap: 20px;
+  }
+
+  .value-card,
+  .metric-card,
+  .mini-tile,
+  .overview-card {
+    transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  }
+
+  .value-card:hover,
+  .metric-card:hover,
+  .overview-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(36, 111, 120, 0.24);
+    box-shadow: 0 22px 56px rgba(16, 45, 66, 0.105);
+  }
+
+  .metric-card {
+    align-items: center;
+    padding: 22px;
+  }
+
+  .metric-symbol {
+    border-color: rgba(36, 111, 120, 0.18);
     border-radius: 14px;
-    background: #f5efe4;
+    background: var(--iml-teal-soft);
+    color: var(--iml-teal);
   }
 
-  .footer-logo img {
-    width: 58px;
-    height: 58px;
-    object-fit: contain;
+  .metric-title {
+    color: var(--iml-muted);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
   }
 
-  .page-masthead-grid {
-    grid-template-columns: minmax(0, 1.45fr) minmax(280px, .55fr);
+  .metric-value {
+    color: var(--iml-navy);
+    font-size: 27px;
   }
 
-  .explorer-toolbar {
-    justify-content: space-between;
+  .overview-card {
+    padding: 32px;
+    border-color: rgba(36, 111, 120, 0.17);
+    background:
+      linear-gradient(155deg, rgba(255,255,255,0.98), rgba(242,247,248,0.96));
   }
 
-  .report-toolbar-action {
-    display: grid;
-    justify-items: end;
-    gap: 7px;
+  .overview-title,
+  .mail-box {
+    color: var(--iml-navy);
   }
 
-  .report-toolbar-action button {
-    cursor: pointer;
-    font-family: inherit;
+  .mini-tile {
+    border-color: var(--iml-line);
+    border-radius: 16px;
+    background: rgba(255,255,255,0.72);
   }
 
-  .report-toolbar-action button:disabled {
-    cursor: not-allowed;
-    opacity: .48;
-    transform: none;
+  .mini-tile-title {
+    color: var(--iml-navy);
+  }
+
+  .list-box,
+  .code-box {
+    border-color: var(--iml-line);
+    border-radius: 15px;
+  }
+
+  .primary-button,
+  .secondary-button {
+    min-height: 44px;
+    border-radius: 999px;
+    padding: 11px 18px;
+    font-size: 14px;
+    transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, border-color 160ms ease;
+  }
+
+  .primary-button {
+    background: var(--iml-navy);
+    box-shadow: 0 8px 20px rgba(16, 45, 66, 0.14);
+  }
+
+  .primary-button:hover {
+    transform: translateY(-1px);
+    background: #173c56;
+    box-shadow: 0 11px 26px rgba(16, 45, 66, 0.19);
+  }
+
+  .secondary-button {
+    border-color: rgba(36, 111, 120, 0.22);
+    background: rgba(255,255,255,0.84);
+    color: var(--iml-navy);
+  }
+
+  .secondary-button:hover {
+    transform: translateY(-1px);
+    border-color: rgba(36, 111, 120, 0.40);
+    background: var(--iml-teal-soft);
+  }
+
+  .text-link {
+    color: var(--iml-teal);
+    text-decoration-color: rgba(36, 111, 120, 0.32);
+  }
+
+  .text-link:hover {
+    color: var(--iml-navy);
+    text-decoration-color: var(--iml-navy);
+  }
+
+  .note-box {
+    border-left: 4px solid var(--iml-teal);
+    border-radius: 12px 20px 20px 12px;
+    background: rgba(255,255,255,0.74);
     box-shadow: none;
   }
 
-  .report-toolbar-action small {
-    margin: 0;
-    color: var(--soft);
-    font-size: .68rem;
-    line-height: 1.35;
-    text-align: right;
+  .status-pill,
+  .profile-meta span {
+    background: var(--iml-teal-soft);
+    color: var(--iml-teal);
   }
 
-  .manuscript-cards h3 {
-    margin-top: 12px;
+  .select-wrap select,
+  .control-field select,
+  .contact-form input,
+  .contact-form textarea,
+  .mail-box {
+    border-color: var(--iml-line);
+    border-radius: 14px;
+    background: rgba(255,255,255,0.92);
   }
 
-  body[data-iml-route="/country-profiles"] .page-masthead-grid,
-  body[data-iml-route="/manuscripts"] .page-masthead-grid {
-    min-height: 280px;
-    padding-block: 48px 56px;
-  }
-
-  body[data-iml-route="/country-profiles"] .page-masthead h1,
-  body[data-iml-route="/manuscripts"] .page-masthead h1 {
-    font-size: clamp(3rem, 4.8vw, 5.1rem);
-  }
-
-  body[data-iml-route="/country-profiles"] .profiles-heading {
-    margin-bottom: 30px;
-  }
-
-  body[data-iml-route="/identity-trust"] .page-masthead-grid {
-    min-height: 320px;
-    grid-template-columns: minmax(0, 1.45fr) minmax(280px, .55fr);
-    padding-block: 52px 62px;
-  }
-
-  body[data-iml-route="/identity-trust"] .page-masthead h1 {
-    max-width: 1050px;
-    font-size: clamp(3rem, 4.8vw, 5.15rem);
-  }
-
-  .collaborate-masthead-aside {
-    align-self: stretch;
-    display: flex;
-    min-width: 0;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 18px;
-  }
-
-  .collaborate-lamp-frame {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 3 / 2;
-    overflow: hidden;
-    border-radius: 46% 54% 51% 49% / 58% 44% 56% 42%;
-    -webkit-mask-image: radial-gradient(ellipse at center, #000 54%, rgba(0, 0, 0, .96) 69%, transparent 100%);
-    mask-image: radial-gradient(ellipse at center, #000 54%, rgba(0, 0, 0, .96) 69%, transparent 100%);
-  }
-
-  .collaborate-lamp-frame img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    transform: scaleX(-1);
-    mix-blend-mode: multiply;
-  }
-
-  .collaborate-masthead-aside p {
-    margin: 0;
-    color: var(--soft);
-    font-size: clamp(1.03rem, 1.3vw, 1.22rem);
-    line-height: 1.75;
-  }
-
-  .identity-trust-section {
-    background: var(--light);
-    padding-block: clamp(48px, 6vw, 86px);
-  }
-
-  .identity-trust-card {
-    border: 1px solid color-mix(in srgb, var(--teal) 42%, var(--line));
+  .world-box {
+    border-color: var(--iml-line);
     border-radius: 24px;
-    background: color-mix(in srgb, var(--teal-wash) 34%, var(--light));
-    padding: clamp(28px, 4vw, 48px);
-    box-shadow: 0 18px 48px rgba(19, 40, 58, .07);
+    background: linear-gradient(180deg, #fafdfe 0%, #eef4f6 100%);
+    box-shadow: 0 22px 60px rgba(16, 45, 66, 0.09);
   }
 
-  .identity-trust-card h2 {
-    margin: 0 0 20px;
-    font-family: var(--font-source-serif), Georgia, serif;
-    font-size: clamp(1.55rem, 2.2vw, 2.2rem);
-    font-weight: 650;
-    letter-spacing: -.025em;
-    line-height: 1.15;
+  .helper-pill,
+  .data-source-pill {
+    border-color: var(--iml-line);
+    background: rgba(255,255,255,0.90);
   }
 
-  .identity-trust-card p {
-    margin: 0;
-    color: var(--soft);
-    font-size: 1rem;
-    line-height: 1.75;
+  .score-pill,
+  .map-tooltip-score,
+  .report-domain-score,
+  .report-overall {
+    background: var(--iml-navy);
   }
 
-  .identity-trust-card p + p {
-    margin-top: 18px;
+  .country-shape-selected {
+    filter: drop-shadow(0 0 5px rgba(213, 148, 34, 0.46));
   }
 
-  @media (max-width: 760px) {
-    body[data-iml-route="/country-profiles"] .page-masthead-grid,
-    body[data-iml-route="/manuscripts"] .page-masthead-grid {
-      padding-block: 38px 48px;
-    }
-
-    body[data-iml-route="/identity-trust"] .page-masthead-grid {
-      min-height: auto;
-      grid-template-columns: 1fr;
-      padding-block: 38px 48px;
-    }
-
-    .identity-trust-card {
-      border-radius: 18px;
-    }
-
-    .collaborate-masthead-aside {
-      max-width: 760px;
-    }
-
-    .collaborate-lamp-frame {
-      width: min(520px, 100%);
-    }
-
-    .report-toolbar-action {
-      justify-items: stretch;
-    }
-
-    .report-toolbar-action small {
-      text-align: left;
-    }
-
-    .brand-home {
-      min-width: 0;
-    }
-
-    .footer-logo {
-      width: 54px;
-      height: 54px;
-    }
+  .footer {
+    border-top-color: var(--iml-line);
+    background: linear-gradient(180deg, #f4f8f8 0%, #edf3f4 100%);
   }
 
-  @media (max-width: 1180px) {
+  .footer-grid {
+    padding: 44px 0;
+  }
+
+  .footer-label {
+    color: var(--iml-teal);
+  }
+
+  @media (max-width: 820px) {
+    .container {
+      width: min(100% - 30px, 1220px);
+    }
+
     .hero-grid {
-      grid-template-columns: minmax(0, 1fr);
+      padding-top: 62px;
+      padding-bottom: 68px;
     }
 
-    .hero-copy {
-      max-width: 880px;
+    .hero-copy h1 {
+      font-size: clamp(2.55rem, 12vw, 3.7rem);
+    }
+
+    .principle-stack {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .principle-line {
+      border-top: 0;
+      border-left: 3px solid var(--iml-teal);
+      padding: 4px 0 4px 12px;
+    }
+
+    .section {
+      padding: 62px 0;
+    }
+
+    .content-block,
+    .overview-card {
+      padding: 24px;
     }
   }
-`;
 
-function HomePage() {
-  return (
-    <PageFrame active="/" home>
-      <section className="hero" id="top">
-        <div className="shell hero-grid">
-          <div className="hero-copy">
-            <h1>Health information should illuminate care — not fragment it.</h1>
-            <p className="hero-lede">
-              An open clinical workspace and an integration layer for systems that must cooperate without losing clinical meaning.
-            </p>
-            <div className="hero-actions">
-              <a className="button primary" href="/vision">Explore the project</a>
-              <a className="button secondary" href="/country-profiles">View country profiles</a>
-            </div>
-            <div className="hero-paths" aria-label="Two complementary paths">
-              <a className="path-card" href="/clinical-workspace">
-                <span className="path-number">01</span>
-                <span>
-                  <strong>Open Clinical Workspace</strong>
-                  <small>A progressively deployable clinical foundation.</small>
-                </span>
-              </a>
-              <a className="path-card" href="/interoperability">
-                <span className="path-number">02</span>
-                <span>
-                  <strong>Integration &amp; evidence layer</strong>
-                  <small>Connect systems, preserve meaning, document evidence.</small>
-                </span>
-              </a>
-            </div>
-          </div>
-          <div className="hero-art">
-            <div className="hero-art-frame">
-              <img src={heroLampImage} alt="Hand-drawn IML lamp illuminating connected evidence paths" />
-            </div>
-          </div>
-        </div>
-        <div className="shell principle">
-          <span />
-          <p>Health is the objective. Trustworthy information is the foundation. Interoperability is the path.</p>
-          <span />
-        </div>
-      </section>
-    </PageFrame>
-  );
-}
-
-function VisionPage() {
-  return (
-    <PageFrame active="/vision">
-      <PageMasthead
-        title="One open environment. Two complementary paths."
-        lede="IML links a modular clinical foundation with an open way to connect existing health information systems."
-      />
-      <section className="vision vision-page" aria-labelledby="vision-heading">
-        <div className="shell vision-grid">
-          <div>
-            <h2 id="vision-heading">Make trustworthy information useful across care.</h2>
-          </div>
-          <div className="vision-prose">
-            <p>
-              IML is not a new national silo. It is a vendor-neutral reference environment for clinical work, integration, evidence and correction.
-            </p>
-            <p>
-              Identity remains a governed enabling layer. <a className="text-link" href="/identity-trust">Read Identity &amp; Trust →</a>
-            </p>
-          </div>
-        </div>
-      </section>
-    </PageFrame>
-  );
-}
-
-function ClinicalWorkspacePage() {
-  return (
-    <PageFrame active="/clinical-workspace">
-      <PageMasthead
-        title="A modular clinical workspace that can start small."
-        lede="Open-source, inspectable and progressively deployable, with regional modules rather than a closed monolith."
-      />
-      <section className="section clinical-section" aria-labelledby="clinical-heading">
-        <div className="shell section-split">
-          <div className="section-intro sticky-intro">
-            <h2 id="clinical-heading">Build on proven open-source foundations.</h2>
-            <p>
-              <a className="text-link" href="https://openmrs.org/demo/" target="_blank" rel="noopener noreferrer">Explore OpenMRS O3 ↗</a>, an important reference for the clinical workspace. IML explores how it can be complemented by regional packs and an independent integration layer.
-            </p>
-            <a className="text-link" href="/collaborate">Join the clinical workstream →</a>
-          </div>
-          <div className="module-grid">
-            {clinicalModules.map(([title, copy], index) => (
-              <article className="module-card" key={title}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <div><h3>{title}</h3><p>{copy}</p></div>
-              </article>
-            ))}
-            <div className="design-note">
-              <strong>Progressive deployment</strong>
-              <p>Adopt and govern useful modules in stages; an initial installation should not require an entire national architecture.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-    </PageFrame>
-  );
-}
-
-function CountryProfilesPage() {
-  return (
-    <PageFrame active="/country-profiles">
-      <PageMasthead
-        title="Country profiles"
-        lede="Explore evidence, sources and limitations. Profiles support inquiry; they are not rankings."
-      />
-      <section className="section profiles-section" aria-labelledby="profiles-heading">
-        <div className="shell">
-          <div className="profiles-heading">
-            <p id="profiles-heading">Select any country on the map. Neutral means not yet examined, never low maturity.</p>
-          </div>
-          <CountryExplorer />
-        </div>
-      </section>
-    </PageFrame>
-  );
-}
-
-function ManuscriptsPage() {
-  return (
-    <PageFrame active="/manuscripts">
-      <PageMasthead
-        title="Manuscripts"
-        lede="Founding vision and technical architecture for scientific review."
-      />
-      <section className="section manuscripts-section" aria-labelledby="manuscripts-heading">
-        <div className="shell manuscript-layout">
-          <div className="section-intro">
-            <h2 id="manuscripts-heading">Read the current foundations.</h2>
-          </div>
-          <div className="manuscript-cards" aria-label="IML manuscripts">
-            <article>
-              <h3>Founding vision</h3>
-              <p>Why fragmented information harms care, and why a health information environment must be open, accountable and clinically grounded.</p>
-              <a className="button primary" href={`${BASE_URL}IML_Founding_Manuscript.pdf`} target="_blank" rel="noreferrer">
-                Read founding manuscript ↗
-              </a>
-            </article>
-            <article>
-              <h3>Technical architecture</h3>
-              <p>How modular software, interoperability layers, evidence and correction can form a coherent implementation path.</p>
-              <a className="button secondary" href={`${BASE_URL}IML_Technical_Manuscript.pdf`} target="_blank" rel="noreferrer">
-                Read technical manuscript ↗
-              </a>
-            </article>
-          </div>
-        </div>
-      </section>
-    </PageFrame>
-  );
-}
-
-function IdentityTrustPage() {
-  return (
-    <PageFrame active="/identity-trust">
-      <PageMasthead
-        title="Identity, consent and trust across fragmented systems"
-        lede="Identity is an enabling layer for continuity and accountability, not the whole of interoperability."
-      />
-      <section className="identity-trust-section" id="identity-trust" aria-labelledby="identity-trust-heading">
-        <div className="shell">
-          <article className="identity-trust-card">
-            <h2 id="identity-trust-heading">From trusted identity to authorised health and research linkage</h2>
-            <p>
-              IML does not propose replacing national identity systems. It explores how recognised national identifiers could contribute to a future universal health and research number for authorised multicentre, longitudinal and epidemiological studies. It complements the <a className="text-link" href="https://id4d.worldbank.org/" target="_blank" rel="noopener noreferrer">World Bank ID4D initiative ↗</a> and may build on trust infrastructures such as the <a className="text-link" href="https://www.who.int/initiatives/global-digital-health-certification-network" target="_blank" rel="noopener noreferrer">WHO Global Digital Health Certification Network ↗</a>.
-            </p>
-            <p>
-              National models already differ. A future IML model could combine the national identifier namespace, a governed geographic reference and a protected keyed hash. The resulting number would remain regulated personal data and would require legal, ethical, security and equity review before implementation.
-            </p>
-            <p>
-              Identity, identifier, access token and carrier mechanism must remain distinct. A QR code or mobile application should carry only a temporary signed token or a verifiable digital certificate, never sensitive identity or health information in clear text.
-            </p>
-            <p>
-              The country-level <a className="text-link" href="https://monitor.digitalhealthmonitor.org/map" target="_blank" rel="noopener noreferrer">Global Digital Health Monitor map ↗</a> provides information on digital health. IML is different: it develops an independent comparative framework designed to guide structured country research, verify documentary evidence, identify information gaps and support contextual human validation.
-            </p>
-          </article>
-        </div>
-      </section>
-    </PageFrame>
-  );
-}
-
-const interoperabilityLayers = [
-  ["01", "Technical", "Can systems exchange data reliably?"],
-  ["02", "Semantic", "Is clinical meaning preserved?"],
-  ["03", "Organisational", "Do workflows and responsibilities align?"],
-  ["04", "Institutional", "Are governance, law and accountability credible?"],
-  ["05", "Clinical & public health", "Does information improve decisions, safety and learning?"],
-];
-
-const methodologyDomains = [
-  ["GOV", "Governance", "Stewardship, accountability and policy direction"],
-  ["TEC", "Technical", "Standards, architecture and reliable exchange"],
-  ["IDT", "Identity", "People, professionals, organisations and consent"],
-  ["ADP", "Adoption", "Real use in care and public-health workflows"],
-  ["SEC", "Security", "Protection, access control and resilience"],
-  ["LRN", "Learning", "Feedback, correction and system improvement"],
-];
-
-function InteroperabilityPage() {
-  return (
-    <PageFrame active="/interoperability">
-      <PageMasthead
-        title="Interoperability is a clinical capability, not a cable between databases."
-        lede="A connection becomes useful only when technical exchange, shared meaning, workflow, governance and clinical purpose hold together."
-      />
-      <section className="section interoperability-section" aria-labelledby="layers-heading">
-        <div className="shell">
-          <div className="wide-heading"><div><h2 id="layers-heading">Exchange must preserve meaning and responsibility.</h2></div><p>IML treats interoperability as an end-to-end clinical and institutional capability rather than a narrow interface project.</p></div>
-          <div className="layer-grid">{interoperabilityLayers.map(([number, title, copy]) => <article key={title}><span>{number}</span><h3>{title}</h3><p>{copy}</p></article>)}</div>
-          <div className="information-flow" aria-label="Information flow from source systems to learning">
-            <div><small>Existing sources</small><strong>EHRs · labs · registries · payers</strong></div><i>→</i>
-            <div><small>Trust layer</small><strong>Identity · consent · terminology</strong></div><i>→</i>
-            <div><small>Clinical use</small><strong>Workspace · public health</strong></div><i>→</i>
-            <div><small>Learning</small><strong>Evidence · correction · feedback</strong></div>
-          </div>
-          <div className="demonstrator-grid">
-            <article><h3>AMR / BMR continuity</h3><p>Trace culture, susceptibility, antimicrobial decisions and feedback without detaching a laboratory result from its clinical context.</p></article>
-            <article><h3>Payer interoperability</h3><p>Connect coverage and reimbursement processes to care without allowing administrative exchange to distort the clinical record.</p></article>
-            <article><h3>Identity, consent &amp; access</h3><p>QR or mobile workflows should carry only short-lived signed tokens—never sensitive health data in clear text. IML complements national identity systems; it does not replace them.</p></article>
-          </div>
-        </div>
-      </section>
-      <section className="section methodology-section" id="methodology" aria-labelledby="methodology-heading">
-        <div className="shell methodology-layout">
-          <div className="section-intro"><h2 id="methodology-heading">Six domains, explicit evidence and versioned judgments.</h2><p>Country profiles are structured orientation tools. Each claim should point to documentary support, declare its limitation and remain open to correction by informed reviewers.</p></div>
-          <div className="domain-grid">{methodologyDomains.map(([code, title, copy]) => <article key={code}><span>{code}</span><h3>{title}</h3><p>{copy}</p></article>)}</div>
-          <ol className="evidence-pipeline" aria-label="Evidence workflow">
-            <li><span>1</span><strong>Source</strong><small>Prefer authoritative public documentation</small></li>
-            <li><span>2</span><strong>Claim</strong><small>Link evidence to a precise indicator</small></li>
-            <li><span>3</span><strong>Limit</strong><small>State what the source cannot prove</small></li>
-            <li><span>4</span><strong>Review</strong><small>Version, challenge and correct</small></li>
-          </ol>
-        </div>
-      </section>
-    </PageFrame>
-  );
-}
-
-function CollaboratePage() {
-  return (
-    <PageFrame active="/collaborate">
-      <PageMasthead title="Bring evidence, clinical reality or implementation experience." lede="IML is independent, non-commercial and open to rigorous contribution." mirroredLamp />
-      <section className="section collaborate-section" aria-labelledby="collaborate-heading">
-        <div className="shell collaborate-layout">
-          <div><h2 id="collaborate-heading">A concrete contribution is better than a broad endorsement.</h2><p>Tell us what you know, what should be corrected and what you would be prepared to test.</p><a className="button amber-button" href="mailto:iml.health@pm.me?subject=IML%20collaboration">Write to iml.health@pm.me</a></div>
-          <div className="audience-grid">
-            <article><span>01</span><h3>Clinicians &amp; country reviewers</h3><p>Test whether profiles reflect real care and flag overstatement, omissions or outdated evidence.</p></article>
-            <article><span>02</span><h3>Universities &amp; researchers</h3><p>Strengthen the method, validation design and scientific critique.</p></article>
-            <article><span>03</span><h3>Institutions &amp; implementers</h3><p>Explore pragmatic pilots without creating another closed dependency.</p></article>
-            <article><span>04</span><h3>Open-source developers</h3><p>Build small, reviewable modules and integration demonstrations.</p></article>
-          </div>
-        </div>
-      </section>
-    </PageFrame>
-  );
-}
-
-function NotFoundPage() {
-  return (
-    <PageFrame active="/">
-      <PageMasthead title="This page is not part of the current IML site." lede="Use the navigation or return to the project home." />
-      <section className="section"><div className="shell"><a className="button primary" href="/">Return to IML Health</a></div></section>
-    </PageFrame>
-  );
-}
-
-export const ROUTES = {
-  "/": {
-    component: HomePage,
-    title: "IML Health — Open Health Information Environment",
-    description: "An open-source clinical workspace and an open integration layer for health information systems.",
-  },
-  "/vision": {
-    component: VisionPage,
-    title: "Vision — IML Health",
-    description: "The purpose, scope and current state of the IML Open Health Information Environment.",
-  },
-  "/identity-trust": {
-    component: IdentityTrustPage,
-    title: "Identity & Trust — IML Health",
-    description: "Identity, consent, provenance and trusted access across fragmented health information systems.",
-  },
-  "/clinical-workspace": {
-    component: ClinicalWorkspacePage,
-    title: "Open Clinical Workspace — IML Health",
-    description: "A modular, open-source and vendor-neutral clinical workspace for progressive deployment.",
-  },
-  "/interoperability": {
-    component: InteroperabilityPage,
-    title: "Interoperability — IML Health",
-    description: "IML's open integration, evidence and learning layer for health information systems.",
-  },
-  "/country-profiles": {
-    component: CountryProfilesPage,
-    title: "Country Profiles — IML Health",
-    description: "Evidence-oriented country interoperability profiles with explicit sources and limitations.",
-  },
-  "/manuscripts": {
-    component: ManuscriptsPage,
-    title: "Manuscripts — IML Health",
-    description: "The founding vision and technical architecture manuscripts of IML Health.",
-  },
-  "/collaborate": {
-    component: CollaboratePage,
-    title: "Collaborate — IML Health",
-    description: "Contribute evidence, clinical review, research or open-source implementation experience to IML Health.",
-  },
-};
-
-const LEGACY_HASHES = {
-  "#id4d": "/identity-trust",
-  "#evaluation": "/interoperability",
-  "#methodology": "/interoperability#methodology",
-  "#world": "/country-profiles",
-  "#profiles": "/country-profiles",
-  "#contact": "/collaborate",
-};
-
-const LEGACY_PATHS = {
-  "/id4d": "/identity-trust",
-  "/evaluation": "/interoperability",
-  "/methodology": "/interoperability#methodology",
-  "/world": "/country-profiles",
-  "/profiles": "/country-profiles",
-  "/contact": "/collaborate",
-};
-
-function cleanPath(pathname) {
-  if (!pathname || pathname === "/") return "/";
-  return pathname.replace(/\/+$/, "") || "/";
-}
-
-function resolveLocation() {
-  const pathname = cleanPath(window.location.pathname);
-  const legacyTarget = LEGACY_PATHS[pathname]
-    || (pathname === "/" ? LEGACY_HASHES[window.location.hash.toLowerCase()] : null);
-  if (!legacyTarget) return { routePath: pathname, canonicalTarget: null };
-  return { routePath: legacyTarget.split("#")[0], canonicalTarget: legacyTarget };
-}
-
-function setMeta(route) {
-  document.title = route.title;
-  let description = document.querySelector('meta[name="description"]');
-  if (!description) {
-    description = document.createElement("meta");
-    description.setAttribute("name", "description");
-    document.head.appendChild(description);
-  }
-  description.setAttribute("content", route.description);
-}
-
-function ensureIdentityTrustLinks(activePath) {
-  document.querySelectorAll(".desktop-nav, .mobile-menu nav").forEach((nav) => {
-    let link = nav.querySelector('a[href="/identity-trust"]');
-    if (!link) {
-      link = document.createElement("a");
-      link.href = "/identity-trust";
-      link.textContent = "Identity & Trust";
-      const visionLink = nav.querySelector('a[href="/vision"]');
-      if (visionLink) visionLink.insertAdjacentElement("afterend", link);
-      else nav.prepend(link);
+  @media (prefers-reduced-motion: reduce) {
+    .value-card,
+    .metric-card,
+    .overview-card,
+    .primary-button,
+    .secondary-button,
+    .nav-button {
+      transition: none;
     }
-    if (activePath === "/identity-trust") link.setAttribute("aria-current", "page");
-    else link.removeAttribute("aria-current");
-  });
+  }
 
-  const projectFooter = [...document.querySelectorAll(".footer-grid > div")]
-    .find((section) => section.querySelector("h3")?.textContent.trim() === "Project");
-  if (projectFooter && !projectFooter.querySelector('a[href="/identity-trust"]')) {
-    const link = document.createElement("a");
-    link.href = "/identity-trust";
-    link.textContent = "Identity & Trust";
-    const visionLink = projectFooter.querySelector('a[href="/vision"]');
-    if (visionLink) visionLink.insertAdjacentElement("afterend", link);
-    else projectFooter.append(link);
+/* =========================================================
+   IML visual refresh — Palier 2
+   Homepage composition and section hierarchy only.
+   No text, route, API, score, source or PostgreSQL change.
+   Append after Palier 1 in src/App.css.
+   ========================================================= */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+}
+
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 999px;
+}
+
+.hero::before {
+  top: 76px;
+  right: -150px;
+  width: 430px;
+  height: 430px;
+  border: 1px solid rgba(36, 111, 120, 0.10);
+  box-shadow:
+    0 0 0 44px rgba(36, 111, 120, 0.025),
+    0 0 0 88px rgba(36, 111, 120, 0.018);
+}
+
+.hero::after {
+  left: 7%;
+  bottom: -78px;
+  width: 156px;
+  height: 156px;
+  background: radial-gradient(
+    circle,
+    rgba(213, 148, 34, 0.10) 0%,
+    rgba(213, 148, 34, 0.035) 44%,
+    transparent 72%
+  );
+}
+
+.hero .hero-grid {
+  grid-template-columns: minmax(0, 1.34fr) minmax(330px, 0.66fr);
+  gap: clamp(38px, 5vw, 76px);
+  align-items: start;
+}
+
+.hero-copy {
+  position: relative;
+  padding-left: clamp(0px, 2.2vw, 26px);
+}
+
+.hero-copy::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  bottom: 8px;
+  left: 0;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    rgba(36, 111, 120, 0.55),
+    rgba(36, 111, 120, 0.09) 58%,
+    transparent
+  );
+}
+
+.hero-copy > .section-badge {
+  margin-bottom: 24px;
+}
+
+.hero-copy > h1 {
+  text-wrap: balance;
+}
+
+.hero-copy > .principle-stack {
+  margin-top: 34px;
+  margin-bottom: 34px;
+}
+
+.hero-copy > .hero-text {
+  margin-top: 0;
+  margin-bottom: 18px;
+}
+
+.hero-copy > .hero-text:first-of-type {
+  color: var(--iml-ink-soft, #294150);
+  font-size: clamp(18px, 1.55vw, 21px);
+  line-height: 1.72;
+}
+
+.hero-copy > .hero-text + .hero-text {
+  max-width: 700px;
+  color: var(--iml-muted, #5a6d78);
+  font-size: 16px;
+}
+
+.hero-copy > .note-box {
+  position: relative;
+  margin-top: 30px;
+  padding: 24px 26px;
+  overflow: hidden;
+}
+
+.hero-copy > .note-box::after {
+  content: "";
+  position: absolute;
+  right: -46px;
+  bottom: -54px;
+  width: 138px;
+  height: 138px;
+  border: 1px solid rgba(36, 111, 120, 0.11);
+  border-radius: 50%;
+}
+
+.hero-copy > .note-box p {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  color: var(--iml-ink-soft, #294150);
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.68;
+}
+
+.hero-copy > .button-row {
+  margin-top: 28px;
+}
+
+.hero-copy > .metric-grid {
+  position: relative;
+  margin-top: 38px;
+  padding-top: 24px;
+}
+
+.hero-copy > .metric-grid::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(36, 111, 120, 0.26),
+    rgba(36, 111, 120, 0.04)
+  );
+}
+
+.hero-copy > .metric-grid .metric-card {
+  min-height: 128px;
+  box-shadow: 0 12px 30px rgba(16, 45, 66, 0.055);
+}
+
+.hero .overview-card {
+  position: sticky;
+  top: 96px;
+  overflow: hidden;
+  min-height: 100%;
+}
+
+.hero .overview-card::before {
+  content: "";
+  position: absolute;
+  top: -100px;
+  right: -85px;
+  width: 230px;
+  height: 230px;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle,
+      rgba(36, 111, 120, 0.11) 0%,
+      rgba(36, 111, 120, 0.035) 48%,
+      transparent 72%
+    );
+  pointer-events: none;
+}
+
+.hero .overview-top {
+  position: relative;
+  z-index: 1;
+  align-items: flex-start;
+  padding-bottom: 23px;
+  border-bottom: 1px solid rgba(36, 111, 120, 0.14);
+}
+
+.hero .overview-title {
+  max-width: 270px;
+  margin-top: 5px;
+  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  font-size: clamp(1.55rem, 2vw, 2.05rem);
+  font-weight: 650;
+  line-height: 1.08;
+}
+
+.hero .overview-card .tile-grid.three-up {
+  position: relative;
+  z-index: 1;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin-top: 8px;
+}
+
+.hero .overview-card .mini-tile {
+  position: relative;
+  border: 0;
+  border-bottom: 1px solid rgba(36, 111, 120, 0.13);
+  border-radius: 0;
+  background: transparent;
+  padding: 23px 6px 23px 42px;
+}
+
+.hero .overview-card .mini-tile:last-child {
+  border-bottom: 0;
+}
+
+.hero .overview-card .mini-tile::before {
+  content: "";
+  position: absolute;
+  top: 28px;
+  left: 7px;
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(36, 111, 120, 0.34);
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle,
+      var(--iml-teal, #246f78) 0 3px,
+      transparent 4px
+    );
+}
+
+.hero .overview-card .mini-tile-title {
+  margin-bottom: 7px;
+  color: var(--iml-navy, #102d42);
+  font-size: 14px;
+  letter-spacing: 0.01em;
+}
+
+.hero .overview-card .mini-tile-text {
+  max-width: 330px;
+  color: var(--iml-muted, #5a6d78);
+  line-height: 1.62;
+}
+
+.hero + .section {
+  position: relative;
+  z-index: 2;
+  padding-top: 0;
+  padding-bottom: 88px;
+  background: transparent;
+}
+
+.hero + .section .container {
+  transform: translateY(-28px);
+}
+
+.hero + .section .soft-card {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(36, 111, 120, 0.18);
+  background:
+    linear-gradient(
+      125deg,
+      rgba(255, 255, 255, 0.98),
+      rgba(235, 244, 245, 0.96)
+    );
+  box-shadow: 0 24px 60px rgba(16, 45, 66, 0.095);
+}
+
+.hero + .section .soft-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(32%, 320px);
+  height: 100%;
+  background:
+    linear-gradient(
+      135deg,
+      transparent,
+      rgba(36, 111, 120, 0.055)
+    );
+  clip-path: polygon(38% 0, 100% 0, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+
+.hero + .section .content-block {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(170px, 0.34fr) minmax(0, 1.66fr);
+  column-gap: clamp(28px, 5vw, 72px);
+  align-items: start;
+  padding: clamp(30px, 4vw, 48px);
+}
+
+.hero + .section .content-block .section-badge {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  justify-self: start;
+  margin: 2px 0 0;
+}
+
+.hero + .section .content-block h3 {
+  grid-column: 2;
+  margin-bottom: 13px;
+  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  font-size: clamp(1.55rem, 2.3vw, 2.25rem);
+  font-weight: 650;
+  line-height: 1.12;
+}
+
+.hero + .section .content-block p {
+  grid-column: 2;
+  max-width: 780px;
+  margin: 0;
+  color: var(--iml-muted, #5a6d78);
+  font-size: 16px;
+  line-height: 1.74;
+}
+
+@media (max-width: 1100px) {
+  .hero .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+
+  .hero .overview-card {
+    position: relative;
+    top: auto;
+    min-height: auto;
+  }
+
+  .hero .overview-card .tile-grid.three-up {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 20px;
+  }
+
+  .hero .overview-card .mini-tile {
+    border: 1px solid rgba(36, 111, 120, 0.13);
+    border-radius: 15px;
+    padding: 20px;
+  }
+
+  .hero .overview-card .mini-tile::before {
+    display: none;
   }
 }
 
-export default function App() {
-  const location = resolveLocation();
-  const route = ROUTES[location.routePath] || {
-    component: NotFoundPage,
-    title: "Page not found — IML Health",
-    description: "The requested IML Health page could not be found.",
-  };
-  const Page = route.component;
+@media (max-width: 820px) {
+  .hero::before {
+    top: 90px;
+    right: -230px;
+  }
 
-  useEffect(() => {
-    setMeta(route);
-    document.body.dataset.imlRoute = location.routePath;
+  .hero-copy {
+    padding-left: 0;
+  }
 
-    if (location.canonicalTarget) {
-      window.history.replaceState({}, "", location.canonicalTarget);
-    }
+  .hero-copy::before {
+    display: none;
+  }
 
-    const fragment = (location.canonicalTarget?.split("#")[1] || window.location.hash.slice(1)).trim();
-    window.requestAnimationFrame(() => {
-      ensureIdentityTrustLinks(location.routePath);
-      if (fragment && document.getElementById(fragment)) {
-        document.getElementById(fragment).scrollIntoView();
-      } else {
-        window.scrollTo(0, 0);
-      }
-    });
+  .hero-copy > .principle-stack {
+    margin-top: 28px;
+    margin-bottom: 28px;
+  }
 
-    return () => {
-      delete document.body.dataset.imlRoute;
-    };
-  }, [location.canonicalTarget, location.routePath, route]);
+  .hero-copy > .metric-grid {
+    margin-top: 30px;
+  }
 
-  return (
-    <>
-      <style>{REFERENCE_ADJUSTMENTS}</style>
-      <Page />
-    </>
-  );
+  .hero .overview-card .tile-grid.three-up {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .hero .overview-card .mini-tile {
+    border: 0;
+    border-bottom: 1px solid rgba(36, 111, 120, 0.13);
+    border-radius: 0;
+    padding: 20px 4px;
+  }
+
+  .hero + .section {
+    padding-bottom: 62px;
+  }
+
+  .hero + .section .container {
+    transform: translateY(-16px);
+  }
+
+  .hero + .section .content-block {
+    grid-template-columns: 1fr;
+    gap: 13px;
+    padding: 27px 24px;
+  }
+
+  .hero + .section .content-block .section-badge,
+  .hero + .section .content-block h3,
+  .hero + .section .content-block p {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .hero + .section .content-block .section-badge {
+    margin-bottom: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero + .section .container {
+    transform: none;
+  }
+}
+
+/* =========================================================
+   IML visual refresh — Palier 3
+   World Map, country profiles and evidence presentation only.
+   No text, route, API, score, source or PostgreSQL change.
+   Append after Paliers 1 and 2 in src/App.css.
+   ========================================================= */
+
+/* ---------- Global Map frame ---------- */
+
+.world-box {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-color: rgba(36, 111, 120, 0.18);
+  background:
+    radial-gradient(circle at 82% 14%, rgba(36, 111, 120, 0.10), transparent 24rem),
+    linear-gradient(180deg, #fbfdfe 0%, #edf4f5 100%);
+  box-shadow:
+    0 28px 72px rgba(16, 45, 66, 0.11),
+    inset 0 1px 0 rgba(255,255,255,0.92);
+}
+
+.world-box::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -170px;
+  right: -160px;
+  width: 390px;
+  height: 390px;
+  border: 1px solid rgba(36, 111, 120, 0.11);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 44px rgba(36, 111, 120, 0.025),
+    0 0 0 88px rgba(36, 111, 120, 0.015);
+  pointer-events: none;
+}
+
+.world-box-head {
+  position: relative;
+  z-index: 2;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  padding: 4px 4px 18px;
+  border-bottom: 1px solid rgba(36, 111, 120, 0.14);
+}
+
+.world-box-head .overview-title {
+  margin-top: 4px;
+  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  color: var(--iml-navy, #102d42);
+  font-size: clamp(1.42rem, 2vw, 2rem);
+  font-weight: 650;
+  line-height: 1.1;
+}
+
+.world-box-head .helper-pill {
+  max-width: 310px;
+  border-color: rgba(36, 111, 120, 0.18);
+  background: rgba(255,255,255,0.74);
+  color: var(--iml-muted, #5a6d78);
+  line-height: 1.45;
+  backdrop-filter: blur(10px);
+}
+
+.world-map-wrap {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(36, 111, 120, 0.13);
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.76), rgba(238,246,247,0.92));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.90),
+    inset 0 -22px 60px rgba(16, 45, 66, 0.035);
+}
+
+.world-map {
+  display: block;
+  filter: saturate(0.94) contrast(1.015);
+}
+
+.country-shape {
+  transition:
+    fill 160ms ease,
+    stroke 160ms ease,
+    opacity 160ms ease,
+    filter 160ms ease,
+    transform 160ms ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.country-shape:not(.country-shape-profile) {
+  opacity: 0.82;
+}
+
+.country-shape-profile {
+  opacity: 1;
+}
+
+.country-shape:hover,
+.country-shape:focus-visible {
+  opacity: 1;
+  filter: brightness(0.98) saturate(1.08);
+}
+
+.country-shape-profile:hover,
+.country-shape-profile:focus-visible {
+  stroke: var(--iml-navy, #102d42);
+  stroke-width: 1.45;
+}
+
+.country-shape-selected {
+  filter:
+    drop-shadow(0 0 6px rgba(213, 148, 34, 0.55))
+    drop-shadow(0 8px 13px rgba(146, 64, 14, 0.15));
+}
+
+.map-tooltip-floating {
+  overflow: hidden;
+  min-width: 168px;
+  border-color: rgba(36, 111, 120, 0.20);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.96);
+  padding: 11px 13px;
+  box-shadow: 0 18px 44px rgba(16,45,66,0.17);
+  backdrop-filter: blur(12px);
+}
+
+.map-tooltip-floating::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--iml-teal, #246f78);
+}
+
+.map-tooltip-floating strong {
+  color: var(--iml-navy, #102d42);
+  font-size: 13px;
+}
+
+.map-tooltip-floating span {
+  margin-top: 2px;
+  color: var(--iml-muted, #5a6d78);
+  font-size: 11px;
+}
+
+.map-legend {
+  position: relative;
+  z-index: 2;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 0 3px 2px;
+  color: var(--iml-muted, #5a6d78);
+}
+
+.legend-swatches {
+  flex: 1 1 180px;
+  max-width: 220px;
+  border-color: rgba(36, 111, 120, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.62);
+}
+
+.legend-selected {
+  margin-left: auto;
+  color: #8a4c08;
+  font-size: 11px;
+}
+
+.legend-selected-swatch {
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+}
+
+/* ---------- Selected country profile ---------- */
+
+.profile-grid {
+  align-items: start;
+  gap: 24px;
+}
+
+.profile-grid > .card:first-child {
+  position: sticky;
+  top: 92px;
+  overflow: hidden;
+  border-color: rgba(36, 111, 120, 0.18);
+  background:
+    radial-gradient(circle at 82% 8%, rgba(36, 111, 120, 0.09), transparent 17rem),
+    linear-gradient(160deg, #ffffff 0%, #f5f9fa 100%);
+}
+
+.profile-grid > .card:first-child::after {
+  content: "";
+  position: absolute;
+  right: -56px;
+  bottom: -72px;
+  width: 180px;
+  height: 180px;
+  border: 1px solid rgba(36, 111, 120, 0.10);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.profile-grid > .card:first-child .content-block {
+  position: relative;
+  z-index: 1;
+}
+
+.profile-head {
+  align-items: flex-start;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(36, 111, 120, 0.13);
+}
+
+.profile-title-row {
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.profile-title-row h3 {
+  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  color: var(--iml-navy, #102d42);
+  font-size: clamp(1.8rem, 2.8vw, 2.7rem);
+  font-weight: 650;
+  line-height: 1.04;
+}
+
+.score-pill {
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 8px 18px rgba(16,45,66,0.14);
+}
+
+.profile-grid .muted-copy {
+  margin-top: 18px;
+  margin-bottom: 6px;
+  color: var(--iml-muted, #5a6d78);
+  line-height: 1.68;
+}
+
+.hex-chart {
+  max-width: 420px;
+  margin-top: 10px;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 10px 22px rgba(16,45,66,0.045));
+}
+
+.profile-stat-grid {
+  gap: 9px;
+  margin-top: 6px;
+}
+
+.profile-stat {
+  position: relative;
+  overflow: hidden;
+  min-height: 58px;
+  border-color: rgba(36, 111, 120, 0.14);
+  background: rgba(255,255,255,0.77);
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.profile-stat::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: rgba(36, 111, 120, 0.50);
+}
+
+.profile-stat:hover {
+  transform: translateY(-1px);
+  border-color: rgba(36, 111, 120, 0.28);
+  box-shadow: 0 9px 22px rgba(16,45,66,0.075);
+}
+
+.profile-stat span {
+  color: var(--iml-muted, #5a6d78);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+}
+
+.profile-stat strong {
+  color: var(--iml-navy, #102d42);
+  font-size: 18px;
+}
+
+/* ---------- Evidence and supporting cards ---------- */
+
+.profile-grid > .stack-layout {
+  gap: 18px;
+}
+
+.profile-grid > .stack-layout > .card {
+  border-radius: 18px;
+  box-shadow: 0 14px 34px rgba(16,45,66,0.06);
+}
+
+.profile-grid > .stack-layout > .card:nth-child(2) {
+  border-left: 4px solid rgba(36, 111, 120, 0.62);
+}
+
+.profile-grid > .stack-layout > .card:nth-child(3) {
+  border-left: 4px solid rgba(213, 148, 34, 0.62);
+}
+
+.database-stat-grid {
+  gap: 10px;
+}
+
+.database-stat {
+  min-height: 62px;
+  border-color: rgba(36, 111, 120, 0.14);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.82);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.88);
+}
+
+.database-stat span {
+  color: var(--iml-muted, #5a6d78);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+}
+
+.database-stat strong {
+  color: var(--iml-navy, #102d42);
+  font-size: 21px;
+}
+
+.evidence-level-row,
+.source-audit-line {
+  gap: 7px;
+}
+
+.evidence-level-row span,
+.source-audit-line span {
+  border-color: rgba(36, 111, 120, 0.16);
+  background: var(--iml-teal-soft, #dcebed);
+  color: var(--iml-teal, #246f78);
+}
+
+.profile-grid details.list-box {
+  overflow: hidden;
+  border-color: rgba(36, 111, 120, 0.15);
+  border-radius: 15px;
+  background: rgba(255,255,255,0.80);
+  padding: 0;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
+}
+
+.profile-grid details.list-box[open] {
+  border-color: rgba(36, 111, 120, 0.28);
+  background: #ffffff;
+  box-shadow: 0 14px 32px rgba(16,45,66,0.075);
+}
+
+.profile-grid details.list-box > summary {
+  position: relative;
+  list-style: none;
+  padding: 17px 48px 17px 18px;
+  color: var(--iml-navy, #102d42);
+  line-height: 1.45;
+}
+
+.profile-grid details.list-box > summary::-webkit-details-marker {
+  display: none;
+}
+
+.profile-grid details.list-box > summary::after {
+  content: "+";
+  position: absolute;
+  top: 50%;
+  right: 17px;
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  transform: translateY(-50%);
+  border: 1px solid rgba(36, 111, 120, 0.18);
+  border-radius: 50%;
+  background: rgba(255,255,255,0.80);
+  color: var(--iml-teal, #246f78);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.profile-grid details.list-box[open] > summary::after {
+  content: "−";
+}
+
+.profile-grid details.list-box > .top-gap-small {
+  margin-top: 0;
+  padding: 0 18px 18px;
+  border-top: 1px solid rgba(36, 111, 120, 0.11);
+}
+
+.profile-grid details.list-box .mini-tile {
+  border-color: rgba(36, 111, 120, 0.13);
+  background: #f7fafb;
+}
+
+.profile-grid details.list-box .button-row {
+  margin-top: 16px;
+}
+
+/* ---------- Explanation report entry point ---------- */
+
+.country-report {
+  border-color: rgba(36, 111, 120, 0.18);
+  border-radius: 18px;
+  box-shadow: 0 16px 38px rgba(16,45,66,0.075);
+}
+
+.country-report > summary {
+  position: relative;
+  overflow: hidden;
+  padding: 22px 78px 22px 26px;
+  background:
+    linear-gradient(120deg, rgba(255,255,255,0.98), rgba(235,244,245,0.94));
+  color: var(--iml-navy, #102d42);
+}
+
+.country-report > summary::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--iml-teal, #246f78);
+}
+
+.country-report > summary::after {
+  right: 22px;
+  background: var(--iml-navy, #102d42);
+  box-shadow: 0 7px 18px rgba(16,45,66,0.14);
+}
+
+.country-report[open] > summary {
+  background: #f3f8f8;
+}
+
+.report-body {
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f8fbfb 100%);
+}
+
+.report-heading {
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(36, 111, 120, 0.14);
+}
+
+.report-heading h2 {
+  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  color: var(--iml-navy, #102d42);
+}
+
+.report-domain,
+.report-source {
+  border-color: rgba(36, 111, 120, 0.14);
+  border-radius: 15px;
+  box-shadow: 0 8px 22px rgba(16,45,66,0.04);
+}
+
+.report-domain {
+  background: #f5f9fa;
+}
+
+.report-disclaimer {
+  border-left-color: var(--iml-teal, #246f78);
+  color: var(--iml-muted, #5a6d78);
+}
+
+/* ---------- Empty country state ---------- */
+
+.map-empty {
+  position: relative;
+  overflow: hidden;
+  min-height: 210px;
+}
+
+.map-empty::after {
+  content: "";
+  position: absolute;
+  right: -66px;
+  bottom: -76px;
+  width: 190px;
+  height: 190px;
+  border: 1px solid rgba(36, 111, 120, 0.12);
+  border-radius: 50%;
+}
+
+/* ---------- Responsive behaviour ---------- */
+
+@media (max-width: 1100px) {
+  .profile-grid > .card:first-child {
+    position: relative;
+    top: auto;
+  }
+
+  .map-legend {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .legend-selected {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 820px) {
+  .world-box {
+    padding: 14px;
+    border-radius: 19px;
+  }
+
+  .world-box-head {
+    padding-bottom: 14px;
+  }
+
+  .world-map-wrap {
+    border-radius: 15px;
+  }
+
+  .map-tooltip-floating {
+    display: none;
+  }
+
+  .map-legend {
+    gap: 8px;
+    font-size: 10px;
+  }
+
+  .legend-swatches {
+    order: 3;
+    flex-basis: 100%;
+    max-width: none;
+  }
+
+  .profile-grid > .card:first-child .content-block {
+    padding: 22px;
+  }
+
+  .profile-title-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .profile-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .country-report > summary {
+    align-items: flex-start;
+    padding: 19px 72px 19px 20px;
+    line-height: 1.4;
+  }
+
+  .report-body {
+    padding: 22px;
+  }
+}
+
+@media (max-width: 520px) {
+  .profile-stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .database-stat-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .country-shape,
+  .profile-stat,
+  .profile-grid details.list-box {
+    transition: none;
+  }
+}
+
+/* =========================================================
+   IML visual refresh — Palier 4
+   Responsive refinement, accessibility and final polish.
+   CSS only. No text, route, API, score, source or database change.
+   ========================================================= */
+
+/* ---------- Global resilience ---------- */
+
+:root {
+  color-scheme: light;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  min-width: 320px;
+  scroll-padding-top: 96px;
+}
+
+body {
+  min-width: 320px;
+  overflow-x: hidden;
+}
+
+.app-shell {
+  min-height: 100dvh;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+button,
+a,
+select,
+summary {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+.nav-button,
+.primary-button,
+.secondary-button,
+.brand-button,
+.text-link,
+.country-shape,
+.country-report > summary,
+.profile-grid details.list-box > summary {
+  touch-action: manipulation;
+}
+
+h1,
+h2,
+h3,
+p,
+li,
+a,
+span {
+  overflow-wrap: anywhere;
+}
+
+.section,
+.hero,
+.country-report,
+.world-box {
+  scroll-margin-top: 96px;
+}
+
+::selection {
+  background: rgba(36, 111, 120, 0.20);
+  color: var(--iml-navy, #102d42);
+}
+
+/* ---------- Keyboard focus ---------- */
+
+:where(
+  button,
+  a,
+  select,
+  textarea,
+  input,
+  summary,
+  [tabindex]:not([tabindex="-1"])
+):focus {
+  outline: none;
+}
+
+:where(
+  button,
+  a,
+  select,
+  textarea,
+  input,
+  summary,
+  [tabindex]:not([tabindex="-1"])
+):focus-visible {
+  outline: 3px solid rgba(36, 111, 120, 0.42);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(220, 235, 237, 0.76);
+}
+
+.country-shape:focus-visible {
+  outline: none;
+  stroke: var(--iml-navy, #102d42);
+  stroke-width: 2.2;
+  filter:
+    drop-shadow(0 0 4px rgba(36, 111, 120, 0.44))
+    brightness(0.98);
+}
+
+.text-link {
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+
+.text-link:focus-visible {
+  border-radius: 4px;
+}
+
+/* ---------- Header and navigation ---------- */
+
+.topbar {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.topbar-inner {
+  min-height: 72px;
+}
+
+.brand-button {
+  min-height: 48px;
+  border-radius: 14px;
+}
+
+.nav-button,
+.primary-button,
+.secondary-button {
+  min-height: 44px;
+}
+
+.mobile-nav {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(36, 111, 120, 0.35) transparent;
+  overscroll-behavior-x: contain;
+}
+
+.mobile-nav::-webkit-scrollbar {
+  height: 5px;
+}
+
+.mobile-nav::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(36, 111, 120, 0.28);
+}
+
+.mobile-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---------- Interaction polish ---------- */
+
+.primary-button,
+.secondary-button,
+.nav-button,
+.card,
+.profile-stat,
+.database-stat,
+.mini-tile {
+  will-change: auto;
+}
+
+.primary-button:active,
+.secondary-button:active,
+.nav-button:active {
+  transform: translateY(0);
+}
+
+.brand-button:hover .logo-box {
+  border-color: rgba(36, 111, 120, 0.30);
+  box-shadow: 0 12px 28px rgba(16, 45, 66, 0.11);
+}
+
+.card,
+.world-box,
+.country-report,
+.list-box,
+.mini-tile,
+.database-stat,
+.profile-stat {
+  backface-visibility: hidden;
+}
+
+.mail-box,
+.code-box,
+.list-box,
+.report-source-meta,
+.report-domain p,
+.report-source,
+.mini-tile-text {
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Form and control clarity ---------- */
+
+select,
+input,
+textarea {
+  min-height: 44px;
+}
+
+select:hover,
+input:hover,
+textarea:hover {
+  border-color: rgba(36, 111, 120, 0.34);
+}
+
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  border-color: var(--iml-teal, #246f78);
+}
+
+button:disabled,
+.primary-button[aria-disabled="true"],
+.secondary-button[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ---------- Reading comfort ---------- */
+
+.content-block p,
+.hero-text,
+.section-heading p,
+.footer-copy,
+.mini-tile-text,
+.report-domain p,
+.report-domain-evidence li,
+.report-source-meta,
+.plain-list li,
+.compact-list li {
+  hanging-punctuation: first last;
+}
+
+.plain-list li + li,
+.compact-list li + li {
+  margin-top: 5px;
+}
+
+.report-section h3,
+.content-block h3,
+.value-card h3 {
+  text-wrap: balance;
+}
+
+.report-source-title,
+.mini-tile-title,
+.metric-title,
+.profile-stat span,
+.database-stat span {
+  line-height: 1.35;
+}
+
+/* ---------- Tablet refinement ---------- */
+
+@media (max-width: 1100px) {
+  .topbar-inner {
+    min-height: 68px;
+  }
+
+  .hero-grid,
+  .split-grid,
+  .profile-grid {
+    gap: 24px;
+  }
+
+  .hero .overview-card {
+    max-width: none;
+  }
+
+  .profile-grid > .stack-layout {
+    gap: 16px;
+  }
+
+  .world-box-head {
+    gap: 14px;
+  }
+
+  .report-heading {
+    gap: 14px;
+  }
+}
+
+/* ---------- Mobile refinement ---------- */
+
+@media (max-width: 820px) {
+  html {
+    scroll-padding-top: 138px;
+  }
+
+  .section,
+  .hero,
+  .country-report,
+  .world-box {
+    scroll-margin-top: 138px;
+  }
+
+  .topbar {
+    backdrop-filter: blur(14px);
+  }
+
+  .topbar-inner {
+    min-height: 64px;
+    padding: 10px 0 8px;
+  }
+
+  .logo-box {
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+  }
+
+  .logo-svg {
+    width: 42px;
+    height: 42px;
+  }
+
+  .brand-title {
+    max-width: 190px;
+    font-size: 12px;
+    line-height: 1.25;
+  }
+
+  .mobile-nav {
+    gap: 7px;
+    padding: 0 0 10px;
+    flex-wrap: nowrap;
+  }
+
+  .mobile-nav .nav-button {
+    flex: 0 0 auto;
+    min-height: 40px;
+    padding: 8px 12px;
+    white-space: nowrap;
+  }
+
+  .container {
+    width: min(100% - 28px, 1220px);
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2.45rem, 11vw, 3.45rem);
+    line-height: 1.01;
+  }
+
+  .hero-text,
+  .section-heading p {
+    font-size: 16px;
+    line-height: 1.68;
+  }
+
+  .section-heading h2 {
+    font-size: clamp(2rem, 9vw, 2.75rem);
+  }
+
+  .card,
+  .world-box,
+  .country-report {
+    border-radius: 18px;
+  }
+
+  .content-block,
+  .overview-card,
+  .report-body {
+    padding: 23px;
+  }
+
+  .button-row,
+  .form-actions {
+    align-items: stretch;
+  }
+
+  .button-row .primary-button,
+  .button-row .secondary-button,
+  .form-actions .primary-button,
+  .form-actions .secondary-button {
+    flex: 1 1 220px;
+    text-align: center;
+  }
+
+  .metric-grid.two-up,
+  .tile-grid,
+  .tile-grid.three-up,
+  .form-grid,
+  .report-score-grid {
+    gap: 14px;
+  }
+
+  .metric-card {
+    min-height: auto;
+    padding: 20px;
+  }
+
+  .metric-value {
+    font-size: 24px;
+  }
+
+  .world-box-head {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .world-box-head .helper-pill {
+    display: none;
+  }
+
+  .world-map-wrap {
+    min-height: 250px;
+    aspect-ratio: 16 / 10;
+  }
+
+  .world-map {
+    min-width: 680px;
+    transform: translateX(-11%);
+  }
+
+  .world-map-wrap {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(36, 111, 120, 0.28) transparent;
+  }
+
+  .world-map-wrap::-webkit-scrollbar {
+    height: 5px;
+  }
+
+  .world-map-wrap::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgba(36, 111, 120, 0.28);
+  }
+
+  .map-legend {
+    align-items: flex-start;
+  }
+
+  .profile-grid > .card:first-child {
+    position: relative;
+  }
+
+  .profile-stat-grid,
+  .database-stat-grid {
+    gap: 8px;
+  }
+
+  .profile-stat,
+  .database-stat {
+    min-height: 54px;
+  }
+
+  .country-report > summary {
+    min-height: 64px;
+  }
+
+  .report-heading h2 {
+    font-size: 1.75rem;
+  }
+
+  .report-overall {
+    min-width: 98px;
+    padding: 12px 14px;
+  }
+
+  .report-overall strong {
+    font-size: 1.45rem;
+  }
+
+  .footer {
+    margin-top: 22px;
+  }
+
+  .footer-grid {
+    gap: 22px;
+    padding: 30px 0 calc(30px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ---------- Small phones ---------- */
+
+@media (max-width: 520px) {
+  .container {
+    width: min(100% - 22px, 1220px);
+  }
+
+  .hero-grid {
+    padding-top: 44px;
+    padding-bottom: 52px;
+  }
+
+  .section {
+    padding-top: 52px;
+    padding-bottom: 52px;
+  }
+
+  .section-badge {
+    max-width: 100%;
+    white-space: normal;
+    line-height: 1.35;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(2.18rem, 12vw, 3rem);
+  }
+
+  .principle-line {
+    font-size: 11px;
+  }
+
+  .content-block,
+  .overview-card,
+  .report-body {
+    padding: 20px;
+  }
+
+  .metric-card {
+    align-items: flex-start;
+  }
+
+  .metric-symbol {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+
+  .primary-button,
+  .secondary-button {
+    width: 100%;
+  }
+
+  .world-box {
+    padding: 10px;
+  }
+
+  .world-map {
+    min-width: 620px;
+    transform: translateX(-14%);
+  }
+
+  .map-legend {
+    font-size: 9px;
+  }
+
+  .legend-selected {
+    width: 100%;
+  }
+
+  .profile-title-row h3 {
+    font-size: 2rem;
+  }
+
+  .profile-stat-grid,
+  .database-stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-grid details.list-box > summary {
+    padding-left: 15px;
+  }
+
+  .country-report > summary {
+    padding-left: 18px;
+    font-size: 14px;
+  }
+
+  .report-body {
+    padding: 18px;
+  }
+
+  .mail-box {
+    font-size: 14px;
+  }
+}
+
+/* ---------- Very narrow screens ---------- */
+
+@media (max-width: 370px) {
+  .brand-title {
+    display: none;
+  }
+
+  .hero-copy h1 {
+    font-size: 2.05rem;
+  }
+
+  .content-block,
+  .overview-card,
+  .report-body {
+    padding: 17px;
+  }
+
+  .mobile-nav .nav-button {
+    padding-inline: 10px;
+    font-size: 12px;
+  }
+}
+
+/* ---------- Touch devices ---------- */
+
+@media (hover: none) and (pointer: coarse) {
+  .value-card:hover,
+  .metric-card:hover,
+  .overview-card:hover,
+  .profile-stat:hover,
+  .primary-button:hover,
+  .secondary-button:hover {
+    transform: none;
+  }
+
+  .country-shape:hover {
+    filter: none;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---------- Increased contrast ---------- */
+
+@media (prefers-contrast: more) {
+  :root {
+    --iml-muted: #3f505a;
+    --iml-line: #aebfc7;
+  }
+
+  .card,
+  .world-box,
+  .country-report,
+  .list-box,
+  .mini-tile,
+  .database-stat,
+  .profile-stat {
+    border-width: 2px;
+  }
+
+  .text-link {
+    text-decoration-thickness: 2px;
+  }
+
+  .nav-button-active,
+  .primary-button,
+  .score-pill,
+  .report-domain-score,
+  .report-overall {
+    background: #071d2b;
+  }
+}
+
+/* ---------- Forced colours ---------- */
+
+@media (forced-colors: active) {
+  .card,
+  .world-box,
+  .country-report,
+  .list-box,
+  .mini-tile,
+  .database-stat,
+  .profile-stat,
+  .logo-box,
+  .mail-box {
+    border: 1px solid CanvasText;
+    box-shadow: none;
+  }
+
+  .nav-button,
+  .primary-button,
+  .secondary-button,
+  .score-pill,
+  .report-domain-score,
+  .report-overall {
+    forced-color-adjust: auto;
+  }
+
+  .country-shape {
+    forced-color-adjust: auto;
+  }
 }
