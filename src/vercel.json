@@ -1,0 +1,20 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    { "source": "/world", "destination": "/country-profiles", "permanent": true },
+    { "source": "/profiles", "destination": "/country-profiles", "permanent": true },
+    { "source": "/contact", "destination": "/collaborate", "permanent": true },
+    { "source": "/evaluation", "destination": "/interoperability", "permanent": true },
+    { "source": "/methodology", "destination": "/interoperability#methodology", "permanent": true },
+    { "source": "/id4d", "destination": "/identity-trust", "permanent": true }
+  ],
+  "rewrites": [
+    { "source": "/vision", "destination": "/index.html" },
+    { "source": "/identity-trust", "destination": "/index.html" },
+    { "source": "/clinical-workspace", "destination": "/index.html" },
+    { "source": "/interoperability", "destination": "/index.html" },
+    { "source": "/country-profiles", "destination": "/index.html" },
+    { "source": "/manuscripts", "destination": "/index.html" },
+    { "source": "/collaborate", "destination": "/index.html" }
+  ]
+}
