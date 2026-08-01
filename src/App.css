@@ -1,385 +1,1256 @@
-:root {
-  --font-inter: Inter;
-  --font-source-serif: "Source Serif 4";
-  --paper: #f4efe4;
-  --light: #fbf8f1;
-  --navy: #13283a;
-  --soft: #334a5b;
-  --teal: #2e6f6a;
-  --teal-deep: #245b57;
-  --teal-wash: #dfece8;
-  --amber: #e2a647;
-  --graphite: #54514b;
-  --line: #d8cdbb;
-  --shadow: 0 20px 60px rgba(19, 40, 58, .09);
+import { useEffect, useMemo, useState } from "react";
+import worldCountries from "./world-countries.json";
+import logoImage from "./assets/iml-logo.png";
+import heroLampImage from "./assets/hero-lamp-editorial.png";
+
+const BASE_URL = import.meta.env.BASE_URL || "/";
+
+const clinicalModules = [
+  ["Patient identity", "Reliable identification, duplicate prevention and correction."],
+  ["Consultation & terminology", "A coherent encounter record that preserves local clinical language."],
+  ["Laboratories & results", "Structured requests and traceable results with explicit provenance."],
+  ["Audit & correction", "Attributable actions and visible, safely propagated corrections."],
+];
+
+const navigation = [
+  { href: "/vision", label: "Vision" },
+  { href: "/identity-trust", label: "Identity & Trust" },
+  { href: "/clinical-workspace", label: "Clinical Workspace" },
+  { href: "/interoperability", label: "Interoperability" },
+  { href: "/country-profiles", label: "Country Profiles" },
+  { href: "/manuscripts", label: "Manuscripts" },
+  { href: "/collaborate", label: "Collaborate" },
+];
+
+function SiteHeader({ active, home }) {
+  return (
+    <header className="site-header">
+      <div className="shell header-inner">
+        <a className={`brand${home ? " brand-home" : ""}`} href="/" aria-label="IML Health home">
+          <span className="brand-mark" aria-hidden="true">
+            <img src={logoImage} alt="" width="54" height="64" />
+          </span>
+          <span className="brand-copy">
+            <strong>IML Health</strong>
+            <span>Open Health Information Environment</span>
+          </span>
+        </a>
+        <nav className="desktop-nav" aria-label="Primary navigation">
+          {navigation.map((item) => (
+            <a href={item.href} key={item.href} aria-current={active === item.href ? "page" : undefined}>{item.label}</a>
+          ))}
+        </nav>
+        <details className="mobile-menu">
+          <summary>Menu</summary>
+          <nav aria-label="Mobile navigation">
+            <a href="/" aria-current={active === "/" ? "page" : undefined}>Home</a>
+            {navigation.map((item) => (
+              <a href={item.href} key={item.href} aria-current={active === item.href ? "page" : undefined}>{item.label}</a>
+            ))}
+          </nav>
+        </details>
+      </div>
+    </header>
+  );
 }
 
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: 96px; }
-body { margin: 0; min-width: 320px; background: var(--paper); color: var(--navy); font-family: var(--font-inter), Inter, ui-sans-serif, system-ui, sans-serif; text-rendering: optimizeLegibility; }
-#root { min-height: 100vh; }
-a { color: inherit; text-decoration: none; }
-img { display: block; max-width: 100%; }
-.shell { width: min(1360px, calc(100% - 72px)); margin-inline: auto; }
-.skip-link { position: fixed; top: 12px; left: 12px; z-index: 100; transform: translateY(-160%); border-radius: 999px; background: var(--navy); color: white; padding: 12px 18px; font-weight: 700; }
-.skip-link:focus { transform: translateY(0); }
-:where(a, summary):focus-visible { outline: 3px solid color-mix(in srgb, var(--teal) 56%, white); outline-offset: 4px; }
-
-.site-header { position: sticky; top: 0; z-index: 50; border-bottom: 1px solid color-mix(in srgb, var(--line) 80%, transparent); background: color-mix(in srgb, var(--light) 92%, transparent); backdrop-filter: blur(18px); }
-.header-inner { min-height: 112px; display: flex; align-items: center; justify-content: space-between; gap: 30px; }
-.brand { min-width: 320px; display: inline-flex; align-items: center; gap: 14px; }
-.brand-home { min-width: 230px; gap: 0; }
-.brand-mark { width: 64px; height: 72px; display: grid; place-items: center; flex: 0 0 auto; overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: var(--light); box-shadow: 0 7px 22px rgba(19,40,58,.06); }
-.brand-mark img { width: 54px; height: 64px; object-fit: contain; }
-.brand-copy { display: grid; gap: 2px; }
-.brand-copy strong { font-family: var(--font-source-serif), Georgia, serif; font-size: clamp(1.55rem, 2vw, 2.2rem); font-weight: 600; letter-spacing: -.025em; line-height: 1; }
-.brand-copy span { color: var(--teal); font-size: .79rem; font-weight: 600; }
-.desktop-nav { display: flex; align-items: center; gap: clamp(16px, 2.1vw, 34px); }
-.desktop-nav a { position: relative; padding-block: 12px; color: var(--soft); font-size: .87rem; font-weight: 650; }
-.desktop-nav a::after { position: absolute; right: 0; bottom: 4px; left: 0; height: 2px; content: ""; transform: scaleX(0); transform-origin: left; background: var(--teal); transition: transform 180ms ease-out; }
-.desktop-nav a:hover::after, .desktop-nav a:focus-visible::after { transform: scaleX(1); }
-.desktop-nav a[aria-current="page"] { color: var(--navy); }
-.desktop-nav a[aria-current="page"]::after { transform: scaleX(1); }
-.mobile-menu { display: none; position: relative; }
-.mobile-menu summary { cursor: pointer; list-style: none; border: 1px solid var(--line); border-radius: 999px; padding: 10px 16px; font-weight: 700; }
-.mobile-menu summary::-webkit-details-marker { display: none; }
-.mobile-menu nav { position: absolute; right: 0; top: calc(100% + 12px); width: min(300px, calc(100vw - 32px)); display: grid; overflow: hidden; border: 1px solid var(--line); border-radius: 18px; background: var(--light); box-shadow: var(--shadow); }
-.mobile-menu nav a { padding: 14px 18px; border-bottom: 1px solid var(--line); font-weight: 650; }
-.mobile-menu nav a[aria-current="page"] { background: var(--teal-wash); color: var(--teal-deep); }
-
-.page-masthead { overflow: hidden; border-bottom: 1px solid var(--line); background: radial-gradient(circle at 88% 18%, rgba(226,166,71,.16), transparent 25rem), linear-gradient(145deg, var(--light), var(--paper)); }
-.page-masthead-grid { min-height: 430px; display: grid; grid-template-columns: minmax(0,1.25fr) minmax(300px,.75fr); align-items: end; gap: clamp(50px,9vw,145px); padding-block: clamp(70px,8vw,118px); }
-.page-masthead .back-home { width: fit-content; display: block; margin-bottom: 36px; border-bottom: 1px solid currentColor; color: var(--teal-deep); padding-bottom: 3px; font-size: .78rem; font-weight: 750; }
-.page-masthead .eyebrow { margin-bottom: 20px; }
-.page-masthead h1 { max-width: 950px; margin: 0; font-family: var(--font-source-serif), Georgia, serif; font-size: clamp(3.3rem,5.8vw,6.35rem); font-weight: 600; letter-spacing: -.052em; line-height: .95; text-wrap: balance; }
-.page-masthead-grid > p { margin: 0; color: var(--soft); font-size: clamp(1.03rem,1.3vw,1.22rem); line-height: 1.75; }
-
-.hero { position: relative; overflow: hidden; border-bottom: 1px solid var(--line); background: radial-gradient(circle at 78% 55%, rgba(226,166,71,.1), transparent 29rem), linear-gradient(145deg, var(--light), var(--paper) 64%, #efe6d8); }
-.hero::before { position: absolute; inset: 0; pointer-events: none; content: ""; opacity: .22; background-image: radial-gradient(rgba(84,81,75,.18) .55px, transparent .55px); background-size: 5px 5px; mask-image: linear-gradient(90deg, black, transparent 48%, black); }
-.hero-grid { position: relative; min-height: 690px; display: grid; grid-template-columns: minmax(0, 1.02fr) minmax(460px, .98fr); align-items: center; gap: clamp(44px, 6vw, 92px); padding-block: 72px 54px; }
-.hero-copy { position: relative; z-index: 2; }
-.eyebrow, .section-kicker { width: fit-content; margin: 0 0 22px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,253,248,.64); color: var(--teal); padding: 8px 14px; font-size: .72rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
-.hero h1 { max-width: 750px; margin: 0; font-family: var(--font-source-serif), Georgia, serif; font-size: clamp(3.6rem, 5.45vw, 5.75rem); font-weight: 600; letter-spacing: -.052em; line-height: .98; text-wrap: balance; }
-.hero-lede { max-width: 660px; margin: 28px 0 0; color: var(--soft); font-size: clamp(1.08rem, 1.35vw, 1.28rem); line-height: 1.62; }
-.hero-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 30px; }
-.button { min-height: 52px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid transparent; border-radius: 12px; padding: 14px 24px; font-size: .97rem; font-weight: 750; transition: transform 180ms ease-out, background 180ms ease-out, box-shadow 180ms ease-out; }
-.button:hover { transform: translateY(-2px); }
-.primary { background: var(--teal); color: white; box-shadow: 0 12px 28px rgba(46,111,106,.2); }
-.primary:hover { background: var(--teal-deep); }
-.secondary { border-color: var(--teal); background: rgba(251,248,241,.72); color: var(--teal-deep); }
-.secondary:hover { background: var(--teal-wash); }
-.hero-paths { max-width: 770px; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; margin-top: 34px; }
-.path-card { min-height: 124px; display: flex; align-items: flex-start; gap: 16px; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,253,248,.72); padding: 20px; box-shadow: 0 9px 24px rgba(19,40,58,.035); transition: transform 200ms ease-out, border-color 200ms ease-out, box-shadow 200ms ease-out; }
-.path-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--teal) 42%, var(--line)); box-shadow: 0 16px 38px rgba(19,40,58,.08); }
-.path-number { width: 42px; height: 42px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 50%; background: var(--teal-wash); color: var(--teal); font-family: var(--font-source-serif), Georgia, serif; font-weight: 700; }
-.path-card > span:last-child { display: grid; gap: 9px; }
-.path-card strong { font-family: var(--font-source-serif), Georgia, serif; font-size: 1.18rem; font-weight: 600; }
-.path-card small { color: var(--soft); font-size: .88rem; line-height: 1.5; }
-.hero-art { position: relative; min-width: 0; }
-.hero-art::before, .hero-art::after { position: absolute; z-index: 0; border: 1px solid rgba(46,111,106,.16); border-radius: 50%; content: ""; }
-.hero-art::before { width: 520px; height: 520px; right: -150px; top: -65px; }
-.hero-art::after { width: 390px; height: 390px; left: -55px; bottom: -70px; }
-.hero-art-frame { position: relative; z-index: 1; width: min(100%,700px); aspect-ratio: 3/2; overflow: hidden; border-radius: 46% 54% 51% 49% / 58% 44% 56% 42%; filter: drop-shadow(0 30px 45px rgba(19,40,58,.08)); }
-.hero-art-frame img { width: 100%; height: 100%; object-fit: cover; mix-blend-mode: multiply; }
-.principle { position: relative; z-index: 2; display: grid; grid-template-columns: minmax(80px,1fr) auto minmax(80px,1fr); align-items: center; gap: 24px; padding-bottom: 26px; }
-.principle span { height: 1px; background: linear-gradient(90deg, transparent, var(--line)); }
-.principle span:last-child { background: linear-gradient(90deg, var(--line), transparent); }
-.principle p { margin: 0; color: var(--soft); font-family: var(--font-source-serif), Georgia, serif; font-size: clamp(1rem,1.4vw,1.22rem); font-weight: 600; text-align: center; }
-
-.vision { border-bottom: 1px solid var(--line); background: var(--light); padding-block: 64px; }
-.vision-grid { display: grid; grid-template-columns: 1.05fr .95fr; align-items: end; gap: clamp(42px,8vw,120px); }
-.section-kicker { margin-bottom: 16px; background: var(--teal-wash); }
-.vision h2 { max-width: 760px; margin: 0; font-family: var(--font-source-serif), Georgia, serif; font-size: clamp(2rem,3.3vw,3.4rem); font-weight: 600; letter-spacing: -.035em; line-height: 1.04; }
-.vision-grid > p { margin: 0; color: var(--soft); font-size: 1.03rem; line-height: 1.75; }
-.vision-prose { display: grid; gap: 18px; }
-.vision-prose p { margin: 0; color: var(--soft); font-size: 1.03rem; line-height: 1.75; }
-.vision-page { padding-block: clamp(82px,8vw,128px); }
-
-.section { position: relative; padding-block: clamp(88px, 9vw, 142px); }
-.section h2, .wide-heading h2 { margin: 0; font-family: var(--font-source-serif), Georgia, serif; font-size: clamp(2.45rem, 4.6vw, 4.7rem); font-weight: 600; letter-spacing: -.045em; line-height: .99; text-wrap: balance; }
-.section-intro > p:not(.section-kicker), .wide-heading > p { color: var(--soft); font-size: 1.04rem; line-height: 1.75; }
-.section-intro > p:last-of-type { margin-bottom: 0; }
-.text-link { width: fit-content; display: inline-flex; border-bottom: 1px solid currentColor; color: var(--teal-deep); padding-block: 4px; font-weight: 750; }
-.text-link:hover { color: var(--navy); }
-.status-chip { width: fit-content; display: inline-flex; align-items: center; border-radius: 999px; padding: 7px 11px; font-size: .7rem; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
-.status-chip.amber { margin-bottom: 24px; background: color-mix(in srgb, var(--amber) 22%, white); color: #75500f; }
-.status-chip.outline { border: 1px solid rgba(255,255,255,.3); color: #cde8e4; }
-
-.current-state { border-bottom: 1px solid var(--line); background: var(--paper); }
-.state-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
-.state-grid > div { min-height: 150px; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 18px; border-right: 1px solid var(--line); padding: 30px clamp(22px, 3vw, 46px); }
-.state-grid > div:first-child { border-left: 1px solid var(--line); }
-.state-grid span { color: var(--amber); font-family: var(--font-source-serif), Georgia, serif; font-size: 2rem; font-style: italic; }
-.state-grid p { margin: 0; color: var(--soft); font-size: .9rem; line-height: 1.55; }
-.state-grid strong { display: block; margin-bottom: 6px; color: var(--navy); font-family: var(--font-source-serif), Georgia, serif; font-size: 1.1rem; font-weight: 650; }
-
-.clinical-section { overflow: clip; background: var(--light); }
-.clinical-section::after { position: absolute; top: 80px; right: -140px; width: 440px; height: 440px; border: 1px solid rgba(46,111,106,.14); border-radius: 50%; content: ""; }
-.section-split { display: grid; grid-template-columns: minmax(320px, .78fr) minmax(0, 1.22fr); gap: clamp(70px, 10vw, 150px); }
-.sticky-intro { position: sticky; top: 150px; align-self: start; }
-.sticky-intro h2 { font-size: clamp(2.8rem,4.6vw,4.55rem); }
-.sticky-intro .text-link { margin-top: 28px; }
-.module-grid { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
-.module-card { min-height: 280px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--line); border-radius: 24px; background: var(--paper); padding: 26px; box-shadow: 0 18px 46px rgba(19,40,58,.045); }
-.module-card:nth-child(2), .module-card:nth-child(4) { transform: translateY(38px); }
-.module-card > span { color: var(--teal); font-family: var(--font-source-serif), Georgia, serif; font-size: 1.4rem; font-style: italic; }
-.module-card h3 { margin: 0 0 10px; font-family: var(--font-source-serif), Georgia, serif; font-size: 1.55rem; font-weight: 650; }
-.module-card p, .design-note p { margin: 0; color: var(--soft); font-size: .94rem; line-height: 1.65; }
-.module-card small { width: fit-content; display: block; margin-top: 20px; border: 1px solid var(--line); border-radius: 999px; color: var(--teal); padding: 6px 9px; font-size: .65rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
-.design-note { grid-column: 1 / -1; margin-top: 46px; border-left: 4px solid var(--amber); background: color-mix(in srgb, var(--amber) 9%, var(--light)); padding: 26px 28px; }
-.design-note strong { display: block; margin-bottom: 8px; font-family: var(--font-source-serif), Georgia, serif; font-size: 1.18rem; }
-
-.route-overview { background: var(--paper); }
-.route-overview-heading { max-width: 820px; margin-bottom: 54px; }
-.route-overview-heading h2 { max-width: 760px; }
-.route-grid { display: grid; grid-template-columns: repeat(3,1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
-.route-card { min-height: 270px; display: flex; flex-direction: column; align-items: flex-start; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: color-mix(in srgb,var(--light) 72%,transparent); padding: 28px; transition: background 180ms ease-out, transform 180ms ease-out; }
-.route-card:hover { z-index: 1; transform: translateY(-3px); background: var(--light); box-shadow: var(--shadow); }
-.route-card > span { color: var(--amber); font-family: var(--font-source-serif), Georgia, serif; font-size: 1.35rem; font-style: italic; }
-.route-card h3 { margin: 44px 0 10px; font-family: var(--font-source-serif), Georgia, serif; font-size: 1.45rem; font-weight: 650; }
-.route-card p { margin: 0; color: var(--soft); font-size: .88rem; line-height: 1.55; }
-.route-card small { margin-top: auto; border-bottom: 1px solid currentColor; color: var(--teal-deep); padding-top: 20px; font-size: .72rem; font-weight: 800; }
-.next-paths { background: var(--light); }
-.next-paths-grid { display: grid; grid-template-columns: minmax(280px,.7fr) minmax(0,1.3fr); align-items: end; gap: clamp(50px,9vw,140px); }
-.next-paths h2 { max-width: 560px; }
-.next-paths .hero-paths { max-width: none; margin-top: 0; }
-
-.interoperability-section { overflow: hidden; background: var(--navy); color: var(--light); }
-.interoperability-section::before { position: absolute; inset: 0; pointer-events: none; content: ""; opacity: .13; background-image: linear-gradient(rgba(255,255,255,.25) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.2) 1px, transparent 1px); background-size: 90px 90px; mask-image: linear-gradient(90deg, transparent, black 40%, transparent); }
-.wide-heading { position: relative; display: grid; grid-template-columns: 1.2fr .8fr; align-items: end; gap: clamp(50px, 9vw, 140px); }
-.wide-heading h2 { max-width: 850px; }
-.wide-heading > p { margin: 0; }
-.interoperability-section .wide-heading > p { color: #b9c7d1; }
-.light-kicker { border-color: rgba(255,255,255,.2); background: rgba(255,255,255,.07); color: #9bd0c9; }
-.layer-grid { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 72px; border-top: 1px solid rgba(255,255,255,.18); border-bottom: 1px solid rgba(255,255,255,.18); }
-.layer-grid article { min-height: 235px; border-right: 1px solid rgba(255,255,255,.18); padding: 28px 22px; }
-.layer-grid article:first-child { border-left: 1px solid rgba(255,255,255,.18); }
-.layer-grid span { color: var(--amber); font-family: var(--font-source-serif), Georgia, serif; font-size: 1.3rem; font-style: italic; }
-.layer-grid h3 { margin: 42px 0 10px; font-family: var(--font-source-serif), Georgia, serif; font-size: 1.3rem; font-weight: 650; }
-.layer-grid p { margin: 0; color: #b9c7d1; font-size: .83rem; line-height: 1.55; }
-.information-flow { position: relative; display: grid; grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr; align-items: center; margin-top: 70px; border-radius: 22px; background: rgba(255,255,255,.055); padding: 24px 28px; }
-.information-flow div { display: grid; gap: 7px; }
-.information-flow small { color: #8ebdb7; font-size: .67rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
-.information-flow strong { font-family: var(--font-source-serif), Georgia, serif; font-size: 1.02rem; font-weight: 600; }
-.information-flow i { color: var(--amber); padding-inline: 14px; font-style: normal; }
-.demonstrator-grid { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 24px; }
-.demonstrator-grid article { min-height: 268px; border: 1px solid rgba(255,255,255,.16); border-radius: 20px; background: rgba(251,248,241,.035); padding: 24px; }
-.demonstrator-grid h3 { margin: 42px 0 12px; font-family: var(--font-source-serif), Georgia, serif; font-size: 1.55rem; font-weight: 650; }
-.demonstrator-grid p { margin: 0; color: #b9c7d1; font-size: .91rem; line-height: 1.68; }
-
-.methodology-section { border-bottom: 1px solid var(--line); background: var(--paper); }
-.methodology-layout { display: grid; grid-template-columns: .75fr 1.25fr; gap: 40px clamp(70px, 9vw, 140px); }
-.domain-grid { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
-.domain-grid article { min-height: 205px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: rgba(251,248,241,.52); padding: 22px; }
-.domain-grid span { color: var(--teal); font-size: .68rem; font-weight: 850; letter-spacing: .12em; }
-.domain-grid h3 { margin: 36px 0 8px; font-family: var(--font-source-serif), Georgia, serif; font-size: 1.25rem; font-weight: 650; }
-.domain-grid p { margin: 0; color: var(--soft); font-size: .82rem; line-height: 1.5; }
-.evidence-pipeline { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, 1fr); margin: 50px 0 0; padding: 0; list-style: none; }
-.evidence-pipeline li { position: relative; display: grid; grid-template-columns: auto 1fr; gap: 1px 12px; border-top: 1px solid var(--teal); padding: 22px 24px 0 0; }
-.evidence-pipeline li:not(:last-child)::after { position: absolute; top: -4px; right: 10px; color: var(--teal); content: "→"; }
-.evidence-pipeline span { grid-row: 1 / 3; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: var(--teal); color: white; font-size: .75rem; font-weight: 800; }
-.evidence-pipeline strong { font-family: var(--font-source-serif), Georgia, serif; font-size: 1.1rem; }
-.evidence-pipeline small { color: var(--soft); font-size: .75rem; line-height: 1.45; }
-
-.profiles-section { background: var(--light); }
-.profiles-heading { margin-bottom: 55px; }
-.country-explorer { overflow: hidden; border: 1px solid var(--line); border-radius: 30px; background: var(--paper); box-shadow: var(--shadow); }
-.explorer-toolbar { min-height: 116px; display: flex; align-items: center; justify-content: space-between; gap: 30px; border-bottom: 1px solid var(--line); padding: 22px 28px; }
-.explorer-toolbar > div { display: grid; gap: 7px; }
-.explorer-toolbar p { margin: 0; color: var(--soft); font-size: .76rem; }
-.live-indicator { display: inline-flex; align-items: center; gap: 8px; color: var(--teal-deep); font-size: .73rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
-.live-indicator i { width: 9px; height: 9px; border-radius: 50%; background: #3d9a74; box-shadow: 0 0 0 5px rgba(61,154,116,.13); }
-.explorer-toolbar label { display: grid; gap: 7px; color: var(--soft); font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-.explorer-toolbar select { min-width: 245px; appearance: none; border: 1px solid var(--line); border-radius: 10px; background: var(--light) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='8'%3E%3Cpath fill='none' stroke='%232e6f6a' stroke-width='2' d='m1 1 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 14px center; color: var(--navy); padding: 12px 42px 12px 14px; font: 700 .92rem var(--font-inter), sans-serif; text-transform: none; }
-.explorer-grid { display: grid; grid-template-columns: 1fr; }
-.map-panel { min-width: 0; border-bottom: 1px solid var(--line); background: linear-gradient(145deg, #e7e2d8, #f5f0e5); padding: clamp(24px, 3.5vw, 48px); }
-.map-stage { position: relative; width: 100%; }
-.map-legend { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px 18px; color: var(--soft); font-size: .7rem; }
-.map-legend span { display: inline-flex; align-items: center; gap: 7px; }
-.map-legend i { width: 10px; height: 10px; display: inline-block; border: 1px solid rgba(19,40,58,.22); border-radius: 2px; }
-.legend-scale-label { font-weight: 800; }
-.legend-unexamined { background: #cec7bb; }
-.legend-band-1, .map-country.score-band-1 { fill: #d8e5df; background: #d8e5df; }
-.legend-band-2, .map-country.score-band-2 { fill: #a8c9bd; background: #a8c9bd; }
-.legend-band-3, .map-country.score-band-3 { fill: #6e9f92; background: #6e9f92; }
-.legend-band-4, .map-country.score-band-4 { fill: #2e6f6a; background: #2e6f6a; }
-.legend-selected { border: 2px solid var(--amber) !important; background: transparent; }
-.world-map { width: 100%; height: auto; max-height: 720px; display: block; margin: 24px auto; filter: drop-shadow(0 12px 20px rgba(19,40,58,.06)); }
-.map-country { vector-effect: non-scaling-stroke; cursor: pointer; fill: #cec7bb; stroke: #f7f2e9; stroke-width: .72; transition: fill 160ms ease-out, opacity 160ms ease-out, stroke-width 160ms ease-out; }
-.map-country:hover, .map-country:focus { filter: brightness(.9); outline: none; }
-.map-country.is-selected { stroke: var(--amber); stroke-width: 2.4; }
-.map-tooltip { position: absolute; z-index: 4; width: max-content; max-width: 240px; display: grid; gap: 3px; pointer-events: none; border: 1px solid rgba(255,255,255,.8); border-radius: 10px; background: rgba(19,40,58,.94); color: white; padding: 9px 11px; box-shadow: 0 10px 30px rgba(19,40,58,.18); font-size: .72rem; transform: translateY(-100%); }
-.map-tooltip span { color: #c9d6dc; font-size: .64rem; }
-.map-caption { max-width: 780px; margin: 0 auto; color: var(--soft); font-size: .75rem; line-height: 1.55; text-align: center; }
-.profile-panel { width: min(1100px, 100%); min-width: 0; margin-inline: auto; padding: clamp(36px, 5vw, 70px); }
-.empty-profile { min-height: 380px; display: grid; place-items: center; text-align: center; }
-.empty-profile > div { width: min(680px, 100%); }
-.empty-profile h3 { margin: 0; font-family: var(--font-source-serif), Georgia, serif; font-size: clamp(2.8rem, 5vw, 4.8rem); font-weight: 600; letter-spacing: -.04em; line-height: 1; }
-.empty-profile p:not(.profile-overline) { color: var(--soft); font-size: 1rem; line-height: 1.7; }
-.empty-profile .not-ranking { margin-block: 24px; text-align: left; }
-.profile-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
-.profile-overline { margin: 0 0 6px; color: var(--teal); font-size: .68rem; font-weight: 850; letter-spacing: .12em; text-transform: uppercase; }
-.profile-heading h3 { margin: 0; font-family: var(--font-source-serif), Georgia, serif; font-size: clamp(2.6rem, 4vw, 4.3rem); font-weight: 600; letter-spacing: -.04em; line-height: 1; }
-.orientation-score { min-width: 116px; display: grid; grid-template-columns: 1fr auto; align-items: baseline; border-left: 1px solid var(--line); padding-left: 22px; }
-.orientation-score strong { color: var(--teal); font-family: var(--font-source-serif), Georgia, serif; font-size: 2.3rem; font-weight: 600; }
-.orientation-score span { color: var(--soft); font-size: .75rem; }
-.orientation-score small { grid-column: 1 / -1; color: var(--soft); font-size: .62rem; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
-.profile-subtitle { margin: 22px 0 18px; color: var(--soft); line-height: 1.65; }
-.not-ranking { border-left: 3px solid var(--amber); background: rgba(226,166,71,.09); color: var(--soft); padding: 13px 15px; font-size: .75rem; line-height: 1.5; }
-.not-ranking strong { color: var(--navy); }
-.radar-wrap { display: grid; grid-template-columns: minmax(240px,1fr) .8fr; align-items: center; gap: 24px; margin-top: 26px; }
-.radar { width: 100%; max-width: 390px; overflow: visible; }
-.radar-grid { fill: none; stroke: var(--line); stroke-width: .7; }
-.radar-axis { stroke: var(--line); stroke-width: .7; }
-.radar-value { fill: rgba(46,111,106,.2); stroke: var(--teal); stroke-width: 2; stroke-linejoin: round; }
-.radar text { fill: var(--graphite); font: 650 7.5px var(--font-inter), sans-serif; }
-.profile-meta { margin: 0; }
-.profile-meta div { display: flex; justify-content: space-between; gap: 14px; border-bottom: 1px solid var(--line); padding: 12px 0; }
-.profile-meta dt { color: var(--soft); font-size: .71rem; }
-.profile-meta dd { margin: 0; font-size: .72rem; font-weight: 750; text-align: right; text-transform: capitalize; }
-.profile-lists { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; border-top: 1px solid var(--line); padding-top: 25px; }
-.profile-lists h4 { margin: 0 0 12px; font-family: var(--font-source-serif), Georgia, serif; font-size: 1.05rem; }
-.profile-lists ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.profile-lists li { position: relative; color: var(--soft); padding-left: 17px; font-size: .76rem; line-height: 1.45; }
-.profile-lists li::before { position: absolute; left: 0; color: var(--amber); content: "◆"; font-size: .48rem; }
-.evidence-register { margin-top: 26px; border: 1px solid var(--line); border-radius: 14px; background: var(--light); }
-.evidence-register summary { cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 18px; list-style: none; padding: 18px; }
-.evidence-register summary::-webkit-details-marker { display: none; }
-.evidence-register summary > span:first-child { display: grid; gap: 4px; }
-.evidence-register summary strong { font-family: var(--font-source-serif), Georgia, serif; font-size: 1.02rem; }
-.evidence-register summary small { color: var(--soft); font-size: .65rem; }
-.evidence-register summary > span:last-child { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: var(--teal-wash); color: var(--teal); font-size: 1.3rem; transition: transform 160ms ease-out; }
-.evidence-register[open] summary > span:last-child { transform: rotate(45deg); }
-.evidence-list { max-height: 680px; overflow: auto; border-top: 1px solid var(--line); padding: 6px 18px 18px; }
-.evidence-item { border-bottom: 1px solid var(--line); padding-block: 20px; }
-.evidence-item:last-child { border-bottom: 0; }
-.evidence-title { display: grid; grid-template-columns: auto 1fr auto; align-items: start; gap: 12px; }
-.evidence-title > span:first-child { color: var(--amber); font-family: var(--font-source-serif), Georgia, serif; font-style: italic; }
-.evidence-title h5 { margin: 0 0 5px; font-family: var(--font-source-serif), Georgia, serif; font-size: .96rem; }
-.evidence-title p, .evidence-item > p { margin: 0; color: var(--soft); font-size: .66rem; line-height: 1.45; }
-.evidence-title a { color: var(--teal); font-size: .68rem; font-weight: 800; }
-.restricted-link { color: var(--soft); font-size: .61rem; font-weight: 750; }
-.evidence-item > p { margin: 12px 0; }
-.evidence-claim { margin-top: 12px; border-left: 2px solid var(--teal); background: var(--teal-wash); padding: 10px 12px; }
-.evidence-claim > span { color: var(--teal-deep); font-size: .6rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
-.evidence-claim p { margin: 7px 0; font-size: .7rem; line-height: 1.5; }
-.evidence-claim small { display: block; color: var(--soft); font-size: .63rem; line-height: 1.5; }
-.explorer-loading, .explorer-error { min-height: 390px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; border: 1px solid var(--line); border-radius: 30px; background: var(--paper); padding: 40px; text-align: center; }
-.explorer-loading { flex-direction: row; color: var(--soft); }
-.explorer-loading span { width: 18px; height: 18px; border: 2px solid var(--line); border-top-color: var(--teal); border-radius: 50%; animation: spin 900ms linear infinite; }
-.explorer-error p { max-width: 600px; margin: 0; color: var(--soft); line-height: 1.65; }
-.explorer-warning { display: flex; flex-wrap: wrap; gap: 5px; border-bottom: 1px solid #e6c984; background: #fff6dd; color: #75500f; padding: 13px 28px; font-size: .75rem; line-height: 1.5; }
-.live-indicator.is-warning { color: #8a5b08; }
-.live-indicator.is-warning i { background: var(--amber); box-shadow: 0 0 0 5px rgba(226,166,71,.15); }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.manuscripts-section { border-top: 1px solid var(--line); background: var(--paper); }
-.manuscript-layout { display: grid; grid-template-columns: .75fr 1.25fr; gap: clamp(70px, 9vw, 140px); }
-.manuscript-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-.manuscript-cards article { min-height: 420px; display: flex; flex-direction: column; align-items: flex-start; border: 1px solid var(--line); border-radius: 22px; background: var(--light); padding: 30px; }
-.manuscript-cards article:nth-child(2) { background: #e9e3d7; }
-.manuscript-cards article > span { color: var(--teal); font-size: .68rem; font-weight: 850; letter-spacing: .12em; text-transform: uppercase; }
-.manuscript-cards h3 { margin: 55px 0 14px; font-family: var(--font-source-serif), Georgia, serif; font-size: 2.1rem; font-weight: 600; }
-.manuscript-cards p { margin: 0 0 30px; color: var(--soft); line-height: 1.65; }
-.manuscript-cards .button { width: 100%; margin-top: auto; }
-
-.collaborate-section { background: var(--teal-deep); color: var(--light); }
-.collaborate-section::before { position: absolute; left: -150px; bottom: -260px; width: 650px; height: 650px; border: 1px solid rgba(255,255,255,.11); border-radius: 50%; content: ""; }
-.collaborate-layout { position: relative; display: grid; grid-template-columns: .82fr 1.18fr; align-items: center; gap: clamp(70px, 10vw, 150px); }
-.collaborate-layout > div:first-child > p:not(.section-kicker) { max-width: 620px; color: #c4d9d5; font-size: 1.02rem; line-height: 1.75; }
-.amber-button { margin-top: 20px; background: var(--amber); color: var(--navy); }
-.amber-button:hover { background: #efbb66; }
-.audience-grid { display: grid; grid-template-columns: repeat(2, 1fr); border-top: 1px solid rgba(255,255,255,.19); border-left: 1px solid rgba(255,255,255,.19); }
-.audience-grid article { min-height: 235px; border-right: 1px solid rgba(255,255,255,.19); border-bottom: 1px solid rgba(255,255,255,.19); padding: 24px; }
-.audience-grid span { color: var(--amber); font-family: var(--font-source-serif), Georgia, serif; font-style: italic; }
-.audience-grid h3 { margin: 45px 0 10px; font-family: var(--font-source-serif), Georgia, serif; font-size: 1.3rem; font-weight: 600; }
-.audience-grid p { margin: 0; color: #c4d9d5; font-size: .82rem; line-height: 1.55; }
-
-.site-footer { background: #0d1d29; color: #dae2e4; padding-block: 66px 28px; }
-.footer-grid { display: grid; grid-template-columns: 1.6fr .7fr .7fr; gap: 50px; }
-.footer-brand { display: flex; align-items: center; gap: 22px; }
-.footer-brand img { width: 55px; height: 74px; object-fit: contain; filter: grayscale(1) brightness(2); }
-.footer-brand strong { font-family: var(--font-source-serif), Georgia, serif; font-size: 1.7rem; font-weight: 600; }
-.footer-brand p { max-width: 450px; margin: 7px 0 0; color: #9aabb5; font-size: .85rem; }
-.footer-grid > div:not(.footer-brand) { display: grid; align-content: start; gap: 10px; }
-.footer-grid h3 { margin: 0 0 8px; color: #8fbcb6; font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; }
-.footer-grid a { width: fit-content; color: #becbd1; font-size: .82rem; }
-.footer-grid a:hover { color: white; }
-.footer-bottom { display: flex; justify-content: space-between; gap: 30px; margin-top: 50px; border-top: 1px solid rgba(255,255,255,.12); color: #798c98; padding-top: 24px; font-size: .65rem; }
-.footer-bottom a { text-decoration: underline; }
-
-@media (max-width: 1180px) {
-  .desktop-nav { display: none; }
-  .mobile-menu { display: block; }
-  .hero-grid { grid-template-columns: 1fr; }
-  .hero-copy { max-width: 880px; }
-  .hero-art { width: min(760px,100%); margin-inline: auto; }
-  .section-split, .manuscript-layout, .collaborate-layout { grid-template-columns: 1fr; }
-  .page-masthead-grid { min-height: 0; grid-template-columns: 1fr; align-items: start; }
-  .page-masthead-grid > p { max-width: 760px; }
-  .sticky-intro { position: static; max-width: 800px; }
-  .layer-grid { grid-template-columns: repeat(3, 1fr); }
-  .layer-grid article { border-bottom: 1px solid rgba(255,255,255,.18); }
-  .information-flow { grid-template-columns: 1fr 1fr; gap: 22px; }
-  .information-flow i { display: none; }
-  .world-map { max-height: 640px; }
+function SiteFooter() {
+  return (
+    <footer className="site-footer">
+      <div className="shell footer-grid">
+        <div className="footer-brand">
+          <div>
+            <strong>IML Health</strong>
+            <p>Independent, non-commercial and open for scientific review.</p>
+          </div>
+        </div>
+        <div>
+          <h3>Explore</h3>
+          <a href="/clinical-workspace">Clinical workspace</a>
+          <a href="/interoperability">Integration layer</a>
+          <a href="/country-profiles">Country profiles</a>
+        </div>
+        <div>
+          <h3>Project</h3>
+          <a href="/vision">Vision</a>
+          <a href="/identity-trust">Identity &amp; Trust</a>
+          <a href="/manuscripts">Manuscripts</a>
+          <a href="/collaborate">Collaborate</a>
+        </div>
+      </div>
+      <div className="shell footer-bottom">
+        <span>© {new Date().getFullYear()} IML Health</span>
+      </div>
+    </footer>
+  );
 }
-@media (max-width: 900px) {
-  .state-grid { grid-template-columns: 1fr; }
-  .state-grid > div, .state-grid > div:first-child { min-height: 115px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); border-left: 1px solid var(--line); }
-  .wide-heading, .methodology-layout { grid-template-columns: 1fr; align-items: start; }
-  .route-grid { grid-template-columns: repeat(2,1fr); }
-  .next-paths-grid { grid-template-columns: 1fr; }
-  .layer-grid { grid-template-columns: repeat(2, 1fr); }
-  .demonstrator-grid { grid-template-columns: 1fr; }
-  .domain-grid { grid-template-columns: repeat(2, 1fr); }
-  .evidence-pipeline { grid-template-columns: repeat(2, 1fr); gap: 28px 0; }
-  .evidence-pipeline li:nth-child(2)::after { display: none; }
-  .footer-grid { grid-template-columns: 1fr 1fr; }
-  .footer-brand { grid-column: 1 / -1; }
+
+function PageFrame({ active, home = false, children }) {
+  return (
+    <>
+      <a className="skip-link" href="#page-content">Skip to the content</a>
+      <SiteHeader active={active} home={home} />
+      <main id="page-content">{children}</main>
+      <div className="page-ornament" aria-hidden="true">
+        <span />
+        <i />
+        <i />
+        <span />
+      </div>
+      <SiteFooter />
+    </>
+  );
 }
-@media (max-width: 760px) {
-  .shell { width: min(100% - 32px,1360px); }
-  .header-inner { min-height: 86px; }
-  .brand { min-width: 0; }
-  .brand-mark { width: 46px; height: 54px; border-radius: 11px; }
-  .brand-mark img { width: 40px; height: 48px; }
-  .brand-copy strong { font-size: 1.35rem; }
-  .brand-copy span { display: none; }
-  .hero-grid { min-height: 0; padding-block: 54px 36px; }
-  .hero h1 { font-size: clamp(3rem,14vw,4.25rem); }
-  .page-masthead-grid { padding-block: 48px 64px; }
-  .page-masthead .back-home { margin-bottom: 28px; }
-  .page-masthead h1 { font-size: clamp(3rem,13vw,4.5rem); }
-  .hero-paths, .vision-grid, .module-grid, .manuscript-cards, .audience-grid { grid-template-columns: 1fr; }
-  .hero-art-frame { border-radius: 28px; }
-  .principle { grid-template-columns: 1fr; }
-  .principle span { display: none; }
-  .vision { padding-block: 52px; }
-  .module-card:nth-child(2), .module-card:nth-child(4) { transform: none; }
-  .design-note { margin-top: 0; }
-  .layer-grid { grid-template-columns: 1fr; }
-  .layer-grid article { min-height: 170px; }
-  .layer-grid h3 { margin-top: 26px; }
-  .information-flow { grid-template-columns: 1fr; }
-  .domain-grid { grid-template-columns: 1fr; }
-  .route-grid { grid-template-columns: 1fr; }
-  .evidence-pipeline { grid-template-columns: 1fr; gap: 25px; }
-  .evidence-pipeline li::after { display: none; }
-  .explorer-toolbar { align-items: stretch; flex-direction: column; }
-  .explorer-toolbar select { width: 100%; min-width: 0; }
-  .map-panel { padding: 18px 8px; }
-  .map-legend { justify-content: center; }
-  .legend-scale-label { flex-basis: 100%; justify-content: center; }
-  .profile-panel { padding: 25px 18px; }
-  .profile-heading { align-items: flex-start; flex-direction: column; }
-  .orientation-score { width: 100%; border-top: 1px solid var(--line); border-left: 0; padding: 12px 0 0; }
-  .radar-wrap, .profile-lists { grid-template-columns: 1fr; }
-  .evidence-title { grid-template-columns: auto 1fr; }
-  .evidence-title a, .evidence-title .restricted-link { grid-column: 2; }
-  .manuscript-cards article { min-height: 360px; }
-  .footer-grid { grid-template-columns: 1fr; }
-  .footer-brand { grid-column: auto; align-items: flex-start; }
-  .footer-bottom { flex-direction: column; }
+
+function PageMasthead({ title, lede, compact = false, mirroredLamp = false }) {
+  return (
+    <section className={`page-masthead${compact ? " page-masthead-compact" : ""}`}>
+      <div className="shell page-masthead-grid">
+        <div>
+          <a className="back-home" href="/">← IML Health home</a>
+          <h1>{title}</h1>
+        </div>
+        {mirroredLamp ? (
+          <div className="collaborate-masthead-aside">
+            <div className="collaborate-lamp-frame" aria-hidden="true">
+              <img src={heroLampImage} alt="" />
+            </div>
+            <p>{lede}</p>
+          </div>
+        ) : <p>{lede}</p>}
+      </div>
+    </section>
+  );
 }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+
+const MAP_WIDTH = 1000;
+const MAP_HEIGHT = 500;
+const MAP_VISIBLE_HEIGHT = 430;
+const RADAR_LABELS = ["Governance", "Technical", "Identity", "Adoption", "Security", "Learning"];
+const AXIS_KEYS = ["governance", "technical", "identity", "adoption", "security", "learning"];
+
+const normalizeIso3 = (value) => String(value || "").trim().toUpperCase();
+const asArray = (value) => (Array.isArray(value) ? value : []);
+
+function normalizeProfile(profile) {
+  const scores = profile.scores || profile.domainScores || {};
+  const values = Array.isArray(profile.values)
+    ? profile.values
+    : AXIS_KEYS.map((key) => Number(scores[key] ?? 0));
+  return {
+    ...profile,
+    iso3: normalizeIso3(profile.iso3 || profile.country_iso3),
+    name: profile.name || profile.country_name || profile.countryName || "Unnamed country",
+    status: profile.status || profile.assessment_status || "published",
+    version: profile.version || "",
+    updatedAt: profile.updatedAt || profile.updated_at || profile.assessment_date || profile.assessed_at || profile.published_at || "",
+    evidenceLevel: profile.evidenceLevel || profile.evidence_level || "Exploratory working profile",
+    subtitle: profile.subtitle || profile.summary || "",
+    values,
+    strengths: asArray(profile.strengths),
+    watch: asArray(profile.watch || profile.pointsToWatch),
+    sources: asArray(profile.sources),
+  };
+}
+
+async function loadCountryProfiles(signal) {
+  const response = await fetch("/api/countries", { headers: { Accept: "application/json" }, signal });
+  if (!response.ok) throw new Error(`Countries API returned ${response.status}.`);
+  const payload = await response.json();
+  const rows = Array.isArray(payload) ? payload : payload.countries;
+  if (!Array.isArray(rows) || rows.length === 0) throw new Error("No published country profile is available.");
+  return {
+    profiles: rows.map(normalizeProfile),
+    apiVersion: payload.api_version || "current",
+  };
+}
+
+function featureIso3(feature) {
+  const properties = feature?.properties || {};
+  return normalizeIso3(properties.iso3 || properties.ISO_A3 || properties.adm0_a3 || properties.ADM0_A3);
+}
+
+function featureName(feature) {
+  const properties = feature?.properties || {};
+  return String(properties.name || properties.NAME || properties.admin || properties.ADMIN || "Unknown country").trim();
+}
+
+function isAntarctica(feature) {
+  const name = featureName(feature).toLowerCase();
+  const continent = String(feature?.properties?.continent || feature?.properties?.CONTINENT || "").toLowerCase();
+  return featureIso3(feature) === "ATA" || name.includes("antarctica") || continent === "antarctica";
+}
+
+function projectCoordinate([longitude, latitude]) {
+  return [((longitude + 180) / 360) * MAP_WIDTH, ((90 - latitude) / 180) * MAP_HEIGHT];
+}
+
+function ringToPath(coordinates = []) {
+  let path = "";
+  let previousX = null;
+  coordinates.forEach((coordinate, index) => {
+    const [x, y] = projectCoordinate(coordinate);
+    const crossesDateLine = previousX !== null && Math.abs(x - previousX) > MAP_WIDTH / 2;
+    path += index === 0 || crossesDateLine ? ` M ${x.toFixed(2)} ${y.toFixed(2)}` : ` L ${x.toFixed(2)} ${y.toFixed(2)}`;
+    previousX = x;
+  });
+  return path ? `${path} Z` : "";
+}
+
+function geometryToPath(geometry) {
+  if (geometry?.type === "Polygon") return geometry.coordinates.map(ringToPath).join(" ");
+  if (geometry?.type === "MultiPolygon") return geometry.coordinates.flatMap((polygon) => polygon.map(ringToPath)).join(" ");
+  return "";
+}
+
+function averageScore(values = []) {
+  const scores = asArray(values).map(Number).filter(Number.isFinite);
+  return scores.length ? Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length) : 0;
+}
+
+function profileScore(profile) {
+  const recorded = Number(profile?.overall_score);
+  return Number.isFinite(recorded) ? recorded : averageScore(profile?.values);
+}
+
+function scoreBand(score) {
+  if (score >= 75) return 4;
+  if (score >= 50) return 3;
+  if (score >= 25) return 2;
+  return 1;
+}
+
+function polygonPoints(values, radius, center = 120) {
+  return values.map((value, index) => {
+    const angle = -Math.PI / 2 + (index * Math.PI * 2) / values.length;
+    const scaled = radius * (Math.max(0, Math.min(100, Number(value) || 0)) / 100);
+    return `${center + Math.cos(angle) * scaled},${center + Math.sin(angle) * scaled}`;
+  }).join(" ");
+}
+
+function formatDate(value) {
+  if (!value) return "Not recorded";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" }).format(date);
+}
+
+function humanize(value) {
+  return value ? String(value).replaceAll("_", " ") : "not recorded";
+}
+
+const DOMAIN_REPORT_GUIDANCE = {
+  Governance: "Standards, responsibilities, oversight and institutional coordination.",
+  Technical: "Structured, secure and reliable exchange between information systems.",
+  Identity: "Identification, trusted access, consent and information provenance.",
+  Adoption: "Use of standards and infrastructure in routine clinical and public-health work.",
+  Security: "Protection, availability, traceability, recovery and continuity.",
+  Learning: "Use of audits, incidents, complaints and outcomes to improve the system.",
+};
+
+function escapeReportHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function safeReportUrl(value) {
+  try {
+    const url = new URL(String(value || ""), window.location.href);
+    return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+  } catch {
+    return "";
+  }
+}
+
+function scoreInterpretation(score) {
+  const value = Number(score || 0);
+  if (value >= 80) return "Strong documented foundations, to be read alongside implementation limits and source coverage.";
+  if (value >= 60) return "Substantial foundations with material variation, incomplete adoption or operational gaps.";
+  if (value >= 40) return "Partial maturity: formal structures exist, but delivery or practical implementation remains limited.";
+  return "Major unresolved gaps or limited evidence of reliable implementation and continuity.";
+}
+
+function listReportItems(items, emptyText) {
+  const rows = asArray(items);
+  if (!rows.length) return `<p class="empty">${escapeReportHtml(emptyText)}</p>`;
+  return `<ul>${rows.map((item) => `<li>${escapeReportHtml(item)}</li>`).join("")}</ul>`;
+}
+
+function sourceReportHtml(source, index) {
+  const publicUrl = safeReportUrl(source?.url);
+  const indicators = asArray(source?.indicators);
+  return `
+    <article class="source">
+      <h3>${String(index + 1).padStart(2, "0")} · ${escapeReportHtml(source?.title || `Source ${index + 1}`)}</h3>
+      <p class="source-meta">${escapeReportHtml(source?.publisher || "Publisher not recorded")}${source?.publication_date ? ` · ${escapeReportHtml(formatDate(source.publication_date))}` : ""}</p>
+      ${source?.note ? `<p>${escapeReportHtml(source.note)}</p>` : ""}
+      ${publicUrl ? `<p><a href="${escapeReportHtml(publicUrl)}">${escapeReportHtml(publicUrl)}</a></p>` : '<p class="empty">No public link recorded.</p>'}
+      ${indicators.map((indicator) => `
+        <div class="indicator">
+          <strong>${escapeReportHtml(indicator?.code || "IML indicator")} · evidence ${escapeReportHtml(indicator?.evidence_level || "ungraded")}</strong>
+          <p>${escapeReportHtml(indicator?.summary || "Evidence summary not recorded.")}</p>
+          ${indicator?.limitation ? `<p><b>Limitation:</b> ${escapeReportHtml(indicator.limitation)}</p>` : ""}
+        </div>
+      `).join("")}
+    </article>
+  `;
+}
+
+function openCountryPdfReport(profile) {
+  if (!profile) return;
+
+  const reportWindow = window.open("", "_blank");
+  if (!reportWindow) {
+    window.alert("Please allow pop-ups to generate the country PDF report.");
+    return;
+  }
+
+  reportWindow.opener = null;
+  const values = asArray(profile.values).length === 6 ? profile.values.map(Number) : [0, 0, 0, 0, 0, 0];
+  const sources = asArray(profile.sources);
+  const score = profileScore(profile);
+  const generatedAt = new Intl.DateTimeFormat("en-GB", { dateStyle: "long" }).format(new Date());
+  const logoUrl = new URL(logoImage, window.location.href).href;
+  const reportTitle = `IML-${normalizeIso3(profile.iso3)}-country-report-${new Date().toISOString().slice(0, 10)}`;
+  const domainRows = RADAR_LABELS.map((axis, index) => `
+    <tr>
+      <th>${escapeReportHtml(axis)}</th>
+      <td class="score">${escapeReportHtml(values[index])}/100</td>
+      <td><strong>${escapeReportHtml(DOMAIN_REPORT_GUIDANCE[axis])}</strong><br>${escapeReportHtml(scoreInterpretation(values[index]))}</td>
+    </tr>
+  `).join("");
+
+  reportWindow.document.open();
+  reportWindow.document.write(`<!doctype html>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>${escapeReportHtml(reportTitle)}</title>
+      <style>
+        @page { size: A4; margin: 16mm 15mm 18mm; }
+        * { box-sizing: border-box; }
+        body { margin: 0; color: #13283a; font: 10.5pt/1.48 Arial, Helvetica, sans-serif; }
+        header { display: flex; align-items: center; justify-content: space-between; gap: 18px; border-bottom: 2px solid #2e6f6a; padding-bottom: 12px; }
+        header img { width: 55px; height: 55px; object-fit: contain; }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand strong { display: block; font-family: Georgia, serif; font-size: 19pt; font-weight: 600; }
+        .brand span, .meta, .source-meta, .empty { color: #546775; }
+        .report-type { color: #2e6f6a; font-size: 8.5pt; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+        h1 { margin: 24px 0 4px; font-family: Georgia, serif; font-size: 30pt; font-weight: 600; letter-spacing: -.025em; }
+        h2 { margin: 26px 0 10px; border-bottom: 1px solid #d8cdbb; padding-bottom: 5px; font-family: Georgia, serif; font-size: 17pt; font-weight: 600; page-break-after: avoid; }
+        h3 { margin: 0 0 4px; font-size: 10.5pt; page-break-after: avoid; }
+        p { margin: 7px 0; }
+        a { color: #245b57; overflow-wrap: anywhere; }
+        .summary { margin: 18px 0; border-left: 4px solid #e2a647; background: #fbf4e7; padding: 12px 14px; }
+        .headline { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 20px; }
+        .overall { min-width: 88px; border-radius: 12px; background: #2e6f6a; color: white; padding: 10px 13px; text-align: center; }
+        .overall strong { display: block; font-size: 19pt; line-height: 1; }
+        .overall span { font-size: 7.5pt; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border-bottom: 1px solid #ded6c8; padding: 8px 7px; vertical-align: top; text-align: left; }
+        th { width: 21%; color: #245b57; }
+        td.score { width: 13%; font-weight: 700; white-space: nowrap; }
+        ul { margin: 6px 0 0; padding-left: 20px; }
+        li { margin-bottom: 5px; }
+        .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .panel { border: 1px solid #d8cdbb; border-radius: 10px; padding: 12px 14px; break-inside: avoid; }
+        .panel h2 { margin-top: 0; font-size: 14pt; }
+        .source { border: 1px solid #d8cdbb; border-radius: 10px; margin-bottom: 10px; padding: 12px 14px; break-inside: avoid; }
+        .indicator { margin-top: 9px; border-left: 3px solid #2e6f6a; background: #eef5f2; padding: 8px 10px; }
+        .indicator p { margin: 3px 0; }
+        .method { margin-top: 24px; border-top: 1px solid #d8cdbb; color: #546775; padding-top: 10px; font-size: 8.5pt; }
+        .print-actions { position: sticky; top: 0; z-index: 2; display: flex; justify-content: center; gap: 10px; background: #eef5f2; padding: 12px; }
+        button { cursor: pointer; border: 0; border-radius: 8px; background: #2e6f6a; color: white; padding: 10px 16px; font: 700 10pt Arial, sans-serif; }
+        @media print {
+          .print-actions { display: none; }
+          .two-columns { grid-template-columns: 1fr 1fr; }
+          a { color: #13283a; text-decoration: none; }
+        }
+        @media screen and (max-width: 700px) { .two-columns { grid-template-columns: 1fr; } }
+      </style>
+    </head>
+    <body>
+      <div class="print-actions"><button type="button" onclick="window.print()">Save as PDF</button></div>
+      <header>
+        <div class="brand"><img src="${escapeReportHtml(logoUrl)}" alt=""><div><strong>IML Health</strong><span>Open Health Information Environment</span></div></div>
+        <div class="report-type">Country evidence report</div>
+      </header>
+      <main>
+        <div class="headline">
+          <div><h1>${escapeReportHtml(profile.name)}</h1><p class="meta">ISO3 ${escapeReportHtml(profile.iso3)} · Profile v${escapeReportHtml(profile.version || "working")} · Generated ${escapeReportHtml(generatedAt)}</p></div>
+          <div class="overall"><strong>${escapeReportHtml(score)}/100</strong><span>orientation signal</span></div>
+        </div>
+        <div class="summary"><strong>Exploratory profile - not a ranking or certification.</strong><br>${escapeReportHtml(profile.subtitle || "Evidence-oriented working country profile.")}</div>
+
+        <h2>Assessment overview</h2>
+        <p><strong>Status:</strong> ${escapeReportHtml(humanize(profile?.assessment?.assessment_status || profile.status))} · <strong>Evidence:</strong> ${escapeReportHtml(humanize(profile?.assessment?.confidence_level || profile.evidenceLevel))} · <strong>Updated:</strong> ${escapeReportHtml(formatDate(profile.updatedAt || profile.published_at))}</p>
+
+        <h2>Six-domain assessment</h2>
+        <table><tbody>${domainRows}</tbody></table>
+
+        <div class="two-columns">
+          <section class="panel"><h2>Documented strengths</h2>${listReportItems(profile.strengths, "No reviewed strength recorded.")}</section>
+          <section class="panel"><h2>Points to examine</h2>${listReportItems(profile.watch, "No reviewed watch point recorded.")}</section>
+        </div>
+
+        <h2>Evidence register</h2>
+        ${sources.length ? sources.map(sourceReportHtml).join("") : '<p class="empty">No documentary source is attached to this working profile.</p>'}
+
+        <p class="method"><strong>Methodological note.</strong> The overall orientation signal is the rounded arithmetic mean of the six current domain scores unless an explicitly reviewed overall score is stored. It summarises the profile but does not replace the underlying sources, limitations and indicator-by-indicator review.</p>
+      </main>
+    </body>
+  </html>`);
+  reportWindow.document.close();
+  reportWindow.focus();
+}
+
+function ProfilePanel({ country, profile }) {
+  if (!profile) {
+    return (
+      <article className="profile-panel empty-profile" aria-live="polite">
+        <div>
+          <p className="profile-overline">{country?.iso3 || "Country"} · documentary coverage</p>
+          <h3>{country?.name || "Select a country"}</h3>
+          <p>This country has not yet been examined in the current IML evidence register. Neutral colour means absence of a reviewed profile, never low maturity.</p>
+          <div className="not-ranking"><strong>Not yet examined.</strong> The selected outline identifies what you are viewing; it does not assign a score.</div>
+        </div>
+      </article>
+    );
+  }
+
+  const score = profileScore(profile);
+  const values = asArray(profile.values).length === 6 ? profile.values.map(Number) : [0, 0, 0, 0, 0, 0];
+  const sources = asArray(profile.sources);
+  const assessment = profile.assessment || {};
+  const evidenceCount = sources.flatMap((source) => asArray(source.indicators)).length;
+
+  return (
+    <article className="profile-panel" aria-live="polite">
+      <div className="profile-heading">
+        <div><p className="profile-overline">{profile.iso3} · profile v{profile.version || "working"}</p><h3>{profile.name}</h3></div>
+        <div className="orientation-score" aria-label={`Indicative orientation signal ${score} out of 100`}><strong>{score}</strong><span>/100</span><small>orientation signal</small></div>
+      </div>
+      <p className="profile-subtitle">{profile.subtitle || "Exploratory, evidence-oriented country profile."}</p>
+      <div className="not-ranking"><strong>Not a ranking.</strong> Scores help structure inquiry across six domains; they are provisional and evidence-dependent.</div>
+      <div className="radar-wrap">
+        <svg className="radar" viewBox="0 0 240 240" role="img" aria-label={`Six-domain orientation for ${profile.name}`}>
+          {[25, 50, 75, 100].map((level) => <polygon key={level} points={polygonPoints([level, level, level, level, level, level], 78)} className="radar-grid" />)}
+          {[0, 1, 2, 3, 4, 5].map((index) => { const angle = -Math.PI / 2 + (index * Math.PI * 2) / 6; return <line key={index} x1="120" y1="120" x2={120 + Math.cos(angle) * 78} y2={120 + Math.sin(angle) * 78} className="radar-axis" />; })}
+          <polygon points={polygonPoints(values, 78)} className="radar-value" />
+          {values.map((value, index) => { const angle = -Math.PI / 2 + (index * Math.PI * 2) / 6; const x = 120 + Math.cos(angle) * 99; const y = 120 + Math.sin(angle) * 99; return <text key={RADAR_LABELS[index]} x={x} y={y} textAnchor={x < 110 ? "end" : x > 130 ? "start" : "middle"} dominantBaseline="middle">{RADAR_LABELS[index]} · {value}</text>; })}
+        </svg>
+        <dl className="profile-meta">
+          <div><dt>Assessment</dt><dd>{humanize(assessment.assessment_status || profile.status)}</dd></div>
+          <div><dt>Evidence</dt><dd>{humanize(assessment.confidence_level || profile.evidenceLevel)}</dd></div>
+          <div><dt>Sources</dt><dd>{sources.length}</dd></div>
+          <div><dt>Evidence links</dt><dd>{evidenceCount}</dd></div>
+          <div><dt>Updated</dt><dd>{formatDate(profile.updatedAt || profile.published_at)}</dd></div>
+        </dl>
+      </div>
+      <div className="profile-lists">
+        <div><h4>Documented strengths</h4><ul>{asArray(profile.strengths).length ? profile.strengths.map((item, index) => <li key={index}>{item}</li>) : <li>No reviewed strength recorded.</li>}</ul></div>
+        <div><h4>Points to examine</h4><ul>{asArray(profile.watch).length ? profile.watch.map((item, index) => <li key={index}>{item}</li>) : <li>No reviewed watch point recorded.</li>}</ul></div>
+      </div>
+      <details className="evidence-register">
+        <summary><span><strong>Evidence register</strong><small>{sources.length} source{sources.length === 1 ? "" : "s"} · {evidenceCount} linked indicator{evidenceCount === 1 ? "" : "s"}</small></span><span>+</span></summary>
+        <div className="evidence-list">
+          {sources.length ? sources.map((source, index) => (
+            <article className="evidence-item" key={`${source.url || source.title || "source"}-${index}`}>
+              <div className="evidence-title"><span>{String(index + 1).padStart(2, "0")}</span><div><h5>{source.title || `Source ${index + 1}`}</h5><p>{source.publisher || "Publisher not recorded"}</p></div>{source.url ? <a href={source.url} target="_blank" rel="noreferrer">Open source ↗</a> : <span className="restricted-link">No public link</span>}</div>
+              {source.note ? <p>{source.note}</p> : null}
+              {asArray(source.indicators).map((indicator, indicatorIndex) => <div className="evidence-claim" key={`${indicator.code || "indicator"}-${indicatorIndex}`}><span>{indicator.code || "IML indicator"} · evidence {indicator.evidence_level || "ungraded"}</span><p>{indicator.summary || "Evidence summary not recorded."}</p>{indicator.limitation ? <small><strong>Limit:</strong> {indicator.limitation}</small> : null}</div>)}
+            </article>
+          )) : <p>No source record is publicly available for this working profile.</p>}
+        </div>
+      </details>
+    </article>
+  );
+}
+
+function CountryExplorer() {
+  const [profiles, setProfiles] = useState([]);
+  const [selectedIso3, setSelectedIso3] = useState("FRA");
+  const [hovered, setHovered] = useState(null);
+  const [status, setStatus] = useState({ loading: true, warning: "" });
+
+  useEffect(() => {
+    const controller = new AbortController();
+    loadCountryProfiles(controller.signal)
+      .then((result) => {
+        setProfiles(result.profiles);
+        setStatus({ loading: false, warning: "" });
+        if (!result.profiles.some((profile) => profile.iso3 === "FRA") && result.profiles[0]) setSelectedIso3(result.profiles[0].iso3);
+      })
+      .catch((error) => {
+        if (error?.name !== "AbortError") setStatus({ loading: false, warning: error?.message || "Profile service unavailable." });
+      });
+    return () => controller.abort();
+  }, []);
+
+  const profilesByIso3 = useMemo(() => new Map(profiles.map((profile) => [profile.iso3, profile])), [profiles]);
+  const features = useMemo(() => worldCountries.features.filter((feature) => !isAntarctica(feature) && featureIso3(feature) && featureIso3(feature) !== "-99"), []);
+  const countryOptions = useMemo(() => Array.from(new Map(features.map((feature) => [featureIso3(feature), { iso3: featureIso3(feature), name: profilesByIso3.get(featureIso3(feature))?.name || featureName(feature) }])).values()).sort((a, b) => a.name.localeCompare(b.name)), [features, profilesByIso3]);
+  const selectedFeature = features.find((feature) => featureIso3(feature) === selectedIso3);
+  const selectedCountry = selectedFeature ? { iso3: selectedIso3, name: profilesByIso3.get(selectedIso3)?.name || featureName(selectedFeature) } : null;
+  const selectedProfile = profilesByIso3.get(selectedIso3) || null;
+
+  if (status.loading) return <div className="explorer-loading" role="status"><span />Loading country profiles…</div>;
+
+  return (
+    <div className="country-explorer">
+      <div className="explorer-toolbar">
+        <label><span>Choose a country</span><select value={selectedIso3} onChange={(event) => setSelectedIso3(event.target.value)}>{countryOptions.map((country) => <option value={country.iso3} key={country.iso3}>{country.name} — {profilesByIso3.has(country.iso3) ? "examined" : "not examined"}</option>)}</select></label>
+        <div className="report-toolbar-action">
+          <button
+            type="button"
+            className="button primary"
+            disabled={!selectedProfile}
+            onClick={() => openCountryPdfReport(selectedProfile)}
+          >
+            Download PDF report
+          </button>
+          <small>{selectedProfile ? `Report for ${selectedProfile.name}` : "Select an examined country to enable the report."}</small>
+        </div>
+      </div>
+      {status.warning ? <div className="explorer-warning" role="status"><strong>Country profiles could not be loaded.</strong><span>{status.warning}</span></div> : null}
+      <div className="explorer-grid">
+        <div className="map-panel">
+          <div className="map-legend" aria-label="Map colour scale"><span><i className="legend-unexamined" /> Not examined</span><span className="legend-scale-label">Examined · orientation signal</span><span><i className="legend-band-1" /> 0–24</span><span><i className="legend-band-2" /> 25–49</span><span><i className="legend-band-3" /> 50–74</span><span><i className="legend-band-4" /> 75–100</span><span><i className="legend-selected" /> Selection</span></div>
+          <div className="map-stage">
+            <svg className="world-map" viewBox={`0 0 ${MAP_WIDTH} ${MAP_VISIBLE_HEIGHT}`} role="img" aria-labelledby="map-title map-description">
+              <title id="map-title">IML country profiles world map</title><desc id="map-description">Examined countries use a four-step colour scale. Countries not yet examined are neutral. Every country can be selected.</desc>
+              {features.map((feature) => {
+                const iso3 = featureIso3(feature); const profile = profilesByIso3.get(iso3); const selected = selectedIso3 === iso3; const score = profile ? profileScore(profile) : null;
+                return <path key={`${iso3}-${featureName(feature)}`} d={geometryToPath(feature.geometry)} fillRule="evenodd" className={`map-country${profile ? ` is-examined score-band-${scoreBand(score)}` : " is-unexamined"}${selected ? " is-selected" : ""}`} aria-label={profile ? `${profile.name}: examined, orientation signal ${score} out of 100` : `${featureName(feature)}: not yet examined`} aria-current={selected ? "true" : undefined} role="button" tabIndex={0} onClick={() => setSelectedIso3(iso3)} onMouseMove={(event) => { const bounds = event.currentTarget.ownerSVGElement.getBoundingClientRect(); setHovered({ x: event.clientX - bounds.left, y: event.clientY - bounds.top, name: profile?.name || featureName(feature), profile, score }); }} onMouseLeave={() => setHovered(null)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedIso3(iso3); } }}><title>{profile ? `${profile.name} — examined · orientation signal ${score}/100` : `${featureName(feature)} — not yet examined`}</title></path>;
+              })}
+            </svg>
+            {hovered ? <div className="map-tooltip" style={{ left: `${Math.min(hovered.x + 14, 820)}px`, top: `${Math.max(12, hovered.y - 24)}px` }}><strong>{hovered.name}</strong><span>{hovered.profile ? `${hovered.score}/100 · examined profile` : "Not yet examined"}</span></div> : null}
+          </div>
+          <p className="map-caption">Colour distinguishes documentary coverage and groups examined profiles by their provisional orientation signal. It is not a ranking.</p>
+        </div>
+        <ProfilePanel country={selectedCountry} profile={selectedProfile} />
+      </div>
+    </div>
+  );
+}
+
+/*
+ * These few rules are deliberately kept here so this App.jsx can replace the
+ * current file on site-test without requiring another CSS upload.
+ */
+const REFERENCE_ADJUSTMENTS = `
+  /* Visible connective mesh: the same quiet network runs through every page
+     background, while all content remains above it. */
+  .hero,
+  .page-masthead,
+  .vision,
+  .current-state,
+  .clinical-section,
+  .route-overview,
+  .next-paths,
+  .methodology-section,
+  .profiles-section,
+  .manuscripts-section {
+    background-color: var(--light);
+    background-image:
+      radial-gradient(circle at 22px 22px, rgba(46, 111, 106, .34) 0 1.45px, transparent 1.7px),
+      repeating-linear-gradient(45deg, transparent 0 21px, rgba(46, 111, 106, .15) 21px 22px, transparent 22px 43px),
+      repeating-linear-gradient(-45deg, transparent 0 21px, rgba(46, 111, 106, .15) 21px 22px, transparent 22px 43px),
+      linear-gradient(145deg, var(--light), var(--paper));
+    background-size: 44px 44px, 44px 44px, 44px 44px, auto;
+  }
+
+  .interoperability-section,
+  .collaborate-section {
+    background-image:
+      radial-gradient(circle at 22px 22px, rgba(226, 166, 71, .50) 0 1.35px, transparent 1.65px),
+      repeating-linear-gradient(45deg, transparent 0 21px, rgba(255, 255, 255, .14) 21px 22px, transparent 22px 43px),
+      repeating-linear-gradient(-45deg, transparent 0 21px, rgba(255, 255, 255, .14) 21px 22px, transparent 22px 43px),
+      linear-gradient(145deg, var(--navy), var(--teal-deep));
+    background-size: 44px 44px, 44px 44px, 44px 44px, auto;
+  }
+
+  .page-ornament {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: min(1160px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 18px 0;
+    color: color-mix(in srgb, var(--teal) 50%, var(--line));
+  }
+
+  .page-ornament span {
+    height: 1px;
+    flex: 1;
+    background: currentColor;
+    opacity: .65;
+  }
+
+  .page-ornament i {
+    box-sizing: border-box;
+    display: block;
+    width: 7px;
+    height: 7px;
+    flex: 0 0 7px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+  }
+
+  .brand-home {
+    min-width: 320px;
+    gap: 14px;
+  }
+
+  .hero-grid {
+    grid-template-columns: minmax(0, 1.02fr) minmax(430px, .98fr);
+  }
+
+  .hero-copy {
+    max-width: 760px;
+  }
+
+  .brand-mark img,
+  .footer-logo img {
+    transform: scale(1.52);
+    mix-blend-mode: multiply;
+  }
+
+  .footer-brand {
+    gap: 14px;
+  }
+
+  .footer-logo {
+    width: 62px;
+    height: 62px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #f5efe4;
+  }
+
+  .footer-logo img {
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
+  }
+
+  .page-masthead-grid {
+    grid-template-columns: minmax(0, 1.45fr) minmax(280px, .55fr);
+  }
+
+  .explorer-toolbar {
+    justify-content: space-between;
+  }
+
+  .report-toolbar-action {
+    display: grid;
+    justify-items: end;
+    gap: 7px;
+  }
+
+  .report-toolbar-action button {
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .report-toolbar-action button:disabled {
+    cursor: not-allowed;
+    opacity: .48;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .report-toolbar-action small {
+    margin: 0;
+    color: var(--soft);
+    font-size: .68rem;
+    line-height: 1.35;
+    text-align: right;
+  }
+
+  .manuscript-cards h3 {
+    margin-top: 12px;
+  }
+
+  body[data-iml-route="/country-profiles"] .page-masthead-grid,
+  body[data-iml-route="/manuscripts"] .page-masthead-grid {
+    min-height: 280px;
+    padding-block: 48px 56px;
+  }
+
+  body[data-iml-route="/country-profiles"] .page-masthead h1,
+  body[data-iml-route="/manuscripts"] .page-masthead h1 {
+    font-size: clamp(3rem, 4.8vw, 5.1rem);
+  }
+
+  body[data-iml-route="/country-profiles"] .profiles-heading {
+    margin-bottom: 30px;
+  }
+
+  body[data-iml-route="/identity-trust"] .page-masthead-grid {
+    min-height: 320px;
+    grid-template-columns: minmax(0, 1.45fr) minmax(280px, .55fr);
+    padding-block: 52px 62px;
+  }
+
+  body[data-iml-route="/identity-trust"] .page-masthead h1 {
+    max-width: 1050px;
+    font-size: clamp(3rem, 4.8vw, 5.15rem);
+  }
+
+  .collaborate-masthead-aside {
+    align-self: stretch;
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 18px;
+  }
+
+  .collaborate-lamp-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    border-radius: 46% 54% 51% 49% / 58% 44% 56% 42%;
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 54%, rgba(0, 0, 0, .96) 69%, transparent 100%);
+    mask-image: radial-gradient(ellipse at center, #000 54%, rgba(0, 0, 0, .96) 69%, transparent 100%);
+  }
+
+  .collaborate-lamp-frame img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transform: scaleX(-1);
+    mix-blend-mode: multiply;
+  }
+
+  .collaborate-masthead-aside p {
+    margin: 0;
+    color: var(--soft);
+    font-size: clamp(1.03rem, 1.3vw, 1.22rem);
+    line-height: 1.75;
+  }
+
+  .identity-trust-section {
+    background: var(--light);
+    padding-block: clamp(48px, 6vw, 86px);
+  }
+
+  .identity-trust-card {
+    border: 1px solid color-mix(in srgb, var(--teal) 42%, var(--line));
+    border-radius: 24px;
+    background: color-mix(in srgb, var(--teal-wash) 34%, var(--light));
+    padding: clamp(28px, 4vw, 48px);
+    box-shadow: 0 18px 48px rgba(19, 40, 58, .07);
+  }
+
+  .identity-trust-card h2 {
+    margin: 0 0 20px;
+    font-family: var(--font-source-serif), Georgia, serif;
+    font-size: clamp(1.55rem, 2.2vw, 2.2rem);
+    font-weight: 650;
+    letter-spacing: -.025em;
+    line-height: 1.15;
+  }
+
+  .identity-trust-card p {
+    margin: 0;
+    color: var(--soft);
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .identity-trust-card p + p {
+    margin-top: 18px;
+  }
+
+  @media (max-width: 760px) {
+    body[data-iml-route="/country-profiles"] .page-masthead-grid,
+    body[data-iml-route="/manuscripts"] .page-masthead-grid {
+      padding-block: 38px 48px;
+    }
+
+    body[data-iml-route="/identity-trust"] .page-masthead-grid {
+      min-height: auto;
+      grid-template-columns: 1fr;
+      padding-block: 38px 48px;
+    }
+
+    .identity-trust-card {
+      border-radius: 18px;
+    }
+
+    .collaborate-masthead-aside {
+      max-width: 760px;
+    }
+
+    .collaborate-lamp-frame {
+      width: min(520px, 100%);
+    }
+
+    .report-toolbar-action {
+      justify-items: stretch;
+    }
+
+    .report-toolbar-action small {
+      text-align: left;
+    }
+
+    .brand-home {
+      min-width: 0;
+    }
+
+    .footer-logo {
+      width: 54px;
+      height: 54px;
+    }
+  }
+
+  @media (max-width: 1180px) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .hero-copy {
+      max-width: 880px;
+    }
+  }
+`;
+
+function HomePage() {
+  return (
+    <PageFrame active="/" home>
+      <section className="hero" id="top">
+        <div className="shell hero-grid">
+          <div className="hero-copy">
+            <h1>Health information should illuminate care — not fragment it.</h1>
+            <p className="hero-lede">
+              An open clinical workspace and an integration layer for systems that must cooperate without losing clinical meaning.
+            </p>
+            <div className="hero-actions">
+              <a className="button primary" href="/vision">Explore the project</a>
+              <a className="button secondary" href="/country-profiles">View country profiles</a>
+            </div>
+            <div className="hero-paths" aria-label="Two complementary paths">
+              <a className="path-card" href="/clinical-workspace">
+                <span className="path-number">01</span>
+                <span>
+                  <strong>Open Clinical Workspace</strong>
+                  <small>A progressively deployable clinical foundation.</small>
+                </span>
+              </a>
+              <a className="path-card" href="/interoperability">
+                <span className="path-number">02</span>
+                <span>
+                  <strong>Integration &amp; evidence layer</strong>
+                  <small>Connect systems, preserve meaning, document evidence.</small>
+                </span>
+              </a>
+            </div>
+          </div>
+          <div className="hero-art">
+            <div className="hero-art-frame">
+              <img src={heroLampImage} alt="Hand-drawn IML lamp illuminating connected evidence paths" />
+            </div>
+          </div>
+        </div>
+        <div className="shell principle">
+          <span />
+          <p>Health is the objective. Trustworthy information is the foundation. Interoperability is the path.</p>
+          <span />
+        </div>
+      </section>
+    </PageFrame>
+  );
+}
+
+function VisionPage() {
+  return (
+    <PageFrame active="/vision">
+      <PageMasthead
+        title="One open environment. Two complementary paths."
+        lede="IML links a modular clinical foundation with an open way to connect existing health information systems."
+      />
+      <section className="vision vision-page" aria-labelledby="vision-heading">
+        <div className="shell vision-grid">
+          <div>
+            <h2 id="vision-heading">Make trustworthy information useful across care.</h2>
+          </div>
+          <div className="vision-prose">
+            <p>
+              IML is not a new national silo. It is a vendor-neutral reference environment for clinical work, integration, evidence and correction.
+            </p>
+            <p>
+              Identity remains a governed enabling layer. <a className="text-link" href="/identity-trust">Read Identity &amp; Trust →</a>
+            </p>
+          </div>
+        </div>
+      </section>
+    </PageFrame>
+  );
+}
+
+function ClinicalWorkspacePage() {
+  return (
+    <PageFrame active="/clinical-workspace">
+      <PageMasthead
+        title="A modular clinical workspace that can start small."
+        lede="Open-source, inspectable and progressively deployable, with regional modules rather than a closed monolith."
+      />
+      <section className="section clinical-section" aria-labelledby="clinical-heading">
+        <div className="shell section-split">
+          <div className="section-intro sticky-intro">
+            <h2 id="clinical-heading">Build on proven open-source foundations.</h2>
+            <p>
+              <a className="text-link" href="https://openmrs.org/demo/" target="_blank" rel="noopener noreferrer">Explore OpenMRS O3 ↗</a>, an important reference for the clinical workspace. IML explores how it can be complemented by regional packs and an independent integration layer.
+            </p>
+            <a className="text-link" href="/collaborate">Join the clinical workstream →</a>
+          </div>
+          <div className="module-grid">
+            {clinicalModules.map(([title, copy], index) => (
+              <article className="module-card" key={title}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <div><h3>{title}</h3><p>{copy}</p></div>
+              </article>
+            ))}
+            <div className="design-note">
+              <strong>Progressive deployment</strong>
+              <p>Adopt and govern useful modules in stages; an initial installation should not require an entire national architecture.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </PageFrame>
+  );
+}
+
+function CountryProfilesPage() {
+  return (
+    <PageFrame active="/country-profiles">
+      <PageMasthead
+        title="Country profiles"
+        lede="Explore evidence, sources and limitations. Profiles support inquiry; they are not rankings."
+      />
+      <section className="section profiles-section" aria-labelledby="profiles-heading">
+        <div className="shell">
+          <div className="profiles-heading">
+            <p id="profiles-heading">Select any country on the map. Neutral means not yet examined, never low maturity.</p>
+          </div>
+          <CountryExplorer />
+        </div>
+      </section>
+    </PageFrame>
+  );
+}
+
+function ManuscriptsPage() {
+  return (
+    <PageFrame active="/manuscripts">
+      <PageMasthead
+        title="Manuscripts"
+        lede="Founding vision and technical architecture for scientific review."
+      />
+      <section className="section manuscripts-section" aria-labelledby="manuscripts-heading">
+        <div className="shell manuscript-layout">
+          <div className="section-intro">
+            <h2 id="manuscripts-heading">Read the current foundations.</h2>
+          </div>
+          <div className="manuscript-cards" aria-label="IML manuscripts">
+            <article>
+              <h3>Founding vision</h3>
+              <p>Why fragmented information harms care, and why a health information environment must be open, accountable and clinically grounded.</p>
+              <a className="button primary" href={`${BASE_URL}IML_Founding_Manuscript.pdf`} target="_blank" rel="noreferrer">
+                Read founding manuscript ↗
+              </a>
+            </article>
+            <article>
+              <h3>Technical architecture</h3>
+              <p>How modular software, interoperability layers, evidence and correction can form a coherent implementation path.</p>
+              <a className="button secondary" href={`${BASE_URL}IML_Technical_Manuscript.pdf`} target="_blank" rel="noreferrer">
+                Read technical manuscript ↗
+              </a>
+            </article>
+          </div>
+        </div>
+      </section>
+    </PageFrame>
+  );
+}
+
+function IdentityTrustPage() {
+  return (
+    <PageFrame active="/identity-trust">
+      <PageMasthead
+        title="Identity, consent and trust across fragmented systems"
+        lede="Identity is an enabling layer for continuity and accountability, not the whole of interoperability."
+      />
+      <section className="identity-trust-section" id="identity-trust" aria-labelledby="identity-trust-heading">
+        <div className="shell">
+          <article className="identity-trust-card">
+            <h2 id="identity-trust-heading">From trusted identity to authorised health and research linkage</h2>
+            <p>
+              IML does not propose replacing national identity systems. It explores how recognised national identifiers could contribute to a future universal health and research number for authorised multicentre, longitudinal and epidemiological studies. It complements the <a className="text-link" href="https://id4d.worldbank.org/" target="_blank" rel="noopener noreferrer">World Bank ID4D initiative ↗</a> and may build on trust infrastructures such as the <a className="text-link" href="https://www.who.int/initiatives/global-digital-health-certification-network" target="_blank" rel="noopener noreferrer">WHO Global Digital Health Certification Network ↗</a>.
+            </p>
+            <p>
+              National models already differ. A future IML model could combine the national identifier namespace, a governed geographic reference and a protected keyed hash. The resulting number would remain regulated personal data and would require legal, ethical, security and equity review before implementation.
+            </p>
+            <p>
+              Identity, identifier, access token and carrier mechanism must remain distinct. A QR code or mobile application should carry only a temporary signed token or a verifiable digital certificate, never sensitive identity or health information in clear text.
+            </p>
+            <p>
+              The country-level <a className="text-link" href="https://monitor.digitalhealthmonitor.org/map" target="_blank" rel="noopener noreferrer">Global Digital Health Monitor map ↗</a> provides information on digital health. IML is different: it develops an independent comparative framework designed to guide structured country research, verify documentary evidence, identify information gaps and support contextual human validation.
+            </p>
+          </article>
+        </div>
+      </section>
+    </PageFrame>
+  );
+}
+
+const interoperabilityLayers = [
+  ["01", "Technical", "Can systems exchange data reliably?"],
+  ["02", "Semantic", "Is clinical meaning preserved?"],
+  ["03", "Organisational", "Do workflows and responsibilities align?"],
+  ["04", "Institutional", "Are governance, law and accountability credible?"],
+  ["05", "Clinical & public health", "Does information improve decisions, safety and learning?"],
+];
+
+const methodologyDomains = [
+  ["GOV", "Governance", "Stewardship, accountability and policy direction"],
+  ["TEC", "Technical", "Standards, architecture and reliable exchange"],
+  ["IDT", "Identity", "People, professionals, organisations and consent"],
+  ["ADP", "Adoption", "Real use in care and public-health workflows"],
+  ["SEC", "Security", "Protection, access control and resilience"],
+  ["LRN", "Learning", "Feedback, correction and system improvement"],
+];
+
+function InteroperabilityPage() {
+  return (
+    <PageFrame active="/interoperability">
+      <PageMasthead
+        title="Interoperability is a clinical capability, not a cable between databases."
+        lede="A connection becomes useful only when technical exchange, shared meaning, workflow, governance and clinical purpose hold together."
+      />
+      <section className="section interoperability-section" aria-labelledby="layers-heading">
+        <div className="shell">
+          <div className="wide-heading"><div><h2 id="layers-heading">Exchange must preserve meaning and responsibility.</h2></div><p>IML treats interoperability as an end-to-end clinical and institutional capability rather than a narrow interface project.</p></div>
+          <div className="layer-grid">{interoperabilityLayers.map(([number, title, copy]) => <article key={title}><span>{number}</span><h3>{title}</h3><p>{copy}</p></article>)}</div>
+          <div className="information-flow" aria-label="Information flow from source systems to learning">
+            <div><small>Existing sources</small><strong>EHRs · labs · registries · payers</strong></div><i>→</i>
+            <div><small>Trust layer</small><strong>Identity · consent · terminology</strong></div><i>→</i>
+            <div><small>Clinical use</small><strong>Workspace · public health</strong></div><i>→</i>
+            <div><small>Learning</small><strong>Evidence · correction · feedback</strong></div>
+          </div>
+          <div className="demonstrator-grid">
+            <article><h3>AMR / BMR continuity</h3><p>Trace culture, susceptibility, antimicrobial decisions and feedback without detaching a laboratory result from its clinical context.</p></article>
+            <article><h3>Payer interoperability</h3><p>Connect coverage and reimbursement processes to care without allowing administrative exchange to distort the clinical record.</p></article>
+            <article><h3>Identity, consent &amp; access</h3><p>QR or mobile workflows should carry only short-lived signed tokens—never sensitive health data in clear text. IML complements national identity systems; it does not replace them.</p></article>
+          </div>
+        </div>
+      </section>
+      <section className="section methodology-section" id="methodology" aria-labelledby="methodology-heading">
+        <div className="shell methodology-layout">
+          <div className="section-intro"><h2 id="methodology-heading">Six domains, explicit evidence and versioned judgments.</h2><p>Country profiles are structured orientation tools. Each claim should point to documentary support, declare its limitation and remain open to correction by informed reviewers.</p></div>
+          <div className="domain-grid">{methodologyDomains.map(([code, title, copy]) => <article key={code}><span>{code}</span><h3>{title}</h3><p>{copy}</p></article>)}</div>
+          <ol className="evidence-pipeline" aria-label="Evidence workflow">
+            <li><span>1</span><strong>Source</strong><small>Prefer authoritative public documentation</small></li>
+            <li><span>2</span><strong>Claim</strong><small>Link evidence to a precise indicator</small></li>
+            <li><span>3</span><strong>Limit</strong><small>State what the source cannot prove</small></li>
+            <li><span>4</span><strong>Review</strong><small>Version, challenge and correct</small></li>
+          </ol>
+        </div>
+      </section>
+    </PageFrame>
+  );
+}
+
+function CollaboratePage() {
+  return (
+    <PageFrame active="/collaborate">
+      <PageMasthead title="Bring evidence, clinical reality or implementation experience." lede="IML is independent, non-commercial and open to rigorous contribution." mirroredLamp />
+      <section className="section collaborate-section" aria-labelledby="collaborate-heading">
+        <div className="shell collaborate-layout">
+          <div><h2 id="collaborate-heading">A concrete contribution is better than a broad endorsement.</h2><p>Tell us what you know, what should be corrected and what you would be prepared to test.</p><a className="button amber-button" href="mailto:iml.health@pm.me?subject=IML%20collaboration">Write to iml.health@pm.me</a></div>
+          <div className="audience-grid">
+            <article><span>01</span><h3>Clinicians &amp; country reviewers</h3><p>Test whether profiles reflect real care and flag overstatement, omissions or outdated evidence.</p></article>
+            <article><span>02</span><h3>Universities &amp; researchers</h3><p>Strengthen the method, validation design and scientific critique.</p></article>
+            <article><span>03</span><h3>Institutions &amp; implementers</h3><p>Explore pragmatic pilots without creating another closed dependency.</p></article>
+            <article><span>04</span><h3>Open-source developers</h3><p>Build small, reviewable modules and integration demonstrations.</p></article>
+          </div>
+        </div>
+      </section>
+    </PageFrame>
+  );
+}
+
+function NotFoundPage() {
+  return (
+    <PageFrame active="/">
+      <PageMasthead title="This page is not part of the current IML site." lede="Use the navigation or return to the project home." />
+      <section className="section"><div className="shell"><a className="button primary" href="/">Return to IML Health</a></div></section>
+    </PageFrame>
+  );
+}
+
+export const ROUTES = {
+  "/": {
+    component: HomePage,
+    title: "IML Health — Open Health Information Environment",
+    description: "An open-source clinical workspace and an open integration layer for health information systems.",
+  },
+  "/vision": {
+    component: VisionPage,
+    title: "Vision — IML Health",
+    description: "The purpose, scope and current state of the IML Open Health Information Environment.",
+  },
+  "/identity-trust": {
+    component: IdentityTrustPage,
+    title: "Identity & Trust — IML Health",
+    description: "Identity, consent, provenance and trusted access across fragmented health information systems.",
+  },
+  "/clinical-workspace": {
+    component: ClinicalWorkspacePage,
+    title: "Open Clinical Workspace — IML Health",
+    description: "A modular, open-source and vendor-neutral clinical workspace for progressive deployment.",
+  },
+  "/interoperability": {
+    component: InteroperabilityPage,
+    title: "Interoperability — IML Health",
+    description: "IML's open integration, evidence and learning layer for health information systems.",
+  },
+  "/country-profiles": {
+    component: CountryProfilesPage,
+    title: "Country Profiles — IML Health",
+    description: "Evidence-oriented country interoperability profiles with explicit sources and limitations.",
+  },
+  "/manuscripts": {
+    component: ManuscriptsPage,
+    title: "Manuscripts — IML Health",
+    description: "The founding vision and technical architecture manuscripts of IML Health.",
+  },
+  "/collaborate": {
+    component: CollaboratePage,
+    title: "Collaborate — IML Health",
+    description: "Contribute evidence, clinical review, research or open-source implementation experience to IML Health.",
+  },
+};
+
+const LEGACY_HASHES = {
+  "#id4d": "/identity-trust",
+  "#evaluation": "/interoperability",
+  "#methodology": "/interoperability#methodology",
+  "#world": "/country-profiles",
+  "#profiles": "/country-profiles",
+  "#contact": "/collaborate",
+};
+
+const LEGACY_PATHS = {
+  "/id4d": "/identity-trust",
+  "/evaluation": "/interoperability",
+  "/methodology": "/interoperability#methodology",
+  "/world": "/country-profiles",
+  "/profiles": "/country-profiles",
+  "/contact": "/collaborate",
+};
+
+function cleanPath(pathname) {
+  if (!pathname || pathname === "/") return "/";
+  return pathname.replace(/\/+$/, "") || "/";
+}
+
+function resolveLocation() {
+  const pathname = cleanPath(window.location.pathname);
+  const legacyTarget = LEGACY_PATHS[pathname]
+    || (pathname === "/" ? LEGACY_HASHES[window.location.hash.toLowerCase()] : null);
+  if (!legacyTarget) return { routePath: pathname, canonicalTarget: null };
+  return { routePath: legacyTarget.split("#")[0], canonicalTarget: legacyTarget };
+}
+
+function setMeta(route) {
+  document.title = route.title;
+  let description = document.querySelector('meta[name="description"]');
+  if (!description) {
+    description = document.createElement("meta");
+    description.setAttribute("name", "description");
+    document.head.appendChild(description);
+  }
+  description.setAttribute("content", route.description);
+}
+
+function ensureIdentityTrustLinks(activePath) {
+  document.querySelectorAll(".desktop-nav, .mobile-menu nav").forEach((nav) => {
+    let link = nav.querySelector('a[href="/identity-trust"]');
+    if (!link) {
+      link = document.createElement("a");
+      link.href = "/identity-trust";
+      link.textContent = "Identity & Trust";
+      const visionLink = nav.querySelector('a[href="/vision"]');
+      if (visionLink) visionLink.insertAdjacentElement("afterend", link);
+      else nav.prepend(link);
+    }
+    if (activePath === "/identity-trust") link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  });
+
+  const projectFooter = [...document.querySelectorAll(".footer-grid > div")]
+    .find((section) => section.querySelector("h3")?.textContent.trim() === "Project");
+  if (projectFooter && !projectFooter.querySelector('a[href="/identity-trust"]')) {
+    const link = document.createElement("a");
+    link.href = "/identity-trust";
+    link.textContent = "Identity & Trust";
+    const visionLink = projectFooter.querySelector('a[href="/vision"]');
+    if (visionLink) visionLink.insertAdjacentElement("afterend", link);
+    else projectFooter.append(link);
+  }
+}
+
+export default function App() {
+  const location = resolveLocation();
+  const route = ROUTES[location.routePath] || {
+    component: NotFoundPage,
+    title: "Page not found — IML Health",
+    description: "The requested IML Health page could not be found.",
+  };
+  const Page = route.component;
+
+  useEffect(() => {
+    setMeta(route);
+    document.body.dataset.imlRoute = location.routePath;
+
+    if (location.canonicalTarget) {
+      window.history.replaceState({}, "", location.canonicalTarget);
+    }
+
+    const fragment = (location.canonicalTarget?.split("#")[1] || window.location.hash.slice(1)).trim();
+    window.requestAnimationFrame(() => {
+      ensureIdentityTrustLinks(location.routePath);
+      if (fragment && document.getElementById(fragment)) {
+        document.getElementById(fragment).scrollIntoView();
+      } else {
+        window.scrollTo(0, 0);
+      }
+    });
+
+    return () => {
+      delete document.body.dataset.imlRoute;
+    };
+  }, [location.canonicalTarget, location.routePath, route]);
+
+  return (
+    <>
+      <style>{REFERENCE_ADJUSTMENTS}</style>
+      <Page />
+    </>
+  );
+}
