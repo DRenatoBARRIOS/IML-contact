@@ -58,9 +58,6 @@ function SiteFooter() {
     <footer className="site-footer">
       <div className="shell footer-grid">
         <div className="footer-brand">
-          <span className="footer-logo" aria-hidden="true">
-            <img src={logoImage} alt="" width="58" height="58" />
-          </span>
           <div>
             <strong>IML Health</strong>
             <p>Independent, non-commercial and open for scientific review.</p>
