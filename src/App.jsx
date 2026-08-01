@@ -1,6 +1,4 @@
 import { useEffect } from "react";
-import VisionPage from "./pages/VisionPage.jsx";
-import ClinicalWorkspacePage from "./pages/ClinicalWorkspacePage.jsx";
 import InteroperabilityPage from "./pages/InteroperabilityPage.jsx";
 import CollaboratePage from "./pages/CollaboratePage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
@@ -9,6 +7,13 @@ import PageMasthead from "./components/PageMasthead.jsx";
 import PageFrame from "./components/SiteChrome.jsx";
 
 const BASE_URL = import.meta.env.BASE_URL || "/";
+
+const clinicalModules = [
+  ["Patient identity", "Reliable identification, duplicate prevention and correction."],
+  ["Consultation & terminology", "A coherent encounter record that preserves local clinical language."],
+  ["Laboratories & results", "Structured requests and traceable results with explicit provenance."],
+  ["Audit & correction", "Attributable actions and visible, safely propagated corrections."],
+];
 
 /*
  * These few rules are deliberately kept here so this App.jsx can replace the
@@ -51,7 +56,7 @@ function HomePage() {
             <p className="eyebrow">Open · vendor-neutral · academic</p>
             <h1>Health information should illuminate care — not fragment it.</h1>
             <p className="hero-lede">
-              IML unites two complementary paths: an open-source clinical workspace and an open integration layer for existing systems.
+              An open clinical workspace and an integration layer for systems that must cooperate without losing clinical meaning.
             </p>
             <div className="hero-actions">
               <a className="button primary" href="/vision">Explore the project</a>
@@ -86,16 +91,69 @@ function HomePage() {
           <span />
         </div>
       </section>
+    </PageFrame>
+  );
+}
 
-      <section className="vision home-intro" aria-labelledby="home-intro-heading">
+function VisionPage() {
+  return (
+    <PageFrame active="/vision">
+      <PageMasthead
+        eyebrow="Vision"
+        title="One open environment. Two complementary paths."
+        lede="IML links a modular clinical foundation with an open way to connect existing health information systems."
+      />
+      <section className="vision vision-page" aria-labelledby="vision-heading">
         <div className="shell vision-grid">
           <div>
-            <p className="section-kicker">One environment · two paths</p>
-            <h2 id="home-intro-heading">A reference workspace and an open way to connect what already exists.</h2>
+            <p className="section-kicker">Purpose</p>
+            <h2 id="vision-heading">Make trustworthy information useful across care.</h2>
           </div>
-          <p>
-            IML does not impose an exclusive monolith. It brings together a modular clinical foundation and an integration approach for software, laboratories, registries, payers and national infrastructure.
-          </p>
+          <div className="vision-prose">
+            <p>
+              IML is not a new national silo. It is a vendor-neutral reference environment for clinical work, integration, evidence and correction.
+            </p>
+            <p>
+              Identity remains a governed enabling layer. <a className="text-link" href="/identity-trust">Read Identity &amp; Trust →</a>
+            </p>
+          </div>
+        </div>
+      </section>
+    </PageFrame>
+  );
+}
+
+function ClinicalWorkspacePage() {
+  return (
+    <PageFrame active="/clinical-workspace">
+      <PageMasthead
+        eyebrow="Path 01 · Clinical foundation"
+        title="A modular clinical workspace that can start small."
+        lede="Open-source, inspectable and progressively deployable, with regional modules rather than a closed monolith."
+      />
+      <section className="section clinical-section" aria-labelledby="clinical-heading">
+        <div className="shell section-split">
+          <div className="section-intro sticky-intro">
+            <p className="section-kicker">Current workstream</p>
+            <span className="status-chip amber">Reference prototype</span>
+            <h2 id="clinical-heading">Build on proven open-source foundations.</h2>
+            <p>
+              <a className="text-link" href="https://o3.openmrs.org/" target="_blank" rel="noopener noreferrer">OpenMRS O3 ↗</a> is an important reference for the clinical workspace. IML explores how it can be complemented by regional packs and an independent integration layer.
+            </p>
+            <a className="text-link" href="/collaborate">Join the clinical workstream →</a>
+          </div>
+          <div className="module-grid">
+            {clinicalModules.map(([title, copy], index) => (
+              <article className="module-card" key={title}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <div><h3>{title}</h3><p>{copy}</p></div>
+              </article>
+            ))}
+            <div className="design-note">
+              <strong>Progressive deployment</strong>
+              <p>Adopt and govern useful modules in stages; an initial installation should not require an entire national architecture.</p>
+            </div>
+          </div>
         </div>
       </section>
     </PageFrame>
@@ -280,31 +338,31 @@ function setMeta(route) {
   description.setAttribute("content", route.description);
 }
 
-function addIdentityTrustLinks(activePath) {
-  const navs = document.querySelectorAll(".desktop-nav, .mobile-menu nav");
-
-  navs.forEach((nav) => {
-    let link = nav.querySelector('a[data-iml-identity-trust="true"]');
+function ensureIdentityTrustLinks(activePath) {
+  document.querySelectorAll(".desktop-nav, .mobile-menu nav").forEach((nav) => {
+    let link = nav.querySelector('a[href="/identity-trust"]');
     if (!link) {
       link = document.createElement("a");
       link.href = "/identity-trust";
       link.textContent = "Identity & Trust";
-      link.dataset.imlIdentityTrust = "true";
-
       const visionLink = nav.querySelector('a[href="/vision"]');
-      if (visionLink) {
-        visionLink.insertAdjacentElement("afterend", link);
-      } else {
-        nav.prepend(link);
-      }
+      if (visionLink) visionLink.insertAdjacentElement("afterend", link);
+      else nav.prepend(link);
     }
-
-    if (activePath === "/identity-trust") {
-      link.setAttribute("aria-current", "page");
-    } else {
-      link.removeAttribute("aria-current");
-    }
+    if (activePath === "/identity-trust") link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
   });
+
+  const projectFooter = [...document.querySelectorAll(".footer-grid > div")]
+    .find((section) => section.querySelector("h3")?.textContent.trim() === "Project");
+  if (projectFooter && !projectFooter.querySelector('a[href="/identity-trust"]')) {
+    const link = document.createElement("a");
+    link.href = "/identity-trust";
+    link.textContent = "Identity & Trust";
+    const visionLink = projectFooter.querySelector('a[href="/vision"]');
+    if (visionLink) visionLink.insertAdjacentElement("afterend", link);
+    else projectFooter.append(link);
+  }
 }
 
 export default function App() {
@@ -326,7 +384,7 @@ export default function App() {
 
     const fragment = (location.canonicalTarget?.split("#")[1] || window.location.hash.slice(1)).trim();
     window.requestAnimationFrame(() => {
-      addIdentityTrustLinks(location.routePath);
+      ensureIdentityTrustLinks(location.routePath);
       if (fragment && document.getElementById(fragment)) {
         document.getElementById(fragment).scrollIntoView();
       } else {
