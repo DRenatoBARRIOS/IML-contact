@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import logoImage from "./assets/iml-logo.png";
 import worldCountries from "./world-countries.json";
 import { loadGlobalMapProfiles } from "./services/countriesApi.js";
 import "./App.css";
@@ -16,8 +15,6 @@ const ROUTES = [
   ["collaborate", "Collaborate"],
 ].map(([key, label]) => ({ key, label }));
 
-// Keep every previously published hash working after the navigation update.
-// This lets old bookmarks and search results land on the closest new page.
 const LEGACY_ROUTE_ALIASES = {
   id4d: "interoperability",
   evaluation: "clinical-workspace",
@@ -88,14 +85,6 @@ const firstDefined = (...values) => values.find((value) => value !== undefined &
 
 function Card({ children, className = "" }) {
   return <div className={cls("card", className)}>{children}</div>;
-}
-
-function LogoMark() {
-  return (
-    <div className="logo-box">
-      <img src={logoImage} className="logo-svg" alt="IML logo" />
-    </div>
-  );
 }
 
 function NavButton({ active, children, onClick }) {
@@ -229,10 +218,11 @@ function metricScore(profile, metric = "overall") {
 
 function scoreFill(score, hasProfile) {
   if (!hasProfile || score === null) return "#e6edf5";
-  if (score >= 75) return "#176c7e";
-  if (score >= 50) return "#5ca5b3";
-  if (score >= 25) return "#acd6dc";
-  return "#d9eef2";
+  if (score >= 85) return "#164e63";
+  if (score >= 70) return "#0e7490";
+  if (score >= 55) return "#67a8bb";
+  if (score >= 40) return "#a8ced8";
+  return "#d8e8ed";
 }
 
 function normaliseEvidenceLevel(level) {
@@ -331,19 +321,13 @@ function WorldMap({ profiles, selectedCountry, onSelect }) {
     <div className="world-box">
       <div className="world-box-head">
         <div>
-          <div className="eyebrow">PostgreSQL test environment</div>
+          <div className="eyebrow">Country profiles</div>
           <div className="overview-title">Evidence-linked country profiles</div>
         </div>
-        <div className="helper-pill">The amber outline marks the country being viewed. It is not a score.</div>
+        <div className="helper-pill">Amber outline = selected country, not a score.</div>
       </div>
-      <div className="world-map-wrap map-stage">
-        <svg
-          viewBox={`0 0 ${MAP_WIDTH} ${MAP_VISIBLE_HEIGHT}`}
-          preserveAspectRatio="xMidYMid meet"
-          className="world-map"
-          style={{ width: "100%", minHeight: "clamp(220px, 42vw, 620px)", display: "block" }}
-          aria-label="Interactive IML world map"
-        >
+      <div className="world-map-wrap map-stage" style={{ width: "100%" }}>
+        <svg viewBox={`0 0 ${MAP_WIDTH} ${MAP_VISIBLE_HEIGHT}`} className="world-map" style={{ display: "block", width: "100%", minHeight: 430 }} aria-label="Interactive IML world map">
           <rect width={MAP_WIDTH} height={MAP_VISIBLE_HEIGHT} rx="26" fill="#f8fbff" />
           <g>
             {mapFeatures.map((feature) => {
@@ -386,16 +370,14 @@ function WorldMap({ profiles, selectedCountry, onSelect }) {
         ) : null}
       </div>
       <div className="map-legend" aria-label="Map legend">
-        <span>Not examined</span>
+        <span>No profile</span>
         <div className="legend-swatches">
-          <span title="Not examined" style={{ background: "#e6edf5" }} />
-          <span title="Examined · 0–24" style={{ background: "#d9eef2" }} />
-          <span title="Examined · 25–49" style={{ background: "#acd6dc" }} />
-          <span title="Examined · 50–74" style={{ background: "#5ca5b3" }} />
-          <span title="Examined · 75–100" style={{ background: "#176c7e" }} />
+          {["#e6edf5", "#d8e8ed", "#a8ced8", "#67a8bb", "#0e7490", "#164e63"].map((color) => (
+            <span key={color} style={{ background: color }} />
+          ))}
         </div>
-        <span>Examined · orientation signal 0–100</span>
-        <span className="legend-selected"><span className="legend-selected-swatch" style={{ background: "transparent", border: "3px solid #d97706" }} />Selected country · viewing only</span>
+        <span>Higher maturity signal</span>
+        <span className="legend-selected"><span className="legend-selected-swatch" />Amber outline · selected country</span>
       </div>
     </div>
   );
@@ -872,8 +854,8 @@ function CountryProfile({ selectedCountry, profile }) {
         <div className="content-block map-empty">
           <div className="section-badge">Profile not yet available</div>
           <h3>{selectedCountry.name}</h3>
-          <p><strong>Selection only:</strong> the amber outline means that the country is being viewed. It is not an assessment.</p>
-          <p>A future editorial workflow can create a draft, attach institutional sources, link evidence to indicators, request local review and publish a versioned profile.</p>
+          <p><strong>Not yet examined.</strong> The amber outline means only that this country is selected; it is not an assessment.</p>
+          <p>A profile can be added once documentary sources and local review are available.</p>
         </div>
       </Card>
     );
@@ -945,13 +927,8 @@ function HomePage() {
             <MetricCard symbol="02" title="Integration & evidence" value="Open connection layer" subtitle="Connect systems, preserve meaning and document evidence." />
           </div>
         </div>
-        <Card className="overview-card"><div className="overview-top"><div><div className="eyebrow">IML Health</div><div className="overview-title">One environment · two complementary paths</div></div></div>
-          <Card className="note-box"><p>IML is a lamp rather than a verdict. It helps make visible the information pathways surrounding disease, the places where meaning is lost and the points where human review remains essential.</p></Card>
-          <div className="stack-list top-gap-small">{[
-            ["Open Clinical Workspace", "A reference open-source foundation that can start small and grow with care."],
-            ["Interoperability and evidence", "A layer connecting software, laboratories, registries, payers and national services."],
-            ["Human accountability", "Automated support may organise evidence; clinical and scientific responsibility remains human."],
-          ].map(([title, text]) => <div key={title} className="mini-tile"><div className="mini-tile-title">{title}</div><div className="mini-tile-text">{text}</div></div>)}</div>
+        <Card className="overview-card"><div className="overview-top"><div><div className="eyebrow">IML Health</div><div className="overview-title">Open Health Information Environment</div></div></div>
+          <p className="muted-copy">An independent, non-commercial framework for clinical continuity, evidence and responsible interoperability.</p>
         </Card>
       </div></section>
     </>
@@ -1100,7 +1077,6 @@ export default function App() {
       <header className="topbar">
         <div className="container topbar-inner">
           <button type="button" className="brand-button" onClick={() => goTo("home")} aria-label="IML Health home">
-            {route !== "home" ? <LogoMark /> : null}
             <div><div className="eyebrow">IML Health</div><div className="brand-title">Open Health Information Environment</div></div>
           </button>
           <nav className="topnav desktop-nav" aria-label="Primary navigation">
