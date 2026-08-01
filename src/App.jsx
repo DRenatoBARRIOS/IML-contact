@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import worldCountries from "./world-countries.json";
+import logoImage from "./assets/iml-logo.png";
 
 const BASE_URL = import.meta.env.BASE_URL || "/";
 
@@ -25,11 +26,9 @@ function SiteHeader({ active, home }) {
     <header className="site-header">
       <div className="shell header-inner">
         <a className={`brand${home ? " brand-home" : ""}`} href="/" aria-label="IML Health home">
-          {!home ? (
-            <span className="brand-mark" aria-hidden="true">
-              <img src="/favicon.svg" alt="" width="54" height="64" />
-            </span>
-          ) : null}
+          <span className="brand-mark" aria-hidden="true">
+            <img src={logoImage} alt="" width="54" height="64" />
+          </span>
           <span className="brand-copy">
             <strong>IML Health</strong>
             <span>Open Health Information Environment</span>
@@ -59,6 +58,9 @@ function SiteFooter() {
     <footer className="site-footer">
       <div className="shell footer-grid">
         <div className="footer-brand">
+          <span className="footer-logo" aria-hidden="true">
+            <img src={logoImage} alt="" width="58" height="58" />
+          </span>
           <div>
             <strong>IML Health</strong>
             <p>Independent, non-commercial and open for scientific review.</p>
@@ -350,16 +352,44 @@ function CountryExplorer() {
  * current file on site-test without requiring another CSS upload.
  */
 const REFERENCE_ADJUSTMENTS = `
-  .footer-brand > img {
-    display: none !important;
+  .brand-home {
+    min-width: 320px;
+    gap: 14px;
   }
 
   .hero-grid {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.02fr) minmax(430px, .98fr);
   }
 
   .hero-copy {
-    max-width: 980px;
+    max-width: 760px;
+  }
+
+  .brand-mark img,
+  .footer-logo img {
+    transform: scale(1.52);
+    mix-blend-mode: multiply;
+  }
+
+  .footer-brand {
+    gap: 14px;
+  }
+
+  .footer-logo {
+    width: 62px;
+    height: 62px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    overflow: hidden;
+    border-radius: 14px;
+    background: #f5efe4;
+  }
+
+  .footer-logo img {
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
   }
 
   .page-masthead-grid {
@@ -448,6 +478,25 @@ const REFERENCE_ADJUSTMENTS = `
     .identity-trust-card {
       border-radius: 18px;
     }
+
+    .brand-home {
+      min-width: 0;
+    }
+
+    .footer-logo {
+      width: 54px;
+      height: 54px;
+    }
+  }
+
+  @media (max-width: 1180px) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .hero-copy {
+      max-width: 880px;
+    }
   }
 `;
 
@@ -480,6 +529,11 @@ function HomePage() {
                   <small>Connect systems, preserve meaning, document evidence.</small>
                 </span>
               </a>
+            </div>
+          </div>
+          <div className="hero-art">
+            <div className="hero-art-frame">
+              <img src={`${BASE_URL}hero-lamp-editorial.png`} alt="Hand-drawn IML lamp illuminating connected evidence paths" />
             </div>
           </div>
         </div>
