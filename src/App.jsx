@@ -900,7 +900,7 @@ function ClinicalWorkspacePage() {
     <PageFrame active="/clinical-workspace">
       <PageMasthead
         title="Primary care deserves software that can be trusted, adapted and kept."
-        lede="An open clinical workspace: practical for the consultation, respectful of local care, and free from dependence on a single supplier."
+        lede="Open-source software is needed so that primary-care teams can adapt, maintain and share the tools on which care depends."
       />
       <section className="section clinical-section" aria-labelledby="clinical-heading">
         <div className="shell primary-care-layout">
@@ -940,6 +940,7 @@ function ClinicalWorkspacePage() {
               <strong>Build with — not against — existing open-source work.</strong>
               <p><a className="text-link" href="https://openmrs.org/" target="_blank" rel="noopener noreferrer">OpenMRS ↗</a> is an important reference: it shows how a global open-source community can support adaptable clinical records and standards-based integration. IML explores complementary regional packs, quality methods and an independent integration layer.</p>
               <p className="ai-regulatory-note"><strong>Responsible AI.</strong> Where artificial intelligence is used, it must remain traceable, proportionate and subject to professional validation. <em>See IML regulatory watch.</em></p>
+              <p className="ai-regulatory-note"><strong>Global context — updated 1 August 2026.</strong> In 2025, 2.2 billion people remained offline; in 2023, around 4.6 billion were not fully covered by essential health services. Open software cannot close these gaps alone, but it can help keep primary-care tools adaptable, locally maintainable and free from single-supplier dependency. <a className="text-link" href="https://www.itu.int/itu-d/reports/statistics/facts-figures-2025/" target="_blank" rel="noopener noreferrer">ITU Facts and Figures 2025 ↗</a> · <a className="text-link" href="https://www.who.int/data/monitoring-universal-health-coverage" target="_blank" rel="noopener noreferrer">WHO UHC monitoring ↗</a></p>
             </aside>
             <div className="clinical-action-row">
               <a className="text-link" href="/collaborate">Join the clinical workstream →</a>
