@@ -95,9 +95,124 @@ function PageFrame({ active, home = false, children }) {
   );
 }
 
-function PageMasthead({ title, lede, compact = false, mirroredLamp = false }) {
+function ProgressionField({ step }) {
+  const drawing = (() => {
+    switch (step) {
+      case "vision":
+        return (
+          <>
+            <path className="progression-sage" d="M-80 150 C320 76 545 170 790 360 S1260 650 1680 560" />
+            <path className="progression-gold" d="M-80 615 C315 660 540 555 790 360 S1260 92 1680 155" />
+            <path className="progression-soft" d="M210 45 C470 160 625 270 790 360" />
+            <circle className="progression-node" cx="430" cy="130" r="4" />
+            <circle className="progression-node progression-node-focus" cx="790" cy="360" r="7" />
+            <circle className="progression-node" cx="1160" cy="535" r="4" />
+          </>
+        );
+
+      case "identity":
+        return (
+          <>
+            <path className="progression-sage" d="M-100 500 C350 485 660 410 1000 360" />
+            <path className="progression-gold" d="M1000 360 C1230 360 1425 255 1680 190" />
+            <circle className="progression-ring progression-ring-primary" cx="1085" cy="360" r="92" />
+            <circle className="progression-ring progression-ring-secondary" cx="1085" cy="360" r="154" />
+            <circle className="progression-node progression-node-focus" cx="1085" cy="360" r="8" />
+            <circle className="progression-node" cx="725" cy="420" r="4" />
+            <circle className="progression-node progression-node-gold" cx="1375" cy="245" r="4" />
+          </>
+        );
+
+      case "clinical":
+        return (
+          <>
+            <path className="progression-sage" d="M-70 605 C265 550 480 480 710 360 C930 245 1190 170 1680 118" />
+            <path className="progression-gold" d="M55 710 C350 590 550 520 755 410 C975 295 1245 255 1680 255" />
+            <path className="progression-soft" d="M610 225 L790 350 L660 510 L875 575" />
+            <circle className="progression-node" cx="610" cy="225" r="5" />
+            <circle className="progression-node progression-node-focus" cx="790" cy="350" r="7" />
+            <circle className="progression-node progression-node-gold" cx="660" cy="510" r="5" />
+            <circle className="progression-node" cx="875" cy="575" r="5" />
+            <circle className="progression-node" cx="1090" cy="255" r="5" />
+          </>
+        );
+
+      case "interoperability":
+        return (
+          <>
+            <path className="progression-sage" d="M85 205 C330 60 575 125 790 360 C995 590 1240 650 1515 515" />
+            <path className="progression-gold" d="M95 530 C350 660 600 565 790 360 C985 150 1230 90 1515 220" />
+            <path className="progression-soft" d="M255 180 L430 270 L310 430 L505 515 L790 360" />
+            <path className="progression-soft" d="M790 360 L1100 190 L1280 280 L1170 435 L1405 505" />
+            {[["255","180"],["430","270"],["310","430"],["1100","190"],["1170","435"],["1405","505"]].map(([cx, cy]) => (
+              <circle className="progression-node" cx={cx} cy={cy} r="4" key={`${cx}-${cy}`} />
+            ))}
+            <circle className="progression-node progression-node-gold" cx="505" cy="515" r="4" />
+            <circle className="progression-node progression-node-gold" cx="1280" cy="280" r="4" />
+            <circle className="progression-node progression-node-focus" cx="790" cy="360" r="7" />
+          </>
+        );
+
+      case "countries":
+        return (
+          <>
+            <ellipse className="progression-sage progression-orbit" cx="800" cy="360" rx="760" ry="262" />
+            <ellipse className="progression-gold progression-orbit" cx="800" cy="360" rx="525" ry="350" />
+            <path className="progression-soft" d="M0 350 C325 250 555 255 800 360 C1055 470 1285 470 1600 360" />
+            <circle className="progression-node" cx="220" cy="288" r="4" />
+            <circle className="progression-node progression-node-gold" cx="470" cy="232" r="4" />
+            <circle className="progression-node progression-node-focus" cx="800" cy="360" r="6" />
+            <circle className="progression-node" cx="1125" cy="445" r="4" />
+            <circle className="progression-node progression-node-gold" cx="1380" cy="410" r="4" />
+          </>
+        );
+
+      case "manuscripts":
+        return (
+          <>
+            <path className="progression-sage" d="M-70 160 C245 115 430 205 635 300 C805 375 970 390 1660 390" />
+            <path className="progression-gold" d="M-70 535 C250 590 435 510 635 420 C810 343 975 330 1660 330" />
+            <path className="progression-soft progression-writing" d="M900 430 H1510" />
+            <path className="progression-soft progression-writing" d="M990 478 H1460" />
+            <path className="progression-soft progression-writing" d="M1060 526 H1385" />
+            <circle className="progression-node progression-node-focus" cx="635" cy="360" r="6" />
+            <circle className="progression-node progression-node-gold" cx="1015" cy="390" r="4" />
+            <circle className="progression-node" cx="1320" cy="330" r="4" />
+          </>
+        );
+
+      default:
+        return null;
+    }
+  })();
+
+  if (!drawing) return null;
+
   return (
-    <section className={`page-masthead${compact ? " page-masthead-compact" : ""}`}>
+    <svg
+      className={`progression-field progression-field-${step}`}
+      viewBox="0 0 1600 720"
+      preserveAspectRatio="xMidYMid slice"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <g>{drawing}</g>
+    </svg>
+  );
+}
+
+function PageMasthead({
+  title,
+  lede,
+  compact = false,
+  mirroredLamp = false,
+  visualStep = null,
+}) {
+  const progressionClass = visualStep ? ` has-progression progression-step-${visualStep}` : "";
+
+  return (
+    <section className={`page-masthead${compact ? " page-masthead-compact" : ""}${progressionClass}`}>
+      {visualStep ? <ProgressionField step={visualStep} /> : null}
       <div className="shell page-masthead-grid">
         <div>
           <a className="back-home" href="/">← IML Health home</a>
@@ -769,6 +884,180 @@ const REFERENCE_ADJUSTMENTS = `
     margin-top: 18px;
   }
 
+
+  /*
+   * Progressive visual language for the six intermediate pages.
+   * Home and Collaborate deliberately receive no progression field.
+   *
+   * Narrative:
+   * Vision -> convergence
+   * Identity & Trust -> protection
+   * Clinical Workspace -> organisation
+   * Interoperability -> network
+   * Country Profiles -> geographic opening
+   * Manuscripts -> transmissible trace
+   */
+  .page-masthead.has-progression {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background-color: var(--light);
+    background-image:
+      radial-gradient(circle at 84% 18%, rgba(226, 166, 71, .08), transparent 26rem),
+      linear-gradient(145deg, var(--light), var(--paper));
+  }
+
+  .page-masthead.has-progression .page-masthead-grid {
+    position: relative;
+    z-index: 2;
+  }
+
+  .progression-field {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: visible;
+    opacity: .76;
+    mix-blend-mode: multiply;
+  }
+
+  .progression-field :is(path, ellipse, circle) {
+    vector-effect: non-scaling-stroke;
+  }
+
+  .progression-field path,
+  .progression-field ellipse {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .progression-sage {
+    stroke: rgba(74, 119, 113, .34);
+    stroke-width: 2;
+  }
+
+  .progression-gold {
+    stroke: rgba(196, 143, 57, .31);
+    stroke-width: 1.8;
+  }
+
+  .progression-soft {
+    stroke: rgba(112, 143, 137, .24);
+    stroke-width: 1.25;
+  }
+
+  .progression-node {
+    fill: var(--light);
+    stroke: rgba(73, 116, 111, .62);
+    stroke-width: 1.15;
+  }
+
+  .progression-node-gold {
+    stroke: rgba(196, 143, 57, .78);
+  }
+
+  .progression-node-focus {
+    fill: color-mix(in srgb, var(--light) 92%, var(--amber));
+    stroke: rgba(196, 143, 57, .88);
+    stroke-width: 1.8;
+    filter: drop-shadow(0 0 8px rgba(226, 166, 71, .20));
+  }
+
+  .progression-ring {
+    fill: none;
+    stroke-linecap: round;
+  }
+
+  .progression-ring-primary {
+    stroke: rgba(74, 119, 113, .33);
+    stroke-width: 1.7;
+    stroke-dasharray: 410 165;
+  }
+
+  .progression-ring-secondary {
+    stroke: rgba(196, 143, 57, .25);
+    stroke-width: 1.45;
+    stroke-dasharray: 340 625;
+  }
+
+  .progression-orbit {
+    stroke-width: 1.5;
+  }
+
+  .progression-writing {
+    opacity: .88;
+  }
+
+  .progression-field-vision {
+    opacity: .80;
+  }
+
+  .progression-field-identity {
+    opacity: .76;
+  }
+
+  .progression-field-clinical {
+    opacity: .72;
+  }
+
+  .progression-field-interoperability {
+    opacity: .67;
+  }
+
+  .progression-field-countries {
+    opacity: .57;
+  }
+
+  .progression-field-manuscripts {
+    opacity: .70;
+  }
+
+  /* The secondary sections continue the same story without repeating the SVG. */
+  body[data-iml-route="/vision"] .vision-page {
+    position: relative;
+    overflow: hidden;
+    background-image:
+      radial-gradient(ellipse 68% 110% at 110% 110%, transparent 0 67%, rgba(46, 111, 106, .08) 67.15% 67.3%, transparent 67.45%),
+      linear-gradient(145deg, var(--light), var(--paper));
+  }
+
+  body[data-iml-route="/identity-trust"] .identity-trust-section {
+    background-image:
+      radial-gradient(circle at 87% 20%, rgba(46, 111, 106, .065), transparent 24rem),
+      linear-gradient(145deg, var(--light), var(--paper));
+  }
+
+  body[data-iml-route="/clinical-workspace"] .clinical-section {
+    background-image:
+      radial-gradient(ellipse 74% 118% at 108% -12%, transparent 0 67%, rgba(226, 166, 71, .09) 67.15% 67.3%, transparent 67.45%),
+      radial-gradient(ellipse 84% 126% at -14% 112%, transparent 0 69%, rgba(46, 111, 106, .08) 69.15% 69.3%, transparent 69.45%),
+      linear-gradient(145deg, var(--light), var(--paper));
+  }
+
+  body[data-iml-route="/interoperability"] .interoperability-section {
+    background-image:
+      radial-gradient(ellipse 96% 136% at -18% 112%, transparent 0 68%, rgba(226, 166, 71, .18) 68.15% 68.3%, transparent 68.45% 75%, rgba(255, 255, 255, .07) 75.15% 75.28%, transparent 75.43%),
+      radial-gradient(ellipse 72% 108% at 112% -20%, transparent 0 63%, rgba(226, 166, 71, .15) 63.15% 63.3%, transparent 63.45% 71%, rgba(255, 255, 255, .055) 71.15% 71.27%, transparent 71.42%),
+      linear-gradient(145deg, var(--navy), var(--teal-deep));
+  }
+
+  body[data-iml-route="/country-profiles"] .profiles-section {
+    background-image:
+      radial-gradient(ellipse 96% 128% at 50% -18%, transparent 0 70%, rgba(46, 111, 106, .07) 70.15% 70.3%, transparent 70.45%),
+      linear-gradient(145deg, var(--light), var(--paper));
+  }
+
+  body[data-iml-route="/manuscripts"] .manuscripts-section {
+    background-image:
+      linear-gradient(90deg, transparent 0 58%, rgba(46, 111, 106, .045) 58.1% 58.2%, transparent 58.3%),
+      radial-gradient(ellipse 90% 126% at -15% 108%, transparent 0 69%, rgba(46, 111, 106, .075) 69.15% 69.3%, transparent 69.45%),
+      linear-gradient(145deg, var(--light), var(--paper));
+  }
+
   @media (max-width: 760px) {
     body[data-iml-route="/country-profiles"] .page-masthead-grid,
     body[data-iml-route="/manuscripts"] .page-masthead-grid {
@@ -875,6 +1164,7 @@ function VisionPage() {
       <PageMasthead
         title="One open environment. Two complementary paths."
         lede="IML links a modular clinical foundation with an open way to connect existing health information systems."
+        visualStep="vision"
       />
       <section className="vision vision-page" aria-labelledby="vision-heading">
         <div className="shell vision-grid">
@@ -901,6 +1191,7 @@ function ClinicalWorkspacePage() {
       <PageMasthead
         title="Primary care deserves software that can be trusted, adapted and kept."
         lede="Open-source software is needed so that primary-care teams can adapt, maintain and share the tools on which care depends."
+        visualStep="clinical"
       />
       <section className="section clinical-section" aria-labelledby="clinical-heading">
         <div className="shell primary-care-layout">
@@ -959,6 +1250,7 @@ function CountryProfilesPage() {
       <PageMasthead
         title="Country profiles"
         lede="Explore evidence, sources and limitations. Profiles support inquiry; they are not rankings."
+        visualStep="countries"
       />
       <section className="section profiles-section" aria-labelledby="profiles-heading">
         <div className="shell">
@@ -978,6 +1270,7 @@ function ManuscriptsPage() {
       <PageMasthead
         title="Manuscripts"
         lede="Founding vision and technical architecture for scientific review."
+        visualStep="manuscripts"
       />
       <section className="section manuscripts-section" aria-labelledby="manuscripts-heading">
         <div className="shell manuscript-layout">
@@ -1012,6 +1305,7 @@ function IdentityTrustPage() {
       <PageMasthead
         title="Identity, consent and trust across fragmented systems"
         lede="Identity is an enabling layer for continuity and accountability, not the whole of interoperability."
+        visualStep="identity"
       />
       <section className="identity-trust-section" id="identity-trust" aria-labelledby="identity-trust-heading">
         <div className="shell">
@@ -1059,6 +1353,7 @@ function InteroperabilityPage() {
       <PageMasthead
         title="Open-source health interoperability."
         lede="It is a clinical capability, not a cable between databases. A connection becomes useful only when technical exchange, shared meaning, workflow, governance and clinical purpose hold together."
+        visualStep="interoperability"
       />
       <section className="section interoperability-section" aria-labelledby="layers-heading">
         <div className="shell">
