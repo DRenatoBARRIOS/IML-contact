@@ -1057,12 +1057,12 @@ function InteroperabilityPage() {
   return (
     <PageFrame active="/interoperability">
       <PageMasthead
-        title="Interoperability is a clinical capability, not a cable between databases."
-        lede="A connection becomes useful only when technical exchange, shared meaning, workflow, governance and clinical purpose hold together."
+        title="Open-source health interoperability."
+        lede="It is a clinical capability, not a cable between databases. A connection becomes useful only when technical exchange, shared meaning, workflow, governance and clinical purpose hold together."
       />
       <section className="section interoperability-section" aria-labelledby="layers-heading">
         <div className="shell">
-          <div className="wide-heading"><div><h2 id="layers-heading">Exchange must preserve meaning and responsibility.</h2></div><p>IML treats interoperability as an end-to-end clinical and institutional capability rather than a narrow interface project.</p></div>
+          <div className="wide-heading"><div><h2 id="layers-heading">Exchange must preserve meaning and responsibility.</h2></div><p>IML treats interoperability as an end-to-end clinical and institutional capability rather than a narrow interface project.<br /><br /><small><span lang="fr">Interopérabilité open source en santé</span> · <span lang="es">Interoperabilidad de código abierto en salud</span> · <span lang="zh-Hans">开源医疗信息互操作性</span></small></p></div>
           <div className="layer-grid">{interoperabilityLayers.map(([number, title, copy]) => <article key={title}><span>{number}</span><h3>{title}</h3><p>{copy}</p></article>)}</div>
           <div className="information-flow" aria-label="Information flow from source systems to learning">
             <div><small>Existing sources</small><strong>EHRs · labs · registries · payers</strong></div><i>→</i>
@@ -1144,8 +1144,9 @@ export const ROUTES = {
   },
   "/interoperability": {
     component: InteroperabilityPage,
-    title: "Interoperability — IML Health",
-    description: "IML's open integration, evidence and learning layer for health information systems.",
+    title: "Open-Source Health Interoperability — IML Health",
+    description: "IML advances open-source health interoperability through clinical meaning, trusted identity, responsible governance and evidence-based learning.",
+    canonical: "https://imlhealth.org/interoperability",
   },
   "/country-profiles": {
     component: CountryProfilesPage,
@@ -1204,6 +1205,18 @@ function setMeta(route) {
     document.head.appendChild(description);
   }
   description.setAttribute("content", route.description);
+
+  let canonical = document.querySelector('link[rel="canonical"]');
+  if (route.canonical) {
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute("href", route.canonical);
+  } else if (canonical) {
+    canonical.remove();
+  }
 }
 
 function ensureIdentityTrustLinks(activePath) {
