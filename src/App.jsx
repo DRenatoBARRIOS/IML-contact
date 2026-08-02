@@ -5,13 +5,6 @@ import heroLampImage from "./assets/hero-lamp-editorial.png";
 
 const BASE_URL = import.meta.env.BASE_URL || "/";
 
-const clinicalModules = [
-  ["Patient identity", "Reliable identification, duplicate prevention and correction."],
-  ["Consultation & terminology", "A coherent encounter record that preserves local clinical language."],
-  ["Laboratories & results", "Structured requests and traceable results with explicit provenance."],
-  ["Audit & correction", "Attributable actions and visible, safely propagated corrections."],
-];
-
 const navigation = [
   { href: "/vision", label: "Vision" },
   { href: "/identity-trust", label: "Identity & Trust" },
@@ -906,28 +899,51 @@ function ClinicalWorkspacePage() {
   return (
     <PageFrame active="/clinical-workspace">
       <PageMasthead
-        title="A modular clinical workspace that can start small."
-        lede="Open-source, inspectable and progressively deployable, with regional modules rather than a closed monolith."
+        title="Primary care deserves software that can be trusted, adapted and kept."
+        lede="An open clinical workspace: practical for the consultation, respectful of local care, and free from dependence on a single supplier."
       />
       <section className="section clinical-section" aria-labelledby="clinical-heading">
-        <div className="shell section-split">
+        <div className="shell primary-care-layout">
           <div className="section-intro sticky-intro">
-            <h2 id="clinical-heading">Build on proven open-source foundations.</h2>
+            <p className="section-kicker">The clinical need</p>
+            <h2 id="clinical-heading">Care should not be held hostage by its software.</h2>
             <p>
-              <a className="text-link" href="https://openmrs.org/demo/" target="_blank" rel="noopener noreferrer">Explore OpenMRS O3 ↗</a>, an important reference for the clinical workspace. IML explores how it can be complemented by regional packs and an independent integration layer.
+              In primary care, the record must support the encounter: listening, examining, deciding, prescribing, following up and correcting. Yet many practices face costly licences, opaque data models and tools that are difficult to adapt to local language, workflows or public-health needs.
             </p>
-            <a className="text-link" href="/collaborate">Join the clinical workstream →</a>
+            <p>
+              IML does not propose another isolated electronic record. It develops an open implementation bridge: a small, useful clinical workspace that can connect to existing systems, grow gradually and always leave the data understandable and exportable.
+            </p>
           </div>
-          <div className="module-grid">
-            {clinicalModules.map(([title, copy], index) => (
-              <article className="module-card" key={title}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <div><h3>{title}</h3><p>{copy}</p></div>
-              </article>
-            ))}
-            <div className="design-note">
-              <strong>Progressive deployment</strong>
-              <p>Adopt and govern useful modules in stages; an initial installation should not require an entire national architecture.</p>
+          <div className="primary-care-content">
+            <div className="primary-care-promise">
+              <span>01</span>
+              <div>
+                <h3>Useful at the point of care</h3>
+                <p>A coherent consultation record, local terminology, results with their provenance and a clear clinical history — without making the clinician work for the system.</p>
+              </div>
+            </div>
+            <div className="primary-care-promise">
+              <span>02</span>
+              <div>
+                <h3>Open to scrutiny and improvement</h3>
+                <p>Code, data structures and corrections can be inspected, tested and improved by clinicians, universities and communities. Clinical safety is a shared, documented responsibility.</p>
+              </div>
+            </div>
+            <div className="primary-care-promise">
+              <span>03</span>
+              <div>
+                <h3>Adaptable without vendor lock-in</h3>
+                <p>Regional packs can add language, terminology and national services without changing the common core. A practice can start locally, work with modest infrastructure and connect later when it is useful.</p>
+              </div>
+            </div>
+            <aside className="clinical-reference">
+              <strong>Build with — not against — existing open-source work.</strong>
+              <p><a className="text-link" href="https://openmrs.org/" target="_blank" rel="noopener noreferrer">OpenMRS ↗</a> is an important reference: it shows how a global open-source community can support adaptable clinical records and standards-based integration. IML explores complementary regional packs, quality methods and an independent integration layer.</p>
+              <p className="ai-regulatory-note"><strong>Responsible AI.</strong> Where artificial intelligence is used, it must remain traceable, proportionate and subject to professional validation. <em>See IML regulatory watch.</em></p>
+            </aside>
+            <div className="clinical-action-row">
+              <a className="text-link" href="/collaborate">Join the clinical workstream →</a>
+              <a className="text-link" href="/manuscripts">Read the founding manuscript →</a>
             </div>
           </div>
         </div>
