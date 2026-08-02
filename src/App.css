@@ -403,3 +403,10 @@ img { display: block; max-width: 100%; }
   .footer-bottom { flex-direction: column; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+.evidence-list {
+  max-height: none;
+  overflow: visible;
+}
+
+
+
