@@ -64,7 +64,16 @@ export async function GET() {
               json_build_object(
                 'title', s.title,
                 'publisher', s.publisher,
-                'url', s.source_url,
+                'url',
+                CASE
+                  WHEN s.url_status IN ('verified', 'redirected')
+                    THEN COALESCE(s.public_url, s.source_url)
+                  ELSE NULL
+                END,
+                'url_status', COALESCE(s.url_status, 'unverified'),
+                'documentary_url', s.source_url,
+                'last_checked_at', s.last_checked_at,
+                'replacement_reason', s.replacement_reason,
                 'publication_date', s.publication_date,
                 'accessed_at', s.accessed_at,
                 'note', s.evidence_note,
@@ -113,8 +122,7 @@ export async function GET() {
       {
         status: 200,
         headers: {
-          "Cache-Control":
-            "public, s-maxage=300, stale-while-revalidate=3600",
+          "Cache-Control": "no-store",
         },
       }
     );
