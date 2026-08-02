@@ -622,7 +622,6 @@ function CountryExplorer() {
           >
             Download PDF report
           </button>
-          <small>{selectedProfile ? `Report for ${selectedProfile.name}` : "Select an examined country to enable the report."}</small>
         </div>
       </div>
       {status.warning ? <div className="explorer-warning" role="status"><strong>Country profiles could not be loaded.</strong><span>{status.warning}</span></div> : null}
