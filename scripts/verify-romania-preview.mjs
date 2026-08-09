@@ -1,6 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 import { seedRomania } from "../db/seeds/20260809_romania.mjs";
 import { romaniaProfile } from "../src/data/countries/romaniaProfile.js";
+import { GET as getCountries } from "../api/countries.js";
 
 const isTargetPreview =
   process.env.VERCEL_ENV === "preview" &&
@@ -140,9 +141,25 @@ const publishedCounts = await sql`
   WHERE c.is_active = TRUE AND cp.status = 'published';
 `;
 
+const apiResponse = await getCountries();
+if (!apiResponse.ok) {
+  throw new Error(`/api/countries function returned ${apiResponse.status}.`);
+}
+const apiPayload = await apiResponse.json();
+const apiRomania = apiPayload.countries.filter((country) => country.iso3 === "ROU");
+const apiUsesDatabaseRomania = apiRomania.length === 1 && Number(apiRomania[0].version) === 1;
+const apiMatchesDatabaseCount = apiPayload.count === publishedCounts[0].published_countries;
+
+if (!apiUsesDatabaseRomania || !apiMatchesDatabaseCount) {
+  throw new Error(`Countries API verification failed: ${JSON.stringify({ apiPayloadCount: apiPayload.count, apiRomania, publishedCounts })}`);
+}
+
 console.log("Romania preview DB verification:", JSON.stringify({
   idempotent,
   documentaryMatch,
+  apiUsesDatabaseRomania,
+  apiMatchesDatabaseCount,
+  apiCount: apiPayload.count,
   countryId: second.countryId,
   profileId: second.profileId,
   counts: second.counts,
