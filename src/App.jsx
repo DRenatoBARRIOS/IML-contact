@@ -2,17 +2,16 @@ import { useEffect } from "react";
 import logoImage from "./assets/iml-logo.png";
 import heroLampImage from "./assets/hero-lamp-editorial.png";
 import CountryExplorer from "./features/countries/CountryExplorer.jsx";
+import {
+  navigation,
+  interoperabilityLayers,
+  methodologyDomains,
+  LEGACY_HASHES,
+  LEGACY_PATHS,
+} from "./siteConfig.js";
 
 const BASE_URL = import.meta.env.BASE_URL || "/";
 
-const navigation = [
-  { href: "/identity-trust", label: "Identity & Trust" },
-  { href: "/clinical-workspace", label: "Clinical Workspace" },
-  { href: "/interoperability", label: "Interoperability" },
-  { href: "/country-profiles", label: "Country Profiles" },
-  { href: "/manuscripts", label: "Manuscripts" },
-  { href: "/collaborate", label: "Collaborate" },
-];
 
 function SiteHeader({ active, home }) {
   return (
@@ -434,22 +433,6 @@ function IdentityTrustPage() {
   );
 }
 
-const interoperabilityLayers = [
-  ["01", "Technical", "Can systems exchange data reliably?"],
-  ["02", "Semantic", "Is clinical meaning preserved?"],
-  ["03", "Organisational", "Do workflows and responsibilities align?"],
-  ["04", "Institutional", "Are governance, law and accountability credible?"],
-  ["05", "Clinical & public health", "Does information improve decisions, safety and learning?"],
-];
-
-const methodologyDomains = [
-  ["GOV", "Governance", "Stewardship, accountability and policy direction"],
-  ["TEC", "Technical", "Standards, architecture and reliable exchange"],
-  ["IDT", "Identity", "People, professionals, organisations and consent"],
-  ["ADP", "Adoption", "Real use in care and public-health workflows"],
-  ["SEC", "Security", "Protection, access control and resilience"],
-  ["LRN", "Learning", "Feedback, correction and system improvement"],
-];
 
 function InteroperabilityPage() {
   return (
@@ -559,23 +542,6 @@ export const ROUTES = {
   },
 };
 
-const LEGACY_HASHES = {
-  "#id4d": "/identity-trust",
-  "#evaluation": "/interoperability",
-  "#methodology": "/interoperability#methodology",
-  "#world": "/country-profiles",
-  "#profiles": "/country-profiles",
-  "#contact": "/collaborate",
-};
-
-const LEGACY_PATHS = {
-  "/id4d": "/identity-trust",
-  "/evaluation": "/interoperability",
-  "/methodology": "/interoperability#methodology",
-  "/world": "/country-profiles",
-  "/profiles": "/country-profiles",
-  "/contact": "/collaborate",
-};
 
 function cleanPath(pathname) {
   if (!pathname || pathname === "/") return "/";
