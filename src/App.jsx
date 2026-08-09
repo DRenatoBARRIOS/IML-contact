@@ -1,6 +1,5 @@
 import { useEffect } from "react";
-import {
-  HomePage,
+import {HomePage,
   IdentityTrustPage,
   ClinicalWorkspacePage,
   InteroperabilityPage,
