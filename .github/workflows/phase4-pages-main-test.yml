@@ -1,0 +1,95 @@
+name: Phase 4 pages extraction main-test
+
+on:
+  push:
+    branches:
+      - main-test
+    paths:
+      - .github/workflows/phase4-pages-main-test.yml
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    if: github.event.head_commit.message == 'Run Phase 4 extraction'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main-test
+        uses: actions/checkout@v4
+        with:
+          ref: main-test
+          fetch-depth: 0
+
+      - name: Extract pages and clean app shell
+        shell: bash
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          app_path = Path('src/App.jsx')
+          text = app_path.read_text(encoding='utf-8')
+
+          pages_start = text.index('function SiteHeader')
+          routes_start = text.index('export const ROUTES =')
+          clean_start = text.index('function cleanPath')
+
+          pages_body = text[pages_start:routes_start].rstrip()
+
+          # Integrate the already-approved rendered Home/navigation state directly.
+          hero_actions = '''            <div className="hero-actions">\n              <a className="button primary" href="/clinical-workspace">Explore the Clinical Workspace</a>\n              <a className="button secondary" href="/country-profiles">View country profiles</a>\n            </div>\n'''
+          pages_body = pages_body.replace(hero_actions, '')
+          pages_body = pages_body.replace('Integration &amp; evidence layer', 'Interoperability')
+          pages_body = pages_body.replace('>Integration layer</a>', '>Interoperability</a>')
+
+          pages_header = '''import logoImage from "../assets/iml-logo.png";\nimport heroLampImage from "../assets/hero-lamp-editorial.png";\nimport CountryExplorer from "../features/countries/CountryExplorer.jsx";\nimport { navigation, interoperabilityLayers, methodologyDomains } from "../siteConfig.js";\n\nconst BASE_URL = import.meta.env.BASE_URL || "/";\n\n'''
+
+          pages_exports = '''\n\nexport {\n  HomePage,\n  IdentityTrustPage,\n  ClinicalWorkspacePage,\n  InteroperabilityPage,\n  CountryProfilesPage,\n  ManuscriptsPage,\n  CollaboratePage,\n  NotFoundPage,\n};\n'''
+
+          pages_path = Path('src/pages/SitePages.jsx')
+          pages_path.parent.mkdir(parents=True, exist_ok=True)
+          pages_path.write_text(pages_header + pages_body + pages_exports, encoding='utf-8')
+
+          routes_block = text[routes_start:clean_start]
+
+          runtime = text[clean_start:]
+          ensure_start = runtime.find('function ensureIdentityTrustLinks')
+          app_export_start = runtime.find('export default function App()')
+          if ensure_start != -1 and app_export_start != -1:
+              runtime = runtime[:ensure_start] + runtime[app_export_start:]
+          runtime = runtime.replace('      ensureIdentityTrustLinks(location.routePath);\n', '')
+
+          app_header = '''import { useEffect } from "react";\nimport {\n  HomePage,\n  IdentityTrustPage,\n  ClinicalWorkspacePage,\n  InteroperabilityPage,\n  CountryProfilesPage,\n  ManuscriptsPage,\n  CollaboratePage,\n  NotFoundPage,\n} from "./pages/SitePages.jsx";\nimport { LEGACY_HASHES, LEGACY_PATHS } from "./siteConfig.js";\n\n'''
+
+          app_path.write_text(app_header + routes_block + runtime, encoding='utf-8')
+
+          Path('src/main.jsx').write_text('''import { StrictMode } from "react";\nimport { createRoot } from "react-dom/client";\nimport App from "./App.jsx";\nimport "./App.css";\nimport "./visual-system.css";\n\ncreateRoot(document.getElementById("root")).render(\n  <StrictMode>\n    <App />\n  </StrictMode>\n);\n''', encoding='utf-8')
+
+          # Structural guardrails.
+          app = app_path.read_text(encoding='utf-8')
+          pages = pages_path.read_text(encoding='utf-8')
+          assert 'function HomePage' not in app
+          assert 'function SiteHeader' not in app
+          assert 'function HomePage' in pages
+          assert 'function CountryProfilesPage' in pages
+          assert 'CountryExplorer' in pages
+          assert 'ensureIdentityTrustLinks' not in app
+          assert 'Integration &amp; evidence layer' not in pages
+          assert 'hero-actions' not in pages
+          PY
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify production build
+        run: npm run build
+
+      - name: Commit successful Phase 4
+        shell: bash
+        run: |
+          rm .github/workflows/phase4-pages-main-test.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/App.jsx src/pages/SitePages.jsx src/main.jsx .github/workflows/phase4-pages-main-test.yml
+          git commit -m "Phase 4 extract site pages"
+          git push origin main-test
