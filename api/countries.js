@@ -67,7 +67,7 @@ export async function GET() {
                 'url',
                 CASE
                   WHEN s.url_status IN ('verified', 'redirected')
-                    THEN COALESCE(s.public_url, s.source_url)
+                    THEN s.public_url
                   ELSE NULL
                 END,
                 'url_status', COALESCE(s.url_status, 'unverified'),
