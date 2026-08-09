@@ -1,0 +1,89 @@
+name: Home navigation cleanup main-test
+
+on:
+  push:
+    branches:
+      - main-test
+    paths:
+      - .github/workflows/home-nav-cleanup-main-test.yml
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    if: github.event.head_commit.message == 'Run home navigation cleanup'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main-test
+        uses: actions/checkout@v4
+        with:
+          ref: main-test
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update App.jsx
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('src/App.jsx')
+          text = path.read_text(encoding='utf-8')
+
+          old_nav = '''const navigation = [
+            { href: "/identity-trust", label: "Identity & Trust" },
+            { href: "/clinical-workspace", label: "Clinical Workspace" },
+            { href: "/interoperability", label: "Interoperability" },
+            { href: "/country-profiles", label: "Country Profiles" },
+            { href: "/manuscripts", label: "Manuscripts" },
+            { href: "/collaborate", label: "Collaborate" },
+          ];'''
+          new_nav = '''const navigation = [
+            { href: "/interoperability", label: "Interoperability" },
+            { href: "/identity-trust", label: "Identity & Trust" },
+            { href: "/clinical-workspace", label: "Clinical Workspace" },
+            { href: "/country-profiles", label: "Country Profiles" },
+            { href: "/manuscripts", label: "Manuscripts" },
+            { href: "/collaborate", label: "Collaborate" },
+          ];'''
+
+          # Keep indentation-independent replacements for the actual source.
+          old_nav = old_nav.replace('          ', '')
+          new_nav = new_nav.replace('          ', '')
+          if old_nav not in text:
+              raise SystemExit('Navigation block not found')
+          text = text.replace(old_nav, new_nav, 1)
+
+          old_actions = '''            <div className="hero-actions">
+              <a className="button primary" href="/clinical-workspace">Explore the Clinical Workspace</a>
+              <a className="button secondary" href="/country-profiles">View country profiles</a>
+            </div>
+'''
+          if old_actions not in text:
+              raise SystemExit('Hero actions block not found')
+          text = text.replace(old_actions, '', 1)
+
+          if '<strong>Integration &amp; evidence layer</strong>' not in text:
+              raise SystemExit('Home interoperability label not found')
+          text = text.replace(
+              '<strong>Integration &amp; evidence layer</strong>',
+              '<strong>Interoperability</strong>',
+              1,
+          )
+
+          text = text.replace(
+              '<a href="/interoperability">Integration layer</a>',
+              '<a href="/interoperability">Interoperability</a>',
+              1,
+          )
+
+          path.write_text(text, encoding='utf-8')
+
+      - name: Commit cleanup
+        run: |
+          git config user.name "OpenAI ChatGPT"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/home-nav-cleanup-main-test.yml
+          git add src/App.jsx
+          git diff --cached --check
+          git commit -m "Prioritize interoperability and simplify home"
+          git push origin HEAD:main-test
