@@ -730,24 +730,29 @@ function ClinicalWorkspacePage() {
   <a className="text-link" href="https://www.orthanc-server.com/" target="_blank" rel="noopener noreferrer"> Orthanc ↗</a> demonstrates a lightweight open approach to medical imaging.
 </p>
 <p className="ai-regulatory-note">
-  <strong>IML regulatory watch</strong>
+  <strong>IML Regulatory Watch / Open Health Software Watch</strong>
 </p>
 <p className="ai-regulatory-note">
   <strong>Last review: 9 August 2026</strong>
 </p>
 <p className="ai-regulatory-note">
-  This week: from 2 August 2026, the transparency obligations under Article 50 of the EU AI Act apply to certain interactive and generative AI systems. IML will therefore strengthen transparency and traceability for AI-assisted clinical functions, including clear identification of AI-generated content, provenance, human review and validation.
+  <strong>EU AI transparency.</strong> From 2 August 2026, the transparency obligations under Article 50 of the EU AI Act apply to certain interactive and generative AI systems. For IML, AI-assisted clinical functions should clearly disclose AI involvement, preserve provenance and remain subject to meaningful human review and validation.
 </p>
 <p className="ai-regulatory-note">
-  No other significant change requiring immediate adaptation was identified for the modules reviewed this week.
+  <strong>Open-source software.</strong> DHIS2 43.1 was released on 3 August as the latest stable patch for version 43. Its official notes include fixes and enhancements across Capture, Tracker, analytics, metadata import/export and synchronisation—areas relevant to reliable primary-care and public-health information flows.
 </p>
 <p className="ai-regulatory-note">
   <strong>Sources:</strong><br />
-  <a className="text-link" href="https://digital-strategy.ec.europa.eu/en/library/guidelines-transparency-obligations-providers-and-deployers-ai-systems" target="_blank" rel="noopener noreferrer">European Commission — Guidelines on transparency obligations for providers and deployers of certain AI systems, 20 July 2026 ↗</a><br />
-  <a className="text-link" href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj" target="_blank" rel="noopener noreferrer">EUR-Lex — Regulation (EU) 2024/1689, Article 50 ↗</a>
+  <a className="text-link" href="https://digital-strategy.ec.europa.eu/en/library/guidelines-transparency-obligations-providers-and-deployers-ai-systems" target="_blank" rel="noopener noreferrer">European Commission — Guidelines on Article 50 transparency obligations ↗</a><br />
+  <a className="text-link" href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02024R1689-20260727" target="_blank" rel="noopener noreferrer">EUR-Lex — Consolidated EU AI Act, Article 50 ↗</a><br />
+  <a className="text-link" href="https://community.dhis2.org/t/dhis2-patch-release-v43-1-is-now-available/75878/1" target="_blank" rel="noopener noreferrer">DHIS2 Release Team — DHIS2 43.1 announcement, 3 August 2026 ↗</a><br />
+  <a className="text-link" href="https://github.com/dhis2/dhis2-releases/blob/master/releases/2.43/ReleaseNote-2.43.1.md" target="_blank" rel="noopener noreferrer">DHIS2 — Patch 2.43.1 release notes ↗</a>
 </p>
 <p className="ai-regulatory-note">
-  Regulatory sources monitored by IML: European Commission, EUR-Lex, HAS, ANS, Assurance Maladie, CNIL, ANSM and Légifrance.
+  <strong>Limits.</strong> This watch covers publicly accessible primary or official sources reviewed for 2–9 August 2026. Absence from this selection does not prove that no other change occurred, and release notes are not independent clinical validation.
+</p>
+<p className="ai-regulatory-note">
+  Sources monitored by IML include the European Commission, EUR-Lex, WHO, HL7, OpenHIE, OpenMRS, DHIS2, GNU Health, Bahmni, HAPI FHIR, HAS, ANS, Assurance Maladie, CNIL, ANSM and Légifrance.
 </p>
               <p className="ai-regulatory-note"><strong>Responsible AI.</strong> Where artificial intelligence is used, it must remain traceable, proportionate and subject to professional validation. </p>
               <p className="ai-regulatory-note"><strong>Global context — updated 1 August 2026.</strong> In 2025, 2.2 billion people remained offline; in 2023, around 4.6 billion were not fully covered by essential health services. Open software cannot close these gaps alone, but it can help keep primary-care tools adaptable, locally maintainable and free from single-supplier dependency. <a className="text-link" href="https://www.itu.int/itu-d/reports/statistics/facts-figures-2025/" target="_blank" rel="noopener noreferrer">ITU Facts and Figures 2025 ↗</a> · <a className="text-link" href="https://www.who.int/data/monitoring-universal-health-coverage" target="_blank" rel="noopener noreferrer">WHO UHC monitoring ↗</a></p>
