@@ -33,7 +33,7 @@ export function normalizeProfile(profile) {
 
 export async function loadGlobalMapProfiles(signal) {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/countries-v2`, {
+    const response = await fetch(`${API_BASE_URL}/api/countries`, {
       headers: { Accept: "application/json" },
       signal,
     });
