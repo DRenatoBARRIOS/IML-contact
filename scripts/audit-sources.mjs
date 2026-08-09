@@ -3,6 +3,8 @@ import { pathToFileURL } from "node:url";
 
 const DEFAULT_TIMEOUT_MS = 20000;
 const USER_AGENT = "IML-source-quality/1.0 (+https://www.imlhealth.org)";
+const PUBLIC_OK = new Set(["verified", "redirected"]);
+const DOCUMENTARY_WARNING = new Set(["restricted", "transient_error"]);
 
 function normalizeText(value) {
   return String(value || "")
@@ -41,6 +43,16 @@ function checkTextGroups(text, groups = []) {
   });
 }
 
+export function classifyAuditGate(source, result) {
+  if (PUBLIC_OK.has(result.url_status)) return "pass";
+
+  if (source.required_public_link === false && DOCUMENTARY_WARNING.has(result.url_status)) {
+    return "warning";
+  }
+
+  return "fail";
+}
+
 export async function auditSource(source, options = {}) {
   const checkedAt = new Date().toISOString();
   const timeoutMs = options.timeoutMs || DEFAULT_TIMEOUT_MS;
@@ -71,9 +83,10 @@ export async function auditSource(source, options = {}) {
       urlStatus = response.redirected ? "redirected" : "verified";
     }
 
-    return {
+    const result = {
       id: source.id,
       title: source.title,
+      required_public_link: source.required_public_link !== false,
       requested_url: source.url,
       final_url: finalUrl,
       http_status: response.status,
@@ -84,10 +97,13 @@ export async function auditSource(source, options = {}) {
       text_checks: textChecks,
       checked_at: checkedAt,
     };
+
+    return { ...result, gate: classifyAuditGate(source, result) };
   } catch (error) {
-    return {
+    const result = {
       id: source.id,
       title: source.title,
+      required_public_link: source.required_public_link !== false,
       requested_url: source.url,
       final_url: null,
       http_status: null,
@@ -99,7 +115,27 @@ export async function auditSource(source, options = {}) {
       checked_at: checkedAt,
       error: error?.message || String(error),
     };
+
+    return { ...result, gate: classifyAuditGate(source, result) };
   }
+}
+
+export function summarizeAudit(manifest, results) {
+  const failures = results.filter((result) => result.gate === "fail");
+  const warnings = results.filter((result) => result.gate === "warning");
+  const passes = results.filter((result) => result.gate === "pass");
+
+  return {
+    audit_id: manifest.audit_id,
+    country: manifest.country,
+    checked_at: new Date().toISOString(),
+    total: results.length,
+    passed: passes.length,
+    warnings: warnings.length,
+    failed: failures.length,
+    public_link_gate_passed: failures.length === 0,
+    results,
+  };
 }
 
 export async function auditManifest(manifestPath) {
@@ -111,17 +147,7 @@ export async function auditManifest(manifestPath) {
     results.push(await auditSource(source));
   }
 
-  const failures = results.filter((result) => !["verified", "redirected"].includes(result.url_status));
-
-  return {
-    audit_id: manifest.audit_id,
-    country: manifest.country,
-    checked_at: new Date().toISOString(),
-    total: results.length,
-    passed: results.length - failures.length,
-    failed: failures.length,
-    results,
-  };
+  return summarizeAudit(manifest, results);
 }
 
 async function main() {
