@@ -8,7 +8,6 @@ on:
     branches:
       - main
       - main-test
-      - source-quality-v2
     paths:
       - "data/source-audits/**"
       - "scripts/audit-sources.mjs"
