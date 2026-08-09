@@ -6,7 +6,6 @@ import heroLampImage from "./assets/hero-lamp-editorial.png";
 const BASE_URL = import.meta.env.BASE_URL || "/";
 
 const navigation = [
-  { href: "/vision", label: "Vision" },
   { href: "/identity-trust", label: "Identity & Trust" },
   { href: "/clinical-workspace", label: "Clinical Workspace" },
   { href: "/interoperability", label: "Interoperability" },
@@ -65,7 +64,6 @@ function SiteFooter() {
         </div>
         <div>
           <h3>Project</h3>
-          <a href="/vision">Vision</a>
           <a href="/identity-trust">Identity &amp; Trust</a>
           <a href="/manuscripts">Manuscripts</a>
           <a href="/collaborate">Collaborate</a>
@@ -98,18 +96,6 @@ function PageFrame({ active, home = false, children }) {
 function ProgressionField({ step }) {
   const drawing = (() => {
     switch (step) {
-      case "vision":
-        return (
-          <>
-            <path className="progression-sage" d="M-80 150 C320 76 545 170 790 360 S1260 650 1680 560" />
-            <path className="progression-gold" d="M-80 615 C315 660 540 555 790 360 S1260 92 1680 155" />
-            <path className="progression-soft" d="M210 45 C470 160 625 270 790 360" />
-            <circle className="progression-node" cx="430" cy="130" r="4" />
-            <circle className="progression-node progression-node-focus" cx="790" cy="360" r="7" />
-            <circle className="progression-node" cx="1160" cy="535" r="4" />
-          </>
-        );
-
       case "identity":
         return (
           <>
@@ -656,7 +642,6 @@ const REFERENCE_ADJUSTMENTS = `
      this reads as atmosphere, never as a repeated grid. */
   .hero,
   .page-masthead,
-  .vision,
   .current-state,
   .clinical-section,
   .route-overview,
@@ -885,11 +870,10 @@ const REFERENCE_ADJUSTMENTS = `
 
 
   /*
-   * Progressive visual language for the six intermediate pages.
+   * Progressive visual language for the five intermediate pages.
    * Home and Collaborate deliberately receive no progression field.
    *
    * Narrative:
-   * Vision -> convergence
    * Identity & Trust -> protection
    * Clinical Workspace -> organisation
    * Interoperability -> network
@@ -991,10 +975,6 @@ const REFERENCE_ADJUSTMENTS = `
     opacity: .88;
   }
 
-  .progression-field-vision {
-    opacity: .80;
-  }
-
   .progression-field-identity {
     opacity: .76;
   }
@@ -1016,14 +996,6 @@ const REFERENCE_ADJUSTMENTS = `
   }
 
   /* The secondary sections continue the same story without repeating the SVG. */
-  body[data-iml-route="/vision"] .vision-page {
-    position: relative;
-    overflow: hidden;
-    background-image:
-      radial-gradient(ellipse 68% 110% at 110% 110%, transparent 0 67%, rgba(46, 111, 106, .08) 67.15% 67.3%, transparent 67.45%),
-      linear-gradient(145deg, var(--light), var(--paper));
-  }
-
   body[data-iml-route="/identity-trust"] .identity-trust-section {
     background-image:
       radial-gradient(circle at 87% 20%, rgba(46, 111, 106, .065), transparent 24rem),
@@ -1121,7 +1093,7 @@ function HomePage() {
               An open clinical workspace and an integration layer for systems that must cooperate without losing clinical meaning.
             </p>
             <div className="hero-actions">
-              <a className="button primary" href="/vision">Explore the project</a>
+              <a className="button primary" href="/clinical-workspace">Explore the Clinical Workspace</a>
               <a className="button secondary" href="/country-profiles">View country profiles</a>
             </div>
             <div className="hero-paths" aria-label="Two complementary paths">
@@ -1151,33 +1123,6 @@ function HomePage() {
           <span />
           <p>Health is the objective. Trustworthy information is the foundation. Interoperability is the path.</p>
           <span />
-        </div>
-      </section>
-    </PageFrame>
-  );
-}
-
-function VisionPage() {
-  return (
-    <PageFrame active="/vision">
-      <PageMasthead
-        title="One open environment. Two complementary paths."
-        lede="IML links a modular clinical foundation with an open way to connect existing health information systems."
-        visualStep="vision"
-      />
-      <section className="vision vision-page" aria-labelledby="vision-heading">
-        <div className="shell vision-grid">
-          <div>
-            <h2 id="vision-heading">Make trustworthy information useful across care.</h2>
-          </div>
-          <div className="vision-prose">
-            <p>
-              IML is not a new national silo. It is a vendor-neutral reference environment for clinical work, integration, evidence and correction.
-            </p>
-            <p>
-              Identity remains a governed enabling layer. <a className="text-link" href="/identity-trust">Read Identity &amp; Trust →</a>
-            </p>
-          </div>
         </div>
       </section>
     </PageFrame>
@@ -1446,11 +1391,6 @@ export const ROUTES = {
     title: "IML Health — Open Health Information Environment",
     description: "An open-source clinical workspace and an open integration layer for health information systems.",
   },
-  "/vision": {
-    component: VisionPage,
-    title: "Vision — IML Health",
-    description: "The purpose, scope and current state of the IML Open Health Information Environment.",
-  },
   "/identity-trust": {
     component: IdentityTrustPage,
     title: "Identity & Trust — IML Health",
@@ -1545,9 +1485,7 @@ function ensureIdentityTrustLinks(activePath) {
       link = document.createElement("a");
       link.href = "/identity-trust";
       link.textContent = "Identity & Trust";
-      const visionLink = nav.querySelector('a[href="/vision"]');
-      if (visionLink) visionLink.insertAdjacentElement("afterend", link);
-      else nav.prepend(link);
+      nav.prepend(link);
     }
     if (activePath === "/identity-trust") link.setAttribute("aria-current", "page");
     else link.removeAttribute("aria-current");
@@ -1559,9 +1497,7 @@ function ensureIdentityTrustLinks(activePath) {
     const link = document.createElement("a");
     link.href = "/identity-trust";
     link.textContent = "Identity & Trust";
-    const visionLink = projectFooter.querySelector('a[href="/vision"]');
-    if (visionLink) visionLink.insertAdjacentElement("afterend", link);
-    else projectFooter.append(link);
+    projectFooter.append(link);
   }
 }
 
