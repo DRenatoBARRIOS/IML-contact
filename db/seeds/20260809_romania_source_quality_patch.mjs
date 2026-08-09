@@ -3,7 +3,7 @@
 // This patch is intentionally narrow and idempotent. It does not alter scores,
 // profile versioning, unrelated countries, or the country-profile UI.
 
-const CHECKED_AT = "2026-08-09T17:38:28.000Z";
+const CHECKED_AT = "2026-08-09T18:31:00.000Z";
 
 const URLS = {
   digitalDecade: "https://digital-strategy.ec.europa.eu/en/factpages/romania-2025-digital-decade-country-report",
@@ -73,13 +73,13 @@ export async function patchRomaniaSourceQuality(sql) {
       title = 'Romania National Contact Point for eHealth implementation update',
       publisher = 'Casa Națională de Asigurări de Sănătate (CNAS)',
       source_url = ${URLS.cnasNcp},
-      public_url = NULL,
+      public_url = ${URLS.cnasNcp},
       publication_date = '2024-07-19',
       accessed_at = '2026-08-09',
       evidence_note = 'CNAS reported that Romania had started organising and operationalising its National Contact Point for eHealth for implementation of European ePrescription and Patient Summary services.',
-      url_status = 'transient_error',
+      url_status = 'verified',
       last_checked_at = ${CHECKED_AT},
-      replacement_reason = 'Romania-specific official documentary evidence retained, but the CNAS page returned HTTP 503 to the automated public-link checker on 9 August 2026. The public link is therefore hidden until a later check succeeds.'
+      replacement_reason = 'Promoted to the public country-profile link after direct browser verification on 9 August 2026. This official CNAS page is Romania-specific and explicitly documents the National Contact Point for eHealth, European ePrescription and Patient Summary implementation work.'
     WHERE profile_id = ${profileId}
       AND title IN (
         'MyHealth@EU — information for patients and health professionals',
@@ -93,9 +93,6 @@ export async function patchRomaniaSourceQuality(sql) {
     throw new Error("Romania CNAS/MyHealth documentary source row was not found.");
   }
 
-  // The CNAS source supports the Romanian implementation context, but the
-  // current MyHealth@EU service-country claim is linked to a separately audited
-  // European Commission source below.
   await sql`
     DELETE FROM country_profile_source_indicators
     WHERE source_id = ${cnasSourceId}
@@ -108,7 +105,7 @@ export async function patchRomaniaSourceQuality(sql) {
       evidence_level = 'B',
       support_type = 'partially_supports',
       evidence_summary = 'Official CNAS reporting documents Romania''s implementation work for the National Contact Point for eHealth, European ePrescription and Patient Summary services.',
-      limitation_note = 'The CNAS page is retained as Romania-specific documentary evidence but was temporarily unavailable to the automated public-link checker on 9 August 2026. It does not provide a detailed assessment of domestic identity, consent or access-control architecture.'
+      limitation_note = 'This Romania-specific CNAS source documents national implementation work, but it does not provide a detailed assessment of domestic identity, consent or access-control architecture and does not by itself establish the current operational coverage of every MyHealth@EU service.'
     WHERE source_id = ${cnasSourceId}
       AND indicator_code = 'RO-IDT-01';
   `;
@@ -144,10 +141,10 @@ export async function patchRomaniaSourceQuality(sql) {
         NULL,
         '2026-08-09',
         'The European Commission current MyHealth@EU service-country list explicitly includes Romania among the countries offering electronic cross-border health services and describes ePrescriptions and Patient Summaries.',
-        ${URLS.myHealthEu},
+        NULL,
         'verified',
         ${CHECKED_AT},
-        'Added as a separately labelled EU service-country source so that a general European listing is not presented as a Romania-specific national publication.'
+        'Retained as supporting documentary evidence, but the public link is intentionally hidden because the page is an EU-wide service-country listing and does not land on Romania-specific content.'
       )
       RETURNING id;
     `;
@@ -159,12 +156,12 @@ export async function patchRomaniaSourceQuality(sql) {
       SET
         publisher = 'European Commission, Directorate-General for Health and Food Safety',
         source_url = ${URLS.myHealthEu},
-        public_url = ${URLS.myHealthEu},
+        public_url = NULL,
         accessed_at = '2026-08-09',
         evidence_note = 'The European Commission current MyHealth@EU service-country list explicitly includes Romania among the countries offering electronic cross-border health services and describes ePrescriptions and Patient Summaries.',
         url_status = 'verified',
         last_checked_at = ${CHECKED_AT},
-        replacement_reason = 'Added as a separately labelled EU service-country source so that a general European listing is not presented as a Romania-specific national publication.'
+        replacement_reason = 'Retained as supporting documentary evidence, but the public link is intentionally hidden because the page is an EU-wide service-country listing and does not land on Romania-specific content.'
       WHERE id = ${myHealthEuSourceId};
     `;
   }
@@ -192,7 +189,7 @@ export async function patchRomaniaSourceQuality(sql) {
       'A',
       'supports',
       'The European Commission current MyHealth@EU service-country list explicitly includes Romania among countries offering electronic cross-border health services.',
-      'The source is an EU-wide service-country listing rather than a Romania-specific national publication, and it does not establish that every data category or provider is available in every Romanian care setting.',
+      'The source is an EU-wide service-country listing rather than a Romania-specific national publication, so it is retained as supporting evidence but is not exposed as the country-profile public link.',
       'unknown',
       'unknown',
       'not_assessed'
