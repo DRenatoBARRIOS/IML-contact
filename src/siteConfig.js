@@ -1,9 +1,8 @@
 export const navigation = [
   { href: "/interoperability", label: "Interoperability" },
-  { href: "/identity-trust", label: "Identity & Trust" },
   { href: "/clinical-workspace", label: "Clinical Workspace" },
   { href: "/country-profiles", label: "Country Profiles" },
-  { href: "/manuscripts", label: "Manuscripts" },
+  { href: "/identity-trust", label: "Identity & Trust" },
   { href: "/collaborate", label: "Collaborate" },
 ];
 

@@ -1,7 +1,9 @@
 import logoImage from "../assets/iml-logo.png";
 import heroLampImage from "../assets/hero-lamp-editorial.png";
 import CountryExplorer from "../features/countries/CountryExplorer.jsx";
-import { navigation, interoperabilityLayers, methodologyDomains } from "../siteConfig.js";
+import { navigation, interoperabilityLayers } from "../siteConfig.js";
+import { latestRegulatoryWatch } from "../data/regulatoryWatch.js";
+import { latestSoftwareWatch } from "../data/softwareWatch.js";
 
 const BASE_URL = import.meta.env.BASE_URL || "/";
 
@@ -208,6 +210,48 @@ function PageMasthead({
   );
 }
 
+function WatchPanel({ label, entry }) {
+  if (!entry) return null;
+  const monitoredSources = Array.isArray(entry.monitoredSources)
+    ? entry.monitoredSources.join(", ")
+    : entry.monitoredSources;
+
+  return (
+    <details className="evidence-register watch-panel">
+      <summary>
+        <span>
+          <strong>{label}</strong>
+          <small>{entry.dateLabel || entry.date}{entry.scope ? ` · ${entry.scope}` : ""}</small>
+        </span>
+        <span>+</span>
+      </summary>
+      <div className="evidence-list">
+        <article className="evidence-item">
+          {entry.title ? <p><b>{entry.title}</b></p> : null}
+          {entry.summary ? <p>{entry.summary}</p> : null}
+          {entry.imlImpact ? <p><b>IML impact.</b> {entry.imlImpact}</p> : null}
+          {entry.note ? <p>{entry.note}</p> : null}
+          {entry.sources?.length ? (
+            <>
+              <p><b>Sources</b></p>
+              <ul>
+                {entry.sources.map((source) => (
+                  <li key={source.url || source.label}>
+                    <a className="text-link" href={source.url} target="_blank" rel="noopener noreferrer">
+                      {source.label} ↗
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : null}
+          {monitoredSources ? <p><small>Sources monitored by IML: {monitoredSources}.</small></p> : null}
+        </article>
+      </div>
+    </details>
+  );
+}
+
 function HomePage() {
   return (
     <PageFrame active="/" home>
@@ -265,10 +309,7 @@ function ClinicalWorkspacePage() {
             <p className="section-kicker">The clinical need</p>
             <h2 id="clinical-heading">Care should not be held hostage by its software.</h2>
             <p>
-              In primary care, the record must support the encounter: listening, examining, deciding, prescribing, following up and correcting. Yet many practices face costly licences, opaque data models and tools that are difficult to adapt to local language, workflows or public-health needs.
-            </p>
-            <p>
-              IML does not propose another isolated electronic record. It develops an open implementation bridge: a small, useful clinical workspace that can connect to existing systems, grow gradually and always leave the data understandable and exportable.
+              The record should support listening, examining, deciding, prescribing, follow-up and correction. IML develops an open clinical workspace that can start small, connect to existing systems and keep data understandable and exportable.
             </p>
           </div>
           <div className="primary-care-content">
@@ -276,54 +317,38 @@ function ClinicalWorkspacePage() {
               <span>01</span>
               <div>
                 <h3>Useful at the point of care</h3>
-                <p>A coherent consultation record, local terminology, results with their provenance and a clear clinical history — without making the clinician work for the system.</p>
+                <p>A coherent consultation record, local terminology, results with provenance and a clear clinical history — without making the clinician work for the system.</p>
               </div>
             </div>
             <div className="primary-care-promise">
               <span>02</span>
               <div>
                 <h3>Open to scrutiny and improvement</h3>
-                <p>Code, data structures and corrections can be inspected, tested and improved by clinicians, universities and communities. Clinical safety is a shared, documented responsibility.</p>
+                <p>Code, data structures and corrections can be inspected, tested and improved by clinicians, universities and communities.</p>
               </div>
             </div>
             <div className="primary-care-promise">
               <span>03</span>
               <div>
                 <h3>Adaptable without vendor lock-in</h3>
-                <p>Regional packs can add language, terminology and national services without changing the common core. A practice can start locally, work with modest infrastructure and connect later when it is useful.</p>
+                <p>Regional packs can add language, terminology and national services without changing the common core.</p>
               </div>
             </div>
+
             <aside className="clinical-reference">
               <strong>Build with existing open-source work.</strong>
-<p>
-  IML reviews mature open-source health software before rebuilding existing functions.
-  <a className="text-link" href="https://openmrs.org/" target="_blank" rel="noopener noreferrer"> OpenMRS ↗</a> informs clinical record design,
-  <a className="text-link" href="https://hapifhir.io/" target="_blank" rel="noopener noreferrer"> HAPI FHIR ↗</a> provides a reference for FHIR interoperability, and
-  <a className="text-link" href="https://www.orthanc-server.com/" target="_blank" rel="noopener noreferrer"> Orthanc ↗</a> demonstrates a lightweight open approach to medical imaging.
-</p>
-<p className="ai-regulatory-note">
-  <strong>IML regulatory watch</strong>
-</p>
-<p className="ai-regulatory-note">
-  <strong>Last review: 9 August 2026</strong>
-</p>
-<p className="ai-regulatory-note">
-  This week: from 2 August 2026, the transparency obligations under Article 50 of the EU AI Act apply to certain interactive and generative AI systems. IML will therefore strengthen transparency and traceability for AI-assisted clinical functions, including clear identification of AI-generated content, provenance, human review and validation.
-</p>
-<p className="ai-regulatory-note">
-  No other significant change requiring immediate adaptation was identified for the modules reviewed this week.
-</p>
-<p className="ai-regulatory-note">
-  <strong>Sources:</strong><br />
-  <a className="text-link" href="https://digital-strategy.ec.europa.eu/en/library/guidelines-transparency-obligations-providers-and-deployers-ai-systems" target="_blank" rel="noopener noreferrer">European Commission — Guidelines on transparency obligations for providers and deployers of certain AI systems, 20 July 2026 ↗</a><br />
-  <a className="text-link" href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj" target="_blank" rel="noopener noreferrer">EUR-Lex — Regulation (EU) 2024/1689, Article 50 ↗</a>
-</p>
-<p className="ai-regulatory-note">
-  Regulatory sources monitored by IML: European Commission, EUR-Lex, HAS, ANS, Assurance Maladie, CNIL, ANSM and Légifrance.
-</p>
-              <p className="ai-regulatory-note"><strong>Responsible AI.</strong> Where artificial intelligence is used, it must remain traceable, proportionate and subject to professional validation. </p>
-              <p className="ai-regulatory-note"><strong>Global context — updated 1 August 2026.</strong> In 2025, 2.2 billion people remained offline; in 2023, around 4.6 billion were not fully covered by essential health services. Open software cannot close these gaps alone, but it can help keep primary-care tools adaptable, locally maintainable and free from single-supplier dependency. <a className="text-link" href="https://www.itu.int/itu-d/reports/statistics/facts-figures-2025/" target="_blank" rel="noopener noreferrer">ITU Facts and Figures 2025 ↗</a> · <a className="text-link" href="https://www.who.int/data/monitoring-universal-health-coverage" target="_blank" rel="noopener noreferrer">WHO UHC monitoring ↗</a></p>
+              <p>
+                IML reviews mature open-source health software before rebuilding existing functions.
+                <a className="text-link" href="https://openmrs.org/" target="_blank" rel="noopener noreferrer"> OpenMRS ↗</a> informs clinical record design,
+                <a className="text-link" href="https://hapifhir.io/" target="_blank" rel="noopener noreferrer"> HAPI FHIR ↗</a> provides a reference for FHIR interoperability, and
+                <a className="text-link" href="https://www.orthanc-server.com/" target="_blank" rel="noopener noreferrer"> Orthanc ↗</a> demonstrates a lightweight open approach to medical imaging.
+              </p>
+              <p className="ai-regulatory-note"><b>Responsible AI.</b> AI-assisted functions must remain traceable, proportionate and subject to professional review and validation.</p>
             </aside>
+
+            {latestSoftwareWatch ? <WatchPanel label="Latest open-source software watch" entry={latestSoftwareWatch} /> : null}
+            <WatchPanel label="Latest regulatory watch" entry={latestRegulatoryWatch} />
+
             <div className="clinical-action-row">
               <a className="text-link" href="/collaborate">Join the clinical workstream →</a>
               <a className="text-link" href="/manuscripts">Read the founding manuscript →</a>
@@ -395,25 +420,43 @@ function IdentityTrustPage() {
     <PageFrame active="/identity-trust">
       <PageMasthead
         title="Identity, consent and trust across fragmented systems"
-        lede="Identity is an enabling layer for continuity and accountability, not the whole of interoperability."
+        lede="Identity enables continuity and accountability, but it is only one layer of interoperability."
         visualStep="identity"
       />
       <section className="identity-trust-section" id="identity-trust" aria-labelledby="identity-trust-heading">
         <div className="shell">
           <article className="identity-trust-card">
-            <h2 id="identity-trust-heading">From trusted identity to authorised health and research linkage</h2>
-            <p>
-              IML does not propose replacing national identity systems. It explores how recognised national identifiers could contribute to a future universal health and research number for authorised multicentre, longitudinal and epidemiological studies. It complements the <a className="text-link" href="https://id4d.worldbank.org/" target="_blank" rel="noopener noreferrer">World Bank ID4D initiative ↗</a> and may build on trust infrastructures such as the <a className="text-link" href="https://www.who.int/initiatives/global-digital-health-certification-network" target="_blank" rel="noopener noreferrer">WHO Global Digital Health Certification Network ↗</a>.
-            </p>
-            <p>
-              National models already differ. A future IML model could combine the national identifier namespace, a governed geographic reference and a protected keyed hash. The resulting number would remain regulated personal data and would require legal, ethical, security and equity review before implementation.
-            </p>
-            <p>
-              Identity, identifier, access token and carrier mechanism must remain distinct. A QR code or mobile application should carry only a temporary signed token or a verifiable digital certificate, never sensitive identity or health information in clear text.
-            </p>
-            <p>
-              The country-level <a className="text-link" href="https://monitor.digitalhealthmonitor.org/map" target="_blank" rel="noopener noreferrer">Global Digital Health Monitor map ↗</a> provides information on digital health. IML is different: it develops an independent comparative framework designed to guide structured country research, verify documentary evidence, identify information gaps and support contextual human validation.
-            </p>
+            <h2 id="identity-trust-heading">Trust before linkage.</h2>
+            <p>IML works with recognised national identity and trust infrastructures rather than proposing a parallel identity system.</p>
+
+            <div className="primary-care-content">
+              <div className="primary-care-promise">
+                <span>01</span>
+                <div>
+                  <h3>Use national identity, do not replace it</h3>
+                  <p>National identifiers can support continuity and authorised linkage. IML complements the <a className="text-link" href="https://id4d.worldbank.org/" target="_blank" rel="noopener noreferrer">World Bank ID4D initiative ↗</a> and may build on trust infrastructures such as the <a className="text-link" href="https://www.who.int/initiatives/global-digital-health-certification-network" target="_blank" rel="noopener noreferrer">WHO Global Digital Health Certification Network ↗</a>.</p>
+                </div>
+              </div>
+              <div className="primary-care-promise">
+                <span>02</span>
+                <div>
+                  <h3>Separate identity, identifiers and access</h3>
+                  <p>A QR code or mobile application should carry only a temporary signed token or verifiable certificate, never sensitive identity or health information in clear text.</p>
+                </div>
+              </div>
+              <div className="primary-care-promise">
+                <span>03</span>
+                <div>
+                  <h3>Enable governed health and research linkage</h3>
+                  <p>A future IML model could combine national identifier namespaces, governed geographic references and protected keyed hashes. Any implementation would require legal, ethical, security and equity review.</p>
+                </div>
+              </div>
+            </div>
+
+            <aside className="clinical-reference">
+              <strong>How IML differs from GDHM</strong>
+              <p>The <a className="text-link" href="https://monitor.digitalhealthmonitor.org/map" target="_blank" rel="noopener noreferrer">Global Digital Health Monitor map ↗</a> provides comparative digital-health information. IML uses public information as possible evidence, but develops an independent framework for documentary verification, information gaps, interoperability and contextual human validation.</p>
+            </aside>
           </article>
         </div>
       </section>
@@ -427,7 +470,7 @@ function InteroperabilityPage() {
     <PageFrame active="/interoperability">
       <PageMasthead
         title="Open-source health interoperability."
-        lede="It is a clinical capability, not a cable between databases. A connection becomes useful only when technical exchange, shared meaning, workflow, governance and clinical purpose hold together."
+        lede="A connection becomes useful only when technical exchange, shared meaning, workflow, governance and clinical purpose hold together."
         visualStep="interoperability"
       />
       <section className="section interoperability-section" aria-labelledby="layers-heading">
@@ -443,20 +486,11 @@ function InteroperabilityPage() {
           <div className="demonstrator-grid">
             <article><h3>AMR / BMR continuity</h3><p>Trace culture, susceptibility, antimicrobial decisions and feedback without detaching a laboratory result from its clinical context.</p></article>
             <article><h3>Payer interoperability</h3><p>Connect coverage and reimbursement processes to care without allowing administrative exchange to distort the clinical record.</p></article>
-            <article><h3>Identity, consent &amp; access</h3><p>QR or mobile workflows should carry only short-lived signed tokens—never sensitive health data in clear text. IML complements national identity systems; it does not replace them.</p></article>
+            <article><h3>Identity, consent &amp; access</h3><p>Use short-lived signed tokens for access workflows, while keeping sensitive health information out of clear-text carriers.</p></article>
           </div>
-        </div>
-      </section>
-      <section className="section methodology-section" id="methodology" aria-labelledby="methodology-heading">
-        <div className="shell methodology-layout">
-          <div className="section-intro"><h2 id="methodology-heading">Six domains, explicit evidence and versioned judgments.</h2><p>Country profiles are structured orientation tools. Each claim should point to documentary support, declare its limitation and remain open to correction by informed reviewers.</p></div>
-          <div className="domain-grid">{methodologyDomains.map(([code, title, copy]) => <article key={code}><span>{code}</span><h3>{title}</h3><p>{copy}</p></article>)}</div>
-          <ol className="evidence-pipeline" aria-label="Evidence workflow">
-            <li><span>1</span><strong>Source</strong><small>Prefer authoritative public documentation</small></li>
-            <li><span>2</span><strong>Claim</strong><small>Link evidence to a precise indicator</small></li>
-            <li><span>3</span><strong>Limit</strong><small>State what the source cannot prove</small></li>
-            <li><span>4</span><strong>Review</strong><small>Version, challenge and correct</small></li>
-          </ol>
+          <div className="clinical-action-row" id="methodology">
+            <a className="text-link" href="/country-profiles">How IML evaluates evidence → Country Profiles</a>
+          </div>
         </div>
       </section>
     </PageFrame>
