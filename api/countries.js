@@ -1,4 +1,5 @@
 import { neon } from "@neondatabase/serverless";
+import { romaniaProfile } from "../src/data/countries/romaniaProfile.js";
 
 export async function GET() {
   if (!process.env.DATABASE_URL) {
@@ -114,10 +115,18 @@ export async function GET() {
       ORDER BY c.name_en;
     `;
 
+    // Phase 5 country-ingestion test: keep the database as the source of truth,
+    // but expose the reviewed Romania fixture until ROU is imported into Neon.
+    // Once a published ROU profile exists in PostgreSQL, the fixture disappears
+    // automatically and no UI change is required.
+    const publishedCountries = countries.some((country) => country.iso3 === romaniaProfile.iso3)
+      ? countries
+      : [...countries, romaniaProfile].sort((a, b) => a.name.localeCompare(b.name));
+
     return Response.json(
       {
-        count: countries.length,
-        countries,
+        count: publishedCountries.length,
+        countries: publishedCountries,
       },
       {
         status: 200,
