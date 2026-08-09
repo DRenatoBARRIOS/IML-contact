@@ -2,9 +2,9 @@ import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 
 const DEFAULT_TIMEOUT_MS = 20000;
-const USER_AGENT = "IML-source-quality/1.0 (+https://www.imlhealth.org)";
+const USER_AGENT = "IML-source-quality/2.0 (+https://www.imlhealth.org)";
 const PUBLIC_OK = new Set(["verified", "redirected"]);
-const DOCUMENTARY_WARNING = new Set(["restricted", "transient_error"]);
+const PROBE_WARNING = new Set(["restricted", "transient_error"]);
 
 function normalizeText(value) {
   return String(value || "")
@@ -21,7 +21,7 @@ function normalizeText(value) {
 }
 
 function classifyHttpStatus(status) {
-  if (status === 401 || status === 403) return "restricted";
+  if (status === 401 || status === 403 || status === 412) return "restricted";
   if (status === 408 || status === 425 || status === 429 || status >= 500) {
     return "transient_error";
   }
@@ -43,14 +43,24 @@ function checkTextGroups(text, groups = []) {
   });
 }
 
-export function classifyAuditGate(source, result) {
+export function classifyAuditGate(_source, result) {
   if (PUBLIC_OK.has(result.url_status)) return "pass";
 
-  if (source.required_public_link === false && DOCUMENTARY_WARNING.has(result.url_status)) {
-    return "warning";
-  }
+  // A bot/WAF block, timeout, rate limit or 5xx is not proof that the
+  // documentary source is invalid. It requires independent verification.
+  if (PROBE_WARNING.has(result.url_status)) return "warning";
 
+  // 404/410, unexpected domains and missing semantic markers remain failures.
   return "fail";
+}
+
+function withGate(source, result) {
+  const gate = classifyAuditGate(source, result);
+  return {
+    ...result,
+    gate,
+    secondary_check_required: gate === "warning",
+  };
 }
 
 export async function auditSource(source, options = {}) {
@@ -98,7 +108,7 @@ export async function auditSource(source, options = {}) {
       checked_at: checkedAt,
     };
 
-    return { ...result, gate: classifyAuditGate(source, result) };
+    return withGate(source, result);
   } catch (error) {
     const result = {
       id: source.id,
@@ -116,7 +126,7 @@ export async function auditSource(source, options = {}) {
       error: error?.message || String(error),
     };
 
-    return { ...result, gate: classifyAuditGate(source, result) };
+    return withGate(source, result);
   }
 }
 
@@ -134,6 +144,7 @@ export function summarizeAudit(manifest, results) {
     warnings: warnings.length,
     failed: failures.length,
     public_link_gate_passed: failures.length === 0,
+    secondary_checks_required: warnings.length,
     results,
   };
 }
