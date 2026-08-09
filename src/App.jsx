@@ -1227,7 +1227,7 @@ function ClinicalWorkspacePage() {
               </div>
             </div>
             <aside className="clinical-reference">
-              <strong>Build with — not against — existing open-source work.</strong>
+              <strong>Build with existing open-source work.</strong>
               <p><a className="text-link" href="https://openmrs.org/" target="_blank" rel="noopener noreferrer">OpenMRS ↗</a> is an important reference: it shows how a global open-source community can support adaptable clinical records and standards-based integration. IML explores complementary regional packs, quality methods and an independent integration layer.</p>
               <p className="ai-regulatory-note"><strong>Responsible AI.</strong> Where artificial intelligence is used, it must remain traceable, proportionate and subject to professional validation. </p>
               <p className="ai-regulatory-note"><strong>Global context — updated 1 August 2026.</strong> In 2025, 2.2 billion people remained offline; in 2023, around 4.6 billion were not fully covered by essential health services. Open software cannot close these gaps alone, but it can help keep primary-care tools adaptable, locally maintainable and free from single-supplier dependency. <a className="text-link" href="https://www.itu.int/itu-d/reports/statistics/facts-figures-2025/" target="_blank" rel="noopener noreferrer">ITU Facts and Figures 2025 ↗</a> · <a className="text-link" href="https://www.who.int/data/monitoring-universal-health-coverage" target="_blank" rel="noopener noreferrer">WHO UHC monitoring ↗</a></p>
