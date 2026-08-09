@@ -1,0 +1,32 @@
+name: IML source quality watch
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 6 * * 1"
+  push:
+    branches:
+      - main
+      - main-test
+    paths:
+      - "data/source-audits/**"
+      - "scripts/audit-sources.mjs"
+      - ".github/workflows/source-quality-watch.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  audit-romania-sources:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Audit Romania documentary sources
+        run: node scripts/audit-sources.mjs data/source-audits/romania.json
