@@ -15,6 +15,15 @@ on:
       - "scripts/audit-production-sources.mjs"
       - "docs/SOURCE_QUALITY_PROTOCOL.md"
       - ".github/workflows/source-quality-watch.yml"
+  pull_request:
+    branches:
+      - main-test
+    paths:
+      - "data/source-audits/**"
+      - "scripts/audit-sources.mjs"
+      - "scripts/audit-production-sources.mjs"
+      - "docs/SOURCE_QUALITY_PROTOCOL.md"
+      - ".github/workflows/source-quality-watch.yml"
 
 permissions:
   contents: read
