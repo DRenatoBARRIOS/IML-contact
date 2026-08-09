@@ -16,8 +16,19 @@ export async function GET() {
 
   try {
     const sql = neon(process.env.DATABASE_URL);
-    const result = await seedRomania(sql);
-    return Response.json(result, { headers: { "Cache-Control": "no-store" } });
+    const first = await seedRomania(sql);
+    const second = await seedRomania(sql);
+    return Response.json(
+      {
+        first,
+        second,
+        idempotent:
+          first.countryId === second.countryId &&
+          first.profileId === second.profileId &&
+          JSON.stringify(first.counts) === JSON.stringify(second.counts),
+      },
+      { headers: { "Cache-Control": "no-store" } }
+    );
   } catch (error) {
     console.error("Romania seed failed:", error);
     return Response.json({ error: "Romania seed failed.", detail: error?.message || String(error) }, { status: 500 });
