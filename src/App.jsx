@@ -1235,7 +1235,24 @@ function ClinicalWorkspacePage() {
   <a className="text-link" href="https://www.orthanc-server.com/" target="_blank" rel="noopener noreferrer"> Orthanc ↗</a> demonstrates a lightweight open approach to medical imaging.
 </p>
 <p className="ai-regulatory-note">
-  <strong>IML open-source watch · August 2026.</strong> Components are considered for reuse, adaptation or connection only when their code, maintenance, licensing and interoperability can be independently verified.
+  <strong>IML regulatory watch</strong>
+</p>
+<p className="ai-regulatory-note">
+  <strong>Last review: 9 August 2026</strong>
+</p>
+<p className="ai-regulatory-note">
+  This week: from 2 August 2026, the transparency obligations under Article 50 of the EU AI Act apply to certain interactive and generative AI systems. IML will therefore strengthen transparency and traceability for AI-assisted clinical functions, including clear identification of AI-generated content, provenance, human review and validation.
+</p>
+<p className="ai-regulatory-note">
+  No other significant change requiring immediate adaptation was identified for the modules reviewed this week.
+</p>
+<p className="ai-regulatory-note">
+  <strong>Sources:</strong><br />
+  <a className="text-link" href="https://digital-strategy.ec.europa.eu/en/library/guidelines-transparency-obligations-providers-and-deployers-ai-systems" target="_blank" rel="noopener noreferrer">European Commission — Guidelines on transparency obligations for providers and deployers of certain AI systems, 20 July 2026 ↗</a><br />
+  <a className="text-link" href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj" target="_blank" rel="noopener noreferrer">EUR-Lex — Regulation (EU) 2024/1689, Article 50 ↗</a>
+</p>
+<p className="ai-regulatory-note">
+  Regulatory sources monitored by IML: European Commission, EUR-Lex, HAS, ANS, Assurance Maladie, CNIL, ANSM and Légifrance.
 </p>
               <p className="ai-regulatory-note"><strong>Responsible AI.</strong> Where artificial intelligence is used, it must remain traceable, proportionate and subject to professional validation. </p>
               <p className="ai-regulatory-note"><strong>Global context — updated 1 August 2026.</strong> In 2025, 2.2 billion people remained offline; in 2023, around 4.6 billion were not fully covered by essential health services. Open software cannot close these gaps alone, but it can help keep primary-care tools adaptable, locally maintainable and free from single-supplier dependency. <a className="text-link" href="https://www.itu.int/itu-d/reports/statistics/facts-figures-2025/" target="_blank" rel="noopener noreferrer">ITU Facts and Figures 2025 ↗</a> · <a className="text-link" href="https://www.who.int/data/monitoring-universal-health-coverage" target="_blank" rel="noopener noreferrer">WHO UHC monitoring ↗</a></p>
