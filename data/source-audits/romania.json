@@ -8,7 +8,8 @@
     "require_successful_http_for_public_links": true,
     "require_expected_domain": true,
     "require_content_markers": true,
-    "documentary_sources_may_be_retained_when_temporarily_unavailable": true
+    "documentary_sources_may_be_retained_when_temporarily_unavailable": true,
+    "country_profile_public_links_should_land_on_country_specific_evidence": true
   },
   "sources": [
     {
@@ -50,7 +51,7 @@
       "id": "RO-MYHEALTH-NCP",
       "title": "Romania National Contact Point for eHealth implementation update",
       "url": "https://cnas.ro/2024/07/19/informare-rezumatul-principalelor-informatii-expuse-in-conferinta-de-presa-a-conducerii-cnas-din-data-de-19-iulie-2024/",
-      "required_public_link": false,
+      "required_public_link": true,
       "expected_domains": ["cnas.ro"],
       "required_text_groups": [
         ["Punctului Național de Contact", "Punctului National de Contact"],
@@ -62,7 +63,7 @@
       "id": "RO-MYHEALTH-EU",
       "title": "MyHealth@EU service-country listing — Romania explicitly listed",
       "url": "https://health.ec.europa.eu/ehealth-digital-health-and-care/my-rights-over-my-health-data/myhealtheu-flyer-addressed-patients-and-health-professionals_en",
-      "required_public_link": true,
+      "required_public_link": false,
       "expected_domains": ["health.ec.europa.eu"],
       "required_text_groups": [
         ["MyHealth@EU"],
