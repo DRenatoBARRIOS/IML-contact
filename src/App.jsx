@@ -10,7 +10,6 @@ import {
   NotFoundPage,
 } from "./pages/SitePages.jsx";
 import { LEGACY_HASHES, LEGACY_PATHS } from "./siteConfig.js";
-
 export const ROUTES = {
   "/": {
     component: HomePage,
