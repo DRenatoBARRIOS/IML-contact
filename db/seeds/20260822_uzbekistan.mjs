@@ -21,26 +21,19 @@ const SOURCES = [
     ]
   },
   {
-    title: "National Digital Health Platform integration process for private MIS providers",
-    publisher: "Ministry of Health of the Republic of Uzbekistan",
-    url: "https://gov.uz/en/ssv/news/view/205366",
-    publicationDate: "2026-08-13",
+    title: "DMED national digitisation coverage — 3,050 institutions connected",
+    publisher: "UZINFOCOM",
+    url: "https://uzinfocom.uz/news/344",
+    publicationDate: "2025-08-07",
     accessedAt: "2026-08-22",
-    note: "The Ministry describes the DHP as the central core of the national eHealth system, defining standards, data models and APIs, and opens a formal integration process for private medical information-system providers.",
+    note: "UZINFOCOM reports that 3,050 medical institutions were connected to DMED, representing 93% of primary, secondary and tertiary medical organizations nationally at the time of publication.",
     indicators: [
-      {
-        code: "UZ-GOV-01",
-        evidenceLevel: "A",
-        supportType: "supports",
-        summary: "The Ministry identifies a national core platform and an explicit governance mechanism for onboarding external MIS providers through defined roles and integration steps.",
-        limitation: "The source documents the integration framework and an upcoming coordination process, not completed participation by all private providers."
-      },
       {
         code: "UZ-ADP-01",
         evidenceLevel: "A",
-        supportType: "partially_supports",
-        summary: "Private-sector MIS integration is being actively opened so clinical, laboratory, vaccination and other data can be securely reused across the national ecosystem.",
-        limitation: "Provider participation and real-world coverage remain in progress and should be measured after onboarding."
+        supportType: "supports",
+        summary: "DMED had reached broad institutional deployment, with 3,050 connected facilities reported as 93% of primary, secondary and tertiary medical organizations.",
+        limitation: "This is a point-in-time implementation snapshot and does not establish the completeness of semantic interoperability, private-provider participation or quality of routine use in every connected institution."
       }
     ]
   },
@@ -227,14 +220,14 @@ export async function seedUzbekistan(sql) {
 
   const strengths = [
     "Uzbekistan has a national Digital Health Platform with a country-specific FHIR R5 implementation guide and UZ Core profiles for interoperable clinical data.",
-    "DMED already exposes patient-facing functions including appointments, test results, electronic prescriptions and a personal medical record, with OneID used for authentication.",
-    "The Ministry is opening a formal integration pathway for private medical information systems so external providers can connect to the national platform through common standards and APIs.",
+    "UZINFOCOM reported 3,050 medical institutions connected to DMED, representing 93% of primary, secondary and tertiary medical organizations at the time of publication.",
+    "DMED exposes patient-facing functions including appointments, test results, electronic prescriptions and a personal medical record, with OneID used for authentication.",
     "Digital-health governance explicitly includes standardization, privacy/security compliance and continuous evaluation, while PACS and cross-agency integrations are being expanded."
   ];
 
   const watch = [
     "The national FHIR implementation guide explicitly remains a draft and is not yet ready for production use; interoperability maturity should therefore be reassessed as stable releases appear.",
-    "Private MIS integration is currently being organized and should not yet be interpreted as universal private-provider participation or nationwide semantic interoperability.",
+    "Broad DMED institutional coverage does not by itself prove complete semantic interoperability, uniform quality of use or full participation of private providers.",
     "Legal and governance evidence for privacy and security is stronger than public evidence of operational cybersecurity, incident response, resilience and audit performance.",
     "Several major components, including PACS deployment and KPI monitoring, are still in implementation or procurement phases; national coverage and measurable outcomes need follow-up."
   ];
