@@ -84,29 +84,20 @@ const SOURCES = [
     }]
   },
   {
-    title: "WHO results report 2024–2025 — Uzbekistan health information systems",
-    publisher: "World Health Organization",
-    url: "https://www.who.int/about/accountability/results/who-results-report-2024-2025-eob/region-EURO/2025/uzbekistan",
-    publicUrl: "https://www.who.int/about/accountability/results/who-results-report-2024-2025-eob/region-EURO/2025/uzbekistan",
+    title: "Ministry clinical protocol demonstrating ICD-11 coding",
+    publisher: "Ministry of Health of the Republic of Uzbekistan",
+    url: "https://gov.uz/ru/ssv/sections/view/138350",
+    publicUrl: "https://gov.uz/ru/ssv/sections/view/138350",
     publicationDate: null,
     accessedAt: "2026-08-22",
-    note: "WHO reports that Uzbekistan translated ICD-11 into its national language for standardized coding integrated with national digital systems and developed an implementation plan for interoperability and governance of health information systems.",
-    indicators: [
-      {
-        code: "UZ-GOV-01",
-        evidenceLevel: "A",
-        supportType: "supports",
-        summary: "WHO documents an implementation plan for interoperability and governance of health information systems in Uzbekistan.",
-        limitation: "An implementation plan demonstrates governance and coordinated reform activity but not completed nationwide interoperability."
-      },
-      {
-        code: "UZ-TEC-02",
-        evidenceLevel: "A",
-        supportType: "supports",
-        summary: "Uzbekistan's ICD-11 work is explicitly linked by WHO to standardized coding integrated with national digital systems.",
-        limitation: "This establishes standards-oriented technical progress but does not demonstrate end-to-end exchange across all clinical systems."
-      }
-    ]
+    note: "The official Ministry of Health clinical protocol for obesity in children and adolescents explicitly presents ICD-10 and ICD-11 codes. This is direct country-specific evidence that ICD-11 coding appears in current Uzbek clinical protocol publication, but it does not by itself establish nationwide ICD-11 migration or a national ICD API.",
+    indicators: [{
+      code: "UZ-TEC-02",
+      evidenceLevel: "B",
+      supportType: "partially_supports",
+      summary: "A current Ministry of Health clinical protocol explicitly presents ICD-11 coding alongside ICD-10, demonstrating concrete use of ICD-11 terminology in national clinical documentation.",
+      limitation: "A single published protocol does not demonstrate nationwide ICD-11 migration, complete terminology services, or end-to-end interoperability across health information systems."
+    }]
   },
   {
     title: "BI Platform — health data analytics and decision support",
@@ -219,7 +210,7 @@ export async function seedUzbekistan(sql) {
   const strengths = [
     "Uzbekistan has a national Digital Health Platform with a country-specific FHIR R5 implementation guide and UZ Core profiles for interoperable clinical data.",
     "DMED is documented as a unified medical system with patient-facing services including digital medical records, telemedicine and electronic prescriptions.",
-    "WHO reports standardized ICD-11 coding integrated with national digital systems and an implementation plan for interoperability and governance.",
+    "The Ministry of Health publishes current clinical protocols that explicitly include ICD-11 coding alongside ICD-10, providing direct evidence of standards uptake in national clinical documentation.",
     "A dedicated health BI platform and the National Health Compact provide foundations for data-driven management, monitoring and continued digital transformation."
   ];
 
