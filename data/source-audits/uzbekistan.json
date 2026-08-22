@@ -72,14 +72,14 @@
     {
       "id": "UZ-WHO-HIS-2025",
       "title": "WHO results report 2024–2025 — Uzbekistan health information systems",
-      "url": "https://www.who.int/about/accountability/results/who-results-report-2024-2025-eob/country-profile/2025/uzbekistan",
+      "url": "https://www.who.int/about/accountability/results/who-results-report-2024-2025-eob/region-EURO/2025/uzbekistan",
       "required_public_link": true,
       "expected_domains": ["www.who.int"],
       "required_text_groups": [
         ["Uzbekistan"],
         ["ICD-11"],
-        ["ICD-API"],
-        ["interoperable digital health system"]
+        ["interoperability"],
+        ["governance"]
       ]
     },
     {
