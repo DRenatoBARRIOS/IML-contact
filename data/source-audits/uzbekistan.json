@@ -22,15 +22,15 @@
       ]
     },
     {
-      "id": "UZ-DHP-MIS-2026",
-      "title": "National Digital Health Platform integration process for private MIS providers",
-      "url": "https://gov.uz/en/ssv/news/view/205366",
+      "id": "UZ-DMED-COVERAGE-2025",
+      "title": "DMED national digitisation coverage — 3,050 institutions connected",
+      "url": "https://uzinfocom.uz/news/344",
       "required_public_link": true,
-      "expected_domains": ["gov.uz"],
+      "expected_domains": ["uzinfocom.uz"],
       "required_text_groups": [
-        ["Milliy raqamli sog‘liqni saqlash platformasiga", "Milliy raqamli sog'liqni saqlash platformasiga"],
-        ["integratsiya interfeyslarini", "integratsiya interfeyslari"],
-        ["xususiy Tibbiy informatsion tizimlar", "xususiy tibbiy informatsion tizimlar"]
+        ["DMED"],
+        ["3050", "3 050"],
+        ["93%", "93 %"]
       ]
     },
     {
@@ -54,7 +54,7 @@
       "required_text_groups": [
         ["DMED"],
         ["OneID"],
-        ["17 ноября 2025 года", "17-noyabrdan"]
+        ["2025-yil 17-noyabrdan", "17 noyabrdan", "17-noyabrdan"]
       ]
     },
     {
