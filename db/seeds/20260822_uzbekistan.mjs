@@ -86,25 +86,25 @@ const SOURCES = [
   {
     title: "WHO results report 2024–2025 — Uzbekistan health information systems",
     publisher: "World Health Organization",
-    url: "https://www.who.int/about/accountability/results/who-results-report-2024-2025-eob/country-profile/2025/uzbekistan",
-    publicUrl: "https://www.who.int/about/accountability/results/who-results-report-2024-2025-eob/country-profile/2025/uzbekistan",
+    url: "https://www.who.int/about/accountability/results/who-results-report-2024-2025-eob/region-EURO/2025/uzbekistan",
+    publicUrl: "https://www.who.int/about/accountability/results/who-results-report-2024-2025-eob/region-EURO/2025/uzbekistan",
     publicationDate: null,
     accessedAt: "2026-08-22",
-    note: "WHO reports Uzbekistan's ICD-11 implementation roadmap, a locally deployed ICD-API server and continuing work toward an interoperable digital health system under the WHO Country Cooperation Strategy 2025–2030.",
+    note: "WHO reports that Uzbekistan translated ICD-11 into its national language for standardized coding integrated with national digital systems and developed an implementation plan for interoperability and governance of health information systems.",
     indicators: [
       {
         code: "UZ-GOV-01",
         evidenceLevel: "A",
         supportType: "supports",
-        summary: "Uzbekistan has a current standards and interoperability programme supported by WHO, with a national ICD-11 roadmap and institutional coordination across health-information stakeholders.",
-        limitation: "WHO support and roadmap milestones show governance capacity and implementation progress, but not full completion of nationwide interoperability."
+        summary: "WHO documents an implementation plan for interoperability and governance of health information systems in Uzbekistan.",
+        limitation: "An implementation plan demonstrates governance and coordinated reform activity but not completed nationwide interoperability."
       },
       {
         code: "UZ-TEC-02",
         evidenceLevel: "A",
         supportType: "supports",
-        summary: "A local ICD-API server has been deployed as a technical foundation for integrating ICD-11 into national digital systems.",
-        limitation: "A deployed terminology API is one component of interoperability and does not establish end-to-end exchange across all clinical systems."
+        summary: "Uzbekistan's ICD-11 work is explicitly linked by WHO to standardized coding integrated with national digital systems.",
+        limitation: "This establishes standards-oriented technical progress but does not demonstrate end-to-end exchange across all clinical systems."
       }
     ]
   },
@@ -138,7 +138,7 @@ const SOURCES = [
     publisher: "Government of the Republic of Uzbekistan / World Bank Group",
     url: "https://thedocs.worldbank.org/en/doc/0273f33ab6ee48c5d842108b9b55c789-0140022025/related/National-Health-Compact-Uzbekistan.pdf",
     publicUrl: null,
-    publicationDate: "2025-12-01",
+    publicationDate: null,
     accessedAt: "2026-08-22",
     note: "The National Health Compact is a country-specific strategic document linking current health reforms to digital transformation, electronic medical records, digital information systems, nationwide performance monitoring and explicit implementation targets. It is retained as documentary evidence but not exposed as a public button until the automated audit can inspect PDF content reliably.",
     indicators: [
@@ -219,7 +219,7 @@ export async function seedUzbekistan(sql) {
   const strengths = [
     "Uzbekistan has a national Digital Health Platform with a country-specific FHIR R5 implementation guide and UZ Core profiles for interoperable clinical data.",
     "DMED is documented as a unified medical system with patient-facing services including digital medical records, telemedicine and electronic prescriptions.",
-    "WHO reports a national ICD-11 implementation roadmap and a locally deployed ICD-API server intended for integration with national digital systems.",
+    "WHO reports standardized ICD-11 coding integrated with national digital systems and an implementation plan for interoperability and governance.",
     "A dedicated health BI platform and the National Health Compact provide foundations for data-driven management, monitoring and continued digital transformation."
   ];
 
