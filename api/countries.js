@@ -1,5 +1,4 @@
 import { neon } from "@neondatabase/serverless";
-import { seedUzbekistan } from "../db/seeds/20260822_uzbekistan.mjs";
 
 export async function GET() {
   if (!process.env.DATABASE_URL) {
@@ -11,15 +10,6 @@ export async function GET() {
 
   try {
     const sql = neon(process.env.DATABASE_URL);
-
-    // Temporary Preview-only self-heal for the Uzbekistan review branch.
-    // This can never run in Production and will be removed after validation.
-    if (
-      process.env.VERCEL_ENV === "preview" &&
-      process.env.VERCEL_GIT_COMMIT_REF === "country-uzbekistan"
-    ) {
-      await seedUzbekistan(sql);
-    }
 
     const countries = await sql`
       SELECT
