@@ -70,16 +70,15 @@
       ]
     },
     {
-      "id": "UZ-WHO-HIS-2025",
-      "title": "WHO results report 2024–2025 — Uzbekistan health information systems",
-      "url": "https://www.who.int/about/accountability/results/who-results-report-2024-2025-eob/region-EURO/2025/uzbekistan",
+      "id": "UZ-MOH-ICD11-PROTOCOL",
+      "title": "Ministry clinical protocol demonstrating ICD-11 coding",
+      "url": "https://gov.uz/ru/ssv/sections/view/138350",
       "required_public_link": true,
-      "expected_domains": ["www.who.int"],
+      "expected_domains": ["gov.uz"],
       "required_text_groups": [
-        ["Uzbekistan"],
-        ["ICD-11"],
-        ["interoperability"],
-        ["governance"]
+        ["ОЖИРЕНИЕ У ДЕТЕЙ И ПОДРОСТКОВ"],
+        ["МКБ-11", "ICD-11"],
+        ["5B81.0"]
       ]
     },
     {
