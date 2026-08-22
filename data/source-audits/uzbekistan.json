@@ -24,13 +24,13 @@
     {
       "id": "UZ-DHP-MIS-2026",
       "title": "National Digital Health Platform integration process for private MIS providers",
-      "url": "https://gov.uz/ru/ssv/news/view/205366",
+      "url": "https://gov.uz/en/ssv/news/view/205366",
       "required_public_link": true,
       "expected_domains": ["gov.uz"],
       "required_text_groups": [
-        ["Национальной цифровой платформой здравоохранения"],
-        ["интеграционные интерфейсы"],
-        ["частных медицинских информационных систем"]
+        ["Milliy raqamli sog‘liqni saqlash platformasiga", "Milliy raqamli sog'liqni saqlash platformasiga"],
+        ["integratsiya interfeyslarini", "integratsiya interfeyslari"],
+        ["xususiy Tibbiy informatsion tizimlar", "xususiy tibbiy informatsion tizimlar"]
       ]
     },
     {
