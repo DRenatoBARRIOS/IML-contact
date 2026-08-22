@@ -23,7 +23,7 @@ const SOURCES = [
   {
     title: "National Digital Health Platform integration process for private MIS providers",
     publisher: "Ministry of Health of the Republic of Uzbekistan",
-    url: "https://gov.uz/ru/ssv/news/view/205366",
+    url: "https://gov.uz/en/ssv/news/view/205366",
     publicationDate: "2026-08-13",
     accessedAt: "2026-08-22",
     note: "The Ministry describes the DHP as the central core of the national eHealth system, defining standards, data models and APIs, and opens a formal integration process for private medical information-system providers.",
