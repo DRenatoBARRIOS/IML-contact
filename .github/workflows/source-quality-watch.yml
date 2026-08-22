@@ -1,0 +1,77 @@
+name: IML source quality watch
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 6 * * 1"
+  push:
+    branches:
+      - main
+    paths:
+      - "data/source-audits/**"
+      - "scripts/audit-sources.mjs"
+      - "scripts/audit-production-sources.mjs"
+      - "docs/SOURCE_QUALITY_PROTOCOL.md"
+      - ".github/workflows/source-quality-watch.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "data/source-audits/**"
+      - "scripts/audit-sources.mjs"
+      - "scripts/audit-production-sources.mjs"
+      - "docs/SOURCE_QUALITY_PROTOCOL.md"
+      - ".github/workflows/source-quality-watch.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  audit-production-source-layer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Audit all published country sources
+        run: node scripts/audit-production-sources.mjs https://www.imlhealth.org/api/countries source-quality-report.json
+
+      - name: Preserve audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: iml-source-quality-report
+          path: source-quality-report.json
+          if-no-files-found: ignore
+          retention-days: 30
+
+  audit-semantic-manifests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Audit approved country semantic manifests
+        shell: bash
+        run: |
+          shopt -s nullglob
+          manifests=(data/source-audits/*.json)
+          if [ ${#manifests[@]} -eq 0 ]; then
+            echo "No semantic source-audit manifests found."
+            exit 1
+          fi
+          for manifest in "${manifests[@]}"; do
+            echo "Auditing $manifest"
+            node scripts/audit-sources.mjs "$manifest"
+          done

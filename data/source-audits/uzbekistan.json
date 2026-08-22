@@ -1,0 +1,110 @@
+{
+  "audit_id": "UZB-2026-08-22",
+  "country": { "iso3": "UZB", "name": "Uzbekistan" },
+  "policy": {
+    "require_successful_http_for_public_links": true,
+    "require_expected_domain": true,
+    "require_content_markers": true,
+    "documentary_sources_may_be_retained_when_temporarily_unavailable": true,
+    "country_profile_public_links_should_land_on_country_specific_evidence": true
+  },
+  "sources": [
+    {
+      "id": "UZ-DHP-FHIR",
+      "title": "Uzbekistan Digital Health Platform — national FHIR implementation guide",
+      "url": "https://dhp.uz/fhir/core/en/index.html",
+      "required_public_link": true,
+      "expected_domains": ["dhp.uz"],
+      "required_text_groups": [
+        ["Uzbekistan Digital Health Platform"],
+        ["FHIR R5"],
+        ["not yet ready for production use"]
+      ]
+    },
+    {
+      "id": "UZ-DMED-PROJECT",
+      "title": "DMED — unified medical system",
+      "url": "https://uzinfocom.uz/projects/dmed-en-18",
+      "required_public_link": true,
+      "expected_domains": ["uzinfocom.uz"],
+      "required_text_groups": [
+        ["DMED"],
+        ["единая медицинская система", "yagona tibbiyot tizimi", "unified medical system"],
+        ["электронные рецепты", "elektron", "electronic prescriptions"]
+      ]
+    },
+    {
+      "id": "UZ-DMED-APP",
+      "title": "DMED patient application",
+      "url": "https://gov.uz/en/ssv/sections/view/89522",
+      "required_public_link": true,
+      "expected_domains": ["gov.uz"],
+      "required_text_groups": [
+        ["App DMED"],
+        ["electronic prescriptions"],
+        ["My medical record"]
+      ]
+    },
+    {
+      "id": "UZ-ONEID",
+      "title": "OneID — national identification and authentication system",
+      "url": "https://my.gov.uz/uz/page/oneid-about",
+      "required_public_link": true,
+      "expected_domains": ["my.gov.uz"],
+      "required_text_groups": [
+        ["OneID"],
+        ["Yagona identifikatsiya tizimi", "Unified Identification System"],
+        ["autentifikatsiya", "authentication"]
+      ]
+    },
+    {
+      "id": "UZ-PERSONAL-DATA",
+      "title": "Ministry of Health information on protection of personal data",
+      "url": "https://gov.uz/ru/ssv/pages/saytga-ma-lumot",
+      "required_public_link": true,
+      "expected_domains": ["gov.uz"],
+      "required_text_groups": [
+        ["О персональных данных"],
+        ["ЗРУ-547"],
+        ["конфиденциальности"]
+      ]
+    },
+    {
+      "id": "UZ-MOH-ICD11-PROTOCOL",
+      "title": "Ministry clinical protocol demonstrating ICD-11 coding",
+      "url": "https://gov.uz/ru/ssv/sections/view/138350",
+      "required_public_link": true,
+      "expected_domains": ["gov.uz"],
+      "required_text_groups": [
+        ["ОЖИРЕНИЕ У ДЕТЕЙ И ПОДРОСТКОВ"],
+        ["МКБ-11", "ICD-11"],
+        ["5B81.0"]
+      ]
+    },
+    {
+      "id": "UZ-BI-PLATFORM",
+      "title": "BI Platform — health data analytics and decision support",
+      "url": "https://uzinfocom.uz/projects/the-bi-platform-project-en-32",
+      "required_public_link": true,
+      "expected_domains": ["uzinfocom.uz"],
+      "required_text_groups": [
+        ["BI"],
+        ["Министерства здравоохранения", "Ministry of Health"],
+        ["Интеграция данных", "data"],
+        ["принятия решений", "decision"]
+      ]
+    },
+    {
+      "id": "UZ-HEALTH-COMPACT-INDEX",
+      "title": "World Bank National Health Compacts index — Uzbekistan document available",
+      "url": "https://www.worldbank.org/ext/en/health-works/national-health-compacts",
+      "required_public_link": false,
+      "expected_domains": ["www.worldbank.org"],
+      "required_text_groups": [
+        ["National Health Compacts"],
+        ["Uzbekistan"],
+        ["National-Health-Compact-Uzbekistan.pdf"]
+      ]
+    }
+  ]
+}
