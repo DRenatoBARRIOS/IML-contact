@@ -7,156 +7,154 @@ const SOURCES = [
     title: "Uzbekistan Digital Health Platform — national FHIR implementation guide",
     publisher: "Ministry of Health of the Republic of Uzbekistan",
     url: "https://dhp.uz/fhir/core/en/index.html",
+    publicUrl: "https://dhp.uz/fhir/core/en/index.html",
     publicationDate: null,
     accessedAt: "2026-08-22",
     note: "The official national implementation guide documents FHIR R5, UZ Core profiles, national terminologies and a broad Digital Health Platform architecture; it explicitly states that the guide remains a draft and is not yet ready for production use.",
-    indicators: [
-      {
-        code: "UZ-TEC-01",
-        evidenceLevel: "A",
-        supportType: "supports",
-        summary: "Uzbekistan has a country-specific FHIR R5 implementation guide intended to standardize clinical data representation and interoperability across the national Digital Health Platform.",
-        limitation: "The implementation guide is still in draft/experimental status, so it demonstrates strong technical foundations rather than completed nationwide production interoperability."
-      }
-    ]
+    indicators: [{
+      code: "UZ-TEC-01",
+      evidenceLevel: "A",
+      supportType: "supports",
+      summary: "Uzbekistan has a country-specific FHIR R5 implementation guide intended to standardize clinical data representation and interoperability across the national Digital Health Platform.",
+      limitation: "The implementation guide is still in draft/experimental status, so it demonstrates strong technical foundations rather than completed nationwide production interoperability."
+    }]
   },
   {
-    title: "DMED national digitisation coverage — 3,050 institutions connected",
+    title: "DMED — unified medical system",
     publisher: "UZINFOCOM",
-    url: "https://uzinfocom.uz/news/344",
-    publicationDate: "2025-08-07",
+    url: "https://uzinfocom.uz/projects/dmed-en-18",
+    publicUrl: "https://uzinfocom.uz/projects/dmed-en-18",
+    publicationDate: "2024-07-09",
     accessedAt: "2026-08-22",
-    note: "UZINFOCOM reports that 3,050 medical institutions were connected to DMED, representing 93% of primary, secondary and tertiary medical organizations nationally at the time of publication.",
-    indicators: [
-      {
-        code: "UZ-ADP-01",
-        evidenceLevel: "A",
-        supportType: "supports",
-        summary: "DMED had reached broad institutional deployment, with 3,050 connected facilities reported as 93% of primary, secondary and tertiary medical organizations.",
-        limitation: "This is a point-in-time implementation snapshot and does not establish the completeness of semantic interoperability, private-provider participation or quality of routine use in every connected institution."
-      }
-    ]
+    note: "UZINFOCOM's stable project page describes DMED as the unified medical system developed for digitising the Ministry of Health, including a unified medical passport, telemedicine and electronic prescriptions.",
+    indicators: [{
+      code: "UZ-ADP-01",
+      evidenceLevel: "A",
+      supportType: "supports",
+      summary: "DMED is documented as an operational national medical system with concrete patient and clinical functions rather than only a planned platform.",
+      limitation: "The project page does not independently quantify nationwide facility coverage, active use or completeness of records."
+    }]
   },
   {
     title: "DMED patient application",
     publisher: "Ministry of Health of the Republic of Uzbekistan",
     url: "https://gov.uz/en/ssv/sections/view/89522",
+    publicUrl: "https://gov.uz/en/ssv/sections/view/89522",
     publicationDate: "2025-09-30",
     accessedAt: "2026-08-22",
     note: "The Ministry describes routine patient-facing DMED functions including appointment booking, laboratory results, electronic prescriptions and access to a personal medical record.",
-    indicators: [
-      {
-        code: "UZ-ADP-02",
-        evidenceLevel: "A",
-        supportType: "supports",
-        summary: "DMED provides concrete patient-facing digital services that are already described as available rather than merely planned.",
-        limitation: "The page does not quantify national active-user rates, provider coverage or completeness of longitudinal records."
-      }
-    ]
+    indicators: [{
+      code: "UZ-ADP-02",
+      evidenceLevel: "A",
+      supportType: "supports",
+      summary: "DMED provides concrete patient-facing digital services that are described as available rather than merely planned.",
+      limitation: "The page does not quantify national active-user rates, provider coverage or completeness of longitudinal records."
+    }]
   },
   {
-    title: "DMED authentication through OneID",
-    publisher: "UZINFOCOM",
-    url: "https://uzinfocom.uz/en/news/457",
-    publicationDate: "2025-11-28",
+    title: "OneID — national identification and authentication system",
+    publisher: "Unified Interactive Government Services Portal of the Republic of Uzbekistan",
+    url: "https://my.gov.uz/uz/page/oneid-about",
+    publicUrl: "https://my.gov.uz/uz/page/oneid-about",
+    publicationDate: null,
     accessedAt: "2026-08-22",
-    note: "UZINFOCOM states that access to the unified DMED medical information system has used OneID authentication exclusively since 17 November 2025.",
-    indicators: [
-      {
-        code: "UZ-IDT-01",
-        evidenceLevel: "A",
-        supportType: "supports",
-        summary: "DMED is connected to the national OneID authentication environment, providing a documented trusted-access mechanism for the medical information system.",
-        limitation: "Authentication through OneID does not by itself demonstrate complete patient matching, consent, authorization and provenance controls across every clinical subsystem."
-      }
-    ]
+    note: "The official MyGov page describes OneID as the unified identification system for access to public and other information systems, including identity attributes, authentication results and additional authentication methods.",
+    indicators: [{
+      code: "UZ-IDT-01",
+      evidenceLevel: "A",
+      supportType: "partially_supports",
+      summary: "Uzbekistan has a reusable national identification and authentication layer that can underpin trusted access to digital services.",
+      limitation: "This source establishes the national identity layer but does not by itself prove patient matching, consent, authorization or provenance controls inside every health application."
+    }]
   },
   {
     title: "Ministry of Health information on protection of personal data",
     publisher: "Ministry of Health of the Republic of Uzbekistan",
     url: "https://gov.uz/ru/ssv/pages/saytga-ma-lumot",
+    publicUrl: "https://gov.uz/ru/ssv/pages/saytga-ma-lumot",
     publicationDate: null,
     accessedAt: "2026-08-22",
     note: "The Ministry cites Uzbekistan's Personal Data Law No. ZRU-547 and describes legal, organizational and technical duties for integrity, confidentiality and prevention of unlawful processing.",
+    indicators: [{
+      code: "UZ-SEC-01",
+      evidenceLevel: "B",
+      supportType: "supports",
+      summary: "A national legal framework establishes explicit confidentiality and protection duties for personal data, including technical and organizational safeguards.",
+      limitation: "The legal framework does not demonstrate how uniformly security controls, incident response, audit logging and resilience are implemented across health organizations."
+    }]
+  },
+  {
+    title: "WHO results report 2024–2025 — Uzbekistan health information systems",
+    publisher: "World Health Organization",
+    url: "https://www.who.int/about/accountability/results/who-results-report-2024-2025-eob/country-profile/2025/uzbekistan",
+    publicUrl: "https://www.who.int/about/accountability/results/who-results-report-2024-2025-eob/country-profile/2025/uzbekistan",
+    publicationDate: null,
+    accessedAt: "2026-08-22",
+    note: "WHO reports Uzbekistan's ICD-11 implementation roadmap, a locally deployed ICD-API server and continuing work toward an interoperable digital health system under the WHO Country Cooperation Strategy 2025–2030.",
     indicators: [
       {
-        code: "UZ-SEC-01",
-        evidenceLevel: "B",
+        code: "UZ-GOV-01",
+        evidenceLevel: "A",
         supportType: "supports",
-        summary: "A national legal framework establishes explicit confidentiality and protection duties for personal data, including technical and organizational safeguards.",
-        limitation: "The legal framework does not demonstrate how uniformly security controls, incident response, audit logging and resilience are implemented across health organizations."
+        summary: "Uzbekistan has a current standards and interoperability programme supported by WHO, with a national ICD-11 roadmap and institutional coordination across health-information stakeholders.",
+        limitation: "WHO support and roadmap milestones show governance capacity and implementation progress, but not full completion of nationwide interoperability."
+      },
+      {
+        code: "UZ-TEC-02",
+        evidenceLevel: "A",
+        supportType: "supports",
+        summary: "A local ICD-API server has been deployed as a technical foundation for integrating ICD-11 into national digital systems.",
+        limitation: "A deployed terminology API is one component of interoperability and does not establish end-to-end exchange across all clinical systems."
       }
     ]
   },
   {
-    title: "Digital Healthcare Management Unit — standardization and governance mandate",
-    publisher: "Ministry of Health of the Republic of Uzbekistan",
-    url: "https://gov.uz/en/ssv/sections/view/68436",
-    publicationDate: "2025-07-14",
+    title: "BI Platform — health data analytics and decision support",
+    publisher: "UZINFOCOM",
+    url: "https://uzinfocom.uz/projects/the-bi-platform-project-en-32",
+    publicUrl: "https://uzinfocom.uz/projects/the-bi-platform-project-en-32",
+    publicationDate: "2024-08-05",
     accessedAt: "2026-08-22",
-    note: "The Ministry's Digital Healthcare Management Unit mandate includes national/international standards alignment, standardized integration, data-security and privacy compliance, stakeholder collaboration, evaluation and continuous improvement.",
+    note: "UZINFOCOM describes a Ministry of Health BI platform integrating multiple health systems and supporting data-driven management, transparency, accountability and clinical or operational decision-making.",
+    indicators: [
+      {
+        code: "UZ-LRN-01",
+        evidenceLevel: "A",
+        supportType: "supports",
+        summary: "A dedicated health BI platform provides an operational basis for integrating data from multiple systems and using analytics for management and decision support.",
+        limitation: "The public project page does not provide independent evaluation of data quality, routine use by all institutions or measurable improvement attributable to the platform."
+      },
+      {
+        code: "UZ-ADP-03",
+        evidenceLevel: "B",
+        supportType: "partially_supports",
+        summary: "The BI platform connects several existing national health information systems, showing use of shared digital data beyond a single application.",
+        limitation: "The listed integrations do not establish complete nationwide semantic interoperability."
+      }
+    ]
+  },
+  {
+    title: "National Health Compact — Uzbekistan",
+    publisher: "Government of the Republic of Uzbekistan / World Bank Group",
+    url: "https://thedocs.worldbank.org/en/doc/0273f33ab6ee48c5d842108b9b55c789-0140022025/related/National-Health-Compact-Uzbekistan.pdf",
+    publicUrl: null,
+    publicationDate: "2025-12-01",
+    accessedAt: "2026-08-22",
+    note: "The National Health Compact is a country-specific strategic document linking current health reforms to digital transformation, electronic medical records, digital information systems, nationwide performance monitoring and explicit implementation targets. It is retained as documentary evidence but not exposed as a public button until the automated audit can inspect PDF content reliably.",
     indicators: [
       {
         code: "UZ-GOV-02",
         evidenceLevel: "A",
         supportType: "supports",
-        summary: "The Ministry has a dedicated digital-health management function with explicit responsibilities for standards, integration and coordination.",
-        limitation: "The cited recruitment/terms-of-reference page establishes intended institutional responsibilities rather than independently measured governance performance."
-      },
-      {
-        code: "UZ-SEC-02",
-        evidenceLevel: "B",
-        supportType: "partially_supports",
-        summary: "Data-security and privacy compliance are explicit responsibilities within the digital-health standardization mandate.",
-        limitation: "Operational cybersecurity maturity, incident handling and continuity controls require separate verification."
-      },
-      {
-        code: "UZ-LRN-01",
-        evidenceLevel: "B",
-        supportType: "partially_supports",
-        summary: "The mandate explicitly includes ongoing evaluation and improvement of digital-health programs.",
-        limitation: "The source defines a learning responsibility but does not document a mature national feedback loop with published outcome metrics."
-      }
-    ]
-  },
-  {
-    title: "Digital medicine — new information modules and KPI monitoring",
-    publisher: "Ministry of Health of the Republic of Uzbekistan",
-    url: "https://gov.uz/oz/ssv/news/view/132660",
-    publicationDate: "2026-02-14",
-    accessedAt: "2026-08-22",
-    note: "The Ministry reports new digital-health modules, integration work with social-protection and state health-insurance systems, training plans, and an automated KPI system intended to assess health-worker performance.",
-    indicators: [
-      {
-        code: "UZ-ADP-03",
-        evidenceLevel: "A",
-        supportType: "supports",
-        summary: "Digital modules are being extended into specialized centers, pharmacies and cross-agency workflows, showing active implementation beyond a single pilot.",
-        limitation: "The source describes deployment and training plans; uniform operational use across the entire country is not yet demonstrated."
+        summary: "The national reform compact assigns digital-transformation responsibilities and measurable targets to government bodies.",
+        limitation: "The compact contains commitments and targets; it should not be read as evidence that all targets have already been achieved."
       },
       {
         code: "UZ-LRN-02",
-        evidenceLevel: "B",
-        supportType: "partially_supports",
-        summary: "An automated KPI system is planned as part of the digital reform, indicating movement toward systematic performance monitoring.",
-        limitation: "The source does not yet show longitudinal KPI results, audit cycles or demonstrated improvement from feedback."
-      }
-    ]
-  },
-  {
-    title: "Elektron Salomatlik — national PACS procurement",
-    publisher: "Ministry of Health of the Republic of Uzbekistan",
-    url: "https://gov.uz/en/ssv/sections/view/148606",
-    publicationDate: "2026-04-01",
-    accessedAt: "2026-08-22",
-    note: "The Ministry is procuring a Picture Archiving and Communication System under the Support to Digital Reform in the Health Sector — Elektron Salomatlik project.",
-    indicators: [
-      {
-        code: "UZ-TEC-02",
         evidenceLevel: "A",
         supportType: "supports",
-        summary: "National procurement is extending digital-health infrastructure into medical imaging through PACS.",
-        limitation: "A procurement notice demonstrates funded implementation activity, not completed installation, interoperability or nationwide clinical use."
+        summary: "The compact includes nationwide performance-monitoring objectives and digital management targets, providing a formal basis for learning and accountability.",
+        limitation: "Public longitudinal outcome data are still needed to assess whether the monitoring loop consistently changes policy or care."
       }
     ]
   }
@@ -190,7 +188,7 @@ export async function seedUzbekistan(sql) {
       ${countryId},
       1,
       'published',
-      ${"Exploratory evidence profile documenting Uzbekistan's rapidly developing national Digital Health Platform, FHIR-based interoperability work, DMED services, trusted access and ongoing implementation across public and private care."},
+      ${"Exploratory evidence profile documenting Uzbekistan's national Digital Health Platform, FHIR-based interoperability work, DMED services, national identity infrastructure and data-driven health-system reform."},
       '2026-08-22',
       '2026-08-22T00:00:00.000Z'
     )
@@ -212,24 +210,24 @@ export async function seedUzbekistan(sql) {
     INSERT INTO country_profile_scores (profile_id, domain_code, score) VALUES
       (${profileId}, 'governance', 70),
       (${profileId}, 'technical', 78),
-      (${profileId}, 'identity', 68),
-      (${profileId}, 'adoption', 72),
-      (${profileId}, 'security', 60),
-      (${profileId}, 'learning', 67);
+      (${profileId}, 'identity', 62),
+      (${profileId}, 'adoption', 70),
+      (${profileId}, 'security', 58),
+      (${profileId}, 'learning', 68);
   `;
 
   const strengths = [
     "Uzbekistan has a national Digital Health Platform with a country-specific FHIR R5 implementation guide and UZ Core profiles for interoperable clinical data.",
-    "UZINFOCOM reported 3,050 medical institutions connected to DMED, representing 93% of primary, secondary and tertiary medical organizations at the time of publication.",
-    "DMED exposes patient-facing functions including appointments, test results, electronic prescriptions and a personal medical record, with OneID used for authentication.",
-    "Digital-health governance explicitly includes standardization, privacy/security compliance and continuous evaluation, while PACS and cross-agency integrations are being expanded."
+    "DMED is documented as a unified medical system with patient-facing services including digital medical records, telemedicine and electronic prescriptions.",
+    "WHO reports a national ICD-11 implementation roadmap and a locally deployed ICD-API server intended for integration with national digital systems.",
+    "A dedicated health BI platform and the National Health Compact provide foundations for data-driven management, monitoring and continued digital transformation."
   ];
 
   const watch = [
     "The national FHIR implementation guide explicitly remains a draft and is not yet ready for production use; interoperability maturity should therefore be reassessed as stable releases appear.",
-    "Broad DMED institutional coverage does not by itself prove complete semantic interoperability, uniform quality of use or full participation of private providers.",
-    "Legal and governance evidence for privacy and security is stronger than public evidence of operational cybersecurity, incident response, resilience and audit performance.",
-    "Several major components, including PACS deployment and KPI monitoring, are still in implementation or procurement phases; national coverage and measurable outcomes need follow-up."
+    "The stable public sources establish active national systems but do not yet provide an independently verified national denominator for facility coverage or routine clinical use.",
+    "Legal evidence for privacy and security is stronger than public evidence of operational cybersecurity, incident response, resilience and audit performance.",
+    "The National Health Compact contains forward-looking targets and commitments; achievement of these targets should be verified with later operational and outcome data."
   ];
 
   for (let index = 0; index < strengths.length; index += 1) {
@@ -247,6 +245,8 @@ export async function seedUzbekistan(sql) {
 
   let indicatorCount = 0;
   for (const source of SOURCES) {
+    const publicUrl = source.publicUrl === undefined ? source.url : source.publicUrl;
+    const urlStatus = publicUrl ? 'verified' : 'unverified';
     const sourceRows = await sql`
       INSERT INTO country_profile_sources (
         profile_id, title, publisher, source_url, publication_date, accessed_at,
@@ -254,7 +254,7 @@ export async function seedUzbekistan(sql) {
       ) VALUES (
         ${profileId}, ${source.title}, ${source.publisher}, ${source.url},
         ${source.publicationDate}, ${source.accessedAt}, ${source.note},
-        ${source.url}, 'verified', ${source.accessedAt}
+        ${publicUrl}, ${urlStatus}, ${source.accessedAt}
       )
       RETURNING id;
     `;
