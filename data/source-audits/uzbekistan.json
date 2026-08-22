@@ -1,0 +1,109 @@
+{
+  "audit_id": "UZB-2026-08-22",
+  "country": { "iso3": "UZB", "name": "Uzbekistan" },
+  "policy": {
+    "require_successful_http_for_public_links": true,
+    "require_expected_domain": true,
+    "require_content_markers": true,
+    "documentary_sources_may_be_retained_when_temporarily_unavailable": true,
+    "country_profile_public_links_should_land_on_country_specific_evidence": true
+  },
+  "sources": [
+    {
+      "id": "UZ-DHP-FHIR",
+      "title": "Uzbekistan Digital Health Platform — national FHIR implementation guide",
+      "url": "https://dhp.uz/fhir/core/en/index.html",
+      "required_public_link": true,
+      "expected_domains": ["dhp.uz"],
+      "required_text_groups": [
+        ["Uzbekistan Digital Health Platform"],
+        ["FHIR R5"],
+        ["not yet ready for production use"]
+      ]
+    },
+    {
+      "id": "UZ-DHP-MIS-2026",
+      "title": "National Digital Health Platform integration process for private MIS providers",
+      "url": "https://gov.uz/ru/ssv/news/view/205366",
+      "required_public_link": true,
+      "expected_domains": ["gov.uz"],
+      "required_text_groups": [
+        ["Национальной цифровой платформой здравоохранения"],
+        ["интеграционные интерфейсы"],
+        ["частных медицинских информационных систем"]
+      ]
+    },
+    {
+      "id": "UZ-DMED-APP",
+      "title": "DMED patient application",
+      "url": "https://gov.uz/en/ssv/sections/view/89522",
+      "required_public_link": true,
+      "expected_domains": ["gov.uz"],
+      "required_text_groups": [
+        ["App DMED"],
+        ["electronic prescriptions"],
+        ["My medical record"]
+      ]
+    },
+    {
+      "id": "UZ-DMED-ONEID",
+      "title": "DMED authentication through OneID",
+      "url": "https://uzinfocom.uz/en/news/457",
+      "required_public_link": true,
+      "expected_domains": ["uzinfocom.uz"],
+      "required_text_groups": [
+        ["DMED"],
+        ["OneID"],
+        ["17 ноября 2025 года", "17-noyabrdan"]
+      ]
+    },
+    {
+      "id": "UZ-PERSONAL-DATA",
+      "title": "Ministry of Health information on protection of personal data",
+      "url": "https://gov.uz/ru/ssv/pages/saytga-ma-lumot",
+      "required_public_link": true,
+      "expected_domains": ["gov.uz"],
+      "required_text_groups": [
+        ["О персональных данных"],
+        ["ЗРУ-547"],
+        ["конфиденциальности"]
+      ]
+    },
+    {
+      "id": "UZ-DHMU-STANDARDS",
+      "title": "Digital Healthcare Management Unit — standardization and governance mandate",
+      "url": "https://gov.uz/en/ssv/sections/view/68436",
+      "required_public_link": true,
+      "expected_domains": ["gov.uz"],
+      "required_text_groups": [
+        ["Standardization Specialist"],
+        ["Digital Healthcare Management Unit"],
+        ["data security and privacy compliance"]
+      ]
+    },
+    {
+      "id": "UZ-DIGITAL-MODULES-2026",
+      "title": "Digital medicine — new information modules and KPI monitoring",
+      "url": "https://gov.uz/oz/ssv/news/view/132660",
+      "required_public_link": true,
+      "expected_domains": ["gov.uz"],
+      "required_text_groups": [
+        ["Raqamli tibbiyot"],
+        ["KPI"],
+        ["2026 yil"]
+      ]
+    },
+    {
+      "id": "UZ-PACS-2026",
+      "title": "Elektron Salomatlik — national PACS procurement",
+      "url": "https://gov.uz/en/ssv/sections/view/148606",
+      "required_public_link": true,
+      "expected_domains": ["gov.uz"],
+      "required_text_groups": [
+        ["Picture Archiving and Communication System"],
+        ["PACS"],
+        ["Uzbekistan"]
+      ]
+    }
+  ]
+}
