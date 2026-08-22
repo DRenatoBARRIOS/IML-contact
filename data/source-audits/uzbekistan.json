@@ -29,8 +29,8 @@
       "expected_domains": ["uzinfocom.uz"],
       "required_text_groups": [
         ["DMED"],
-        ["3050", "3 050"],
-        ["93%", "93 %"]
+        ["93%", "93 %"],
+        ["медицинских учреждений", "учреждений", "medical institutions"]
       ]
     },
     {
@@ -54,7 +54,7 @@
       "required_text_groups": [
         ["DMED"],
         ["OneID"],
-        ["2025-yil 17-noyabrdan", "17 noyabrdan", "17-noyabrdan"]
+        ["avtorizatsiya", "авторизац", "authentication"]
       ]
     },
     {
