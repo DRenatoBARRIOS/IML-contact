@@ -1,5 +1,6 @@
 import { neon } from "@neondatabase/serverless";
 import { seedUzbekistan } from "../db/seeds/20260822_uzbekistan.mjs";
+import { patchUzbekistanWhoSource } from "../db/seeds/20260822_uzbekistan_who_source_patch.mjs";
 
 export async function GET() {
   if (process.env.VERCEL_ENV !== "preview") {
@@ -12,8 +13,9 @@ export async function GET() {
 
   try {
     const sql = neon(process.env.DATABASE_URL);
-    const result = await seedUzbekistan(sql);
-    return Response.json(result, {
+    const seed = await seedUzbekistan(sql);
+    const sourcePatch = await patchUzbekistanWhoSource(sql);
+    return Response.json({ ...seed, sourcePatch }, {
       status: 200,
       headers: { "Cache-Control": "no-store" },
     });
