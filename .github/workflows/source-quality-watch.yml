@@ -8,18 +8,24 @@ on:
     branches:
       - main
     paths:
+      - "api/countries.js"
       - "data/source-audits/**"
+      - "db/seeds/**"
       - "scripts/audit-sources.mjs"
       - "scripts/audit-production-sources.mjs"
+      - "docs/IML_SCORING_PROTOCOL.md"
       - "docs/SOURCE_QUALITY_PROTOCOL.md"
       - ".github/workflows/source-quality-watch.yml"
   pull_request:
     branches:
       - main
     paths:
+      - "api/countries.js"
       - "data/source-audits/**"
+      - "db/seeds/**"
       - "scripts/audit-sources.mjs"
       - "scripts/audit-production-sources.mjs"
+      - "docs/IML_SCORING_PROTOCOL.md"
       - "docs/SOURCE_QUALITY_PROTOCOL.md"
       - ".github/workflows/source-quality-watch.yml"
 
@@ -27,7 +33,32 @@ permissions:
   contents: read
 
 jobs:
-  audit-production-source-layer:
+  validate-country-data-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate country seed syntax
+        shell: bash
+        run: |
+          shopt -s nullglob
+          seeds=(db/seeds/*.mjs)
+          if [ ${#seeds[@]} -eq 0 ]; then
+            echo "No country seed scripts found."
+            exit 1
+          fi
+          for seed in "${seeds[@]}"; do
+            echo "Checking $seed"
+            node --check "$seed"
+          done
+
+  audit-current-production-source-layer:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -39,7 +70,7 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Audit all published country sources
+      - name: Audit all currently published country sources
         run: node scripts/audit-production-sources.mjs https://www.imlhealth.org/api/countries source-quality-report.json
 
       - name: Preserve audit report
