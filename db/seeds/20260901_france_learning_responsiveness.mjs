@@ -26,6 +26,20 @@ export async function applyFranceLearningResponsivenessCorrection(sql) {
 
   const profileId = profileRows[0].id;
 
+  const sourceRows = await sql`
+    SELECT id
+    FROM country_profile_sources
+    WHERE profile_id = ${profileId}
+      AND title = ${COUR_DES_COMPTES_TITLE}
+    LIMIT 1;
+  `;
+
+  if (sourceRows.length !== 1) {
+    throw new Error("France Cour des comptes source not found.");
+  }
+
+  const sourceId = sourceRows[0].id;
+
   await sql`
     WITH updated AS (
       UPDATE country_profile_scores
@@ -74,28 +88,16 @@ export async function applyFranceLearningResponsivenessCorrection(sql) {
           AND note_type = 'watch'
       ), 1),
       ${UPDATED_WATCH_NOTE}
-    WHERE NOT EXISTS (
-      SELECT 1
-      FROM country_profile_notes
-      WHERE profile_id = ${profileId}
-        AND note_type = 'watch'
-        AND note_text = ${UPDATED_WATCH_NOTE}
-    );
+    WHERE NOT EXISTS (SELECT 1 FROM changed)
+      AND NOT EXISTS (
+        SELECT 1
+        FROM country_profile_notes
+        WHERE profile_id = ${profileId}
+          AND note_type = 'watch'
+          AND note_text = ${UPDATED_WATCH_NOTE}
+      );
   `;
 
-  const sourceRows = await sql`
-    SELECT id
-    FROM country_profile_sources
-    WHERE profile_id = ${profileId}
-      AND title = ${COUR_DES_COMPTES_TITLE}
-    LIMIT 1;
-  `;
-
-  if (sourceRows.length !== 1) {
-    throw new Error("France Cour des comptes source not found.");
-  }
-
-  const sourceId = sourceRows[0].id;
   const evidenceSummary =
     "The French Court of Auditors documents repeated failures to evaluate, enforce and act on known digital-health problems. This authoritative control evidence demonstrates weak institutional answerability and follow-through rather than an isolated individual experience.";
   const limitation =
