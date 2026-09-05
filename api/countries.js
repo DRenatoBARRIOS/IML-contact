@@ -39,7 +39,17 @@ async function ensureMainPreviewCountryData(sql) {
         WHERE c.iso3 = 'FRA'
           AND cp.status = 'published'
           AND i.indicator_code = 'LRN-5'
-      ) AS france_lrn5_ready;
+      ) AS france_lrn5_ready,
+      EXISTS (
+        SELECT 1
+        FROM countries c
+        JOIN country_profiles cp ON cp.country_id = c.id
+        JOIN country_profile_notes n ON n.profile_id = cp.id
+        WHERE c.iso3 = 'FRA'
+          AND cp.status = 'published'
+          AND n.note_type = 'watch'
+          AND n.note_text LIKE 'Learning revised from 15 to 10 on 1 September 2026.%'
+      ) AS france_note_ready;
   `;
 
   const state = stateRows[0] || {};
@@ -48,7 +58,7 @@ async function ensureMainPreviewCountryData(sql) {
     await seedUzbekistan(sql);
   }
 
-  if (!state.france_score_ready || !state.france_lrn5_ready) {
+  if (!state.france_score_ready || !state.france_lrn5_ready || !state.france_note_ready) {
     await applyFranceLearningResponsivenessCorrection(sql);
   }
 }
