@@ -7,7 +7,7 @@ const COUR_DES_COMPTES_TITLE =
   "Sécurité sociale 2024 — Mon espace santé : des conditions de réussite encore à réunir";
 
 const UPDATED_WATCH_NOTE =
-  "Authoritative audit findings document persistent failures of evaluation, enforcement and institutional follow-through. Under IML LRN-5, this functional passive obstruction directly reduces the Feedback, Correction and Learning score.";
+  "Learning revised from 15 to 10 on 1 September 2026. The French Court of Auditors documents objectives changed without adequate prior evaluation, uptake below expectations, limited enforceability of obligations and persistent institutional blockages. Under IML LRN-5, these authoritative findings demonstrate weak institutional answerability and follow-through; their functional effect is recorded as passive institutional obstruction without imputing individual intent.";
 
 export async function applyFranceLearningResponsivenessCorrection(sql) {
   const profileRows = await sql`
@@ -72,7 +72,11 @@ export async function applyFranceLearningResponsivenessCorrection(sql) {
       SET note_text = ${UPDATED_WATCH_NOTE}
       WHERE profile_id = ${profileId}
         AND note_type = 'watch'
-        AND note_text = 'Correction and redress remain slow, opaque and frequently ineffective'
+        AND (
+          note_text = 'Correction and redress remain slow, opaque and frequently ineffective'
+          OR note_text LIKE 'Authoritative audit findings document persistent failures of evaluation%'
+          OR note_text LIKE 'Learning revised from 15 to 10 on 1 September 2026.%'
+        )
       RETURNING id
     )
     INSERT INTO country_profile_notes (
