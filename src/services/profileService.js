@@ -1,6 +1,8 @@
 import { loadGlobalMapProfiles, normalizeProfile } from "./countriesApi.js";
 
-const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || "";
+const API_BASE_URL = import.meta.env?.DEV
+  ? (import.meta.env?.VITE_API_BASE_URL || "")
+  : "";
 
 function enrich(profile) {
   return { ...profile, ...normalizeProfile(profile) };
