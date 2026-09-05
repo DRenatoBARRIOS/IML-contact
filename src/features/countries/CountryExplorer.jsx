@@ -124,7 +124,7 @@ const DOMAIN_REPORT_GUIDANCE = {
   Identity: "Identification, trusted access, consent and information provenance.",
   Adoption: "Use of standards and infrastructure in routine clinical and public-health work.",
   Security: "Protection, availability, traceability, recovery and continuity.",
-  Learning: "Use of audits, incidents, complaints and outcomes to improve the system.",
+  Learning: "Correction, continuous improvement, traceable reuse, documentary reliability and institutional answerability.",
 };
 
 function escapeReportHtml(value) {
@@ -307,6 +307,14 @@ function ProfilePanel({ country, profile }) {
   const sources = asArray(profile.sources);
   const assessment = profile.assessment || {};
   const evidenceCount = sources.flatMap((source) => asArray(source.indicators)).length;
+  const learningEvidence = sources.flatMap((source) =>
+    asArray(source.indicators)
+      .filter((indicator) => {
+        const code = String(indicator.code || "").toUpperCase();
+        return code.startsWith("LRN-") || code.includes("-LRN-");
+      })
+      .map((indicator) => ({ indicator, source }))
+  );
 
   return (
     <article className="profile-panel" aria-live="polite">
@@ -331,6 +339,60 @@ function ProfilePanel({ country, profile }) {
           <div><dt>Updated</dt><dd>{formatDate(profile.updatedAt || profile.published_at)}</dd></div>
         </dl>
       </div>
+
+      <section
+        aria-labelledby={`domain-scores-${profile.iso3}`}
+        style={{ marginTop: "30px", border: "1px solid var(--line)", borderRadius: "14px", background: "var(--light)", overflow: "hidden" }}
+      >
+        <div style={{ padding: "18px 20px 12px" }}>
+          <h4 id={`domain-scores-${profile.iso3}`} style={{ margin: 0, fontSize: "1.05rem" }}>Six-domain scores</h4>
+          <p style={{ margin: "6px 0 0", color: "var(--soft)", fontSize: ".86rem", lineHeight: 1.55 }}>
+            Each score is shown explicitly with the domain meaning and the interpretation used in the country report.
+          </p>
+        </div>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "720px" }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: "left", padding: "11px 16px", borderTop: "1px solid var(--line)", borderBottom: "1px solid var(--line)", color: "var(--teal-deep)" }}>Domain</th>
+                <th style={{ textAlign: "left", padding: "11px 16px", borderTop: "1px solid var(--line)", borderBottom: "1px solid var(--line)", color: "var(--teal-deep)" }}>Score</th>
+                <th style={{ textAlign: "left", padding: "11px 16px", borderTop: "1px solid var(--line)", borderBottom: "1px solid var(--line)", color: "var(--teal-deep)" }}>What the score means</th>
+              </tr>
+            </thead>
+            <tbody>
+              {RADAR_LABELS.map((axis, index) => (
+                <tr key={axis}>
+                  <th scope="row" style={{ textAlign: "left", verticalAlign: "top", padding: "13px 16px", borderBottom: "1px solid var(--line)", color: "var(--navy)" }}>{axis}</th>
+                  <td style={{ verticalAlign: "top", padding: "13px 16px", borderBottom: "1px solid var(--line)", whiteSpace: "nowrap" }}><strong>{values[index]}/100</strong></td>
+                  <td style={{ verticalAlign: "top", padding: "13px 16px", borderBottom: "1px solid var(--line)", color: "var(--soft)", lineHeight: 1.55 }}>
+                    <strong style={{ color: "var(--navy)" }}>{DOMAIN_REPORT_GUIDANCE[axis]}</strong><br />
+                    {scoreInterpretation(values[index])}
+                    {axis === "Learning" && profile.iso3 === "FRA" && Number(values[index]) === 10 ? (
+                      <><br /><strong style={{ color: "var(--teal-deep)" }}>France revision:</strong> 15 → 10 on 1 September 2026 following the adoption of LRN-5 and authoritative audit evidence on evaluation, enforcement and institutional follow-through.</>
+                    ) : null}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {learningEvidence.length ? (
+        <div className="evidence-list" aria-label={`Learning score rationale for ${profile.name}`} style={{ marginTop: "24px" }}>
+          <article className="evidence-item">
+            <div className="evidence-title"><span>LRN</span><div><h5>Why Learning is {values[5]}/100</h5><p>Documented evidence linked to the Learning domain</p></div></div>
+            {learningEvidence.map(({ indicator, source }, index) => (
+              <div className="evidence-claim" key={`${indicator.code || "LRN"}-${index}`}>
+                <span>{indicator.code || "Learning indicator"} · evidence {indicator.evidence_level || "ungraded"}</span>
+                <p>{indicator.summary || "Evidence summary not recorded."}</p>
+                <small><strong>Source:</strong> {source.title || source.publisher || "Source not recorded"}{indicator.limitation ? <> · <strong>Limit:</strong> {indicator.limitation}</> : null}</small>
+              </div>
+            ))}
+          </article>
+        </div>
+      ) : null}
+
       <div className="profile-lists">
         <div><h4>Documented strengths</h4><ul>{asArray(profile.strengths).length ? profile.strengths.map((item, index) => <li key={index}>{item}</li>) : <li>No reviewed strength recorded.</li>}</ul></div>
         <div><h4>Points to examine</h4><ul>{asArray(profile.watch).length ? profile.watch.map((item, index) => <li key={index}>{item}</li>) : <li>No reviewed watch point recorded.</li>}</ul></div>
