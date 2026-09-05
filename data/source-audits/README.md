@@ -7,7 +7,7 @@ Files in this directory are approved semantic audit manifests. They are added on
 | Country | ISO3 | Semantic manifest | Status |
 |---|---:|---|---|
 | Romania | ROU | `romania.json` | Full source-specific semantic audit |
-| Uzbekistan | UZB | `uzbekistan.json` | Full source-specific semantic audit, Preview candidate |
+| Uzbekistan | UZB | `uzbekistan.json` | Published — full source-specific semantic audit |
 | Argentina | ARG | — | Pending full semantic manifest |
 | Brazil | BRA | — | Pending full semantic manifest |
 | Canada | CAN | — | Pending full semantic manifest |
