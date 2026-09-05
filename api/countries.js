@@ -1,4 +1,57 @@
 import { neon } from "@neondatabase/serverless";
+import { seedUzbekistan } from "../db/seeds/20260822_uzbekistan.mjs";
+import { applyFranceLearningResponsivenessCorrection } from "../db/seeds/20260901_france_learning_responsiveness.mjs";
+
+async function ensureMainPreviewCountryData(sql) {
+  if (
+    process.env.VERCEL_ENV !== "preview" ||
+    process.env.VERCEL_GIT_COMMIT_REF !== "main"
+  ) {
+    return;
+  }
+
+  const stateRows = await sql`
+    SELECT
+      EXISTS (
+        SELECT 1
+        FROM countries c
+        JOIN country_profiles cp ON cp.country_id = c.id
+        WHERE c.iso3 = 'UZB'
+          AND c.is_active = TRUE
+          AND cp.status = 'published'
+      ) AS uzbekistan_ready,
+      EXISTS (
+        SELECT 1
+        FROM countries c
+        JOIN country_profiles cp ON cp.country_id = c.id
+        JOIN country_profile_scores s ON s.profile_id = cp.id
+        WHERE c.iso3 = 'FRA'
+          AND cp.status = 'published'
+          AND s.domain_code = 'learning'
+          AND s.score = 10
+      ) AS france_score_ready,
+      EXISTS (
+        SELECT 1
+        FROM countries c
+        JOIN country_profiles cp ON cp.country_id = c.id
+        JOIN country_profile_sources src ON src.profile_id = cp.id
+        JOIN country_profile_source_indicators i ON i.source_id = src.id
+        WHERE c.iso3 = 'FRA'
+          AND cp.status = 'published'
+          AND i.indicator_code = 'LRN-5'
+      ) AS france_lrn5_ready;
+  `;
+
+  const state = stateRows[0] || {};
+
+  if (!state.uzbekistan_ready) {
+    await seedUzbekistan(sql);
+  }
+
+  if (!state.france_score_ready || !state.france_lrn5_ready) {
+    await applyFranceLearningResponsivenessCorrection(sql);
+  }
+}
 
 export async function GET() {
   if (!process.env.DATABASE_URL) {
@@ -10,6 +63,8 @@ export async function GET() {
 
   try {
     const sql = neon(process.env.DATABASE_URL);
+
+    await ensureMainPreviewCountryData(sql);
 
     const countries = await sql`
       SELECT
