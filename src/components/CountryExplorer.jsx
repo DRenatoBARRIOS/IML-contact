@@ -103,6 +103,14 @@ function ProfilePanel({ country, profile }) {
   const sources = asArray(profile.sources);
   const assessment = profile.assessment || {};
   const evidenceCount = sources.flatMap((source) => asArray(source.indicators)).length;
+  const learningEvidence = sources.flatMap((source) =>
+    asArray(source.indicators)
+      .filter((indicator) => {
+        const code = String(indicator.code || "").toUpperCase();
+        return code.startsWith("LRN-") || code.includes("-LRN-");
+      })
+      .map((indicator) => ({ indicator, source }))
+  );
 
   return (
     <article className="profile-panel" aria-live="polite">
@@ -128,6 +136,21 @@ function ProfilePanel({ country, profile }) {
           <div><dt>Updated</dt><dd>{formatDate(profile.updatedAt || profile.published_at)}</dd></div>
         </dl>
       </div>
+
+      {learningEvidence.length ? (
+        <div className="evidence-list" aria-label={`Learning score rationale for ${profile.name}`}>
+          <article className="evidence-item">
+            <div className="evidence-title"><span>LRN</span><div><h5>Why Learning is {values[5]}/100</h5><p>Documented evidence linked to the Learning domain</p></div></div>
+            {learningEvidence.map(({ indicator, source }, index) => (
+              <div className="evidence-claim" key={`${indicator.code || "LRN"}-${index}`}>
+                <span>{indicator.code || "Learning indicator"} · evidence {indicator.evidence_level || "ungraded"}</span>
+                <p>{indicator.summary || "Evidence summary not recorded."}</p>
+                <small><strong>Source:</strong> {source.title || source.publisher || "Source not recorded"}{indicator.limitation ? <> · <strong>Limit:</strong> {indicator.limitation}</> : null}</small>
+              </div>
+            ))}
+          </article>
+        </div>
+      ) : null}
 
       <div className="profile-lists">
         <div><h4>Documented strengths</h4><ul>{asArray(profile.strengths).length ? profile.strengths.map((item, index) => <li key={index}>{item}</li>) : <li>No reviewed strength recorded.</li>}</ul></div>
