@@ -8,6 +8,7 @@ import {HomePage,
   CollaboratePage,
   NotFoundPage,
 } from "./pages/SitePages.jsx";
+import IndicatorDefinitionsTable from "./components/IndicatorDefinitionsTable.jsx";
 import { LEGACY_HASHES, LEGACY_PATHS } from "./siteConfig.js";
 
 export const ROUTES = {
@@ -120,6 +121,7 @@ export default function App() {
   return (
     <>
       <Page />
+      {location.routePath === "/country-profiles" ? <IndicatorDefinitionsTable /> : null}
     </>
   );
 }
