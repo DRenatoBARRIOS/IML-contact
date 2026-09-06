@@ -84,6 +84,60 @@ function humanize(value) {
   return value ? String(value).replaceAll("_", " ") : "not recorded";
 }
 
+function evidenceFamily(source, index) {
+  const publisher = String(source?.publisher || "").toLowerCase();
+  const url = String(source?.url || "").toLowerCase();
+
+  if (publisher.includes("cour des comptes")) {
+    return { key: "cour-des-comptes", title: "Cour des comptes · national audit", publisher: "Cour des comptes" };
+  }
+  if (url.includes("cert.ssi.gouv.fr") || publisher.includes("cert-fr")) {
+    return { key: "anssi-cert-fr", title: "ANSSI / CERT-FR · health-sector threat assessment", publisher: "ANSSI / CERT-FR" };
+  }
+  if (url.includes("cyberveille.esante.gouv.fr") || publisher.includes("cert santé")) {
+    return { key: "cert-sante", title: "CERT Santé · incident reports and returns of experience", publisher: "CERT Santé / Agence du Numérique en Santé" };
+  }
+  if (publisher.includes("cybermalveillance")) {
+    return { key: "cybermalveillance", title: "Cybermalveillance.gouv.fr · official incident notice", publisher: "Cybermalveillance.gouv.fr" };
+  }
+
+  return {
+    key: `source-${source?.url || source?.title || index}`,
+    title: source?.title || `Source ${index + 1}`,
+    publisher: source?.publisher || "Publisher not recorded",
+  };
+}
+
+function groupEvidenceSources(sources) {
+  const groups = new Map();
+
+  asArray(sources).forEach((source, index) => {
+    const family = evidenceFamily(source, index);
+    if (!groups.has(family.key)) {
+      groups.set(family.key, { ...family, publications: [], indicators: [] });
+    }
+
+    const group = groups.get(family.key);
+    const publicationKey = source?.url || `${source?.title || "source"}-${source?.publication_date || index}`;
+    let publication = group.publications.find((item) => item.key === publicationKey);
+    if (!publication) {
+      publication = {
+        key: publicationKey,
+        title: source?.title || `Source ${index + 1}`,
+        url: source?.url || "",
+        publicationDate: source?.publication_date || "",
+        summaries: [],
+      };
+      group.publications.push(publication);
+    }
+
+    if (source?.note && !publication.summaries.includes(source.note)) publication.summaries.push(source.note);
+    group.indicators.push(...asArray(source?.indicators));
+  });
+
+  return Array.from(groups.values());
+}
+
 function ProfilePanel({ country, profile }) {
   if (!profile) {
     return (
@@ -101,8 +155,15 @@ function ProfilePanel({ country, profile }) {
   const score = profileScore(profile);
   const values = asArray(profile.values).length === 6 ? profile.values.map(Number) : [0, 0, 0, 0, 0, 0];
   const sources = asArray(profile.sources);
+  const sourceGroups = groupEvidenceSources(sources);
   const assessment = profile.assessment || {};
   const evidenceCount = sources.flatMap((source) => asArray(source.indicators)).length;
+  const watchItems = asArray(profile.watch).map((item) => {
+    if (normalizeIso3(profile.iso3) === "FRA" && String(item).startsWith("Security score adjusted downward by 20 points")) {
+      return "Security score adjusted downward by 20 points after cross-checking formal cybersecurity assurances against repeated officially documented hospital incidents affecting continuity of care, confidentiality, system availability and recovery. Transparency in incident reporting is not penalised and remains a positive governance and learning signal.";
+    }
+    return item;
+  });
 
   return (
     <article className="profile-panel" aria-live="polite">
@@ -123,25 +184,43 @@ function ProfilePanel({ country, profile }) {
         <dl className="profile-meta">
           <div><dt>Assessment</dt><dd>{humanize(assessment.assessment_status || profile.status)}</dd></div>
           <div><dt>Evidence</dt><dd>{humanize(assessment.confidence_level || profile.evidenceLevel)}</dd></div>
-          <div><dt>Sources</dt><dd>{sources.length}</dd></div>
-          <div><dt>Evidence links</dt><dd>{evidenceCount}</dd></div>
+          <div><dt>Source groups</dt><dd>{sourceGroups.length}</dd></div>
+          <div><dt>Publications</dt><dd>{sources.length}</dd></div>
           <div><dt>Updated</dt><dd>{formatDate(profile.updatedAt || profile.published_at)}</dd></div>
         </dl>
       </div>
 
       <div className="profile-lists">
         <div><h4>Documented strengths</h4><ul>{asArray(profile.strengths).length ? profile.strengths.map((item, index) => <li key={index}>{item}</li>) : <li>No reviewed strength recorded.</li>}</ul></div>
-        <div><h4>Points to examine</h4><ul>{asArray(profile.watch).length ? profile.watch.map((item, index) => <li key={index}>{item}</li>) : <li>No reviewed watch point recorded.</li>}</ul></div>
+        <div><h4>Points to examine</h4><ul>{watchItems.length ? watchItems.map((item, index) => <li key={index}>{item}</li>) : <li>No reviewed watch point recorded.</li>}</ul></div>
       </div>
 
       <details className="evidence-register">
-        <summary><span><strong>Evidence register</strong><small>{sources.length} source{sources.length === 1 ? "" : "s"} · {evidenceCount} linked indicator{evidenceCount === 1 ? "" : "s"}</small></span><span>+</span></summary>
+        <summary><span><strong>Evidence register</strong><small>{sourceGroups.length} documentary group{sourceGroups.length === 1 ? "" : "s"} · {sources.length} publication{sources.length === 1 ? "" : "s"} · {evidenceCount} linked indicator{evidenceCount === 1 ? "" : "s"}</small></span><span>+</span></summary>
         <div className="evidence-list">
-          {sources.length ? sources.map((source, index) => (
-            <article className="evidence-item" key={`${source.url || source.title || "source"}-${index}`}>
-              <div className="evidence-title"><span>{String(index + 1).padStart(2, "0")}</span><div><h5>{source.title || `Source ${index + 1}`}</h5><p>{source.publisher || "Publisher not recorded"}</p></div>{source.url ? <a href={source.url} target="_blank" rel="noreferrer">Open source ↗</a> : <span className="restricted-link">No public link</span>}</div>
-              {source.note ? <p>{source.note}</p> : null}
-              {asArray(source.indicators).map((indicator, indicatorIndex) => <div className="evidence-claim" key={`${indicator.code || "indicator"}-${indicatorIndex}`}><span>{indicator.code || "IML indicator"} · evidence {indicator.evidence_level || "ungraded"}</span><p>{indicator.summary || "Evidence summary not recorded."}</p>{indicator.limitation ? <small><strong>Limit:</strong> {indicator.limitation}</small> : null}</div>)}
+          {sourceGroups.length ? sourceGroups.map((group, index) => (
+            <article className="evidence-item" key={group.key}>
+              <div className="evidence-title">
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <div><h5>{group.title}</h5><p>{group.publisher}</p></div>
+                <span className="restricted-link">{group.publications.length} publication{group.publications.length === 1 ? "" : "s"}</span>
+              </div>
+              <ul>
+                {group.publications.map((publication) => (
+                  <li key={publication.key}>
+                    <strong>{publication.title}</strong>{publication.publicationDate ? ` · ${formatDate(publication.publicationDate)}` : ""}
+                    {publication.summaries.map((summary, summaryIndex) => <p key={summaryIndex}>{summary}</p>)}
+                    {publication.url ? <a href={publication.url} target="_blank" rel="noreferrer">Open official source ↗</a> : <span className="restricted-link">No public link</span>}
+                  </li>
+                ))}
+              </ul>
+              {group.indicators.length ? (
+                <div className="evidence-claim">
+                  <span>{group.indicators[0]?.code || "IML indicator"} · grouped official evidence</span>
+                  <p>{group.publications.length > 1 ? `${group.publications.length} official publications are consolidated here to avoid repeating the same institutional evidence family while preserving each incident summary and source link.` : group.indicators[0]?.summary || "Evidence summary not recorded."}</p>
+                  {group.publications.length === 1 && group.indicators[0]?.limitation ? <small><strong>Limit:</strong> {group.indicators[0].limitation}</small> : null}
+                </div>
+              ) : null}
             </article>
           )) : <p>No source record is publicly available for this working profile.</p>}
         </div>
