@@ -4,10 +4,10 @@ import {HomePage,
   ClinicalWorkspacePage,
   InteroperabilityPage,
   CountryProfilesPage,
-  ManuscriptsPage,
   CollaboratePage,
   NotFoundPage,
 } from "./pages/SitePages.jsx";
+import ManuscriptsPage from "./pages/ManuscriptsPage.jsx";
 import IndicatorDefinitionsTable from "./components/IndicatorDefinitionsTable.jsx";
 import { LEGACY_HASHES, LEGACY_PATHS } from "./siteConfig.js";
 
