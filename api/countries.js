@@ -1,9 +1,9 @@
 import { neon } from "@neondatabase/serverless";
 
-const FRANCE_SECURITY_ADJUSTMENT = 15;
+const FRANCE_SECURITY_ADJUSTMENT = 20;
 
 const FRANCE_CYBER_EVIDENCE = {
-  watch: "Security score adjusted downward by 15 points in the France working profile because repeated hospital cyber incidents have produced documented impacts on availability, continuity of care, confidentiality and recovery. This is a provisional evidence adjustment at country-profile level: it does not imply that every French healthcare institution has the same level of security maturity. Major incidents include Rouen, Dax, Villefranche-sur-Saône, Corbeil-Essonnes, Versailles, Brest, Rennes, Armentières and Cannes. The 2022 Corbeil-Essonnes attack caused major care disruption and data exfiltration; public official sources identify LockBit 3.0 but do not provide a complete public root-cause account of the initial compromise. CERT Santé recorded 764 security incidents in 2025, confirming that cyber risk is a continuing system-level issue rather than an isolated event.",
+  watch: "Security score adjusted downward by 20 points in the France working profile. IML starts from official and administrative evidence about cybersecurity structures, controls and programmes, but cross-checks those claims against officially documented incidents and operational outcomes. In France, repeated hospital cyber incidents over several years have produced documented impacts on availability, continuity of care, confidentiality and recovery, materially qualifying the level of effective security that might otherwise be inferred from formal administrative information alone. This is a provisional country-profile evidence adjustment, not a judgment that every French healthcare institution has the same maturity. Better incident reporting is not penalised: transparency is treated separately as a positive governance and learning signal. Major incidents include Rouen, Dax, Villefranche-sur-Saône, Corbeil-Essonnes, Versailles, Brest, Rennes, Armentières and Cannes. The 2022 Corbeil-Essonnes attack caused major care disruption and data exfiltration; public official sources identify LockBit 3.0 but do not provide a complete public root-cause account of the initial compromise. CERT Santé recorded 764 security incidents in 2025, confirming that cyber risk is a continuing system-level issue rather than an isolated event.",
   sources: [
     {
       title: "La sécurité informatique des établissements de santé",
@@ -15,7 +15,7 @@ const FRANCE_CYBER_EVIDENCE = {
         code: "Security",
         evidence_level: "high",
         support_type: "official audit",
-        summary: "Repeated attacks across multiple institutions and years provide direct evidence of persistent cybersecurity and resilience challenges in the French hospital sector.",
+        summary: "Repeated attacks across multiple institutions and years provide direct evidence of persistent cybersecurity and resilience challenges in the French hospital sector and support a downward evidence adjustment to the Security score.",
         limitation: "Incident occurrence alone does not measure the security maturity of every French healthcare institution, and France has comparatively strong mandatory incident-reporting obligations."
       }]
     },
