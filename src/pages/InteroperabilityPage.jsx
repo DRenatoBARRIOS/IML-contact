@@ -10,12 +10,12 @@ const layers = [
 ];
 
 const domains = [
-  ["GOV", "Governance", "Stewardship, accountability and policy direction"],
-  ["TEC", "Technical", "Standards, architecture and reliable exchange"],
-  ["IDT", "Identity", "People, professionals, organisations and consent"],
-  ["ADP", "Adoption", "Real use in care and public-health workflows"],
-  ["SEC", "Security", "Protection, access control and resilience"],
-  ["LRN", "Learning", "Feedback, correction and system improvement"],
+  ["STD", "Standards", "Institutional ownership, legal frameworks, standards governance, accountability and national steering capacity."],
+  ["CON", "Connectivity", "Exchange models, APIs, semantics, technical integration quality, service continuity and architecture coherence."],
+  ["IDT", "Identity", "Identity matching, authentication, consent, provider and patient identification, and trust services."],
+  ["ADP", "Adoption", "Operational rollout, user uptake, field deployment, integration into workflows and implementation depth."],
+  ["SEC", "Security", "Privacy safeguards, access control, traceability, cyber readiness and defensible trust practices."],
+  ["COR", "Correction", "Redress, correction, complaint handling, recourse pathways and institutional learning from failures."],
 ];
 
 export default function InteroperabilityPage() {
@@ -43,7 +43,7 @@ export default function InteroperabilityPage() {
         <div className="shell methodology-layout">
           <div className="section-intro">
             <p className="section-kicker">Method · inspectable by design</p>
-            <h2 id="methodology-heading">Six domains, explicit evidence and versioned judgments.</h2>
+            <h2 id="methodology-heading">Six indicators, explicit evidence and versioned judgments.</h2>
             <p>Country profiles are structured orientation tools. Each claim should point to documentary support, declare its limitation and remain open to correction by informed reviewers.</p>
             <div className="not-ranking"><strong>Security evidence rule.</strong> Official and administrative information is the starting point, not the endpoint. IML cross-checks declared controls, programmes and institutional assurances against officially documented incidents and observed operational outcomes. Repeated compromise, service disruption, data exposure or prolonged recovery can reduce the Security score when they contradict or materially qualify the level of effective security suggested by administrative documentation. France is a useful test case: repeated hospital incidents over several years show why formal cybersecurity structures cannot be treated as sufficient evidence of effective security. Better incident reporting is not itself penalised; transparency remains a positive governance signal.</div>
             <div className="not-ranking"><strong>Exploratory patient-safety workstream · 6 September 2026.</strong> IML has registered a comparative study of what happens after a patient experiences harm associated with care: explanation and review of the event, access to redress, timeliness, evidentiary burden, scope of repair, independence and appeal, equity of access, and whether incidents or claims feed patient-safety learning. This workstream is <strong>not scored</strong> and no country-level conclusion is drawn at this stage. The first phase is limited to terminology, official-source mapping and comparative protocol design.</div>
