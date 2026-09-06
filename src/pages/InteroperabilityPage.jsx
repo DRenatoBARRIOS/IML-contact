@@ -35,19 +35,24 @@ export default function InteroperabilityPage() {
           <div className="demonstrator-grid">
             <article><span className="status-chip outline">Research demonstrator</span><h3>AMR / BMR continuity</h3><p>Trace culture, susceptibility, antimicrobial decisions and feedback without detaching a laboratory result from its clinical context.</p></article>
             <article><span className="status-chip outline">Exploration</span><h3>Payer interoperability</h3><p>Connect coverage and reimbursement processes to care without allowing administrative exchange to distort the clinical record.</p></article>
-            <article><span className="status-chip outline">Trust boundary</span><h3>Identity, consent &amp; access</h3><p>QR or mobile workflows should carry only short-lived signed tokens—never sensitive health data in clear text. IML complements national identity systems; it does not replace them.</p></article>
+            <article><span className="status-chip outline">Trust boundary</span><h3>Identity, consent &amp; access</h3><p>QR or mobile workflows should carry only short-lived signed tokens, never sensitive health data in clear text. IML complements national identity systems; it does not replace them.</p></article>
           </div>
         </div>
       </section>
       <section className="section methodology-section" id="methodology" aria-labelledby="methodology-heading">
         <div className="shell methodology-layout">
-          <div className="section-intro"><p className="section-kicker">Method · inspectable by design</p><h2 id="methodology-heading">Six domains, explicit evidence and versioned judgments.</h2><p>Country profiles are structured orientation tools. Each claim should point to documentary support, declare its limitation and remain open to correction by informed reviewers.</p></div>
+          <div className="section-intro">
+            <p className="section-kicker">Method · inspectable by design</p>
+            <h2 id="methodology-heading">Six domains, explicit evidence and versioned judgments.</h2>
+            <p>Country profiles are structured orientation tools. Each claim should point to documentary support, declare its limitation and remain open to correction by informed reviewers.</p>
+            <div className="not-ranking"><strong>Security evidence rule.</strong> Official and administrative information is the starting point, not the endpoint. IML cross-checks declared controls, programmes and institutional assurances against officially documented incidents and observed operational outcomes. Repeated compromise, service disruption, data exposure or prolonged recovery can reduce the Security score when they contradict or materially qualify the level of effective security suggested by administrative documentation. France is a useful test case: repeated hospital incidents over several years show why formal cybersecurity structures cannot be treated as sufficient evidence of effective security. Better incident reporting is not itself penalised; transparency remains a positive governance signal.</div>
+          </div>
           <div className="domain-grid">{domains.map(([code, title, copy]) => <article key={code}><span>{code}</span><h3>{title}</h3><p>{copy}</p></article>)}</div>
           <ol className="evidence-pipeline" aria-label="Evidence workflow">
             <li><span>1</span><strong>Source</strong><small>Prefer authoritative public documentation</small></li>
             <li><span>2</span><strong>Claim</strong><small>Link evidence to a precise indicator</small></li>
-            <li><span>3</span><strong>Limit</strong><small>State what the source cannot prove</small></li>
-            <li><span>4</span><strong>Review</strong><small>Version, challenge and correct</small></li>
+            <li><span>3</span><strong>Reality check</strong><small>Compare declared safeguards with documented outcomes</small></li>
+            <li><span>4</span><strong>Review</strong><small>State limits, version, challenge and correct</small></li>
           </ol>
         </div>
       </section>
