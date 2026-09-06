@@ -9,6 +9,7 @@ A manifest is added only after the evidence for that country has been reviewed s
 | Country | ISO3 | Semantic manifest | Status |
 |---|---:|---|---|
 | Romania | ROU | `romania.json` | Full source-specific semantic audit v1; migrate under protocol v2 as sources change |
+| Uzbekistan | UZB | `uzbekistan.json` | Published — full source-specific semantic audit |
 | Argentina | ARG | — | Pending full semantic manifest |
 | Brazil | BRA | — | Pending full semantic manifest |
 | Canada | CAN | — | Pending full semantic manifest |
@@ -25,4 +26,4 @@ A manifest is added only after the evidence for that country has been reviewed s
 | Tanzania | TZA | — | Pending full semantic manifest |
 | United States | USA | — | Pending full semantic manifest |
 
-The weekly Production/API audit covers **all published countries and sources**, including countries without a semantic manifest. Semantic manifests add the stronger content-level verification layer.
+The weekly Production/API audit covers **all published countries and sources**, including countries without a semantic manifest. Romania and Uzbekistan have source-specific semantic manifests. Semantic manifests add the stronger content-level verification layer.
