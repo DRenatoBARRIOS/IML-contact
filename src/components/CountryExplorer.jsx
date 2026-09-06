@@ -7,6 +7,15 @@ const MAP_HEIGHT = 500;
 const MAP_VISIBLE_HEIGHT = 430;
 const RADAR_LABELS = ["Governance", "Technical", "Identity", "Adoption", "Security", "Learning"];
 
+const DOMAIN_INDICATOR_DESCRIPTIONS = {
+  Governance: "Standards, responsibilities, oversight and institutional coordination.",
+  Technical: "Structured, secure and reliable exchange between information systems.",
+  Identity: "Identification, trusted access, consent and information provenance.",
+  Adoption: "Use of standards and infrastructure in routine clinical and public-health work.",
+  Security: "Protection, availability, traceability, recovery and continuity.",
+  Learning: "Use of audits, incidents, complaints and outcomes to improve the system.",
+};
+
 const normalizeIso3 = (value) => String(value || "").trim().toUpperCase();
 const asArray = (value) => (Array.isArray(value) ? value : []);
 
@@ -160,7 +169,7 @@ function ProfilePanel({ country, profile }) {
   const evidenceCount = sources.flatMap((source) => asArray(source.indicators)).length;
   const watchItems = asArray(profile.watch).map((item) => {
     if (normalizeIso3(profile.iso3) === "FRA" && String(item).startsWith("Security score adjusted downward by 20 points")) {
-      return "Security score adjusted downward by 20 points after cross-checking formal cybersecurity assurances against repeated officially documented hospital incidents affecting continuity of care, confidentiality, system availability and recovery. Transparency in incident reporting is not penalised and remains a positive governance and learning signal.";
+      return "Security adjusted downward after repeated officially documented hospital cyber incidents showed a gap between formal safeguards and observed resilience. Transparency in incident reporting is not penalised.";
     }
     return item;
   });
@@ -188,6 +197,15 @@ function ProfilePanel({ country, profile }) {
           <div><dt>Publications</dt><dd>{sources.length}</dd></div>
           <div><dt>Updated</dt><dd>{formatDate(profile.updatedAt || profile.published_at)}</dd></div>
         </dl>
+      </div>
+
+      <div className="not-ranking" aria-label="IML indicator descriptions">
+        <strong>Indicator descriptions.</strong>
+        {RADAR_LABELS.map((label, index) => (
+          <p key={`indicator-description-${label}`}>
+            <strong>{label} · {values[index]}</strong>: {DOMAIN_INDICATOR_DESCRIPTIONS[label]}
+          </p>
+        ))}
       </div>
 
       <div className="profile-lists">
