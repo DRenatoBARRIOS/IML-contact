@@ -1,6 +1,35 @@
 import { neon } from "@neondatabase/serverless";
+import { seedUzbekistan } from "../db/seeds/20260822_uzbekistan.mjs";
 
 const FRANCE_SECURITY_ADJUSTMENT = 20;
+
+const COUNTRY_CONTINUITY = [
+  { iso3: "UZB", seed: seedUzbekistan },
+];
+
+async function ensurePublishedCountryContinuity(sql) {
+  if (process.env.VERCEL_ENV !== "preview") return;
+
+  const previewBranch = String(process.env.VERCEL_GIT_COMMIT_REF || "");
+  if (!["main", "main-test"].includes(previewBranch)) return;
+
+  for (const entry of COUNTRY_CONTINUITY) {
+    const rows = await sql`
+      SELECT EXISTS (
+        SELECT 1
+        FROM countries c
+        JOIN country_profiles cp ON cp.country_id = c.id
+        WHERE c.iso3 = ${entry.iso3}
+          AND c.is_active = TRUE
+          AND cp.status = 'published'
+      ) AS ready;
+    `;
+
+    if (!rows[0]?.ready) {
+      await entry.seed(sql);
+    }
+  }
+}
 
 const FRANCE_CYBER_EVIDENCE = {
   watch: "Security score adjusted downward by 20 points in the France working profile. IML starts from official and administrative evidence about cybersecurity structures, controls and programmes, but cross-checks those claims against officially documented incidents and operational outcomes. In France, repeated hospital cyber incidents over several years have produced documented impacts on availability, continuity of care, confidentiality and recovery, materially qualifying the level of effective security that might otherwise be inferred from formal administrative information alone. This is a provisional country-profile evidence adjustment, not a judgment that every French healthcare institution has the same maturity. Better incident reporting is not penalised: transparency is treated separately as a positive governance and learning signal. Major incidents include Rouen, Dax, Villefranche-sur-Saône, Corbeil-Essonnes, Versailles, Brest, Rennes, Armentières and Cannes. The 2022 Corbeil-Essonnes attack caused major care disruption and data exfiltration; public official sources identify LockBit 3.0 but do not provide a complete public root-cause account of the initial compromise. CERT Santé recorded 764 security incidents in 2025, confirming that cyber risk is a continuing system-level issue rather than an isolated event.",
@@ -130,6 +159,8 @@ export async function GET() {
 
   try {
     const sql = neon(process.env.DATABASE_URL);
+
+    await ensurePublishedCountryContinuity(sql);
 
     const countries = await sql`
       SELECT
