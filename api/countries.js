@@ -8,11 +8,6 @@ const COUNTRY_CONTINUITY = [
 ];
 
 async function ensurePublishedCountryContinuity(sql) {
-  if (process.env.VERCEL_ENV !== "preview") return;
-
-  const previewBranch = String(process.env.VERCEL_GIT_COMMIT_REF || "");
-  if (!["main", "main-test"].includes(previewBranch)) return;
-
   for (const entry of COUNTRY_CONTINUITY) {
     const rows = await sql`
       SELECT EXISTS (
