@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import {HomePage,
   IdentityTrustPage,
   ClinicalWorkspacePage,
@@ -50,6 +51,22 @@ export const ROUTES = {
   },
 };
 
+function ClinicalTechnicalManuscriptLink() {
+  const [target, setTarget] = useState(null);
+
+  useEffect(() => {
+    setTarget(document.querySelector(".clinical-action-row"));
+  }, []);
+
+  if (!target) return null;
+
+  return createPortal(
+    <a className="text-link" href="/IML_Technical_Manuscript.pdf" target="_blank" rel="noreferrer">
+      Read the technical manuscript →
+    </a>,
+    target,
+  );
+}
 
 function cleanPath(pathname) {
   if (!pathname || pathname === "/") return "/";
@@ -122,6 +139,7 @@ export default function App() {
     <>
       <Page />
       {location.routePath === "/country-profiles" ? <IndicatorDefinitionsTable /> : null}
+      {location.routePath === "/clinical-workspace" ? <ClinicalTechnicalManuscriptLink /> : null}
     </>
   );
 }
