@@ -1,0 +1,48 @@
+# IML-SYNC-01 v0.1.2
+# policy<TAB>schema.table
+#
+# SYNC   = local -> Neon, UPSERT only, never DELETE target-only rows.
+#          Status compares deterministic content digests while ignoring
+#          operational created_at/updated_at/loaded_at timestamps.
+# VERIFY = exact deterministic count + content digest; never copied automatically.
+# LOCAL  = intentionally local-only/raw staging; never copied automatically.
+
+SYNC	iml_system.module_registry
+SYNC	iml_ai.evidence_source
+SYNC	iml_audit.contextual_access_rule
+SYNC	iml_clinical.diagnosis_concept
+SYNC	iml_clinical.diagnosis_designation
+SYNC	iml_clinical.diagnosis_attribute_definition
+SYNC	iml_clinical.integration_binding
+SYNC	iml_clinical.legacy_diagnosis_concept_bridge
+SYNC	iml_clinical.module_metadata
+SYNC	iml_country.country_pack
+SYNC	iml_country.national_connector
+SYNC	iml_country.prescription_profile
+SYNC	iml_country_fr.amc_organization
+SYNC	iml_country_fr.billing_catalog
+SYNC	iml_identity.identity_system_registry
+SYNC	iml_medication.medication_reference
+
+VERIFY	iml_terminology.concept
+VERIFY	iml_terminology.concept_provenance
+VERIFY	iml_terminology.core_metadata
+VERIFY	iml_terminology.designation
+VERIFY	iml_terminology.designation_provenance
+VERIFY	iml_terminology.import_run
+VERIFY	iml_terminology.mapping_analysis_run
+VERIFY	iml_terminology.mapping_entry
+VERIFY	iml_terminology.mapping_entry_provenance
+VERIFY	iml_terminology.mapping_expression_analysis
+VERIFY	iml_terminology.mapping_resolution
+VERIFY	iml_terminology.mapping_resolution_run
+VERIFY	iml_terminology.mapping_set
+VERIFY	iml_terminology.relationship
+VERIFY	iml_terminology.release
+VERIFY	iml_terminology.search_algorithm
+VERIFY	iml_terminology.source_artifact
+VERIFY	iml_terminology.system
+
+LOCAL	iml_terminology_staging.icd10se_2026_raw
+LOCAL	iml_terminology_staging.ksh97p_mapping_raw
+LOCAL	iml_terminology_staging.ksh97p_raw
