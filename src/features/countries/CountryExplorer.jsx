@@ -5,7 +5,7 @@ import logoImage from "../../assets/iml-logo.png";
 const MAP_WIDTH = 1000;
 const MAP_HEIGHT = 500;
 const MAP_VISIBLE_HEIGHT = 430;
-const RADAR_LABELS = ["Governance", "Technical", "Identity", "Adoption", "Security", "Learning"];
+const RADAR_LABELS = ["Standards", "Connectivity", "Identity", "Adoption", "Security", "Correction"];
 const AXIS_KEYS = ["governance", "technical", "identity", "adoption", "security", "learning"];
 
 const normalizeIso3 = (value) => String(value || "").trim().toUpperCase();
@@ -119,12 +119,12 @@ function humanize(value) {
 }
 
 const DOMAIN_REPORT_GUIDANCE = {
-  Governance: "Standards, responsibilities, oversight and institutional coordination.",
-  Technical: "Structured, secure and reliable exchange between information systems.",
+  Standards: "Standards, responsibilities, oversight and institutional coordination.",
+  Connectivity: "Structured, secure and reliable exchange between information systems.",
   Identity: "Identification, trusted access, consent and information provenance.",
   Adoption: "Use of standards and infrastructure in routine clinical and public-health work.",
   Security: "Protection, availability, traceability, recovery and continuity.",
-  Learning: "Use of audits, incidents, complaints and outcomes to improve the system.",
+  Correction: "Use of audits, incidents, complaints and outcomes to improve the system.",
 };
 
 function escapeReportHtml(value) {
@@ -269,7 +269,7 @@ function openCountryPdfReport(profile) {
         <h2>Assessment overview</h2>
         <p><strong>Status:</strong> ${escapeReportHtml(humanize(profile?.assessment?.assessment_status || profile.status))} · <strong>Evidence:</strong> ${escapeReportHtml(humanize(profile?.assessment?.confidence_level || profile.evidenceLevel))} · <strong>Updated:</strong> ${escapeReportHtml(formatDate(profile.updatedAt || profile.published_at))}</p>
 
-        <h2>Six-domain assessment</h2>
+        <h2>Six-indicator assessment</h2>
         <table><tbody>${domainRows}</tbody></table>
 
         <div class="two-columns">
@@ -280,7 +280,7 @@ function openCountryPdfReport(profile) {
         <h2>Evidence register</h2>
         ${sources.length ? sources.map(sourceReportHtml).join("") : '<p class="empty">No documentary source is attached to this working profile.</p>'}
 
-        <p class="method"><strong>Methodological note.</strong> The overall orientation signal is the rounded arithmetic mean of the six current domain scores unless an explicitly reviewed overall score is stored. It summarises the profile but does not replace the underlying sources, limitations and indicator-by-indicator review.</p>
+        <p class="method"><strong>Methodological note.</strong> The overall orientation signal is the rounded arithmetic mean of the six current indicator scores unless an explicitly reviewed overall score is stored. It summarises the profile but does not replace the underlying sources, limitations and indicator-by-indicator review.</p>
       </main>
     </body>
   </html>`);
@@ -315,9 +315,9 @@ function ProfilePanel({ country, profile }) {
         <div className="orientation-score" aria-label={`Indicative orientation signal ${score} out of 100`}><strong>{score}</strong><span>/100</span><small>orientation signal</small></div>
       </div>
       <p className="profile-subtitle">{profile.subtitle || "Exploratory, evidence-oriented country profile."}</p>
-      <div className="not-ranking"><strong>Not a ranking.</strong> Scores help structure inquiry across six domains; they are provisional and evidence-dependent.</div>
+      <div className="not-ranking"><strong>Not a ranking.</strong> Scores help structure inquiry across six indicators; they are provisional and evidence-dependent.</div>
       <div className="radar-wrap">
-        <svg className="radar" viewBox="0 0 240 240" role="img" aria-label={`Six-domain orientation for ${profile.name}`}>
+        <svg className="radar" viewBox="0 0 240 240" role="img" aria-label={`Six-indicator orientation for ${profile.name}`}>
           {[25, 50, 75, 100].map((level) => <polygon key={level} points={polygonPoints([level, level, level, level, level, level], 78)} className="radar-grid" />)}
           {[0, 1, 2, 3, 4, 5].map((index) => { const angle = -Math.PI / 2 + (index * Math.PI * 2) / 6; return <line key={index} x1="120" y1="120" x2={120 + Math.cos(angle) * 78} y2={120 + Math.sin(angle) * 78} className="radar-axis" />; })}
           <polygon points={polygonPoints(values, 78)} className="radar-value" />
