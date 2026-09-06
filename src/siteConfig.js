@@ -15,12 +15,12 @@ export const interoperabilityLayers = [
 ];
 
 export const methodologyDomains = [
-  ["GOV", "Governance", "Stewardship, accountability and policy direction"],
-  ["TEC", "Technical", "Standards, architecture and reliable exchange"],
-  ["IDT", "Identity", "People, professionals, organisations and consent"],
-  ["ADP", "Adoption", "Real use in care and public-health workflows"],
-  ["SEC", "Security", "Protection, access control and resilience"],
-  ["LRN", "Learning", "Feedback, correction and system improvement"],
+  ["STD", "Standards", "Institutional ownership, legal frameworks, standards governance, accountability and national steering capacity."],
+  ["CON", "Connectivity", "Exchange models, APIs, semantics, technical integration quality, service continuity and architecture coherence."],
+  ["IDT", "Identity", "Identity matching, authentication, consent, provider and patient identification, and trust services."],
+  ["ADP", "Adoption", "Operational rollout, user uptake, field deployment, integration into workflows and implementation depth."],
+  ["SEC", "Security", "Privacy safeguards, access control, traceability, cyber readiness and defensible trust practices."],
+  ["COR", "Correction", "Redress, correction, complaint handling, recourse pathways and institutional learning from failures."],
 ];
 
 export const LEGACY_HASHES = {
