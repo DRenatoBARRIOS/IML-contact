@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { useEffect } from "react";
 import {HomePage,
   IdentityTrustPage,
   ClinicalWorkspacePage,
@@ -8,7 +7,6 @@ import {HomePage,
   CollaboratePage,
   NotFoundPage,
 } from "./pages/SitePages.jsx";
-import ManuscriptsPage from "./pages/ManuscriptsPage.jsx";
 import IndicatorDefinitionsTable from "./components/IndicatorDefinitionsTable.jsx";
 import { LEGACY_HASHES, LEGACY_PATHS } from "./siteConfig.js";
 
@@ -39,34 +37,12 @@ export const ROUTES = {
     title: "Country Profiles — IML Health",
     description: "Evidence-oriented country interoperability profiles with explicit sources and limitations.",
   },
-  "/manuscripts": {
-    component: ManuscriptsPage,
-    title: "Manuscripts — IML Health",
-    description: "The founding vision and technical architecture manuscripts of IML Health.",
-  },
   "/collaborate": {
     component: CollaboratePage,
     title: "Collaborate — IML Health",
     description: "Contribute evidence, clinical review, research or open-source implementation experience to IML Health.",
   },
 };
-
-function ClinicalTechnicalManuscriptLink() {
-  const [target, setTarget] = useState(null);
-
-  useEffect(() => {
-    setTarget(document.querySelector(".clinical-action-row"));
-  }, []);
-
-  if (!target) return null;
-
-  return createPortal(
-    <a className="text-link" href="/IML_Technical_Manuscript.pdf" target="_blank" rel="noreferrer">
-      Read the technical manuscript →
-    </a>,
-    target,
-  );
-}
 
 function cleanPath(pathname) {
   if (!pathname || pathname === "/") return "/";
@@ -139,7 +115,6 @@ export default function App() {
     <>
       <Page />
       {location.routePath === "/country-profiles" ? <IndicatorDefinitionsTable /> : null}
-      {location.routePath === "/clinical-workspace" ? <ClinicalTechnicalManuscriptLink /> : null}
     </>
   );
 }
