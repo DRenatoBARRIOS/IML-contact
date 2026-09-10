@@ -7,7 +7,6 @@ export const navigation = [
   { href: "/clinical-workspace", label: "Clinical Workspace" },
   { href: "/interoperability", label: "Interoperability" },
   { href: "/country-profiles", label: "Country Profiles" },
-  { href: "/manuscripts", label: "Manuscripts" },
   { href: "/collaborate", label: "Collaborate" },
 ];
 
@@ -71,7 +70,6 @@ function SiteFooter() {
           <h3>Project</h3>
           <a href="/vision">Vision</a>
           <a href="/identity-trust">Identity &amp; Trust</a>
-          <a href="/manuscripts">Manuscripts</a>
           <a href="/collaborate">Collaborate</a>
         </div>
       </div>
