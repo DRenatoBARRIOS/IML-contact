@@ -35,7 +35,7 @@ import sys
 import uuid
 from urllib.parse import parse_qs, urlparse
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
 
@@ -169,39 +169,109 @@ class DB:
         )
         return {"consultation_id": consultation_id, "status": "DRAFT"}
 
+    def structured_workspace_ready(self) -> bool:
+        return self.psql(
+            "SELECT CASE WHEN to_regclass('iml_workspace_edit.patient') IS NULL "
+            "THEN 'f' ELSE 't' END;"
+        ) == "t"
+
+    def workspace_patient(self, patient_id: str):
+        if not self.structured_workspace_ready():
+            return None
+        rows = self.rows_json(
+            "SELECT patient_id, given_name, family_name, birth_date::text, "
+            "sex_at_birth, fictional, notes "
+            "FROM iml_workspace_edit.patient "
+            f"WHERE patient_id={sql_literal(patient_id)} LIMIT 1"
+        )
+        return rows[0] if rows else None
+
+    def workspace_bundle(self, patient_id: str):
+        if not self.structured_workspace_ready():
+            return {"diagnoses": [], "medications": [], "vitals": [], "labs": [], "lab_orders": []}
+        diagnoses = self.rows_json(
+            "SELECT diagnosis_id::text, label, coding_system, code, status, important, "
+            "onset_date::text, comment FROM iml_workspace_edit.diagnosis "
+            f"WHERE patient_id={sql_literal(patient_id)} ORDER BY important DESC, label"
+        )
+        medications = self.rows_json(
+            "SELECT medication_statement_id::text, substance, atc_code, strength_value, "
+            "strength_unit, dose_text, frequency_text, route, treatment_group, active, comment "
+            "FROM iml_workspace_edit.medication_statement "
+            f"WHERE patient_id={sql_literal(patient_id)} ORDER BY active DESC, treatment_group, substance"
+        )
+        vitals = self.rows_json(
+            "SELECT observation_id::text, observed_at::text, observation_type, systolic, diastolic, "
+            "value, unit, comment FROM iml_workspace_edit.vital_observation "
+            f"WHERE patient_id={sql_literal(patient_id)} ORDER BY observed_at DESC"
+        )
+        labs = self.rows_json(
+            "SELECT lab_result_id::text, result_date::text, panel, analyte, value, value_text, "
+            "unit, reference_range, flag FROM iml_workspace_edit.lab_result "
+            f"WHERE patient_id={sql_literal(patient_id)} ORDER BY result_date DESC, panel, analyte"
+        )
+        lab_orders = self.rows_json(
+            "SELECT lab_order_id::text, consultation_id::text, ordered_date::text, panel, analyte, "
+            "status, comment FROM iml_workspace_edit.lab_order "
+            f"WHERE patient_id={sql_literal(patient_id)} ORDER BY ordered_date DESC, panel, analyte"
+        )
+        return {
+            "diagnoses": diagnoses,
+            "medications": medications,
+            "vitals": vitals,
+            "labs": labs,
+            "lab_orders": lab_orders,
+        }
+
     def patient_search(self, query: str, limit: int = 30):
         q = query.strip()
         if not q:
             return []
         pattern = "%" + q + "%"
-        # Patients.csv array positions (0-based):
-        # 0 Easy Care patient id, 2 first birth given name, 3 given names,
-        # 4 used given name, 5 used family name, 6 birth family name.
-        return self.rows_json(
-            "SELECT "
-            "r.source_row_number, "
-            "r.source_record->>0 AS patient_id, "
-            "r.source_record->>4 AS used_given_name, "
-            "r.source_record->>5 AS used_family_name, "
-            "r.source_record->>2 AS first_birth_given_name, "
-            "r.source_record->>6 AS birth_family_name, "
-            "r.source_record->>7 AS birth_date, "
-            "r.source_record->>11 AS sex "
-            "FROM iml_legacy.raw_record r "
-            "JOIN iml_legacy.dataset d ON d.dataset_id=r.dataset_id "
-            f"WHERE d.import_run_id={sql_literal(self.import_run_id)}::uuid "
-            "AND d.relative_path='Patients.csv' "
-            "AND ("
-            f"coalesce(r.source_record->>0,'') ILIKE {sql_literal(pattern)} OR "
-            f"coalesce(r.source_record->>2,'') ILIKE {sql_literal(pattern)} OR "
-            f"coalesce(r.source_record->>3,'') ILIKE {sql_literal(pattern)} OR "
-            f"coalesce(r.source_record->>4,'') ILIKE {sql_literal(pattern)} OR "
-            f"coalesce(r.source_record->>5,'') ILIKE {sql_literal(pattern)} OR "
-            f"coalesce(r.source_record->>6,'') ILIKE {sql_literal(pattern)}"
-            ") "
-            "ORDER BY r.source_row_number "
-            f"LIMIT {int(limit)}"
-        )
+        out = []
+        if self.structured_workspace_ready():
+            out.extend(self.rows_json(
+                "SELECT 0 AS source_row_number, patient_id, "
+                "coalesce(given_name,'') AS used_given_name, "
+                "coalesce(family_name,'') AS used_family_name, "
+                "coalesce(given_name,'') AS first_birth_given_name, "
+                "coalesce(family_name,'') AS birth_family_name, "
+                "coalesce(birth_date::text,'') AS birth_date, "
+                "coalesce(sex_at_birth,'') AS sex "
+                "FROM iml_workspace_edit.patient WHERE "
+                f"patient_id ILIKE {sql_literal(pattern)} OR "
+                f"coalesce(given_name,'') ILIKE {sql_literal(pattern)} OR "
+                f"coalesce(family_name,'') ILIKE {sql_literal(pattern)} "
+                "ORDER BY family_name, given_name "
+                f"LIMIT {int(limit)}"
+            ))
+        remaining = max(0, int(limit) - len(out))
+        if remaining:
+            out.extend(self.rows_json(
+                "SELECT "
+                "r.source_row_number, "
+                "r.source_record->>0 AS patient_id, "
+                "r.source_record->>4 AS used_given_name, "
+                "r.source_record->>5 AS used_family_name, "
+                "r.source_record->>2 AS first_birth_given_name, "
+                "r.source_record->>6 AS birth_family_name, "
+                "r.source_record->>7 AS birth_date, "
+                "r.source_record->>11 AS sex "
+                "FROM iml_legacy.raw_record r "
+                "JOIN iml_legacy.dataset d ON d.dataset_id=r.dataset_id "
+                f"WHERE d.import_run_id={sql_literal(self.import_run_id)}::uuid "
+                "AND d.relative_path='Patients.csv' "
+                "AND ("
+                f"coalesce(r.source_record->>0,'') ILIKE {sql_literal(pattern)} OR "
+                f"coalesce(r.source_record->>2,'') ILIKE {sql_literal(pattern)} OR "
+                f"coalesce(r.source_record->>3,'') ILIKE {sql_literal(pattern)} OR "
+                f"coalesce(r.source_record->>4,'') ILIKE {sql_literal(pattern)} OR "
+                f"coalesce(r.source_record->>5,'') ILIKE {sql_literal(pattern)} OR "
+                f"coalesce(r.source_record->>6,'') ILIKE {sql_literal(pattern)}"
+                ") ORDER BY r.source_row_number "
+                f"LIMIT {remaining}"
+            ))
+        return out
 
     def patient_detail(self, patient_id: str):
         """
@@ -213,6 +283,40 @@ class DB:
 
         No relationship is inferred from dates, text, names or ordering.
         """
+        wp = self.workspace_patient(patient_id)
+        if wp:
+            cols = [
+                {"ordinal_position": 1, "source_column_name": "Identifiant patient"},
+                {"ordinal_position": 2, "source_column_name": "Prénom utilisé"},
+                {"ordinal_position": 3, "source_column_name": "Nom utilisé"},
+                {"ordinal_position": 4, "source_column_name": "Date de naissance"},
+                {"ordinal_position": 5, "source_column_name": "Sexe"},
+                {"ordinal_position": 6, "source_column_name": "Notes"},
+            ]
+            row = {
+                "source_row_number": 0,
+                "source_record": [
+                    wp.get("patient_id") or "",
+                    wp.get("given_name") or "",
+                    wp.get("family_name") or "",
+                    wp.get("birth_date") or "",
+                    wp.get("sex_at_birth") or "",
+                    wp.get("notes") or "",
+                ],
+            }
+            return {
+                "patient_id": patient_id,
+                "groups": [{
+                    "dataset": "Patients.csv",
+                    "columns": cols,
+                    "rows": [row],
+                    "link_kind": "workspace",
+                }],
+                "linked_dataset_count": 1,
+                "linked_row_count": 1,
+                "workspace_patient": True,
+                "workspace": self.workspace_bundle(patient_id),
+            }
         patient_aliases = (
             "'identifiant patient','identifiant du patient','id patient','patient id'"
         )
@@ -497,6 +601,8 @@ class DB:
             "groups": grouped,
             "linked_dataset_count": len(grouped),
             "linked_row_count": sum(len(g["rows"]) for g in grouped),
+            "workspace_patient": False,
+            "workspace": self.workspace_bundle(patient_id) if self.structured_workspace_ready() else {"diagnoses":[],"medications":[],"vitals":[],"labs":[],"lab_orders":[]},
         }
 
 
@@ -677,6 +783,11 @@ function clinicalCounts(d){
   for(const g of d.groups){const k=classify(g.dataset);cats[k]=(cats[k]||0)+g.rows.length}
   const p=patientObject(d);
   if(val(p,"Notes")||val(p,"Remarques"))cats["Notes"]=(cats["Notes"]||0)+1;
+  const w=d.workspace||{};
+  if((w.diagnoses||[]).length)cats["Pathologies"]=(cats["Pathologies"]||0)+(w.diagnoses||[]).length;
+  if((w.medications||[]).filter(x=>x.active).length)cats["Traitements"]=(cats["Traitements"]||0)+(w.medications||[]).filter(x=>x.active).length;
+  if((w.vitals||[]).length||(w.labs||[]).length)cats["Mesures"]=(cats["Mesures"]||0)+(w.vitals||[]).length+(w.labs||[]).length;
+  if((d.local_consultations||[]).length)cats["Consultations"]=(cats["Consultations"]||0)+(d.local_consultations||[]).length;
   return cats;
 }
 function clinicalPreview(d,category,limit=4){
@@ -698,12 +809,23 @@ function clinicalPreview(d,category,limit=4){
     }
     if(items.length>=limit)break;
   }
+  const w=d.workspace||{};
+  if(category==="Pathologies"){
+    for(const x of (w.diagnoses||[]))items.unshift((x.label||"")+(x.code?" ["+x.code+"]":""));
+  }
+  if(category==="Traitements"){
+    for(const x of (w.medications||[]).filter(m=>m.active))items.push((x.substance||"")+" "+(x.dose_text||""));
+  }
+  if(category==="Mesures" && (w.vitals||[]).length){
+    const x=w.vitals[0];
+    if(x.systolic&&x.diastolic)items.unshift("TA "+x.systolic+"/"+x.diastolic+" "+(x.unit||""));
+  }
   if(category==="Notes"){
     const p=patientObject(d);
     const permanent=val(p,"Notes","Remarques");
     if(permanent)items.unshift(permanent);
   }
-  return items.slice(0,limit);
+  return items.slice(0,category==="Traitements"?6:limit);
 }
 function buildNav(d){
   const cats=clinicalCounts(d);
@@ -815,13 +937,49 @@ function toggleConsultation(btn){
   body.classList.toggle("hidden");
   btn.textContent=body.classList.contains("hidden")?"Ouvrir":"Fermer";
 }
+function diagnosisTableHTML(rows){
+  if(!rows.length)return "";
+  return '<div class="card"><div class="cardhead"><span>Pathologies / diagnostics actifs</span></div><div class="cardbody"><div class="tablewrap"><table><thead><tr><th>Diagnostic</th><th>Système</th><th>Code</th><th>Statut</th><th>Commentaire</th></tr></thead><tbody>'+
+    rows.map(x=>'<tr><td><strong>'+esc(x.label)+'</strong></td><td>'+esc(x.coding_system||"")+'</td><td>'+esc(x.code||"")+'</td><td>'+esc(x.status||"")+'</td><td>'+esc(x.comment||"")+'</td></tr>').join('')+
+    '</tbody></table></div></div></div>';
+}
+function medicationTableHTML(rows){
+  if(!rows.length)return "";
+  return '<div class="card"><div class="cardhead"><span>Traitement en cours</span></div><div class="cardbody"><div class="tablewrap"><table><thead><tr><th>Médicament</th><th>Posologie</th><th>Rythme</th><th>Association / indication</th><th>ATC</th></tr></thead><tbody>'+
+    rows.filter(x=>x.active).map(x=>'<tr><td><strong>'+esc(x.substance)+'</strong></td><td>'+esc(x.dose_text||"")+'</td><td>'+esc(x.frequency_text||"")+'</td><td>'+esc(x.treatment_group||"")+'</td><td>'+esc(x.atc_code||"")+'</td></tr>').join('')+
+    '</tbody></table></div></div></div>';
+}
+function vitalTableHTML(rows){
+  if(!rows.length)return "";
+  return '<div class="card"><div class="cardhead"><span>Tension artérielle</span></div><div class="cardbody"><div class="tablewrap"><table><thead><tr><th>Date</th><th>TA</th><th>Commentaire</th></tr></thead><tbody>'+
+    rows.map(x=>'<tr><td>'+esc(x.observed_at||"")+'</td><td><strong>'+esc((x.systolic??"")+"/"+(x.diastolic??""))+' '+esc(x.unit||"")+'</strong></td><td>'+esc(x.comment||"")+'</td></tr>').join('')+
+    '</tbody></table></div></div></div>';
+}
+function labTableHTML(rows){
+  if(!rows.length)return "";
+  const dates=[...new Set(rows.map(x=>x.result_date))].sort().reverse();
+  const analytes=[...new Set(rows.map(x=>x.analyte))];
+  const cell=(a,d)=>rows.find(x=>x.analyte===a&&x.result_date===d);
+  return '<div class="card"><div class="cardhead"><span>Résultats biologiques précédents</span></div><div class="cardbody"><div class="tablewrap"><table><thead><tr><th>Analyse</th>'+dates.map(d=>'<th>'+esc(d)+'</th>').join('')+'</tr></thead><tbody>'+
+    analytes.map(a=>'<tr><td><strong>'+esc(a)+'</strong></td>'+dates.map(d=>{const x=cell(a,d);if(!x)return'<td></td>';const v=x.value_text||x.value||"";return'<td>'+esc(v)+' '+esc(x.unit||"")+(x.flag?' <strong>['+esc(x.flag)+']</strong>':'')+(x.reference_range?'<br><span class="sub">Réf. '+esc(x.reference_range)+'</span>':'')+'</td>';}).join('')+'</tr>').join('')+
+    '</tbody></table></div></div></div>';
+}
+function labOrdersHTML(rows){
+  if(!rows.length)return "";
+  return '<div class="card"><div class="cardhead"><span>Examens biologiques demandés</span><span class="sub">'+rows.length+'</span></div><div class="cardbody"><div class="pills">'+rows.map(x=>'<span class="pill">'+esc(x.analyte)+' • '+esc(x.status)+'</span>').join('')+'</div></div></div>';
+}
 function showCategory(cat){
   if(!current)return;
   currentGroup=cat;
   if(cat==="Consultations"){showOverview();return;}
   const groups=current.groups.filter(g=>classify(g.dataset)===cat);
   const label=(CLINICAL_SECTIONS.find(x=>x[1]===cat)||[cat])[0];
-  let body='<div class="titlebar"><div><h1>'+esc(label)+'</h1><div class="sub">'+groups.reduce((n,g)=>n+g.rows.length,0)+' élément(s) importé(s)</div></div></div>';
+  const w=current.workspace||{};
+  const extraCount=cat==="Pathologies"?(w.diagnoses||[]).length:cat==="Traitements"?(w.medications||[]).filter(x=>x.active).length:cat==="Mesures"?((w.vitals||[]).length+(w.labs||[]).length):0;
+  let body='<div class="titlebar"><div><h1>'+esc(label)+'</h1><div class="sub">'+(groups.reduce((n,g)=>n+g.rows.length,0)+extraCount)+' élément(s)</div></div></div>';
+  if(cat==="Pathologies")body+=diagnosisTableHTML(w.diagnoses||[]);
+  if(cat==="Traitements")body+=medicationTableHTML(w.medications||[]);
+  if(cat==="Mesures")body+=vitalTableHTML(w.vitals||[])+labTableHTML(w.labs||[])+labOrdersHTML(w.lab_orders||[]);
 
   if(cat==="Notes"){
     const p=patientObject(current);
@@ -848,7 +1006,8 @@ function showCategory(cat){
     }
     body+='</div></div>';
   }
-  if(!groups.length && !(cat==="Notes" && (val(patientObject(current),"Notes")||val(patientObject(current),"Remarques")))){
+  const hasWorkspace=(cat==="Pathologies"&&(w.diagnoses||[]).length)||(cat==="Traitements"&&(w.medications||[]).length)||(cat==="Mesures"&&((w.vitals||[]).length||(w.labs||[]).length||(w.lab_orders||[]).length));
+  if(!groups.length && !hasWorkspace && !(cat==="Notes" && (val(patientObject(current),"Notes")||val(patientObject(current),"Remarques")))){
     body+='<div class="card"><div class="cardbody empty">Aucune donnée dans cette rubrique pour ce patient.</div></div>';
   }
   $('#mainContent').innerHTML=body;
@@ -965,6 +1124,9 @@ function showOverview(){
   if(!current)return;
   const consult=current.groups.filter(g=>classify(g.dataset)==="Consultations");
   let out='<div class="titlebar"><div><h1>Historique médical</h1><div class="sub">Consultations et documents associés</div></div><button class="rawtoggle" onclick="newConsultation()">+ Nouvelle consultation</button></div>';
+  const w=current.workspace||{};
+  if((w.medications||[]).length)out+=medicationTableHTML(w.medications||[]);
+  if((w.lab_orders||[]).length)out+=labOrdersHTML(w.lab_orders||[]);
   out+='<div class="toolbar"><input placeholder="Rechercher dans l\'historique médical…" oninput="filterHistory(this.value)"></div>';
   const locals=current.local_consultations||[];
   if(locals.length){
@@ -1230,6 +1392,7 @@ def main() -> int:
     print(f"Open: http://127.0.0.1:{args.port}")
     print("Local-only • legacy protected • no Neon")
     print("Editable workspace:", "READY" if db.workspace_ready() else "NOT INITIALIZED")
+    print("Structured workspace:", "READY" if db.structured_workspace_ready() else "NOT INITIALIZED")
     print("Stop with Ctrl-C")
 
     try:
