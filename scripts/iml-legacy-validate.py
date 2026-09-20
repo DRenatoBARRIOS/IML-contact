@@ -3,12 +3,12 @@
 IML Legacy Import v1.0 validation report.
 Compares the original CSV source tree with one completed local import run.
 
-Outputs a Markdown report proving, dataset by dataset:
-- source file hash preserved;
-- source column names/count preserved;
-- source row count preserved;
-- imported row hashes match source rows;
-- no canonical mapping is invented by the validator.
+Checks, dataset by dataset:
+- source file hash;
+- exact header sequence, including duplicate column names;
+- source row count;
+- ordered row hashes;
+- no canonical relationship inference.
 
 Requires psql in PATH. Does not contact Neon.
 """
@@ -74,14 +74,14 @@ def source_metrics(path: Path) -> tuple[list[str], int, list[str]]:
     dialect = detect_dialect(path, enc)
     hashes: list[str] = []
     with path.open("r", encoding=enc, newline="") as f:
-        r = csv.DictReader(f, dialect=dialect)
-        fields = [str(x) for x in (r.fieldnames or [])]
+        r = csv.reader(f, dialect=dialect)
+        try:
+            fields = [str(x) for x in next(r)]
+        except StopIteration:
+            fields = []
         count = 0
         for row in r:
-            if None in row:
-                extras = row.pop(None)
-                row["__IML_EXTRA_FIELDS__"] = extras
-            canonical = json.dumps(row, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+            canonical = json.dumps(row, ensure_ascii=False, separators=(",", ":"))
             hashes.append(hashlib.sha256(canonical.encode("utf-8")).hexdigest())
             count += 1
     return fields, count, hashes
@@ -123,12 +123,14 @@ def main() -> int:
         f"- Source root: `{root}`",
         "- Network/Neon transfer: **none**",
         "",
-        "| Dataset | File hash | Columns | Rows | Row hashes | Result |",
+        "| Dataset | File hash | Headers/order | Rows | Row hashes | Result |",
         "|---|---:|---:|---:|---:|---|",
     ]
 
     total_source_rows = 0
     total_imported_rows = 0
+    total_source_columns = 0
+    total_imported_columns = 0
 
     for line in rows:
         dataset_id, rel, imported_file_hash, imported_cols, imported_rows = line.split("\t")
@@ -140,6 +142,14 @@ def main() -> int:
 
         fields, source_rows, source_hashes = source_metrics(path)
         source_file_hash = sha256_file(path)
+
+        imported_headers_text = run_psql(
+            args.db,
+            "SELECT source_column_name FROM iml_legacy.dataset_column "
+            f"WHERE dataset_id={lit(dataset_id)}::uuid ORDER BY ordinal_position;"
+        )
+        imported_headers = imported_headers_text.splitlines()
+
         imported_hashes_text = run_psql(
             args.db,
             "SELECT source_row_sha256 FROM iml_legacy.raw_record "
@@ -148,13 +158,16 @@ def main() -> int:
         imported_hashes = [x for x in imported_hashes_text.splitlines() if x]
 
         file_ok = source_file_hash == imported_file_hash
-        cols_ok = len(fields) == int(imported_cols)
+        headers_ok = fields == imported_headers and len(fields) == int(imported_cols)
         rows_ok = source_rows == int(imported_rows)
         hashes_ok = source_hashes == imported_hashes
-        ok = file_ok and cols_ok and rows_ok and hashes_ok
+        ok = file_ok and headers_ok and rows_ok and hashes_ok
 
         total_source_rows += source_rows
         total_imported_rows += int(imported_rows)
+        total_source_columns += len(fields)
+        total_imported_columns += int(imported_cols)
+
         if not ok:
             failures.append(rel)
 
@@ -162,12 +175,14 @@ def main() -> int:
             return "✅" if v else "❌"
 
         report.append(
-            f"| {rel} | {mark(file_ok)} | {mark(cols_ok)} | {mark(rows_ok)} | {mark(hashes_ok)} | "
+            f"| {rel} | {mark(file_ok)} | {mark(headers_ok)} | {mark(rows_ok)} | {mark(hashes_ok)} | "
             f"{'PASS' if ok else 'FAIL'} |"
         )
 
     source_files = sorted(p for p in root.rglob("*.csv") if p.is_file())
     dataset_count_ok = len(source_files) == len(rows)
+    row_total_ok = total_source_rows == total_imported_rows
+    column_total_ok = total_source_columns == total_imported_columns
 
     report += [
         "",
@@ -176,25 +191,29 @@ def main() -> int:
         f"- Source CSV files: **{len(source_files)}**",
         f"- Imported datasets: **{len(rows)}**",
         f"- Dataset coverage: **{'PASS' if dataset_count_ok else 'FAIL'}**",
+        f"- Source column positions: **{total_source_columns}**",
+        f"- Imported column positions: **{total_imported_columns}**",
+        f"- Column preservation: **{'PASS' if column_total_ok else 'FAIL'}**",
         f"- Source rows: **{total_source_rows}**",
         f"- Imported rows: **{total_imported_rows}**",
-        f"- Row preservation: **{'PASS' if total_source_rows == total_imported_rows else 'FAIL'}**",
+        f"- Row preservation: **{'PASS' if row_total_ok else 'FAIL'}**",
         f"- Failed datasets: **{len(failures)}**",
         "",
         "## Invariants",
         "",
+        "- Duplicate source column names are preserved by ordinal position.",
         "- No missing Easy Care relationship is inferred.",
         "- Raw source rows remain immutable evidence of the legacy database.",
         "- Mapping to canonical IML is a separate, explicit operation.",
         "- Patient-level legacy data remains local and is not synchronized to Neon.",
         "",
-        f"## Final status: **{'PASS' if not failures and dataset_count_ok and total_source_rows == total_imported_rows else 'FAIL'}**",
+        f"## Final status: **{'PASS' if not failures and dataset_count_ok and row_total_ok and column_total_ok else 'FAIL'}**",
         "",
     ]
 
     args.output.write_text("\n".join(report), encoding="utf-8")
     print(args.output)
-    return 0 if not failures and dataset_count_ok and total_source_rows == total_imported_rows else 1
+    return 0 if not failures and dataset_count_ok and row_total_ok and column_total_ok else 1
 
 
 if __name__ == "__main__":
