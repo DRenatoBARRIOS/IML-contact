@@ -33,7 +33,7 @@ import subprocess
 import sys
 from urllib.parse import parse_qs, urlparse
 
-VERSION = "0.7.1"
+VERSION = "0.8.0"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
 
@@ -482,6 +482,10 @@ button,input{font:inherit}
 .panel{background:white;border:1px solid var(--line);border-radius:10px;margin-bottom:14px}.panel h3{font-size:14px;margin:0;padding:12px 14px;border-bottom:1px solid var(--line)}.panel .body{padding:12px 14px;font-size:13px}.empty{color:var(--muted);font-size:12px}
 .pills{display:flex;flex-wrap:wrap;gap:7px}.pill{background:var(--soft);padding:6px 9px;border-radius:999px;font-size:12px}
 .rawtoggle{border:1px solid #cfd7e8;background:white;border-radius:7px;padding:7px 10px;cursor:pointer}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
+.tabbtn{border:1px solid #cfd7e8;background:white;border-radius:7px;padding:8px 11px;cursor:pointer;font-size:12px;color:var(--text)}
+.tabbtn:hover,.tabbtn.active{background:var(--soft);font-weight:800;border-color:#b9c8ee}
+.section-title{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 0 8px}
 table{border-collapse:collapse;width:max-content;min-width:100%;font-size:12px;background:white}th,td{border:1px solid #e3e7ef;padding:6px 8px;vertical-align:top;white-space:pre-wrap;max-width:360px}th{background:#f4f6fa;position:sticky;top:0}.tablewrap{overflow:auto;max-height:60vh}.hidden{display:none}
 @media(max-width:1050px){.shell{grid-template-columns:280px 1fr}.right{display:none}}
 </style>
@@ -536,29 +540,32 @@ function objFrom(group,row){
   return o;
 }
 function val(o,...names){for(const n of names){if(o[n]!==undefined && String(o[n]).trim()!=="")return o[n]}return""}
+function norm(s){
+  return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+}
 function classify(name){
-  const n=name.toLowerCase();
+  const n=norm(name);
   if(n==="patients.csv")return"Identité";
   if(n==="consultations.csv")return"Consultations";
-  if(n.includes("antécédents médicaux")||n.includes("antecedents medicaux"))return"Antécédents";
+  if(n.includes("antecedents medicaux"))return"Antécédents";
   if(n.includes("pathologies"))return"Pathologies";
   if(n.includes("allergies"))return"Allergies";
-  if(n.includes("traitements externes"))return"Traitements en cours";
+  if(n.includes("traitements externes"))return"Traitements";
   if(n.includes("facteurs risque professionnel"))return"Risques professionnels";
-  if(n.includes("informations médicales spécifiques")||n.includes("informations medicales specifiques"))return"Santé de la femme";
+  if(n.includes("informations medicales specifiques"))return"Santé de la femme";
   if(n.includes("vaccins"))return"Vaccinations";
-  if(n.includes("notes médicales")||n.includes("notes medicales"))return"Notes";
+  if(n.includes("notes medicales"))return"Notes";
   if(n.includes("mesures"))return"Mesures";
-  if(n.includes("volets de synthèse")||n.includes("volets de synthese"))return"Synthèse médicale";
-  if(n.includes("mots-clés")||n.includes("mots-cles"))return"Mots-clés";
+  if(n.includes("volets de synthese medicale"))return"Synthèse";
+  if(n.includes("mots-cles")||n.includes("relations entre patients et mots-cles"))return"Mots-clés";
   if(n.includes("certificats"))return"Certificats";
   if(n.includes("documents"))return"Documents";
   if(n.includes("ordonnance")||n.includes("prescription"))return"Prescriptions";
   if(n.includes("correspondants"))return"Correspondants";
   if(n.includes("entourage"))return"Entourage";
-  if(n.includes("paiement")||n.includes("factur"))return"Administratif";
-  if(n.includes("lieux d'activité")||n.includes("lieux d'activite"))return"Technique";
-  if(n.includes("contacts"))return"Technique";
+  if(n.includes("rendez-vous patients"))return"Rendez-vous";
+  if(n.includes("paiements")||n.includes("factur"))return"Administratif";
+  if(n.includes("lieux d'activite")||n.includes("contacts"))return"Technique";
   return"Autres données";
 }
 function patientObject(d){
@@ -581,15 +588,30 @@ function patientHeader(d){
     'Sexe : '+esc(sex)+(doctor?'<br>Médecin traitant : '+esc(doctor):'')+(addr?'<br>'+esc(addr):'')+'</div>';
   $('#rightSummary').innerHTML='<strong>'+esc(displayName(p))+'</strong><br><span class="sub">'+esc(birth||'Date de naissance non renseignée')+'</span>';
 }
-function buildNav(d){
+const CLINICAL_TABS=[
+  "Synthèse","Antécédents","Pathologies","Allergies","Traitements","Risques professionnels",
+  "Santé de la femme","Vaccinations","Consultations","Notes","Mesures","Prescriptions",
+  "Certificats","Documents","Correspondants","Entourage","Rendez-vous","Mots-clés","Autres données"
+];
+function clinicalCounts(d){
   const cats={};
-  for(const g of d.groups){const c=classify(g.dataset);cats[c]=(cats[c]||0)+g.rows.length}
+  for(const g of d.groups){const k=classify(g.dataset);cats[k]=(cats[k]||0)+g.rows.length}
   const p=patientObject(d);
-  const hasPatientClinical=Boolean(val(p,"Notes","Remarques"));
-  if(hasPatientClinical)cats["Antécédents / remarques"]=(cats["Antécédents / remarques"]||0)+1;
-  const order=["Antécédents","Pathologies","Allergies","Traitements en cours","Risques professionnels","Santé de la femme","Vaccinations","Synthèse médicale","Mots-clés","Consultations","Notes","Mesures","Prescriptions","Certificats","Documents","Correspondants","Entourage","Antécédents / remarques"];
-  $('#patientNav').innerHTML=order.map(c=>'<button class="navbtn" onclick="showCategory('+JSON.stringify(c).replace(/"/g,'&quot;')+')"><span>'+esc(c)+'</span><span class="count">'+(cats[c]||0)+'</span></button>').join('');
-  $('#rightCounts').innerHTML='<div class="pills">'+order.map(c=>'<span class="pill">'+esc(c)+' '+(cats[c]||0)+'</span>').join('')+'</div>';
+  if(val(p,"Notes")||val(p,"Remarques"))cats["Antécédents"]=(cats["Antécédents"]||0)+1;
+  return cats;
+}
+function buildClinicalTabs(d,active="Synthèse"){
+  const cats=clinicalCounts(d);
+  return '<div class="tabs">'+CLINICAL_TABS.map(t=>
+    '<button class="tabbtn '+(t===active?'active':'')+'" onclick="showCategory('+JSON.stringify(t).replace(/"/g,'&quot;')+')">'+
+    esc(t)+' <span class="count">'+(cats[t]||0)+'</span></button>'
+  ).join('')+'</div>';
+}
+function buildNav(d){
+  const cats=clinicalCounts(d);
+  $('#patientNav').innerHTML='<div class="section-title" style="padding:0 16px">Dossier clinique</div>'+
+    CLINICAL_TABS.map(t=>'<button class="navbtn" onclick="showCategory('+JSON.stringify(t).replace(/"/g,'&quot;')+')"><span>'+esc(t)+'</span><span class="count">'+(cats[t]||0)+'</span></button>').join('');
+  $('#rightCounts').innerHTML='<div class="pills">'+CLINICAL_TABS.map(t=>'<span class="pill">'+esc(t)+' '+(cats[t]||0)+'</span>').join('')+'</div>';
 }
 function fieldsHTML(o){
   const entries=Object.entries(o).filter(([k,v])=>String(v??"").trim()!=="");
@@ -665,50 +687,93 @@ function toggleConsultation(btn){
 function showCategory(cat){
   if(!current)return;
   currentGroup=cat;
-  const groups=current.groups.filter(g=>classify(g.dataset)===cat);
   document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.textContent.trim().startsWith(cat)));
-  if(cat==="Antécédents / remarques"){
-    const p=patientObject(current);
-    const clinical={};
-    const notes=val(p,"Notes");
-    const remarks=val(p,"Remarques");
-    if(notes)clinical["Notes cliniques"]=notes;
-    if(remarks)clinical["Remarques"]=remarks;
-    $('#mainContent').innerHTML='<div class="titlebar"><div><h1>Antécédents / remarques</h1><div class="sub">Informations cliniques saisies au niveau du dossier patient</div></div></div><div class="card"><div class="cardbody">'+fieldsHTML(clinical)+'</div></div>';
+
+  if(cat==="Synthèse"){
+    showOverview();
     return;
   }
-  let body='<div class="titlebar"><div><h1>'+esc(cat)+'</h1><div class="sub">'+groups.reduce((n,g)=>n+g.rows.length,0)+' élément(s) importé(s)</div></div></div>';
+
+  const groups=current.groups.filter(g=>classify(g.dataset)===cat);
+  let body=buildClinicalTabs(current,cat)+'<div class="titlebar"><div><h1>'+esc(cat)+'</h1><div class="sub">'+groups.reduce((n,g)=>n+g.rows.length,0)+' élément(s) importé(s)</div></div></div>';
+
+  if(cat==="Antécédents"){
+    const p=patientObject(current);
+    const notes=val(p,"Notes");
+    const remarks=val(p,"Remarques");
+    if(notes||remarks){
+      const clinical={};
+      if(notes)clinical["Notes cliniques du dossier"]=notes;
+      if(remarks)clinical["Remarques du dossier"]=remarks;
+      body+='<div class="card"><div class="cardhead"><span>Informations permanentes du dossier patient</span></div><div class="cardbody">'+fieldsHTML(clinical)+'</div></div>';
+    }
+  }
+
   if(cat==="Consultations"){
     const items=groups.flatMap(g=>g.rows.map(r=>({g,r,date:consultationDate(g,r)})));
     items.sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
     body+='<div class="timeline">'+items.map(x=>consultationCard(x.g,x.r)).join('')+'</div>';
   }else{
     for(const g of groups){
-      body+='<div class="card"><div class="cardhead"><span>'+esc(g.dataset)+'</span><span class="sub">'+g.rows.length+' ligne(s)</span></div><div class="cardbody">';
-      g.rows.slice(0,250).forEach((r,i)=>{body+='<div style="padding:9px 0;'+(i?'border-top:1px solid #eef1f6':'')+'">'+fieldsHTML(objFrom(g,r))+'</div>'});
-      if(g.rows.length>250)body+='<div class="empty">Affichage limité aux 250 premières lignes de ce jeu.</div>';
+      body+='<div class="card"><div class="cardhead"><span>'+esc(g.dataset.replace(".csv",""))+'</span><span class="sub">'+g.rows.length+' ligne(s)</span></div><div class="cardbody">';
+      g.rows.slice(0,500).forEach((r,i)=>{
+        const o=objFrom(g,r);
+        const clean=Object.fromEntries(Object.entries(o).filter(([k,v])=>{
+          if(!String(v??"").trim())return false;
+          const n=norm(k);
+          return !n.startsWith("identifiant ") && !n.includes("nom patient") && !n.includes("prenom patient");
+        }));
+        body+='<div style="padding:9px 0;'+(i?'border-top:1px solid #eef1f6':'')+'">'+fieldsHTML(clean)+'</div>';
+      });
+      if(g.rows.length>500)body+='<div class="empty">Affichage limité aux 500 premières lignes de cette rubrique.</div>';
       body+='</div></div>';
     }
   }
-  if(!groups.length)body+='<div class="card"><div class="cardbody empty">Aucune donnée dans cette rubrique.</div></div>';
+
+  if(!groups.length && !(cat==="Antécédents" && (val(patientObject(current),"Notes")||val(patientObject(current),"Remarques")))){
+    body+='<div class="card"><div class="cardbody empty">Aucune donnée trouvée dans cette rubrique pour ce patient.</div></div>';
+  }
   $('#mainContent').innerHTML=body;
 }
 function showOverview(){
   if(!current)return;
-  const cats={};
-  for(const g of current.groups){const c=classify(g.dataset);cats[c]=(cats[c]||0)+g.rows.length}
-  let out='<div class="titlebar"><div><h1>Historique médical</h1><div class="sub">Vue de consultation issue de l\'export Easy Care</div></div></div>';
+  const cats=clinicalCounts(current);
+  const p=patientObject(current);
+  let out=buildClinicalTabs(current,"Synthèse")+
+    '<div class="titlebar"><div><h1>Synthèse clinique</h1><div class="sub">Toutes les informations utiles restent accessibles par onglets</div></div></div>';
+
+  const summaryBlocks=[
+    ["Antécédents",cats["Antécédents"]||0],
+    ["Pathologies",cats["Pathologies"]||0],
+    ["Allergies",cats["Allergies"]||0],
+    ["Traitements",cats["Traitements"]||0],
+    ["Vaccinations",cats["Vaccinations"]||0],
+    ["Notes",cats["Notes"]||0],
+    ["Documents",cats["Documents"]||0]
+  ];
+  out+='<div class="pills" style="margin-bottom:14px">'+summaryBlocks.map(([k,n])=>'<span class="pill">'+esc(k)+' '+n+'</span>').join('')+'</div>';
+
+  const notes=val(p,"Notes"), remarks=val(p,"Remarques");
+  if(notes||remarks){
+    const clinical={};
+    if(notes)clinical["Notes permanentes"]=notes;
+    if(remarks)clinical["Remarques"]=remarks;
+    out+='<div class="card"><div class="cardhead"><span>Informations permanentes</span></div><div class="cardbody">'+fieldsHTML(clinical)+'</div></div>';
+  }
+
   const consult=current.groups.filter(g=>classify(g.dataset)==="Consultations");
   if(consult.length){
     const items=consult.flatMap(g=>g.rows.map(r=>({g,r,date:consultationDate(g,r)})));
     items.sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
-    out+='<div class="timeline">'+items.slice(0,20).map(x=>consultationCard(x.g,x.r)).join('')+'</div>';
-  }else{
-    out+='<div class="card"><div class="cardbody empty">Aucune consultation explicitement reliée à ce patient dans l\'export.</div></div>';
+    out+='<div class="titlebar"><div><h1>Dernières consultations</h1></div></div>'+
+      '<div class="timeline">'+items.slice(0,10).map(x=>consultationCard(x.g,x.r)).join('')+'</div>';
   }
   $('#mainContent').innerHTML=out;
 }
-
+const TECH_TABS=["Identité","Consultation technique","Administratif","Sources liées"];
+function technicalTabs(active){
+  return '<div class="tabs">'+TECH_TABS.map(t=>'<button class="tabbtn '+(t===active?'active':'')+'" onclick="showTechnicalTab('+JSON.stringify(t).replace(/"/g,'&quot;')+')">'+esc(t)+'</button>').join('')+'</div>';
+}
 function technicalRecordHTML(group,row){
   const o=objFrom(group,row);
   return '<div class="card"><div class="cardhead"><span>'+esc(group.dataset)+'</span><span class="sub">ligne source '+esc(row.source_row_number)+'</span></div><div class="cardbody">'+fieldsHTML(o)+'</div></div>';
@@ -716,14 +781,13 @@ function technicalRecordHTML(group,row){
 function technicalIdentityHTML(){
   if(!current)return "";
   const pg=current.groups.find(g=>g.dataset==="Patients.csv");
-  if(!pg||!pg.rows.length)return "";
-  return '<div class="card"><div class="cardhead"><span>Identité patient / source Easy Care</span><span class="sub">Patients.csv</span></div><div class="cardbody">'+fieldsHTML(objFrom(pg,pg.rows[0]))+'</div></div>';
+  if(!pg||!pg.rows.length)return '<div class="card"><div class="cardbody empty">Identité non trouvée.</div></div>';
+  return '<div class="titlebar"><div><h1>Identité</h1><div class="sub">Données complètes du dossier patient Easy Care</div></div></div>'+technicalRecordHTML(pg,pg.rows[0]);
 }
 function technicalConsultationHTML(consultId){
   if(!current)return '<div class="card"><div class="cardbody empty">Aucun patient sélectionné.</div></div>';
-  const identity=technicalIdentityHTML();
   const cg=current.groups.find(g=>g.dataset==="Consultations.csv");
-  if(!cg)return identity+'<div class="card"><div class="cardbody empty">Aucune consultation trouvée.</div></div>';
+  if(!cg)return '<div class="card"><div class="cardbody empty">Aucune consultation trouvée.</div></div>';
   const row=cg.rows.find(r=>consultationId(cg,r)===consultId) || cg.rows[0];
   if(!row)return '<div class="card"><div class="cardbody empty">Aucune consultation trouvée.</div></div>';
   const cid=consultationId(cg,row);
@@ -731,8 +795,7 @@ function technicalConsultationHTML(consultId){
   const o=objFrom(cg,row);
   const date=consultationDate(cg,row);
   const motif=val(o,"Motif de la consultation","Motif","Titre","Objet","Libellé")||"Consultation sans motif";
-  let out='<div class="titlebar"><div><h1>Identité / Technique</h1><div class="sub">'+esc(date)+' • '+esc(motif)+'</div></div></div>';
-  out+=identity;
+  let out='<div class="titlebar"><div><h1>Consultation technique</h1><div class="sub">'+esc(date)+' • '+esc(motif)+'</div></div></div>';
   out+=technicalRecordHTML(cg,row);
   for(const g of current.groups){
     if(g.dataset==="Consultations.csv")continue;
@@ -741,21 +804,49 @@ function technicalConsultationHTML(consultId){
   }
   return out;
 }
+function technicalAdminHTML(){
+  if(!current)return "";
+  const groups=current.groups.filter(g=>classify(g.dataset)==="Administratif");
+  let out='<div class="titlebar"><div><h1>Administratif</h1><div class="sub">Paiements et informations non cliniques</div></div></div>';
+  for(const g of groups)for(const r of g.rows)out+=technicalRecordHTML(g,r);
+  if(!groups.length)out+='<div class="card"><div class="cardbody empty">Aucune donnée administrative liée.</div></div>';
+  return out;
+}
+function technicalSourcesHTML(){
+  if(!current)return "";
+  let out='<div class="titlebar"><div><h1>Sources liées au patient</h1><div class="sub">'+current.linked_dataset_count+' datasets • '+current.linked_row_count+' lignes</div></div></div>';
+  for(const g of current.groups){
+    out+='<div class="card"><div class="cardhead"><span>'+esc(g.dataset)+'</span><span class="sub">'+g.rows.length+' ligne(s) • '+esc(g.link_kind||"")+'</span></div><div class="cardbody">';
+    for(const r of g.rows.slice(0,100))out+=fieldsHTML(objFrom(g,r));
+    if(g.rows.length>100)out+='<div class="empty">Affichage limité aux 100 premières lignes.</div>';
+    out+='</div></div>';
+  }
+  return out;
+}
 function buildTechnicalNav(){
   if(!current){$('#patientNav').innerHTML="";return}
   const cg=current.groups.find(g=>g.dataset==="Consultations.csv");
-  if(!cg){$('#patientNav').innerHTML='<div class="empty" style="padding:12px">Aucune consultation</div>';return}
-  const items=cg.rows.map(r=>({r,date:consultationDate(cg,r),id:consultationId(cg,r),o:objFrom(cg,r)}));
-  items.sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
-  $('#patientNav').innerHTML=items.map(x=>{
-    const motif=val(x.o,"Motif de la consultation","Motif","Titre","Objet","Libellé")||"Sans motif";
-    return '<button class="navbtn" onclick="showTechnicalConsultation('+JSON.stringify(x.id).replace(/"/g,'&quot;')+')"><span>'+esc(x.date||"Sans date")+'<br><span class="sub">'+esc(motif)+'</span></span></button>';
-  }).join('');
-  if(!currentConsultationId && items.length)currentConsultationId=items[0].id;
+  let html='<div class="section-title" style="padding:0 16px">Vue technique</div>';
+  html+=TECH_TABS.map(t=>'<button class="navbtn" onclick="showTechnicalTab('+JSON.stringify(t).replace(/"/g,'&quot;')+')"><span>'+esc(t)+'</span></button>').join('');
+  if(cg){
+    const items=cg.rows.map(r=>({r,date:consultationDate(cg,r),id:consultationId(cg,r),o:objFrom(cg,r)}));
+    items.sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
+    html+='<div class="section-title" style="padding:0 16px">Consultations</div>'+
+      items.map(x=>{
+        const motif=val(x.o,"Motif de la consultation","Motif","Titre","Objet","Libellé")||"Sans motif";
+        return '<button class="navbtn" onclick="currentConsultationId='+JSON.stringify(x.id).replace(/"/g,'&quot;')+';showTechnicalTab(\'Consultation technique\')"><span>'+esc(x.date||"Sans date")+'<br><span class="sub">'+esc(motif)+'</span></span></button>';
+      }).join('');
+    if(!currentConsultationId && items.length)currentConsultationId=items[0].id;
+  }
+  $('#patientNav').innerHTML=html;
 }
-function showTechnicalConsultation(id){
-  currentConsultationId=id;
-  $('#mainContent').innerHTML=technicalConsultationHTML(id);
+function showTechnicalTab(tab){
+  let body=technicalTabs(tab);
+  if(tab==="Identité")body+=technicalIdentityHTML();
+  else if(tab==="Consultation technique")body+=technicalConsultationHTML(currentConsultationId);
+  else if(tab==="Administratif")body+=technicalAdminHTML();
+  else body+=technicalSourcesHTML();
+  $('#mainContent').innerHTML=body;
 }
 async function setMode(mode){
   currentMode=mode;
@@ -773,11 +864,10 @@ async function setMode(mode){
     if(current){
       patientHeader(current);
       buildTechnicalNav();
-      $('#mainContent').innerHTML=technicalConsultationHTML(currentConsultationId);
-      $('#rightCounts').innerHTML='<div class="pills"><span class="pill">Sources consultation</span><span class="pill">Identifiants</span><span class="pill">Paiements</span><span class="pill">Documents</span></div>';
+      showTechnicalTab("Identité");
     }else{
       $('#patientNav').innerHTML="";
-      $('#mainContent').innerHTML='<div class="titlebar"><h1>Identité / Technique</h1></div><div class="card"><div class="cardbody">Sélectionnez d’abord un patient. Cette vue affichera l’identité complète et les données techniques de ses consultations.</div></div>';
+      $('#mainContent').innerHTML=technicalTabs("Identité")+'<div class="titlebar"><h1>Identité / Technique</h1></div><div class="card"><div class="cardbody">Sélectionnez d’abord un patient.</div></div>';
     }
   }
 }
@@ -804,7 +894,7 @@ async function openPatient(id){
   patientHeader(current); $('#searchResults').innerHTML='';
   if(currentMode==="technical"){
     buildTechnicalNav();
-    $('#mainContent').innerHTML=technicalConsultationHTML(currentConsultationId);
+    showTechnicalTab("Identité");
   }else{
     buildNav(current);
     showOverview();
