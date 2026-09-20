@@ -33,7 +33,7 @@ import subprocess
 import sys
 from urllib.parse import parse_qs, urlparse
 
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
 
@@ -338,6 +338,8 @@ table{border-collapse:collapse;width:max-content;min-width:100%;font-size:12px;b
   <div class="brand">IML</div>
   <div class="topitem">ACCUEIL</div><div class="topitem">AGENDA</div><div class="topitem active">PATIENTS</div>
   <div class="topitem">CONTACTS</div><div class="topitem">MESSAGERIE</div><div class="topitem">GESTION</div>
+  <button id="modeClinical" class="rawtoggle" onclick="setMode('clinical')">CLINIQUE</button>
+  <button id="modeTechnical" class="rawtoggle" onclick="setMode('technical')">DONNÉES / TECHNIQUE</button>
   <div class="local">LOCAL • lecture seule</div>
 </div>
 <div class="shell">
@@ -369,7 +371,7 @@ table{border-collapse:collapse;width:max-content;min-width:100%;font-size:12px;b
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 async function api(url){const r=await fetch(url);if(!r.ok)throw new Error(await r.text());return r.json()}
-let current=null,currentGroup=null;
+let current=null,currentGroup=null,currentMode="clinical",allDatasets=[];
 
 function objFrom(group,row){
   const o={};
@@ -523,9 +525,69 @@ function showOverview(){
   }
   $('#mainContent').innerHTML=out;
 }
+
+function tableHTML(cols,rows){
+  const counts={};
+  cols.forEach(c=>counts[c.source_column_name]=(counts[c.source_column_name]||0)+1);
+  const headers=cols.map(c=>counts[c.source_column_name]>1?c.source_column_name+" ["+c.ordinal_position+"]":c.source_column_name);
+  let out='<div class="tablewrap"><table><thead><tr><th># source</th>'+headers.map(h=>'<th>'+esc(h)+'</th>').join('')+'</tr></thead><tbody>';
+  for(const r of rows){
+    const a=Array.isArray(r.source_record)?r.source_record:[];
+    out+='<tr><td>'+esc(r.source_row_number)+'</td>';
+    for(let i=0;i<cols.length;i++)out+='<td>'+esc(a[i]??"")+'</td>';
+    out+='</tr>';
+  }
+  return out+'</tbody></table></div>';
+}
+async function setMode(mode){
+  currentMode=mode;
+  $('#modeClinical').style.fontWeight=mode==="clinical"?"800":"400";
+  $('#modeTechnical').style.fontWeight=mode==="technical"?"800":"400";
+  if(mode==="clinical"){
+    $('#search').placeholder="Rechercher un patient…";
+    $('#patientSummary').style.display="";
+    if(current){patientHeader(current);buildNav(current);showOverview();}
+    else{
+      $('#patientNav').innerHTML="";
+      $('#mainContent').innerHTML='<div class="titlebar"><h1>Dossier patient</h1></div><div class="card"><div class="cardbody">Recherchez un patient pour ouvrir son dossier clinique.</div></div>';
+    }
+  }else{
+    $('#searchResults').innerHTML="";
+    $('#patientSummary').style.display="none";
+    $('#search').placeholder="Filtrer les 56 datasets…";
+    await showTechnicalHome();
+  }
+}
+async function showTechnicalHome(filter=""){
+  if(!allDatasets.length) allDatasets=await api('/api/datasets');
+  const q=filter.trim().toLowerCase();
+  const ds=allDatasets.filter(d=>!q||d.relative_path.toLowerCase().includes(q));
+  const rows=allDatasets.reduce((n,d)=>n+Number(d.row_count||0),0);
+  const cols=allDatasets.reduce((n,d)=>n+Number(d.column_count||0),0);
+  $('#patientNav').innerHTML=ds.map(d=>'<button class="navbtn" onclick="openDataset('+JSON.stringify(d.relative_path).replace(/"/g,'&quot;')+',0)"><span>'+esc(d.relative_path)+'</span><span class="count">'+d.row_count+'</span></button>').join('');
+  $('#rightSummary').innerHTML='<strong>'+allDatasets.length+' datasets</strong><br><span class="sub">'+rows.toLocaleString('fr-FR')+' lignes importées</span>';
+  $('#rightCounts').innerHTML='<div class="pills"><span class="pill">'+cols+' colonnes</span><span class="pill">100 % accessibles</span></div>';
+  $('#mainContent').innerHTML='<div class="titlebar"><div><h1>Données / Technique</h1><div class="sub">Accès exhaustif à l\'import brut Easy Care</div></div></div>'+
+    '<div class="card"><div class="cardbody"><strong>'+allDatasets.length+' jeux de données</strong><br>'+rows.toLocaleString('fr-FR')+' lignes importées. Chaque dataset peut être ouvert à gauche, indépendamment de son rattachement clinique.</div></div>';
+}
+async function openDataset(name,offset=0){
+  const d=await api('/api/dataset?name='+encodeURIComponent(name)+'&offset='+offset+'&limit=100');
+  const prev=Math.max(0,d.offset-d.limit), next=d.offset+d.limit;
+  $('#mainContent').innerHTML='<div class="titlebar"><div><h1>'+esc(name)+'</h1><div class="sub">'+d.total.toLocaleString('fr-FR')+' lignes</div></div></div>'+
+    '<div class="toolbar"><button class="rawtoggle" '+(d.offset===0?'disabled':'')+' onclick="openDataset('+JSON.stringify(name)+','+prev+')">← Précédent</button>'+
+    '<button class="rawtoggle" '+(next>=d.total?'disabled':'')+' onclick="openDataset('+JSON.stringify(name)+','+next+')">Suivant →</button>'+
+    '<span class="sub">'+(d.offset+1)+'–'+Math.min(d.offset+d.rows.length,d.total)+' / '+d.total+'</span></div>'+
+    tableHTML(d.columns,d.rows);
+}
+
 let timer=null;
 $('#search').addEventListener('input',e=>{
   clearTimeout(timer); const q=e.target.value.trim();
+  if(currentMode==="technical"){
+    $('#searchResults').innerHTML='';
+    timer=setTimeout(()=>showTechnicalHome(q),120);
+    return;
+  }
   if(!q){$('#searchResults').innerHTML='';return}
   timer=setTimeout(async()=>{
     const rows=await api('/api/patient-search?q='+encodeURIComponent(q));
@@ -540,8 +602,11 @@ $('#search').addEventListener('input',e=>{
 async function openPatient(id){
   $('#mainContent').innerHTML='<div class="card"><div class="cardbody">Chargement du dossier…</div></div>';
   current=await api('/api/patient?id='+encodeURIComponent(id));
+  currentMode="clinical";
+  $('#patientSummary').style.display="";
   patientHeader(current); buildNav(current); $('#searchResults').innerHTML=''; showOverview();
 }
+setMode("clinical");
 </script>
 </body>
 </html>
