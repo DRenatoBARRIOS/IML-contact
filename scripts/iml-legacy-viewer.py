@@ -33,7 +33,7 @@ import subprocess
 import sys
 from urllib.parse import parse_qs, urlparse
 
-VERSION = "0.6.0"
+VERSION = "0.7.0"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
 
@@ -286,6 +286,159 @@ class DB:
                     })
                     datasets_seen.add(dataset)
 
+        # Follow additional explicit Easy Care foreign-key chains so that
+        # clinically useful child rows are not lost merely because they do not
+        # repeat Identifiant patient.
+        def group_for(name):
+            return next((g for g in grouped if g["dataset"] == name), None)
+
+        def collect_values(group, candidate_columns):
+            if not group:
+                return []
+            wanted = {x.strip().lower() for x in candidate_columns}
+            idx = None
+            for col in group["columns"]:
+                if str(col["source_column_name"]).strip().lower() in wanted:
+                    idx = int(col["ordinal_position"]) - 1
+                    break
+            if idx is None:
+                return []
+            out = []
+            for row in group["rows"]:
+                record = row.get("source_record") or []
+                if idx < len(record):
+                    value = str(record[idx] or "").strip()
+                    if value and value not in out:
+                        out.append(value)
+            return out
+
+        def append_dataset_by_values(dataset, candidate_columns, values, link_kind):
+            if not values or dataset in datasets_seen:
+                return
+            columns = self.dataset_columns(dataset)
+            if not columns:
+                return
+            wanted = {x.strip().lower() for x in candidate_columns}
+            ordinal = None
+            for col in columns:
+                if str(col["source_column_name"]).strip().lower() in wanted:
+                    ordinal = int(col["ordinal_position"])
+                    break
+            if ordinal is None:
+                return
+            value_list = ",".join(sql_literal(v) for v in values)
+            rows = self.rows_json(
+                "SELECT r.source_row_number, r.source_record "
+                "FROM iml_legacy.raw_record r "
+                "JOIN iml_legacy.dataset d ON d.dataset_id=r.dataset_id "
+                f"WHERE d.import_run_id={sql_literal(self.import_run_id)}::uuid "
+                f"AND d.relative_path={sql_literal(dataset)} "
+                f"AND coalesce(r.source_record->>{ordinal - 1},'') IN ({value_list}) "
+                "ORDER BY r.source_row_number LIMIT 10000"
+            )
+            if rows:
+                grouped.append({
+                    "dataset": dataset,
+                    "columns": columns,
+                    "rows": rows,
+                    "link_kind": link_kind,
+                })
+                datasets_seen.add(dataset)
+
+        # Ordonnance -> prescription lines.
+        ordonnance_ids = collect_values(
+            group_for("Ordonnances.csv"),
+            {"Identifiant ordonnance", "Identifiant de l'ordonnance"},
+        )
+        for dataset in [
+            "Ordonnances - Lignes de prescription - Actes.csv",
+            "Ordonnances - Lignes de prescription - Médicaments conditionnés.csv",
+            "Ordonnances - Lignes de prescription - Médicaments sous forme de spécialité virtuelle.csv",
+            "Ordonnances - Lignes de prescription - Parapharmacie.csv",
+            "Ordonnances - Lignes de prescription - Préparations magistrales.csv",
+            "Ordonnances - Lignes de prescription - Produits Prestations libres.csv",
+            "Ordonnances - Lignes de prescription - Produits Prestations LPP.csv",
+        ]:
+            append_dataset_by_values(
+                dataset,
+                {"Identifiant ordonnance", "Identifiant de l'ordonnance"},
+                ordonnance_ids,
+                "ordonnance",
+            )
+
+        # Patient keyword relation -> keyword definition.
+        keyword_ids = collect_values(
+            group_for("Patients - Relations entre Patients et Mots-clés.csv"),
+            {"Identifiant mot-clé patient"},
+        )
+        append_dataset_by_values(
+            "Patients - Mots-clés.csv",
+            {"Identifiant mot-clé patient"},
+            keyword_ids,
+            "patient_keyword",
+        )
+
+        # Entourage -> addresses and coordinates.
+        entourage_ids = collect_values(
+            group_for("Entourage patient.csv"),
+            {"Identifiant personne de l'entourage"},
+        )
+        append_dataset_by_values(
+            "Entourage patient - Adresses.csv",
+            {"Identifiant personne de l'entourage"},
+            entourage_ids,
+            "entourage",
+        )
+        append_dataset_by_values(
+            "Entourage patient - Coordonnées.csv",
+            {"Identifiant personne de l'entourage"},
+            entourage_ids,
+            "entourage",
+        )
+
+        # Patient correspondents -> contact master + contact coordinates.
+        contact_ids = collect_values(
+            group_for("Patients - Correspondants.csv"),
+            {"Identifiant contact"},
+        )
+        append_dataset_by_values(
+            "Contacts.csv",
+            {"Identifiant contact"},
+            contact_ids,
+            "correspondant",
+        )
+        append_dataset_by_values(
+            "Contacts - Coordonnées.csv",
+            {"Identifiant contact"},
+            contact_ids,
+            "correspondant",
+        )
+
+        # Female-specific medical information is referenced from Patients.csv
+        # instead of carrying Identifiant patient itself.
+        female_info_ids = collect_values(
+            group_for("Patients.csv"),
+            {"Identifiant informations médicales spécifiques aux femmes"},
+        )
+        append_dataset_by_values(
+            "Patients - Informations médicales spécifiques aux patients de sexe féminin.csv",
+            {"Identifiant informations médicales"},
+            female_info_ids,
+            "patient_medical_info",
+        )
+
+        # Consultation location -> location details, useful in technical view.
+        location_ids = collect_values(
+            group_for("Consultations.csv"),
+            {"Identifiant du lieu d'activité", "Identifiant lieu d'activité"},
+        )
+        append_dataset_by_values(
+            "Lieux d'activité.csv",
+            {"Identifiant lieu d'activité"},
+            location_ids,
+            "consultation_location",
+        )
+
         return {
             "patient_id": patient_id,
             "groups": grouped,
@@ -386,20 +539,26 @@ function val(o,...names){for(const n of names){if(o[n]!==undefined && String(o[n
 function classify(name){
   const n=name.toLowerCase();
   if(n==="patients.csv")return"Identité";
-
-  // Specific child datasets must be classified before their parent prefix.
-  if(n.includes("document"))return"Documents";
-  if(n.includes("ordonnance")||n.includes("prescription"))return"Prescriptions";
-  if(n.includes("note"))return"Notes";
-  if(n.includes("mesure"))return"Mesures";
-  if(n.includes("patholog")||n.includes("antéc")||n.includes("anteced")||n.includes("problème")||n.includes("probleme")||n.includes("affection"))return"Antécédents";
-  if(n.includes("allerg"))return"Allergies";
-  if(n.includes("correspond")||n.includes("entourage"))return"Correspondants";
-  if(n.includes("paiement")||n.includes("factur"))return"Administratif";
-
-  // Only the consultation dataset itself is a consultation.
   if(n==="consultations.csv")return"Consultations";
-
+  if(n.includes("antécédents médicaux")||n.includes("antecedents medicaux"))return"Antécédents";
+  if(n.includes("pathologies"))return"Pathologies";
+  if(n.includes("allergies"))return"Allergies";
+  if(n.includes("traitements externes"))return"Traitements en cours";
+  if(n.includes("facteurs risque professionnel"))return"Risques professionnels";
+  if(n.includes("informations médicales spécifiques")||n.includes("informations medicales specifiques"))return"Santé de la femme";
+  if(n.includes("vaccins"))return"Vaccinations";
+  if(n.includes("notes médicales")||n.includes("notes medicales"))return"Notes";
+  if(n.includes("mesures"))return"Mesures";
+  if(n.includes("volets de synthèse")||n.includes("volets de synthese"))return"Synthèse médicale";
+  if(n.includes("mots-clés")||n.includes("mots-cles"))return"Mots-clés";
+  if(n.includes("certificats"))return"Certificats";
+  if(n.includes("documents"))return"Documents";
+  if(n.includes("ordonnance")||n.includes("prescription"))return"Prescriptions";
+  if(n.includes("correspondants"))return"Correspondants";
+  if(n.includes("entourage"))return"Entourage";
+  if(n.includes("paiement")||n.includes("factur"))return"Administratif";
+  if(n.includes("lieux d'activité")||n.includes("lieux d'activite"))return"Technique";
+  if(n.includes("contacts"))return"Technique";
   return"Autres données";
 }
 function patientObject(d){
@@ -428,7 +587,7 @@ function buildNav(d){
   const p=patientObject(d);
   const hasPatientClinical=Boolean(val(p,"Notes","Remarques"));
   if(hasPatientClinical)cats["Antécédents / remarques"]=(cats["Antécédents / remarques"]||0)+1;
-  const order=["Antécédents","Antécédents / remarques","Allergies","Consultations","Notes","Mesures","Prescriptions","Documents","Correspondants","Autres données"];
+  const order=["Antécédents","Pathologies","Allergies","Traitements en cours","Risques professionnels","Santé de la femme","Vaccinations","Synthèse médicale","Mots-clés","Consultations","Notes","Mesures","Prescriptions","Certificats","Documents","Correspondants","Entourage","Antécédents / remarques"];
   $('#patientNav').innerHTML=order.filter(c=>cats[c]).map(c=>'<button class="navbtn" onclick="showCategory('+JSON.stringify(c).replace(/"/g,'&quot;')+')"><span>'+esc(c)+'</span><span class="count">'+cats[c]+'</span></button>').join('');
   $('#rightCounts').innerHTML='<div class="pills">'+order.filter(c=>cats[c]).map(c=>'<span class="pill">'+esc(c)+' '+cats[c]+'</span>').join('')+'</div>';
 }
@@ -465,7 +624,7 @@ function consultationChildrenHTML(consultId){
   for(const g of current.groups){
     if(g.dataset==="Consultations.csv")continue;
     const cat=classify(g.dataset);
-    if(["Administratif","Identité","Autres données"].includes(cat))continue;
+    if(["Administratif","Identité","Autres données","Technique"].includes(cat))continue;
     const rows=g.rows.filter(r=>consultationId(g,r)===consultId);
     if(!rows.length)continue;
     const rendered=rows.map(r=>{
