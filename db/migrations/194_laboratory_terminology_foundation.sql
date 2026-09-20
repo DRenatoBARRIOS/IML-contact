@@ -131,7 +131,7 @@ SELECT
     DATE '2024-06-17',
     'active',
     'Regenstrief Institute, Inc. / UCUM Organization',
-    'UCUM is expression/grammar based; migration 194 does not attempt exhaustive concept enumeration.',
+    'UCUM is expression/grammar based. Migration 194 does not attempt exhaustive concept enumeration.',
     jsonb_build_object(
         'specification_url', 'https://unitsofmeasure.org/ucum'
     )
