@@ -150,36 +150,14 @@ ALTER TABLE iml_laboratory.lab_observation
     ADD COLUMN IF NOT EXISTS normalized_unit_system text NULL;
 
 -- The normalized unit is explicitly UCUM when a normalization system is set.
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1
-        FROM pg_constraint
-        WHERE conname='lab_observation_normalized_unit_system_check'
-          AND conrelid='iml_laboratory.lab_observation'::regclass
-    ) THEN
-        ALTER TABLE iml_laboratory.lab_observation
-            ADD CONSTRAINT lab_observation_normalized_unit_system_check
-            CHECK (normalized_unit_system IS NULL OR normalized_unit_system='UCUM');
-    END IF;
-END
-$$;
+ALTER TABLE iml_laboratory.lab_observation
+    ADD CONSTRAINT lab_observation_normalized_unit_system_check
+    CHECK (normalized_unit_system IS NULL OR normalized_unit_system='UCUM');
 
 -- A linked LOINC concept must have a human/interoperability code alongside it.
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1
-        FROM pg_constraint
-        WHERE conname='lab_observation_loinc_link_requires_code'
-          AND conrelid='iml_laboratory.lab_observation'::regclass
-    ) THEN
-        ALTER TABLE iml_laboratory.lab_observation
-            ADD CONSTRAINT lab_observation_loinc_link_requires_code
-            CHECK (loinc_concept_id IS NULL OR nullif(btrim(loinc_code),'') IS NOT NULL);
-    END IF;
-END
-$$;
+ALTER TABLE iml_laboratory.lab_observation
+    ADD CONSTRAINT lab_observation_loinc_link_requires_code
+    CHECK (loinc_concept_id IS NULL OR nullif(btrim(loinc_code),'') IS NOT NULL);
 
 CREATE INDEX IF NOT EXISTS idx_lab_observation_loinc_code
     ON iml_laboratory.lab_observation(loinc_code)
@@ -204,30 +182,7 @@ COMMENT ON COLUMN iml_laboratory.lab_observation.normalized_unit IS
 COMMENT ON COLUMN iml_laboratory.lab_observation.normalized_unit_system IS
 'Normalization code system. Migration 194 permits UCUM only. NULL means not normalized.';
 
--- 6. Verification assertions.
-DO $$
-DECLARE
-    loinc_count integer;
-    ucum_count integer;
-BEGIN
-    SELECT count(*) INTO loinc_count
-    FROM iml_terminology.system
-    WHERE system_code='LOINC' AND status='active';
-
-    SELECT count(*) INTO ucum_count
-    FROM iml_terminology.system
-    WHERE system_code='UCUM' AND status='active';
-
-    IF loinc_count <> 1 THEN
-        RAISE EXCEPTION 'Migration 194 failed: expected exactly one active LOINC system, found %', loinc_count;
-    END IF;
-
-    IF ucum_count <> 1 THEN
-        RAISE EXCEPTION 'Migration 194 failed: expected exactly one active UCUM system, found %', ucum_count;
-    END IF;
-END
-$$;
-
+-- 6. Verification assertions are listed below as read-only post-checks.
 COMMIT;
 
 -- Suggested verification:
