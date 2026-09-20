@@ -5,8 +5,8 @@ Local-only CSV importer for legacy clinical systems.
 
 Design goals:
 - import every CSV dataset found under a source root;
-- preserve every source column and row;
-- preserve row order, file hash, row hash, encoding and delimiter;
+- preserve every source column and row, including duplicate column names;
+- preserve column order, row order, file hash, row hash, encoding and delimiter;
 - never infer missing relationships;
 - never contact Neon or any network service.
 
@@ -27,7 +27,7 @@ import sys
 import tempfile
 import uuid
 
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 ENCODINGS = ("utf-8-sig", "utf-8", "cp1252", "latin-1")
 
 
@@ -114,7 +114,7 @@ def main() -> int:
     )
 
     total_rows = 0
-    all_columns: set[tuple[str, str]] = set()
+    total_columns = 0
 
     try:
         for index, path in enumerate(csv_files, 1):
@@ -125,10 +125,13 @@ def main() -> int:
             file_hash = sha256_file(path)
 
             with path.open("r", encoding=encoding, newline="") as f:
-                reader = csv.DictReader(f, dialect=dialect)
-                if reader.fieldnames is None:
-                    raise RuntimeError(f"No header found: {rel}")
-                fieldnames = [str(x) for x in reader.fieldnames]
+                reader = csv.reader(f, dialect=dialect)
+                try:
+                    header = next(reader)
+                except StopIteration:
+                    raise RuntimeError(f"Empty CSV without header: {rel}")
+
+                fieldnames = [str(x) for x in header]
 
                 run_psql(
                     args.db,
@@ -141,31 +144,29 @@ def main() -> int:
                     f"{sql_literal(file_hash)},{len(fieldnames)});"
                 )
 
-                column_values = ",".join(
-                    "("
-                    f"{sql_literal(dataset_id)}::uuid,{i},{sql_literal(name)}"
-                    ")"
-                    for i, name in enumerate(fieldnames, 1)
-                )
-                run_psql(
-                    args.db,
-                    "INSERT INTO iml_legacy.dataset_column "
-                    "(dataset_id,ordinal_position,source_column_name) VALUES " + column_values + ";"
-                )
+                if fieldnames:
+                    column_values = ",".join(
+                        "("
+                        f"{sql_literal(dataset_id)}::uuid,{i},{sql_literal(name)}"
+                        ")"
+                        for i, name in enumerate(fieldnames, 1)
+                    )
+                    run_psql(
+                        args.db,
+                        "INSERT INTO iml_legacy.dataset_column "
+                        "(dataset_id,ordinal_position,source_column_name) VALUES " + column_values + ";"
+                    )
 
-                for name in fieldnames:
-                    all_columns.add((rel, name))
+                total_columns += len(fieldnames)
 
                 with tempfile.NamedTemporaryFile("w", encoding="utf-8", newline="", delete=False) as tmp:
                     tmp_path = Path(tmp.name)
                     writer = csv.writer(tmp)
                     row_count = 0
                     for source_row_number, row in enumerate(reader, start=2):
-                        # DictReader may expose extra fields under key None. Preserve them explicitly.
-                        if None in row:
-                            extras = row.pop(None)
-                            row["__IML_EXTRA_FIELDS__"] = extras
-                        canonical = json.dumps(row, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+                        # Preserve the source row by ordinal position as an array.
+                        # This keeps duplicate column names and extra/missing fields losslessly visible.
+                        canonical = json.dumps(row, ensure_ascii=False, separators=(",", ":"))
                         row_hash = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
                         writer.writerow([
                             str(uuid.uuid4()),
@@ -191,17 +192,22 @@ def main() -> int:
                     f"{row_count} WHERE dataset_id={sql_literal(dataset_id)}::uuid;"
                 )
                 total_rows += row_count
-                print(f"[{index}/{len(csv_files)}] {rel}: {row_count} rows, {len(fieldnames)} columns")
+                duplicates = len(fieldnames) - len(set(fieldnames))
+                dup_note = f", {duplicates} duplicate header name(s) preserved" if duplicates else ""
+                print(
+                    f"[{index}/{len(csv_files)}] {rel}: "
+                    f"{row_count} rows, {len(fieldnames)} columns{dup_note}"
+                )
 
         run_psql(
             args.db,
             "UPDATE iml_legacy.import_run SET "
             f"status='completed',completed_at=now(),dataset_count={len(csv_files)},"
-            f"row_count={total_rows},column_count={len(all_columns)} "
+            f"row_count={total_rows},column_count={total_columns} "
             f"WHERE import_run_id={sql_literal(run_id)}::uuid;"
         )
         print(f"IMPORT_RUN_ID={run_id}")
-        print(f"COMPLETE datasets={len(csv_files)} rows={total_rows} dataset_columns={len(all_columns)}")
+        print(f"COMPLETE datasets={len(csv_files)} rows={total_rows} dataset_columns={total_columns}")
         return 0
     except Exception as exc:
         run_psql(
