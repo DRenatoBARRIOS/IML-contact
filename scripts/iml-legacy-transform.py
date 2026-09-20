@@ -23,7 +23,7 @@ import sys
 import uuid
 from datetime import datetime
 
-VERSION = "1.1.1"
+VERSION = "1.2.0"
 
 
 def psql(db: str, sql: str) -> str:
@@ -231,13 +231,45 @@ def _date_or_none(value: str | None) -> str | None:
 
 def _sex_or_none(value: str | None) -> str | None:
     s = (value or "").strip().lower()
-    if not s:
+    if not s or s in {"unknown", "inconnu", "non renseigné", "non renseigne"}:
         return None
     if s in {"m", "masculin", "male", "homme", "1"}:
         return "M"
     if s in {"f", "féminin", "feminin", "female", "femme", "2"}:
         return "F"
     return None
+
+
+def _nir_sex_or_none(value: str | None) -> str | None:
+    s = (value or "").strip()
+    if not s:
+        return None
+    if s[0] == "1":
+        return "M"
+    if s[0] == "2":
+        return "F"
+    return None
+
+
+def _sex_source_status(sex_raw: str | None, nir_raw: str | None) -> tuple[str, str | None]:
+    raw = (sex_raw or "").strip().lower()
+    source_sex = _sex_or_none(sex_raw)
+    nir_sex = _nir_sex_or_none(nir_raw)
+
+    if source_sex is not None and nir_sex is not None:
+        if source_sex == nir_sex:
+            return "SOURCE_CONCORDANT", source_sex
+        return "SOURCE_CONFLICT", None
+
+    if source_sex is not None:
+        return "SOURCE_ONLY", source_sex
+
+    if raw in {"", "unknown", "inconnu", "non renseigné", "non renseigne"}:
+        if nir_sex is not None:
+            return "SOURCE_MISSING_DERIVABLE", None
+        return "SOURCE_MISSING", None
+
+    return "SOURCE_UNRECOGNIZED", None
 
 
 def _arr(row: list, idx: int) -> str:
@@ -325,7 +357,14 @@ LIMIT {int(limit)};
     created = {"person": 0, "person_name": 0, "person_demographics": 0, "person_address": 0}
     skipped_name = 0
     invalid_birth_date = 0
-    unknown_sex = 0
+    sex_status_counts = {
+        "SOURCE_CONCORDANT": 0,
+        "SOURCE_ONLY": 0,
+        "SOURCE_CONFLICT": 0,
+        "SOURCE_MISSING_DERIVABLE": 0,
+        "SOURCE_MISSING": 0,
+        "SOURCE_UNRECOGNIZED": 0,
+    }
 
     for line in selected:
         raw_id, source_row, hex_payload = line.split("\t", 2)
@@ -381,9 +420,9 @@ LIMIT {int(limit)};
         if birth_raw and birth_date is None:
             invalid_birth_date += 1
         sex_raw = _arr(row, 11)
-        sex = _sex_or_none(sex_raw)
-        if sex_raw and sex is None:
-            unknown_sex += 1
+        nir_raw = _arr(row, 8)
+        sex_source_status, sex = _sex_source_status(sex_raw, nir_raw)
+        sex_status_counts[sex_source_status] += 1
 
         bd_sql = "NULL" if birth_date is None else f"{lit(birth_date)}::date"
         sex_sql = "NULL" if sex is None else lit(sex)
@@ -411,7 +450,8 @@ LIMIT {int(limit)};
             "(transform_run_id,raw_record_id,target_schema,target_table,target_id,status,resolution_code,evidence) VALUES ("
             f"{lit(transform_run_id)}::uuid,{lit(raw_id)}::uuid,'iml_identity','person',"
             f"{lit(person_id)}::uuid,'created','EASYCARE_PATIENT_ID',"
-            f"jsonb_build_object('source_dataset','Patients.csv','source_row_number',{int(source_row)})) "
+            f"jsonb_build_object('source_dataset','Patients.csv','source_row_number',{int(source_row)},"
+            f"'sex_source_status',{lit(sex_source_status)})) "
             "ON CONFLICT DO NOTHING;"
         )
 
@@ -438,7 +478,12 @@ LIMIT {int(limit)};
     print(f"person_address_planned={created['person_address']}")
     print(f"name_skipped_missing_family={skipped_name}")
     print(f"birth_date_unparsed={invalid_birth_date}")
-    print(f"sex_unrecognized={unknown_sex}")
+    print(f"sex_source_concordant={sex_status_counts['SOURCE_CONCORDANT']}")
+    print(f"sex_source_only={sex_status_counts['SOURCE_ONLY']}")
+    print(f"sex_source_conflict={sex_status_counts['SOURCE_CONFLICT']}")
+    print(f"sex_source_missing_derivable={sex_status_counts['SOURCE_MISSING_DERIVABLE']}")
+    print(f"sex_source_missing={sex_status_counts['SOURCE_MISSING']}")
+    print(f"sex_source_unrecognized={sex_status_counts['SOURCE_UNRECOGNIZED']}")
     print("APPLY_TEST=PASS")
     return 0
 
