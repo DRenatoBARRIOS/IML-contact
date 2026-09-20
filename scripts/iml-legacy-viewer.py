@@ -7,7 +7,8 @@ Goals:
 - browse all imported datasets and rows;
 - search Patients.csv by name or Easy Care patient identifier;
 - display every legacy dataset row linked by an explicit "Identifiant patient" column;
-- never write to PostgreSQL;
+- preserve iml_legacy as immutable;
+- allow new local consultations only in iml_workspace_edit;
 - never contact Neon or any network service;
 - bind only to 127.0.0.1.
 
@@ -31,9 +32,10 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 import subprocess
 import sys
+import uuid
 from urllib.parse import parse_qs, urlparse
 
-VERSION = "0.9.0"
+VERSION = "1.0.0"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
 
@@ -115,6 +117,57 @@ class DB:
             "limit": limit,
             "total": int(total or 0),
         }
+
+    def workspace_ready(self) -> bool:
+        return self.psql(
+            "SELECT CASE WHEN to_regclass('iml_workspace_edit.consultation') IS NULL "
+            "THEN 'f' ELSE 't' END;"
+        ) == "t"
+
+    def local_consultations(self, patient_id: str):
+        if not self.workspace_ready():
+            return []
+        return self.rows_json(
+            "SELECT consultation_id::text, patient_legacy_id, consultation_date::text, "
+            "location, motif, examen_clinique, conduite_a_tenir, sections, status, "
+            "created_at::text, updated_at::text "
+            "FROM iml_workspace_edit.consultation "
+            f"WHERE patient_legacy_id={sql_literal(patient_id)} "
+            "ORDER BY consultation_date DESC, created_at DESC"
+        )
+
+    def save_local_consultation(self, patient_id: str, payload: dict):
+        if not self.workspace_ready():
+            raise RuntimeError(
+                "Workspace éditable absent. Appliquer db/local/legacy/003_iml_workspace_edit_v1.sql."
+            )
+        consultation_id = str(uuid.uuid4())
+        consultation_date = str(payload.get("consultation_date") or "").strip()
+        if not consultation_date:
+            raise ValueError("La date de consultation est obligatoire.")
+        location = str(payload.get("location") or "").strip()
+        motif = str(payload.get("motif") or "").strip()
+        examen = str(payload.get("examen_clinique") or "").strip()
+        conduite = str(payload.get("conduite_a_tenir") or "").strip()
+        sections = payload.get("sections") or {}
+        if not isinstance(sections, dict):
+            raise ValueError("sections doit être un objet JSON.")
+        sections_json = json.dumps(sections, ensure_ascii=False)
+        self.psql(
+            "INSERT INTO iml_workspace_edit.consultation "
+            "(consultation_id, patient_legacy_id, consultation_date, location, motif, "
+            "examen_clinique, conduite_a_tenir, sections, status) VALUES ("
+            f"{sql_literal(consultation_id)}::uuid,"
+            f"{sql_literal(patient_id)},"
+            f"{sql_literal(consultation_date)}::date,"
+            f"{sql_literal(location)},"
+            f"{sql_literal(motif)},"
+            f"{sql_literal(examen)},"
+            f"{sql_literal(conduite)},"
+            f"{sql_literal(sections_json)}::jsonb,"
+            "'DRAFT');"
+        )
+        return {"consultation_id": consultation_id, "status": "DRAFT"}
 
     def patient_search(self, query: str, limit: int = 30):
         q = query.strip()
@@ -494,6 +547,16 @@ button,input{font:inherit}
 .cons-section{border-top:1px solid #edf0f5;padding:8px 0}
 .cons-label{font-weight:700;font-size:12px;color:#435783;cursor:pointer}
 .cons-content{padding-top:7px}
+.editor{background:white;border:1px solid var(--line);border-radius:10px;padding:16px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-field{display:flex;flex-direction:column;gap:5px}
+.form-field.full{grid-column:1/-1}
+.form-field label{font-size:12px;font-weight:700;color:#52648f}
+.form-field input,.form-field textarea{border:1px solid #cfd7e8;border-radius:7px;padding:9px;background:white;color:#222}
+.form-field textarea{min-height:90px;resize:vertical}
+.editor details{border-top:1px solid #edf0f5;padding:10px 0}
+.editor summary{font-weight:800;cursor:pointer}
+.notice{padding:10px 12px;border:1px solid #d8e1f5;background:#f7f9fe;border-radius:8px;font-size:12px;color:#52648f;margin-bottom:12px}
 table{border-collapse:collapse;width:max-content;min-width:100%;font-size:12px;background:white}th,td{border:1px solid #e3e7ef;padding:6px 8px;vertical-align:top;white-space:pre-wrap;max-width:360px}th{background:#f4f6fa;position:sticky;top:0}.tablewrap{overflow:auto;max-height:60vh}.hidden{display:none}
 @media(max-width:1050px){.shell{grid-template-columns:280px 1fr}.right{display:none}}
 </style>
@@ -505,7 +568,7 @@ table{border-collapse:collapse;width:max-content;min-width:100%;font-size:12px;b
   <div class="topitem">CONTACTS</div><div class="topitem">MESSAGERIE</div><div class="topitem">GESTION</div>
   <button id="modeClinical" class="rawtoggle" onclick="setMode('clinical')">CLINIQUE</button>
   <button id="modeTechnical" class="rawtoggle" onclick="setMode('technical')">IDENTITÉ / TECHNIQUE</button>
-  <div class="local">LOCAL • lecture seule</div>
+  <div class="local">LOCAL • legacy protégé</div>
 </div>
 <div class="shell">
   <aside class="left">
@@ -790,11 +853,123 @@ function showCategory(cat){
   }
   $('#mainContent').innerHTML=body;
 }
+function localConsultationCard(x){
+  const s=x.sections||{};
+  const blocks=[];
+  if(x.examen_clinique)blocks.push('<details class="cons-section"><summary class="cons-label">Examen clinique</summary><div class="cons-content">'+esc(x.examen_clinique)+'</div></details>');
+  if(x.conduite_a_tenir)blocks.push('<details class="cons-section"><summary class="cons-label">Conduite à tenir</summary><div class="cons-content">'+esc(x.conduite_a_tenir)+'</div></details>');
+  const labels={
+    mesures:"Mesures",medicaments:"Médicaments",actes:"Actes",parapharmacie:"Parapharmacie",
+    preparations:"Préparations magistrales",lpp:"Produits / prestations LPP",
+    prestations_libres:"Produits / prestations libres",vaccins:"Vaccins",
+    documents:"Documents",certificats:"Certificats",lettre_suivi:"Lettre de suivi",
+    lettre_liaison:"Lettre de liaison",telemedecine:"Télémédecine",
+    honoraires:"Honoraires",paiement:"Paiement"
+  };
+  for(const [k,label] of Object.entries(labels)){
+    const v=s[k];
+    if(v!==undefined && v!==null && String(v).trim()!==""){
+      blocks.push('<details class="cons-section"><summary class="cons-label">'+esc(label)+'</summary><div class="cons-content">'+esc(v)+'</div></details>');
+    }
+  }
+  return '<div class="event"><div class="eventdate">'+esc(x.consultation_date)+(x.location?' • '+esc(x.location):'')+' • IML local</div>'+
+    '<div class="card"><div class="cardhead"><span>'+esc(x.motif||"Consultation sans motif")+'</span><span class="pill">'+esc(x.status||"DRAFT")+'</span></div>'+
+    '<div class="cardbody">'+(blocks.join('')||'<div class="empty">Consultation locale enregistrée.</div>')+'</div></div></div>';
+}
+function editorField(id,label,type="textarea",full=true,value=""){
+  const cls='form-field'+(full?' full':'');
+  if(type==="input"||type==="date"||type==="number"){
+    const htmlType=type==="input"?"text":type;
+    return '<div class="'+cls+'"><label for="'+id+'">'+esc(label)+'</label><input id="'+id+'" type="'+htmlType+'" value="'+esc(value)+'"></div>';
+  }
+  return '<div class="'+cls+'"><label for="'+id+'">'+esc(label)+'</label><textarea id="'+id+'">'+esc(value)+'</textarea></div>';
+}
+function newConsultation(){
+  if(!current)return;
+  const today=new Date().toISOString().slice(0,10);
+  let body='<div class="titlebar"><div><h1>Nouvelle consultation</h1><div class="sub">Workspace local IML • l\'import Easy Care reste intact</div></div></div>'+
+    '<div class="notice">Cette consultation est enregistrée localement dans <strong>iml_workspace_edit</strong>. Aucune ligne de <strong>iml_legacy</strong> n\'est modifiée et rien n\'est envoyé à Neon.</div>'+
+    '<div class="editor"><div class="form-grid">'+
+    editorField("nc_date","Date","date",false,today)+editorField("nc_location","Lieu d’activité","input",false,"")+
+    editorField("nc_motif","Motif de la consultation")+
+    editorField("nc_examen","Examen clinique")+
+    editorField("nc_conduite","Conduite à tenir")+
+    '</div>'+
+    '<details open><summary>Mesures</summary><div class="form-grid">'+editorField("nc_mesures","Mesures / constantes")+'</div></details>'+
+    '<details><summary>Ordonnance / prescriptions</summary><div class="form-grid">'+
+      editorField("nc_medicaments","Médicaments et posologie")+
+      editorField("nc_actes","Actes")+
+      editorField("nc_parapharmacie","Parapharmacie")+
+      editorField("nc_preparations","Préparations magistrales")+
+      editorField("nc_lpp","Produits / prestations LPP")+
+      editorField("nc_prestations_libres","Produits / prestations libres")+
+    '</div></details>'+
+    '<details><summary>Vaccination</summary><div class="form-grid">'+editorField("nc_vaccins","Vaccin, lot, date, rappel")+'</div></details>'+
+    '<details><summary>Documents et certificats</summary><div class="form-grid">'+
+      editorField("nc_documents","Documents divers")+
+      editorField("nc_certificats","Certificats")+
+    '</div></details>'+
+    '<details><summary>Courriers / télémédecine</summary><div class="form-grid">'+
+      editorField("nc_lettre_suivi","Lettre de suivi")+
+      editorField("nc_lettre_liaison","Lettre de liaison")+
+      editorField("nc_telemedecine","Demande d’acte de télémédecine")+
+    '</div></details>'+
+    '<details><summary>Administratif</summary><div class="form-grid">'+
+      editorField("nc_honoraires","Honoraires","number",false,"")+
+      editorField("nc_paiement","Paiement","input",false,"")+
+    '</div></details>'+
+    '<div class="toolbar" style="margin-top:14px"><button class="rawtoggle" onclick="saveConsultation()">Enregistrer le brouillon</button><button class="rawtoggle" onclick="showOverview()">Annuler</button><span id="nc_status" class="sub"></span></div></div>';
+  $('#mainContent').innerHTML=body;
+}
+function fieldValue(id){const e=document.getElementById(id);return e?e.value:"";}
+async function saveConsultation(){
+  if(!current)return;
+  const payload={
+    patient_id:current.patient_id,
+    consultation_date:fieldValue("nc_date"),
+    location:fieldValue("nc_location"),
+    motif:fieldValue("nc_motif"),
+    examen_clinique:fieldValue("nc_examen"),
+    conduite_a_tenir:fieldValue("nc_conduite"),
+    sections:{
+      mesures:fieldValue("nc_mesures"),
+      medicaments:fieldValue("nc_medicaments"),
+      actes:fieldValue("nc_actes"),
+      parapharmacie:fieldValue("nc_parapharmacie"),
+      preparations:fieldValue("nc_preparations"),
+      lpp:fieldValue("nc_lpp"),
+      prestations_libres:fieldValue("nc_prestations_libres"),
+      vaccins:fieldValue("nc_vaccins"),
+      documents:fieldValue("nc_documents"),
+      certificats:fieldValue("nc_certificats"),
+      lettre_suivi:fieldValue("nc_lettre_suivi"),
+      lettre_liaison:fieldValue("nc_lettre_liaison"),
+      telemedecine:fieldValue("nc_telemedecine"),
+      honoraires:fieldValue("nc_honoraires"),
+      paiement:fieldValue("nc_paiement")
+    }
+  };
+  const status=$('#nc_status');
+  status.textContent="Enregistrement…";
+  try{
+    const r=await fetch('/api/local-consultation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data=await r.json();
+    if(!r.ok)throw new Error(data.error||'Erreur');
+    current.local_consultations=await api('/api/local-consultations?id='+encodeURIComponent(current.patient_id));
+    showOverview();
+  }catch(e){
+    status.textContent="Erreur : "+e.message;
+  }
+}
 function showOverview(){
   if(!current)return;
   const consult=current.groups.filter(g=>classify(g.dataset)==="Consultations");
-  let out='<div class="titlebar"><div><h1>Historique médical</h1><div class="sub">Consultations et documents associés</div></div></div>';
+  let out='<div class="titlebar"><div><h1>Historique médical</h1><div class="sub">Consultations et documents associés</div></div><button class="rawtoggle" onclick="newConsultation()">+ Nouvelle consultation</button></div>';
   out+='<div class="toolbar"><input placeholder="Rechercher dans l\'historique médical…" oninput="filterHistory(this.value)"></div>';
+  const locals=current.local_consultations||[];
+  if(locals.length){
+    out+='<div class="titlebar"><div><h1>Consultations IML locales</h1><div class="sub">'+locals.length+' brouillon(s)</div></div></div><div class="timeline">'+locals.map(localConsultationCard).join('')+'</div>';
+  }
   if(consult.length){
     const items=consult.flatMap(g=>g.rows.map(r=>({g,r,date:consultationDate(g,r)})));
     items.sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
@@ -932,6 +1107,7 @@ $('#search').addEventListener('input',e=>{
 async function openPatient(id){
   $('#mainContent').innerHTML='<div class="card"><div class="cardbody">Chargement du dossier…</div></div>';
   current=await api('/api/patient?id='+encodeURIComponent(id));
+  current.local_consultations=await api('/api/local-consultations?id='+encodeURIComponent(id));
   currentConsultationId="";
   $('#patientSummary').style.display="";
   patientHeader(current); $('#searchResults').innerHTML='';
@@ -990,6 +1166,13 @@ class Handler(BaseHTTPRequestHandler):
                 offset = max(0, int(q.get("offset", ["0"])[0]))
                 limit = min(200, max(1, int(q.get("limit", ["100"])[0])))
                 return self.send_json(self.db.dataset_page(name, offset, limit))
+            if u.path == "/api/workspace-status":
+                return self.send_json({"ready": self.db.workspace_ready()})
+            if u.path == "/api/local-consultations":
+                patient_id = q.get("id", [""])[0]
+                if not patient_id:
+                    return self.send_json({"error": "patient id required"}, 400)
+                return self.send_json(self.db.local_consultations(patient_id))
             if u.path == "/api/patient-search":
                 query = q.get("q", [""])[0]
                 return self.send_json(self.db.patient_search(query))
@@ -1003,8 +1186,27 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_json({"error": str(exc)}, 500)
 
 
+    def do_POST(self):
+        try:
+            u = urlparse(self.path)
+            if u.path != "/api/local-consultation":
+                return self.send_json({"error": "not found"}, 404)
+            length = int(self.headers.get("Content-Length", "0") or "0")
+            if length <= 0 or length > 2_000_000:
+                return self.send_json({"error": "invalid request body"}, 400)
+            raw = self.rfile.read(length)
+            payload = json.loads(raw.decode("utf-8"))
+            patient_id = str(payload.pop("patient_id", "") or "").strip()
+            if not patient_id:
+                return self.send_json({"error": "patient id required"}, 400)
+            result = self.db.save_local_consultation(patient_id, payload)
+            return self.send_json(result, 201)
+        except Exception as exc:
+            return self.send_json({"error": str(exc)}, 500)
+
+
 def main() -> int:
-    ap = argparse.ArgumentParser(description="IML Easy Care Legacy Viewer, local and read-only")
+    ap = argparse.ArgumentParser(description="IML Easy Care Legacy Viewer + local consultation workspace")
     ap.add_argument("--db", default=os.getenv("IML_LOCAL_DB", "iml_workspace"))
     ap.add_argument("--host", default=DEFAULT_HOST)
     ap.add_argument("--port", type=int, default=DEFAULT_PORT)
@@ -1026,7 +1228,8 @@ def main() -> int:
     print(f"Database: {args.db}")
     print(f"Import run: {db.import_run_id}")
     print(f"Open: http://127.0.0.1:{args.port}")
-    print("Local-only • read-only • no Neon")
+    print("Local-only • legacy protected • no Neon")
+    print("Editable workspace:", "READY" if db.workspace_ready() else "NOT INITIALIZED")
     print("Stop with Ctrl-C")
 
     try:
