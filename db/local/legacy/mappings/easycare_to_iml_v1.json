@@ -1,5 +1,121 @@
 {
   "profile_code": "EASYCARE_TO_IML_V1",
-  "description": "Reviewed deterministic mapping profile. Fill only after INSPECT output is verified.",
-  "rules": []
+  "description": "Deterministic first-pass mapping for Patients.csv. Only mappings supported by the current canonical IML schema are included. Unmapped Easy Care fields remain preserved in iml_legacy.raw_record and are handled in later domain-specific passes.",
+  "rules": [
+    {
+      "source_dataset": "Patients.csv",
+      "source_column_ordinal": 1,
+      "source_column_name": "Identifiant patient",
+      "target": "iml_identity.person.id",
+      "transform_code": "UUID5_EASYCARE_PATIENT",
+      "required": true,
+      "notes": "Create one stable canonical person UUID per Easy Care patient ID; provenance retained in iml_legacy.canonical_link."
+    },
+    {
+      "source_dataset": "Patients.csv",
+      "source_column_ordinal": 17,
+      "source_column_name": "Dossier archivé ?",
+      "target": "iml_identity.person.status",
+      "transform_code": "ARCHIVED_TO_PERSON_STATUS",
+      "required": false,
+      "notes": "Archived -> INACTIVE; otherwise ACTIVE. Death is not inferred from this field."
+    },
+    {
+      "source_dataset": "Patients.csv",
+      "source_column_ordinal": 6,
+      "source_column_name": "Nom utilisé",
+      "target": "iml_identity.person_name.family_name",
+      "transform_code": "TEXT_TRIM",
+      "required": false,
+      "notes": "USUAL name record."
+    },
+    {
+      "source_dataset": "Patients.csv",
+      "source_column_ordinal": 5,
+      "source_column_name": "Prénom utilisé",
+      "target": "iml_identity.person_name.given_names",
+      "transform_code": "SINGLE_TEXT_TO_TEXT_ARRAY",
+      "required": false,
+      "notes": "USUAL name record."
+    },
+    {
+      "source_dataset": "Patients.csv",
+      "source_column_ordinal": 7,
+      "source_column_name": "Nom de naissance",
+      "target": "iml_identity.person_name.family_name",
+      "transform_code": "TEXT_TRIM",
+      "required": false,
+      "notes": "BIRTH name record."
+    },
+    {
+      "source_dataset": "Patients.csv",
+      "source_column_ordinal": 4,
+      "source_column_name": "Prénoms",
+      "target": "iml_identity.person_name.given_names",
+      "transform_code": "LEGACY_GIVEN_NAMES_TO_TEXT_ARRAY",
+      "required": false,
+      "notes": "BIRTH name record; exact source text remains preserved even if tokenization is imperfect."
+    },
+    {
+      "source_dataset": "Patients.csv",
+      "source_column_ordinal": 3,
+      "source_column_name": "Premier prénom de naissance",
+      "target": "iml_identity.person_name.given_names",
+      "transform_code": "FALLBACK_FIRST_BIRTH_GIVEN_NAME",
+      "required": false,
+      "notes": "Used only when the full Prénoms field is empty."
+    },
+    {
+      "source_dataset": "Patients.csv",
+      "source_column_ordinal": 8,
+      "source_column_name": "Date de naissance",
+      "target": "iml_identity.person_demographics.birth_date",
+      "transform_code": "EASYCARE_DATE_TO_DATE",
+      "required": false
+    },
+    {
+      "source_dataset": "Patients.csv",
+      "source_column_ordinal": 12,
+      "source_column_name": "Sexe",
+      "target": "iml_identity.person_demographics.sex_at_birth",
+      "transform_code": "EASYCARE_SEX_TO_CANONICAL",
+      "required": false,
+      "notes": "Only explicit source values are mapped; unknown/unrecognized values remain NULL and are reported."
+    },
+    {
+      "source_dataset": "Patients.csv",
+      "source_column_ordinal": 27,
+      "source_column_name": "Adresse",
+      "target": "iml_identity.person_address.address_line1",
+      "transform_code": "TEXT_TRIM",
+      "required": false,
+      "notes": "First-pass preservation in canonical address_line1. Structured parsing, if desired, is a later local-only step."
+    }
+  ],
+  "deferred_fields": [
+    {"ordinal": 2, "name": "Civilité", "reason": "No canonical target currently required."},
+    {"ordinal": 9, "name": "Numéro de Sécurité Sociale", "reason": "Sensitive identifier; do not coerce to FR_INS. Requires a dedicated registered identity system and local protection rule."},
+    {"ordinal": 10, "name": "Profession", "reason": "No current canonical patient occupation field."},
+    {"ordinal": 11, "name": "Notes", "reason": "Narrative content handled in later clinical/narrative pass."},
+    {"ordinal": 13, "name": "Code du lieu de naissance", "reason": "Needs code-system interpretation before canonicalization."},
+    {"ordinal": 14, "name": "Situation de famille", "reason": "No current canonical target."},
+    {"ordinal": 15, "name": "Identifiant médecin traitant (contact)", "reason": "Requires deterministic contact/practitioner resolution."},
+    {"ordinal": 16, "name": "Identifiant patient anonymisé", "reason": "Retained as local provenance; not promoted to a canonical national identifier."},
+    {"ordinal": 18, "name": "Patient décédé ?", "reason": "No current canonical deceased flag in person schema."},
+    {"ordinal": 19, "name": "Date de décès", "reason": "No current canonical death-date field."},
+    {"ordinal": 20, "name": "Autorise l'envoi de documents par MSS", "reason": "Consent/communication policy pass."},
+    {"ordinal": 21, "name": "Remarques", "reason": "Narrative content handled separately."},
+    {"ordinal": 22, "name": "Identifiant informations médicales spécifiques aux femmes", "reason": "Cross-dataset link handled in a later clinical pass."},
+    {"ordinal": 23, "name": "Rang de naissance", "reason": "No current canonical target."},
+    {"ordinal": 24, "name": "Grand régime", "reason": "French coverage domain pass."},
+    {"ordinal": 25, "name": "Caisse", "reason": "French coverage domain pass."},
+    {"ordinal": 26, "name": "Centre", "reason": "French coverage domain pass."},
+    {"ordinal": 28, "name": "Groupe sanguin", "reason": "Clinical observation pass."},
+    {"ordinal": 29, "name": "Status INS", "reason": "INS verification-state mapping requires identity-specific rules."},
+    {"ordinal": 30, "name": "Attribut identité", "reason": "Requires source semantics review."},
+    {"ordinal": 31, "name": "Matricule INS", "reason": "Sensitive identifier; requires local protection/encryption before canonical person_identifier creation."},
+    {"ordinal": 32, "name": "OID INS", "reason": "Identity-system metadata, not copied blindly into patient rows."},
+    {"ordinal": 33, "name": "Identifiant dispositif d'identité", "reason": "Cross-dataset provenance/identity-device link."},
+    {"ordinal": 34, "name": "Date de dernière dégradation du statut INS", "reason": "Identity verification history pass."}
+  ]
 }
