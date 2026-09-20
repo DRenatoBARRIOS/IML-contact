@@ -21,7 +21,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-VERSION = "1.0.1"
+VERSION = "1.1.0"
 
 
 def psql(db: str, sql: str) -> str:
@@ -207,6 +207,239 @@ LIMIT {int(limit)};
     return 0
 
 
+
+def _truthy(value: str | None) -> bool:
+    return (value or "").strip().lower() in {"1", "true", "vrai", "oui", "yes", "o"}
+
+
+def _date_or_none(value: str | None) -> str | None:
+    s = (value or "").strip()
+    if not s:
+        return None
+    for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%Y-%m-%d %H:%M:%S", "%d/%m/%Y %H:%M:%S"):
+        try:
+            return datetime.strptime(s, fmt).date().isoformat()
+        except ValueError:
+            pass
+    try:
+        return datetime.fromisoformat(s.replace("Z", "+00:00")).date().isoformat()
+    except ValueError:
+        return None
+
+
+def _sex_or_none(value: str | None) -> str | None:
+    s = (value or "").strip().lower()
+    if not s:
+        return None
+    if s in {"m", "masculin", "male", "homme", "1"}:
+        return "M"
+    if s in {"f", "féminin", "feminin", "female", "femme", "2"}:
+        return "F"
+    return None
+
+
+def _arr(row: list, idx: int) -> str:
+    if idx >= len(row) or row[idx] is None:
+        return ""
+    return str(row[idx]).strip()
+
+
+def _uuid(kind: str, source_id: str, suffix: str = "") -> str:
+    key = f"IML:EASYCARE:{kind}:{source_id}:{suffix}"
+    return str(uuid.uuid5(uuid.NAMESPACE_URL, key))
+
+
+def apply_test_patients(db: str, run_id: str, limit: int) -> int:
+    if limit < 1 or limit > 5:
+        print("--limit must be between 1 and 5 for apply-test-patients", file=sys.stderr)
+        return 2
+
+    required = [
+        "iml_identity.person",
+        "iml_identity.person_name",
+        "iml_identity.person_demographics",
+        "iml_identity.person_address",
+        "iml_legacy.transform_run",
+        "iml_legacy.canonical_link",
+    ]
+    for table in required:
+        exists = psql(db, f"SELECT to_regclass({lit(table)}) IS NOT NULL;").strip()
+        if exists != "t":
+            print(f"ERROR: required local table missing: {table}", file=sys.stderr)
+            return 2
+
+    # Same deterministic 5 positions used by test-patients.
+    sql = f"""
+WITH src AS (
+  SELECT r.raw_record_id, r.source_row_number, r.source_record
+  FROM iml_legacy.raw_record r
+  JOIN iml_legacy.dataset d ON d.dataset_id=r.dataset_id
+  WHERE d.import_run_id={lit(run_id)}::uuid
+    AND d.relative_path='Patients.csv'
+),
+ranked AS (
+  SELECT *, row_number() OVER (ORDER BY source_row_number) AS rn, count(*) OVER () AS total
+  FROM src
+),
+targets AS (
+  SELECT DISTINCT ON (bucket) *
+  FROM (
+    SELECT *,
+      CASE
+        WHEN rn=1 THEN 1
+        WHEN rn = GREATEST(1, floor(total*0.25)::bigint) THEN 2
+        WHEN rn = GREATEST(1, floor(total*0.50)::bigint) THEN 3
+        WHEN rn = GREATEST(1, floor(total*0.75)::bigint) THEN 4
+        WHEN rn=total THEN 5
+      END AS bucket
+    FROM ranked
+  ) q
+  WHERE bucket IS NOT NULL
+  ORDER BY bucket, source_row_number
+)
+SELECT raw_record_id,source_row_number,
+       encode(convert_to(source_record::text,'UTF8'),'base64')
+FROM targets
+ORDER BY source_row_number
+LIMIT {int(limit)};
+"""
+    selected = [x for x in psql(db, sql).splitlines() if x]
+    if len(selected) != limit:
+        print(f"ERROR: expected {limit} test patients, found {len(selected)}", file=sys.stderr)
+        return 2
+
+    transform_run_id = str(uuid.uuid4())
+    statements = [
+        "BEGIN;",
+        "SET LOCAL statement_timeout = '60s';",
+        (
+            "INSERT INTO iml_legacy.transform_run "
+            "(transform_run_id,import_run_id,profile_code,transformer_version,mode,status,source_record_count) VALUES ("
+            f"{lit(transform_run_id)}::uuid,{lit(run_id)}::uuid,'EASYCARE_TO_IML_V1',"
+            f"{lit(VERSION)},'APPLY','running',{limit});"
+        ),
+    ]
+
+    created = {"person": 0, "person_name": 0, "person_demographics": 0, "person_address": 0}
+    skipped_name = 0
+    invalid_birth_date = 0
+    unknown_sex = 0
+
+    for line in selected:
+        raw_id, source_row, b64 = line.split("\\t", 2)
+        row = json.loads(base64.b64decode(b64).decode("utf-8"))
+
+        source_id = _arr(row, 0)
+        if not source_id:
+            print(f"ERROR: test source row {source_row} has no Easy Care patient identifier; no writes performed.", file=sys.stderr)
+            return 1
+
+        person_id = _uuid("PATIENT", source_id)
+        status = "INACTIVE" if _truthy(_arr(row, 16)) else "ACTIVE"
+
+        statements.append(
+            "INSERT INTO iml_identity.person (id,status) VALUES "
+            f"({lit(person_id)}::uuid,{lit(status)}) ON CONFLICT (id) DO NOTHING;"
+        )
+        created["person"] += 1
+
+        used_family = _arr(row, 5)
+        used_given = _arr(row, 4)
+        birth_family = _arr(row, 6)
+        birth_given_full = _arr(row, 3)
+        birth_given_first = _arr(row, 2)
+
+        if used_family:
+            name_id = _uuid("PATIENT_NAME", source_id, "USUAL")
+            given_array = "ARRAY[]::text[]" if not used_given else f"ARRAY[{lit(used_given)}]::text[]"
+            statements.append(
+                "INSERT INTO iml_identity.person_name "
+                "(id,person_id,use,family_name,given_names) VALUES "
+                f"({lit(name_id)}::uuid,{lit(person_id)}::uuid,'USUAL',{lit(used_family)},{given_array}) "
+                "ON CONFLICT (id) DO NOTHING;"
+            )
+            created["person_name"] += 1
+        else:
+            skipped_name += 1
+
+        if birth_family:
+            name_id = _uuid("PATIENT_NAME", source_id, "BIRTH")
+            given = birth_given_full or birth_given_first
+            given_array = "ARRAY[]::text[]" if not given else f"ARRAY[{lit(given)}]::text[]"
+            statements.append(
+                "INSERT INTO iml_identity.person_name "
+                "(id,person_id,use,family_name,given_names) VALUES "
+                f"({lit(name_id)}::uuid,{lit(person_id)}::uuid,'BIRTH',{lit(birth_family)},{given_array}) "
+                "ON CONFLICT (id) DO NOTHING;"
+            )
+            created["person_name"] += 1
+
+        birth_raw = _arr(row, 7)
+        birth_date = _date_or_none(birth_raw)
+        if birth_raw and birth_date is None:
+            invalid_birth_date += 1
+        sex_raw = _arr(row, 11)
+        sex = _sex_or_none(sex_raw)
+        if sex_raw and sex is None:
+            unknown_sex += 1
+
+        bd_sql = "NULL" if birth_date is None else f"{lit(birth_date)}::date"
+        sex_sql = "NULL" if sex is None else lit(sex)
+        statements.append(
+            "INSERT INTO iml_identity.person_demographics "
+            "(person_id,birth_date,sex_at_birth,address) VALUES "
+            f"({lit(person_id)}::uuid,{bd_sql},{sex_sql},'{{}}'::jsonb) "
+            "ON CONFLICT (person_id) DO NOTHING;"
+        )
+        created["person_demographics"] += 1
+
+        address = _arr(row, 26)
+        if address:
+            address_id = _uuid("PATIENT_ADDRESS", source_id, "HOME")
+            statements.append(
+                "INSERT INTO iml_identity.person_address "
+                "(id,person_id,address_type,address_line1) VALUES "
+                f"({lit(address_id)}::uuid,{lit(person_id)}::uuid,'HOME',{lit(address)}) "
+                "ON CONFLICT (id) DO NOTHING;"
+            )
+            created["person_address"] += 1
+
+        statements.append(
+            "INSERT INTO iml_legacy.canonical_link "
+            "(transform_run_id,raw_record_id,target_schema,target_table,target_id,status,resolution_code,evidence) VALUES ("
+            f"{lit(transform_run_id)}::uuid,{lit(raw_id)}::uuid,'iml_identity','person',"
+            f"{lit(person_id)}::uuid,'created','EASYCARE_PATIENT_ID',"
+            f"jsonb_build_object('source_dataset','Patients.csv','source_row_number',{int(source_row)})) "
+            "ON CONFLICT DO NOTHING;"
+        )
+
+    statements.append(
+        "UPDATE iml_legacy.transform_run SET status='completed',completed_at=now(),"
+        f"mapped_count={limit},unresolved_count=0,ambiguous_count=0,error_count=0 "
+        f"WHERE transform_run_id={lit(transform_run_id)}::uuid;"
+    )
+    statements.append("COMMIT;")
+
+    try:
+        psql(db, "\\n".join(statements))
+    except Exception as exc:
+        print(f"ERROR: transaction rolled back: {exc}", file=sys.stderr)
+        return 1
+
+    print(f"TRANSFORM_RUN_ID={transform_run_id}")
+    print(f"TEST_PATIENTS_APPLIED={limit}")
+    print("LOCAL_ONLY=yes")
+    print("NEON_WRITE=no")
+    print(f"person_planned={created['person']}")
+    print(f"person_name_planned={created['person_name']}")
+    print(f"person_demographics_planned={created['person_demographics']}")
+    print(f"person_address_planned={created['person_address']}")
+    print(f"name_skipped_missing_family={skipped_name}")
+    print(f"birth_date_unparsed={invalid_birth_date}")
+    print(f"sex_unrecognized={unknown_sex}")
+    print("APPLY_TEST=PASS")
+    return 0
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="IML Legacy -> Canonical transformation controller")
     ap.add_argument("--db", default=os.getenv("IML_LOCAL_DB", "iml_workspace"))
@@ -222,6 +455,9 @@ def main() -> int:
     t = sub.add_parser("test-patients", help="Select a deterministic local test sample; no canonical writes")
     t.add_argument("--limit", type=int, default=5)
 
+    a = sub.add_parser("apply-test-patients", help="Apply canonical identity mapping to at most 5 deterministic local test patients")
+    a.add_argument("--limit", type=int, default=5)
+
     args = ap.parse_args()
     run_id = args.run_id or latest_completed_run(args.db)
     if not run_id:
@@ -234,6 +470,8 @@ def main() -> int:
         return plan(args.db, run_id, args.profile)
     if args.command == "test-patients":
         return test_patients(args.db, run_id, args.limit)
+    if args.command == "apply-test-patients":
+        return apply_test_patients(args.db, run_id, args.limit)
     return 2
 
 
