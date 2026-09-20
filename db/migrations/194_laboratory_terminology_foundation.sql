@@ -23,7 +23,6 @@ SELECT pg_advisory_xact_lock(hashtext('IML:194_laboratory_terminology_foundation
 
 -- 1. Register LOINC.
 INSERT INTO iml_terminology.system (
-    id,
     system_code,
     name,
     canonical_uri,
@@ -34,7 +33,6 @@ INSERT INTO iml_terminology.system (
     properties
 )
 SELECT
-    COALESCE((SELECT max(id) FROM iml_terminology.system), 0) + 1,
     'LOINC',
     'Logical Observation Identifiers Names and Codes',
     'http://loinc.org',
@@ -54,7 +52,6 @@ WHERE NOT EXISTS (
 
 -- 2. Register UCUM.
 INSERT INTO iml_terminology.system (
-    id,
     system_code,
     name,
     canonical_uri,
@@ -65,7 +62,6 @@ INSERT INTO iml_terminology.system (
     properties
 )
 SELECT
-    COALESCE((SELECT max(id) FROM iml_terminology.system), 0) + 1,
     'UCUM',
     'Unified Code for Units of Measure',
     'http://unitsofmeasure.org',
@@ -86,7 +82,6 @@ WHERE NOT EXISTS (
 --    imported here because the official download requires acceptance of the
 --    LOINC license and authenticated retrieval.
 INSERT INTO iml_terminology.release (
-    id,
     system_id,
     release_key,
     version_label,
@@ -98,7 +93,6 @@ INSERT INTO iml_terminology.release (
     properties
 )
 SELECT
-    COALESCE((SELECT max(id) FROM iml_terminology.release), 0) + 1,
     s.id,
     'LOINC_2.83',
     'LOINC 2.83',
@@ -119,7 +113,6 @@ WHERE s.system_code='LOINC'
 
 -- 4. Register UCUM specification version metadata.
 INSERT INTO iml_terminology.release (
-    id,
     system_id,
     release_key,
     version_label,
@@ -131,7 +124,6 @@ INSERT INTO iml_terminology.release (
     properties
 )
 SELECT
-    COALESCE((SELECT max(id) FROM iml_terminology.release), 0) + 1,
     s.id,
     'UCUM_2.2',
     'UCUM 2.2',
