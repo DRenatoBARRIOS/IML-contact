@@ -33,7 +33,7 @@ import subprocess
 import sys
 from urllib.parse import parse_qs, urlparse
 
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
 
@@ -302,15 +302,20 @@ function val(o,...names){for(const n of names){if(o[n]!==undefined && String(o[n
 function classify(name){
   const n=name.toLowerCase();
   if(n==="patients.csv")return"Identité";
-  if(n.includes("consult"))return"Consultations";
+
+  // Specific child datasets must be classified before their parent prefix.
+  if(n.includes("document"))return"Documents";
+  if(n.includes("ordonnance")||n.includes("prescription"))return"Prescriptions";
   if(n.includes("note"))return"Notes";
   if(n.includes("mesure"))return"Mesures";
-  if(n.includes("ordonnance")||n.includes("prescription"))return"Prescriptions";
-  if(n.includes("document"))return"Documents";
   if(n.includes("patholog")||n.includes("antéc")||n.includes("anteced"))return"Pathologies";
   if(n.includes("allerg"))return"Allergies";
   if(n.includes("correspond")||n.includes("entourage"))return"Correspondants";
   if(n.includes("paiement")||n.includes("factur"))return"Administratif";
+
+  // Only the consultation dataset itself is a consultation.
+  if(n==="consultations.csv")return"Consultations";
+
   return"Autres données";
 }
 function patientObject(d){
@@ -345,11 +350,19 @@ function fieldsHTML(o){
   if(!entries.length)return'<div class="empty">Aucune valeur renseignée.</div>';
   return '<div class="kv">'+entries.map(([k,v])=>'<div class="k">'+esc(k)+'</div><div class="v">'+esc(v)+'</div>').join('')+'</div>';
 }
+function consultationDate(group,row){
+  const o=objFrom(group,row);
+  return val(o,"Date de consultation","Date consultation","Date","Début","Date début","Date creation","Date création")||"";
+}
 function consultationCard(group,row){
   const o=objFrom(group,row);
-  const date=val(o,"Date","Date de consultation","Début","Date consultation");
-  const motif=val(o,"Motif","Titre","Objet","Libellé")||"Consultation";
-  return '<div class="event"><div class="eventdate">'+esc(date||('Ligne source '+row.source_row_number))+'</div><div class="card"><div class="cardhead"><span>'+esc(motif)+'</span><span class="sub">'+esc(group.dataset)+'</span></div><div class="cardbody">'+fieldsHTML(o)+'</div></div></div>';
+  const date=consultationDate(group,row);
+  const motif=val(o,"Motif de la consultation","Motif","Titre","Objet","Libellé")||"Consultation sans motif";
+  const doctor=val(o,"Lieu d'activité","Médecin","Praticien","Professionnel");
+  const technical=Object.entries(o).filter(([k,v])=>String(v??"").trim()!=="");
+  const visible=technical.filter(([k])=>!/^Identifiant\b/i.test(k));
+  const compactObj=Object.fromEntries(visible);
+  return '<div class="event"><div class="eventdate">'+esc(date||('Ligne source '+row.source_row_number))+(doctor?' • '+esc(doctor):'')+'</div><div class="card"><div class="cardhead"><span>'+esc(motif)+'</span><button class="rawtoggle" onclick="this.parentElement.nextElementSibling.classList.toggle(\'hidden\')">Détails</button></div><div class="cardbody hidden">'+fieldsHTML(compactObj)+'<details style="margin-top:10px"><summary class="sub">Données source / identifiants techniques</summary><div style="margin-top:8px">'+fieldsHTML(o)+'</div></details></div></div></div>';
 }
 function showCategory(cat){
   if(!current)return;
@@ -358,7 +371,9 @@ function showCategory(cat){
   document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.textContent.trim().startsWith(cat)));
   let body='<div class="titlebar"><div><h1>'+esc(cat)+'</h1><div class="sub">'+groups.reduce((n,g)=>n+g.rows.length,0)+' élément(s) importé(s)</div></div></div>';
   if(cat==="Consultations"){
-    body+='<div class="timeline">'+groups.flatMap(g=>g.rows.map(r=>consultationCard(g,r))).join('')+'</div>';
+    const items=groups.flatMap(g=>g.rows.map(r=>({g,r,date:consultationDate(g,r)})));
+    items.sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
+    body+='<div class="timeline">'+items.map(x=>consultationCard(x.g,x.r)).join('')+'</div>';
   }else{
     for(const g of groups){
       body+='<div class="card"><div class="cardhead"><span>'+esc(g.dataset)+'</span><span class="sub">'+g.rows.length+' ligne(s)</span></div><div class="cardbody">';
@@ -377,7 +392,9 @@ function showOverview(){
   let out='<div class="titlebar"><div><h1>Historique médical</h1><div class="sub">Vue de consultation issue de l\'export Easy Care</div></div></div>';
   const consult=current.groups.filter(g=>classify(g.dataset)==="Consultations");
   if(consult.length){
-    out+='<div class="timeline">'+consult.flatMap(g=>g.rows.slice(-20).reverse().map(r=>consultationCard(g,r))).join('')+'</div>';
+    const items=consult.flatMap(g=>g.rows.map(r=>({g,r,date:consultationDate(g,r)})));
+    items.sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
+    out+='<div class="timeline">'+items.slice(0,20).map(x=>consultationCard(x.g,x.r)).join('')+'</div>';
   }else{
     out+='<div class="card"><div class="cardbody empty">Aucune consultation explicitement reliée à ce patient dans l\'export.</div></div>';
   }
