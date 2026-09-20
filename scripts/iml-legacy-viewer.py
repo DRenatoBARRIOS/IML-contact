@@ -33,7 +33,7 @@ import subprocess
 import sys
 from urllib.parse import parse_qs, urlparse
 
-VERSION = "0.5.0"
+VERSION = "0.6.0"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
 
@@ -339,7 +339,7 @@ table{border-collapse:collapse;width:max-content;min-width:100%;font-size:12px;b
   <div class="topitem">ACCUEIL</div><div class="topitem">AGENDA</div><div class="topitem active">PATIENTS</div>
   <div class="topitem">CONTACTS</div><div class="topitem">MESSAGERIE</div><div class="topitem">GESTION</div>
   <button id="modeClinical" class="rawtoggle" onclick="setMode('clinical')">CLINIQUE</button>
-  <button id="modeTechnical" class="rawtoggle" onclick="setMode('technical')">TECHNIQUE CONSULTATION</button>
+  <button id="modeTechnical" class="rawtoggle" onclick="setMode('technical')">IDENTITÉ / TECHNIQUE</button>
   <div class="local">LOCAL • lecture seule</div>
 </div>
 <div class="shell">
@@ -425,7 +425,10 @@ function patientHeader(d){
 function buildNav(d){
   const cats={};
   for(const g of d.groups){const c=classify(g.dataset);cats[c]=(cats[c]||0)+g.rows.length}
-  const order=["Consultations","Antécédents","Allergies","Notes","Mesures","Prescriptions","Documents","Correspondants","Identité","Autres données"];
+  const p=patientObject(d);
+  const hasPatientClinical=Boolean(val(p,"Notes","Remarques"));
+  if(hasPatientClinical)cats["Antécédents / remarques"]=(cats["Antécédents / remarques"]||0)+1;
+  const order=["Antécédents","Antécédents / remarques","Allergies","Consultations","Notes","Mesures","Prescriptions","Documents","Correspondants","Autres données"];
   $('#patientNav').innerHTML=order.filter(c=>cats[c]).map(c=>'<button class="navbtn" onclick="showCategory('+JSON.stringify(c).replace(/"/g,'&quot;')+')"><span>'+esc(c)+'</span><span class="count">'+cats[c]+'</span></button>').join('');
   $('#rightCounts').innerHTML='<div class="pills">'+order.filter(c=>cats[c]).map(c=>'<span class="pill">'+esc(c)+' '+cats[c]+'</span>').join('')+'</div>';
 }
@@ -492,14 +495,29 @@ function consultationCard(group,row){
   const cid=consultationId(group,row);
   const children=consultationChildrenHTML(cid);
   const mainClinical=text||fieldsHTML(compactObj);
-  const openAction="currentConsultationId="+JSON.stringify(cid)+";this.parentElement.nextElementSibling.classList.toggle('hidden')";
-  return '<div class="event"><div class="eventdate">'+esc(date||('Ligne source '+row.source_row_number))+(doctor?' • '+esc(doctor):'')+'</div><div class="card"><div class="cardhead"><span>'+esc(motif)+'</span><button class="rawtoggle" onclick='+JSON.stringify(openAction)+'>Ouvrir</button></div><div class="cardbody hidden">'+mainClinical+children+'</div></div></div>';
+  return '<div class="event"><div class="eventdate">'+esc(date||('Ligne source '+row.source_row_number))+(doctor?' • '+esc(doctor):'')+'</div><div class="card"><div class="cardhead"><span>'+esc(motif)+'</span><button class="rawtoggle" data-cid="'+esc(cid)+'" onclick="toggleConsultation(this)">Ouvrir</button></div><div class="cardbody hidden">'+mainClinical+children+'</div></div></div>';
+}
+function toggleConsultation(btn){
+  currentConsultationId=btn.dataset.cid||"";
+  const body=btn.closest(".card").querySelector(".cardbody");
+  body.classList.toggle("hidden");
+  btn.textContent=body.classList.contains("hidden")?"Ouvrir":"Fermer";
 }
 function showCategory(cat){
   if(!current)return;
   currentGroup=cat;
   const groups=current.groups.filter(g=>classify(g.dataset)===cat);
   document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.textContent.trim().startsWith(cat)));
+  if(cat==="Antécédents / remarques"){
+    const p=patientObject(current);
+    const clinical={};
+    const notes=val(p,"Notes");
+    const remarks=val(p,"Remarques");
+    if(notes)clinical["Notes cliniques"]=notes;
+    if(remarks)clinical["Remarques"]=remarks;
+    $('#mainContent').innerHTML='<div class="titlebar"><div><h1>Antécédents / remarques</h1><div class="sub">Informations cliniques saisies au niveau du dossier patient</div></div></div><div class="card"><div class="cardbody">'+fieldsHTML(clinical)+'</div></div>';
+    return;
+  }
   let body='<div class="titlebar"><div><h1>'+esc(cat)+'</h1><div class="sub">'+groups.reduce((n,g)=>n+g.rows.length,0)+' élément(s) importé(s)</div></div></div>';
   if(cat==="Consultations"){
     const items=groups.flatMap(g=>g.rows.map(r=>({g,r,date:consultationDate(g,r)})));
@@ -536,10 +554,17 @@ function technicalRecordHTML(group,row){
   const o=objFrom(group,row);
   return '<div class="card"><div class="cardhead"><span>'+esc(group.dataset)+'</span><span class="sub">ligne source '+esc(row.source_row_number)+'</span></div><div class="cardbody">'+fieldsHTML(o)+'</div></div>';
 }
+function technicalIdentityHTML(){
+  if(!current)return "";
+  const pg=current.groups.find(g=>g.dataset==="Patients.csv");
+  if(!pg||!pg.rows.length)return "";
+  return '<div class="card"><div class="cardhead"><span>Identité patient / source Easy Care</span><span class="sub">Patients.csv</span></div><div class="cardbody">'+fieldsHTML(objFrom(pg,pg.rows[0]))+'</div></div>';
+}
 function technicalConsultationHTML(consultId){
   if(!current)return '<div class="card"><div class="cardbody empty">Aucun patient sélectionné.</div></div>';
+  const identity=technicalIdentityHTML();
   const cg=current.groups.find(g=>g.dataset==="Consultations.csv");
-  if(!cg)return '<div class="card"><div class="cardbody empty">Aucune consultation trouvée.</div></div>';
+  if(!cg)return identity+'<div class="card"><div class="cardbody empty">Aucune consultation trouvée.</div></div>';
   const row=cg.rows.find(r=>consultationId(cg,r)===consultId) || cg.rows[0];
   if(!row)return '<div class="card"><div class="cardbody empty">Aucune consultation trouvée.</div></div>';
   const cid=consultationId(cg,row);
@@ -547,7 +572,8 @@ function technicalConsultationHTML(consultId){
   const o=objFrom(cg,row);
   const date=consultationDate(cg,row);
   const motif=val(o,"Motif de la consultation","Motif","Titre","Objet","Libellé")||"Consultation sans motif";
-  let out='<div class="titlebar"><div><h1>Technique consultation</h1><div class="sub">'+esc(date)+' • '+esc(motif)+'</div></div></div>';
+  let out='<div class="titlebar"><div><h1>Identité / Technique</h1><div class="sub">'+esc(date)+' • '+esc(motif)+'</div></div></div>';
+  out+=identity;
   out+=technicalRecordHTML(cg,row);
   for(const g of current.groups){
     if(g.dataset==="Consultations.csv")continue;
@@ -592,7 +618,7 @@ async function setMode(mode){
       $('#rightCounts').innerHTML='<div class="pills"><span class="pill">Sources consultation</span><span class="pill">Identifiants</span><span class="pill">Paiements</span><span class="pill">Documents</span></div>';
     }else{
       $('#patientNav').innerHTML="";
-      $('#mainContent').innerHTML='<div class="titlebar"><h1>Technique consultation</h1></div><div class="card"><div class="cardbody">Sélectionnez d’abord un patient. La vue technique restera centrée sur ses consultations.</div></div>';
+      $('#mainContent').innerHTML='<div class="titlebar"><h1>Identité / Technique</h1></div><div class="card"><div class="cardbody">Sélectionnez d’abord un patient. Cette vue affichera l’identité complète et les données techniques de ses consultations.</div></div>';
     }
   }
 }
