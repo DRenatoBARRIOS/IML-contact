@@ -23,7 +23,7 @@ import sys
 import uuid
 from datetime import datetime
 
-VERSION = "1.2.0"
+VERSION = "1.2.1"
 
 
 def psql(db: str, sql: str) -> str:
@@ -430,7 +430,8 @@ LIMIT {int(limit)};
             "INSERT INTO iml_identity.person_demographics "
             "(person_id,birth_date,sex_at_birth,address) VALUES "
             f"({lit(person_id)}::uuid,{bd_sql},{sex_sql},'{{}}'::jsonb) "
-            "ON CONFLICT (person_id) DO NOTHING;"
+            "ON CONFLICT (person_id) DO UPDATE SET "
+            "birth_date=EXCLUDED.birth_date, sex_at_birth=EXCLUDED.sex_at_birth;"
         )
         created["person_demographics"] += 1
 
