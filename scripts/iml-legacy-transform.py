@@ -7,7 +7,7 @@ Conservative local-only workflow:
 - PLAN: validates a JSON mapping profile against the imported legacy schema.
 - TEST-PATIENTS: selects a deterministic local sample and reports only non-sensitive
   mapping-readiness flags. It writes no canonical rows.
-- APPLY remains intentionally unavailable until the 5-patient test is reviewed.
+- APPLY-TEST-PATIENTS writes only the deterministic 5-patient local test set in one transaction.
 
 No network access. No Neon access.
 """
@@ -20,8 +20,10 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import uuid
+from datetime import datetime
 
-VERSION = "1.1.0"
+VERSION = "1.1.1"
 
 
 def psql(db: str, sql: str) -> str:
@@ -298,7 +300,7 @@ targets AS (
   ORDER BY bucket, source_row_number
 )
 SELECT raw_record_id,source_row_number,
-       encode(convert_to(source_record::text,'UTF8'),'base64')
+       encode(convert_to(source_record::text,'UTF8'),'hex')
 FROM targets
 ORDER BY source_row_number
 LIMIT {int(limit)};
@@ -326,8 +328,8 @@ LIMIT {int(limit)};
     unknown_sex = 0
 
     for line in selected:
-        raw_id, source_row, b64 = line.split("\\t", 2)
-        row = json.loads(base64.b64decode(b64).decode("utf-8"))
+        raw_id, source_row, hex_payload = line.split("\t", 2)
+        row = json.loads(bytes.fromhex(hex_payload).decode("utf-8"))
 
         source_id = _arr(row, 0)
         if not source_id:
@@ -421,7 +423,7 @@ LIMIT {int(limit)};
     statements.append("COMMIT;")
 
     try:
-        psql(db, "\\n".join(statements))
+        psql(db, "\n".join(statements))
     except Exception as exc:
         print(f"ERROR: transaction rolled back: {exc}", file=sys.stderr)
         return 1
