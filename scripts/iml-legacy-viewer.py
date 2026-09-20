@@ -33,7 +33,7 @@ import subprocess
 import sys
 from urllib.parse import parse_qs, urlparse
 
-VERSION = "0.7.0"
+VERSION = "0.7.1"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
 
@@ -588,8 +588,8 @@ function buildNav(d){
   const hasPatientClinical=Boolean(val(p,"Notes","Remarques"));
   if(hasPatientClinical)cats["Antécédents / remarques"]=(cats["Antécédents / remarques"]||0)+1;
   const order=["Antécédents","Pathologies","Allergies","Traitements en cours","Risques professionnels","Santé de la femme","Vaccinations","Synthèse médicale","Mots-clés","Consultations","Notes","Mesures","Prescriptions","Certificats","Documents","Correspondants","Entourage","Antécédents / remarques"];
-  $('#patientNav').innerHTML=order.filter(c=>cats[c]).map(c=>'<button class="navbtn" onclick="showCategory('+JSON.stringify(c).replace(/"/g,'&quot;')+')"><span>'+esc(c)+'</span><span class="count">'+cats[c]+'</span></button>').join('');
-  $('#rightCounts').innerHTML='<div class="pills">'+order.filter(c=>cats[c]).map(c=>'<span class="pill">'+esc(c)+' '+cats[c]+'</span>').join('')+'</div>';
+  $('#patientNav').innerHTML=order.map(c=>'<button class="navbtn" onclick="showCategory('+JSON.stringify(c).replace(/"/g,'&quot;')+')"><span>'+esc(c)+'</span><span class="count">'+(cats[c]||0)+'</span></button>').join('');
+  $('#rightCounts').innerHTML='<div class="pills">'+order.map(c=>'<span class="pill">'+esc(c)+' '+(cats[c]||0)+'</span>').join('')+'</div>';
 }
 function fieldsHTML(o){
   const entries=Object.entries(o).filter(([k,v])=>String(v??"").trim()!=="");
