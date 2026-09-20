@@ -33,7 +33,7 @@ import subprocess
 import sys
 from urllib.parse import parse_qs, urlparse
 
-VERSION = "0.2.1"
+VERSION = "0.3.0"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
 
@@ -151,26 +151,40 @@ class DB:
         )
 
     def patient_detail(self, patient_id: str):
-        # Build the explicit cross-dataset links only from columns literally named
-        # "Identifiant patient". No date/content inference is performed.
-        refs = self.rows_json(
+        """
+        Return every row explicitly related to the selected patient.
+
+        Pass 1: datasets carrying an explicit patient identifier.
+        Pass 2: datasets carrying an explicit consultation identifier, restricted
+        to consultations already belonging to the patient.
+
+        No relationship is inferred from dates, text, names or ordering.
+        """
+        patient_aliases = (
+            "'identifiant patient','identifiant du patient','id patient','patient id'"
+        )
+        consultation_aliases = (
+            "'identifiant consultation','identifiant de consultation',"
+            "'identifiant de la consultation','id consultation'"
+        )
+
+        patient_refs = self.rows_json(
             "SELECT d.relative_path, c.ordinal_position "
             "FROM iml_legacy.dataset d "
             "JOIN iml_legacy.dataset_column c ON c.dataset_id=d.dataset_id "
             f"WHERE d.import_run_id={sql_literal(self.import_run_id)}::uuid "
-            "AND lower(c.source_column_name)=lower('Identifiant patient') "
+            f"AND lower(trim(c.source_column_name)) IN ({patient_aliases}) "
             "ORDER BY d.relative_path, c.ordinal_position"
         )
 
         grouped = []
-        seen = set()
-        for ref in refs:
+        datasets_seen = set()
+
+        for ref in patient_refs:
             dataset = ref["relative_path"]
             ordinal = int(ref["ordinal_position"])
-            key = (dataset, ordinal)
-            if key in seen:
+            if dataset in datasets_seen:
                 continue
-            seen.add(key)
             columns = self.dataset_columns(dataset)
             rows = self.rows_json(
                 "SELECT r.source_row_number, r.source_record "
@@ -180,17 +194,19 @@ class DB:
                 f"AND d.relative_path={sql_literal(dataset)} "
                 f"AND coalesce(r.source_record->>{ordinal - 1},'')={sql_literal(patient_id)} "
                 "ORDER BY r.source_row_number "
-                "LIMIT 5000"
+                "LIMIT 10000"
             )
             if rows:
                 grouped.append({
                     "dataset": dataset,
                     "columns": columns,
                     "rows": rows,
+                    "link_kind": "patient",
                 })
+                datasets_seen.add(dataset)
 
-        # Ensure Patients.csv itself is present even if metadata changes.
-        if not any(x["dataset"] == "Patients.csv" for x in grouped):
+        # Ensure Patients.csv itself is present.
+        if "Patients.csv" not in datasets_seen:
             columns = self.dataset_columns("Patients.csv")
             rows = self.rows_json(
                 "SELECT r.source_row_number, r.source_record "
@@ -202,7 +218,73 @@ class DB:
                 "ORDER BY r.source_row_number"
             )
             if rows:
-                grouped.insert(0, {"dataset": "Patients.csv", "columns": columns, "rows": rows})
+                grouped.insert(0, {
+                    "dataset": "Patients.csv",
+                    "columns": columns,
+                    "rows": rows,
+                    "link_kind": "patient",
+                })
+                datasets_seen.add("Patients.csv")
+
+        # Collect explicit consultation identifiers for this patient's consultations.
+        consultation_ids = []
+        consult_group = next((g for g in grouped if g["dataset"] == "Consultations.csv"), None)
+        if consult_group:
+            id_ordinal = None
+            for col in consult_group["columns"]:
+                n = str(col["source_column_name"]).strip().lower()
+                if n in {
+                    "identifiant consultation",
+                    "identifiant de consultation",
+                    "identifiant de la consultation",
+                    "id consultation",
+                }:
+                    id_ordinal = int(col["ordinal_position"]) - 1
+                    break
+            if id_ordinal is not None:
+                for row in consult_group["rows"]:
+                    record = row.get("source_record") or []
+                    if id_ordinal < len(record):
+                        value = str(record[id_ordinal] or "").strip()
+                        if value and value not in consultation_ids:
+                            consultation_ids.append(value)
+
+        # Pull child rows that are explicitly linked to one of those consultations,
+        # even when the child dataset itself has no patient identifier.
+        if consultation_ids:
+            consultation_refs = self.rows_json(
+                "SELECT d.relative_path, c.ordinal_position "
+                "FROM iml_legacy.dataset d "
+                "JOIN iml_legacy.dataset_column c ON c.dataset_id=d.dataset_id "
+                f"WHERE d.import_run_id={sql_literal(self.import_run_id)}::uuid "
+                f"AND lower(trim(c.source_column_name)) IN ({consultation_aliases}) "
+                "ORDER BY d.relative_path, c.ordinal_position"
+            )
+            id_list = ",".join(sql_literal(v) for v in consultation_ids)
+            for ref in consultation_refs:
+                dataset = ref["relative_path"]
+                if dataset == "Consultations.csv" or dataset in datasets_seen:
+                    continue
+                ordinal = int(ref["ordinal_position"])
+                columns = self.dataset_columns(dataset)
+                rows = self.rows_json(
+                    "SELECT r.source_row_number, r.source_record "
+                    "FROM iml_legacy.raw_record r "
+                    "JOIN iml_legacy.dataset d ON d.dataset_id=r.dataset_id "
+                    f"WHERE d.import_run_id={sql_literal(self.import_run_id)}::uuid "
+                    f"AND d.relative_path={sql_literal(dataset)} "
+                    f"AND coalesce(r.source_record->>{ordinal - 1},'') IN ({id_list}) "
+                    "ORDER BY r.source_row_number "
+                    "LIMIT 10000"
+                )
+                if rows:
+                    grouped.append({
+                        "dataset": dataset,
+                        "columns": columns,
+                        "rows": rows,
+                        "link_kind": "consultation",
+                    })
+                    datasets_seen.add(dataset)
 
         return {
             "patient_id": patient_id,
@@ -308,7 +390,7 @@ function classify(name){
   if(n.includes("ordonnance")||n.includes("prescription"))return"Prescriptions";
   if(n.includes("note"))return"Notes";
   if(n.includes("mesure"))return"Mesures";
-  if(n.includes("patholog")||n.includes("antéc")||n.includes("anteced"))return"Pathologies";
+  if(n.includes("patholog")||n.includes("antéc")||n.includes("anteced")||n.includes("problème")||n.includes("probleme")||n.includes("affection"))return"Antécédents";
   if(n.includes("allerg"))return"Allergies";
   if(n.includes("correspond")||n.includes("entourage"))return"Correspondants";
   if(n.includes("paiement")||n.includes("factur"))return"Administratif";
@@ -341,7 +423,7 @@ function patientHeader(d){
 function buildNav(d){
   const cats={};
   for(const g of d.groups){const c=classify(g.dataset);cats[c]=(cats[c]||0)+g.rows.length}
-  const order=["Consultations","Notes","Mesures","Prescriptions","Documents","Pathologies","Allergies","Correspondants","Administratif","Identité","Autres données"];
+  const order=["Consultations","Antécédents","Allergies","Notes","Mesures","Prescriptions","Documents","Correspondants","Administratif","Identité","Autres données"];
   $('#patientNav').innerHTML=order.filter(c=>cats[c]).map(c=>'<button class="navbtn" onclick="showCategory('+JSON.stringify(c).replace(/"/g,'&quot;')+')"><span>'+esc(c)+'</span><span class="count">'+cats[c]+'</span></button>').join('');
   $('#rightCounts').innerHTML='<div class="pills">'+order.filter(c=>cats[c]).map(c=>'<span class="pill">'+esc(c)+' '+cats[c]+'</span>').join('')+'</div>';
 }
@@ -354,6 +436,43 @@ function consultationDate(group,row){
   const o=objFrom(group,row);
   return val(o,"Date de consultation","Date consultation","Date","Début","Date début","Date creation","Date création")||"";
 }
+function consultationId(group,row){
+  const o=objFrom(group,row);
+  return val(o,"Identifiant consultation","Identifiant de consultation","Identifiant de la consultation","ID consultation");
+}
+function clinicalTextHTML(o){
+  const wanted=Object.entries(o).filter(([k,v])=>{
+    if(!String(v??"").trim())return false;
+    const n=k.toLowerCase();
+    if(/^identifiant\b/.test(n))return false;
+    return ["texte","contenu","observation","examen","histoire","anamn","conclusion",
+      "diagnostic","commentaire","note","compte rendu","résultat","resultat","conduite",
+      "traitement","prescription","motif"].some(x=>n.includes(x));
+  });
+  if(!wanted.length)return "";
+  return '<div style="display:grid;gap:10px">'+wanted.map(([k,v])=>
+    '<div><div class="k" style="margin-bottom:3px">'+esc(k)+'</div><div class="v" style="font-size:14px;line-height:1.5">'+esc(v)+'</div></div>'
+  ).join('')+'</div>';
+}
+function consultationChildrenHTML(consultId){
+  if(!current||!consultId)return"";
+  const blocks=[];
+  for(const g of current.groups){
+    if(g.dataset==="Consultations.csv")continue;
+    const rows=g.rows.filter(r=>consultationId(g,r)===consultId);
+    if(!rows.length)continue;
+    const rendered=rows.map(r=>{
+      const o=objFrom(g,r);
+      const txt=clinicalTextHTML(o);
+      return '<div style="padding:8px 0;border-top:1px solid #eef1f6">'+
+        (txt||fieldsHTML(Object.fromEntries(Object.entries(o).filter(([k])=>!/^Identifiant\b/i.test(k)))))+
+        '</div>';
+    }).join('');
+    blocks.push('<details open style="margin-top:10px"><summary><strong>'+esc(g.dataset.replace(".csv",""))+
+      '</strong> <span class="sub">('+rows.length+')</span></summary>'+rendered+'</details>');
+  }
+  return blocks.join('');
+}
 function consultationCard(group,row){
   const o=objFrom(group,row);
   const date=consultationDate(group,row);
@@ -362,7 +481,11 @@ function consultationCard(group,row){
   const technical=Object.entries(o).filter(([k,v])=>String(v??"").trim()!=="");
   const visible=technical.filter(([k])=>!/^Identifiant\b/i.test(k));
   const compactObj=Object.fromEntries(visible);
-  return '<div class="event"><div class="eventdate">'+esc(date||('Ligne source '+row.source_row_number))+(doctor?' • '+esc(doctor):'')+'</div><div class="card"><div class="cardhead"><span>'+esc(motif)+'</span><button class="rawtoggle" onclick="this.parentElement.nextElementSibling.classList.toggle(\'hidden\')">Détails</button></div><div class="cardbody hidden">'+fieldsHTML(compactObj)+'<details style="margin-top:10px"><summary class="sub">Données source / identifiants techniques</summary><div style="margin-top:8px">'+fieldsHTML(o)+'</div></details></div></div></div>';
+  const text=clinicalTextHTML(o);
+  const cid=consultationId(group,row);
+  const children=consultationChildrenHTML(cid);
+  const mainClinical=text||fieldsHTML(compactObj);
+  return '<div class="event"><div class="eventdate">'+esc(date||('Ligne source '+row.source_row_number))+(doctor?' • '+esc(doctor):'')+'</div><div class="card"><div class="cardhead"><span>'+esc(motif)+'</span><button class="rawtoggle" onclick="this.parentElement.nextElementSibling.classList.toggle(\'hidden\')">Ouvrir</button></div><div class="cardbody hidden">'+mainClinical+children+'<details style="margin-top:12px"><summary class="sub">Données techniques source</summary><div style="margin-top:8px">'+fieldsHTML(o)+'</div></details></div></div></div>';
 }
 function showCategory(cat){
   if(!current)return;
