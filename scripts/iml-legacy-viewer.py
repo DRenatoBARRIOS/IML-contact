@@ -33,7 +33,7 @@ import subprocess
 import sys
 from urllib.parse import parse_qs, urlparse
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
 
@@ -217,87 +217,171 @@ INDEX_HTML = r"""<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>IML — Easy Care Legacy Viewer</title>
+<title>IML — Dossier patient</title>
 <style>
-:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#1f2937;background:#f6f7f9}
-*{box-sizing:border-box}
-body{margin:0}
-header{height:60px;background:#fff;border-bottom:1px solid #ddd;display:flex;align-items:center;padding:0 20px;gap:14px;position:sticky;top:0;z-index:5}
-header strong{font-size:18px}.badge{font-size:12px;padding:4px 8px;border:1px solid #bbb;border-radius:999px}
-main{display:grid;grid-template-columns:280px minmax(0,1fr);height:calc(100vh - 60px)}
-aside{background:#fff;border-right:1px solid #ddd;overflow:auto;padding:14px}
-section{overflow:auto;padding:18px}
-input{width:100%;padding:10px 12px;border:1px solid #bbb;border-radius:8px;font-size:14px}
-button{cursor:pointer;border:1px solid #ccc;background:#fff;border-radius:7px;padding:8px 10px}
-button:hover{background:#f0f2f5}
-.dataset{display:flex;justify-content:space-between;width:100%;text-align:left;margin:4px 0;gap:8px}
-.dataset span:last-child{color:#6b7280;font-size:12px}
-.card{background:#fff;border:1px solid #ddd;border-radius:10px;padding:14px;margin:0 0 14px}
-.muted{color:#6b7280}.small{font-size:12px}
-.results button{display:block;width:100%;text-align:left;margin:5px 0}
-table{border-collapse:collapse;width:max-content;min-width:100%;font-size:13px;background:#fff}
-th,td{border:1px solid #ddd;padding:6px 8px;vertical-align:top;white-space:pre-wrap;max-width:420px}
-th{position:sticky;top:0;background:#f3f4f6;z-index:1}
-.tablewrap{overflow:auto;max-height:62vh;border:1px solid #ddd;border-radius:8px}
-.group h3{display:flex;justify-content:space-between;gap:20px}
-.group{margin-bottom:18px}
-.rowmeta{color:#6b7280;font-size:11px}
-.toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px}
-.toolbar input{max-width:520px}
-h1,h2,h3{margin-top:0}
+:root{
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:#24345f;background:#f5f7fb;
+  --nav:#314782;--accent:#4f7df3;--line:#dfe5f1;--soft:#edf2ff;--text:#24345f;--muted:#7b88a8;
+}
+*{box-sizing:border-box} body{margin:0;background:#f5f7fb}
+button,input{font:inherit}
+.topbar{height:58px;background:var(--nav);color:white;display:flex;align-items:center;padding:0 18px;gap:22px;position:sticky;top:0;z-index:20}
+.brand{font-weight:800;font-size:20px;letter-spacing:.2px}.topitem{font-size:12px;opacity:.92}.topitem.active{border-bottom:3px solid white;height:58px;display:flex;align-items:center}
+.local{margin-left:auto;font-size:11px;border:1px solid rgba(255,255,255,.35);padding:5px 9px;border-radius:999px}
+.shell{display:grid;grid-template-columns:320px minmax(520px,1fr) 310px;height:calc(100vh - 58px)}
+.left,.right{background:white;overflow:auto}.left{border-right:1px solid var(--line)}.right{border-left:1px solid var(--line);padding:16px}
+.lefthead{padding:16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:white;z-index:8}
+.search{width:100%;padding:10px 12px;border:1px solid #cfd7e8;border-radius:8px;outline:none}
+.search:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,125,243,.12)}
+.results button{display:block;width:100%;text-align:left;border:0;background:white;padding:10px 12px;border-bottom:1px solid #eef1f6;cursor:pointer}.results button:hover{background:#f5f8ff}
+.patientbox{padding:16px;border-bottom:1px solid var(--line)}.patientname{font-size:17px;font-weight:800;margin-bottom:8px}.patientmeta{font-size:12px;color:var(--muted);line-height:1.6}
+.navgroup{padding:10px 0}.navbtn{display:flex;width:100%;border:0;background:white;color:var(--text);padding:10px 16px;text-align:left;cursor:pointer;justify-content:space-between}.navbtn:hover,.navbtn.active{background:var(--soft);font-weight:700}.count{font-size:11px;color:var(--muted)}
+.main{overflow:auto;padding:20px 22px}.titlebar{display:flex;align-items:center;gap:14px;margin-bottom:14px}.titlebar h1{font-size:22px;margin:0}.sub{color:var(--muted);font-size:12px}
+.toolbar{display:flex;gap:8px;margin-bottom:14px}.toolbar input{flex:1;padding:10px 12px;border:1px solid #cfd7e8;border-radius:8px}
+.card{background:white;border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 8px rgba(38,54,93,.04);margin-bottom:12px}
+.cardhead{padding:12px 14px;font-weight:800;border-bottom:1px solid #edf0f5;display:flex;justify-content:space-between;gap:12px}.cardbody{padding:12px 14px}
+.timeline{position:relative;padding-left:28px}.timeline:before{content:"";position:absolute;left:9px;top:8px;bottom:8px;width:2px;background:#d7def1}
+.event{position:relative;margin-bottom:14px}.event:before{content:"";position:absolute;left:-23px;top:15px;width:8px;height:8px;background:white;border:2px solid #9cb2ec;border-radius:50%}
+.eventdate{font-size:12px;color:#556b9d;margin:0 0 6px}.eventtitle{font-weight:800;font-size:13px}.kv{display:grid;grid-template-columns:180px 1fr;gap:7px 12px;font-size:13px}.k{color:var(--muted)}.v{color:#222;white-space:pre-wrap;word-break:break-word}
+.panel{background:white;border:1px solid var(--line);border-radius:10px;margin-bottom:14px}.panel h3{font-size:14px;margin:0;padding:12px 14px;border-bottom:1px solid var(--line)}.panel .body{padding:12px 14px;font-size:13px}.empty{color:var(--muted);font-size:12px}
+.pills{display:flex;flex-wrap:wrap;gap:7px}.pill{background:var(--soft);padding:6px 9px;border-radius:999px;font-size:12px}
+.rawtoggle{border:1px solid #cfd7e8;background:white;border-radius:7px;padding:7px 10px;cursor:pointer}
+table{border-collapse:collapse;width:max-content;min-width:100%;font-size:12px;background:white}th,td{border:1px solid #e3e7ef;padding:6px 8px;vertical-align:top;white-space:pre-wrap;max-width:360px}th{background:#f4f6fa;position:sticky;top:0}.tablewrap{overflow:auto;max-height:60vh}.hidden{display:none}
+@media(max-width:1050px){.shell{grid-template-columns:280px 1fr}.right{display:none}}
 </style>
 </head>
 <body>
-<header>
-  <strong>IML — Easy Care Legacy Viewer</strong>
-  <span class="badge">LOCAL • lecture seule</span>
-  <span id="status" class="muted small"></span>
-</header>
-<main>
-<aside>
-  <input id="search" placeholder="Rechercher un patient…" autocomplete="off">
-  <div id="searchResults" class="results"></div>
-  <hr style="border:0;border-top:1px solid #eee;margin:16px 0">
-  <div class="small muted" style="margin-bottom:8px">56 jeux de données Easy Care</div>
-  <div id="datasets"></div>
-</aside>
-<section id="content">
-  <div class="card">
-    <h2>Visualiseur brut Easy Care</h2>
-    <p>Choisissez un jeu de données à gauche, ou recherchez un patient. Cette interface lit directement la couche <code>iml_legacy</code>.</p>
-    <p class="muted">Aucune transformation, aucune inférence, aucune écriture, aucun envoi vers Neon.</p>
-  </div>
-</section>
-</main>
+<div class="topbar">
+  <div class="brand">IML</div>
+  <div class="topitem">ACCUEIL</div><div class="topitem">AGENDA</div><div class="topitem active">PATIENTS</div>
+  <div class="topitem">CONTACTS</div><div class="topitem">MESSAGERIE</div><div class="topitem">GESTION</div>
+  <div class="local">LOCAL • lecture seule</div>
+</div>
+<div class="shell">
+  <aside class="left">
+    <div class="lefthead">
+      <input id="search" class="search" placeholder="Rechercher un patient…" autocomplete="off">
+      <div id="searchResults" class="results"></div>
+    </div>
+    <div id="patientSummary" class="patientbox">
+      <div class="patientname">Aucun patient sélectionné</div>
+      <div class="patientmeta">Recherchez un patient pour ouvrir son dossier.</div>
+    </div>
+    <div id="patientNav" class="navgroup"></div>
+  </aside>
+
+  <main class="main" id="mainContent">
+    <div class="titlebar"><h1>Dossier patient</h1></div>
+    <div class="card"><div class="cardbody">Cette vue rassemble les informations Easy Care importées, sans les modifier.</div></div>
+  </main>
+
+  <aside class="right">
+    <div class="panel"><h3>Résumé</h3><div id="rightSummary" class="body empty">Aucun patient sélectionné</div></div>
+    <div class="panel"><h3>Données disponibles</h3><div id="rightCounts" class="body empty">Aucune donnée</div></div>
+    <div class="panel"><h3>Provenance</h3><div class="body"><span class="pill">Easy Care</span> <span class="pill">iml_legacy</span><p class="empty">Aucune inférence automatique dans cette vue.</p></div></div>
+  </aside>
+</div>
+
 <script>
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 async function api(url){const r=await fetch(url);if(!r.ok)throw new Error(await r.text());return r.json()}
-function uniqueHeaders(cols){
-  const counts={}; for(const c of cols) counts[c.source_column_name]=(counts[c.source_column_name]||0)+1;
-  return cols.map(c=>counts[c.source_column_name]>1?c.source_column_name+" ["+c.ordinal_position+"]":c.source_column_name);
+let current=null,currentGroup=null;
+
+function objFrom(group,row){
+  const o={};
+  (group.columns||[]).forEach((c,i)=>{
+    const key=c.source_column_name || ('col_'+c.ordinal_position);
+    if(o[key]===undefined)o[key]=(row.source_record||[])[i]??"";
+    else o[key+' ['+c.ordinal_position+']']=(row.source_record||[])[i]??"";
+  });
+  return o;
 }
-function tableHTML(cols, rows){
-  const headers=uniqueHeaders(cols);
-  let out='<div class="tablewrap"><table><thead><tr><th># source</th>'+headers.map(h=>'<th>'+esc(h)+'</th>').join('')+'</tr></thead><tbody>';
-  for(const r of rows){
-    const a=Array.isArray(r.source_record)?r.source_record:[];
-    out+='<tr><td class="rowmeta">'+esc(r.source_row_number)+'</td>';
-    for(let i=0;i<cols.length;i++) out+='<td>'+esc(a[i]??"")+'</td>';
-    out+='</tr>';
+function val(o,...names){for(const n of names){if(o[n]!==undefined && String(o[n]).trim()!=="")return o[n]}return""}
+function classify(name){
+  const n=name.toLowerCase();
+  if(n==="patients.csv")return"Identité";
+  if(n.includes("consult"))return"Consultations";
+  if(n.includes("note"))return"Notes";
+  if(n.includes("mesure"))return"Mesures";
+  if(n.includes("ordonnance")||n.includes("prescription"))return"Prescriptions";
+  if(n.includes("document"))return"Documents";
+  if(n.includes("patholog")||n.includes("antéc")||n.includes("anteced"))return"Pathologies";
+  if(n.includes("allerg"))return"Allergies";
+  if(n.includes("correspond")||n.includes("entourage"))return"Correspondants";
+  if(n.includes("paiement")||n.includes("factur"))return"Administratif";
+  return"Autres données";
+}
+function patientObject(d){
+  const g=d.groups.find(x=>x.dataset==="Patients.csv");
+  return g&&g.rows.length?objFrom(g,g.rows[0]):{};
+}
+function displayName(p){
+  const given=val(p,"Prénom utilisé","Premier prénom de naissance","Prénoms");
+  const fam=val(p,"Nom utilisé","Nom de naissance");
+  return [given,fam].filter(Boolean).join(" ")||"Patient";
+}
+function patientHeader(d){
+  const p=patientObject(d);
+  const birth=val(p,"Date de naissance");
+  const sex=val(p,"Sexe")||"non renseigné";
+  const addr=val(p,"Adresse");
+  const doctor=val(p,"Identifiant médecin traitant (contact)");
+  $('#patientSummary').innerHTML='<div class="patientname">'+esc(displayName(p))+'</div>'+
+    '<div class="patientmeta">'+(birth?'Né(e) le '+esc(birth)+'<br>':'')+
+    'Sexe : '+esc(sex)+(doctor?'<br>Médecin traitant : '+esc(doctor):'')+(addr?'<br>'+esc(addr):'')+'</div>';
+  $('#rightSummary').innerHTML='<strong>'+esc(displayName(p))+'</strong><br><span class="sub">'+esc(birth||'Date de naissance non renseignée')+'</span>';
+}
+function buildNav(d){
+  const cats={};
+  for(const g of d.groups){const c=classify(g.dataset);cats[c]=(cats[c]||0)+g.rows.length}
+  const order=["Consultations","Notes","Mesures","Prescriptions","Documents","Pathologies","Allergies","Correspondants","Administratif","Identité","Autres données"];
+  $('#patientNav').innerHTML=order.filter(c=>cats[c]).map(c=>'<button class="navbtn" onclick="showCategory('+JSON.stringify(c).replace(/"/g,'&quot;')+')"><span>'+esc(c)+'</span><span class="count">'+cats[c]+'</span></button>').join('');
+  $('#rightCounts').innerHTML='<div class="pills">'+order.filter(c=>cats[c]).map(c=>'<span class="pill">'+esc(c)+' '+cats[c]+'</span>').join('')+'</div>';
+}
+function fieldsHTML(o){
+  const entries=Object.entries(o).filter(([k,v])=>String(v??"").trim()!=="");
+  if(!entries.length)return'<div class="empty">Aucune valeur renseignée.</div>';
+  return '<div class="kv">'+entries.map(([k,v])=>'<div class="k">'+esc(k)+'</div><div class="v">'+esc(v)+'</div>').join('')+'</div>';
+}
+function consultationCard(group,row){
+  const o=objFrom(group,row);
+  const date=val(o,"Date","Date de consultation","Début","Date consultation");
+  const motif=val(o,"Motif","Titre","Objet","Libellé")||"Consultation";
+  return '<div class="event"><div class="eventdate">'+esc(date||('Ligne source '+row.source_row_number))+'</div><div class="card"><div class="cardhead"><span>'+esc(motif)+'</span><span class="sub">'+esc(group.dataset)+'</span></div><div class="cardbody">'+fieldsHTML(o)+'</div></div></div>';
+}
+function showCategory(cat){
+  if(!current)return;
+  currentGroup=cat;
+  const groups=current.groups.filter(g=>classify(g.dataset)===cat);
+  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.textContent.trim().startsWith(cat)));
+  let body='<div class="titlebar"><div><h1>'+esc(cat)+'</h1><div class="sub">'+groups.reduce((n,g)=>n+g.rows.length,0)+' élément(s) importé(s)</div></div></div>';
+  if(cat==="Consultations"){
+    body+='<div class="timeline">'+groups.flatMap(g=>g.rows.map(r=>consultationCard(g,r))).join('')+'</div>';
+  }else{
+    for(const g of groups){
+      body+='<div class="card"><div class="cardhead"><span>'+esc(g.dataset)+'</span><span class="sub">'+g.rows.length+' ligne(s)</span></div><div class="cardbody">';
+      g.rows.slice(0,250).forEach((r,i)=>{body+='<div style="padding:9px 0;'+(i?'border-top:1px solid #eef1f6':'')+'">'+fieldsHTML(objFrom(g,r))+'</div>'});
+      if(g.rows.length>250)body+='<div class="empty">Affichage limité aux 250 premières lignes de ce jeu.</div>';
+      body+='</div></div>';
+    }
   }
-  return out+'</tbody></table></div>';
+  if(!groups.length)body+='<div class="card"><div class="cardbody empty">Aucune donnée dans cette rubrique.</div></div>';
+  $('#mainContent').innerHTML=body;
 }
-async function loadDatasets(){
-  const ds=await api('/api/datasets');
-  $('#datasets').innerHTML=ds.map(d=>'<button class="dataset" onclick="openDataset('+JSON.stringify(d.relative_path).replace(/"/g,'&quot;')+')"><span>'+esc(d.relative_path)+'</span><span>'+d.row_count+'</span></button>').join('');
-  $('#status').textContent=ds.length+' datasets';
-}
-async function openDataset(name, offset=0){
-  $('#content').innerHTML='<div class="card">Chargement…</div>';
-  const d=await api('/api/dataset?name='+encodeURIComponent(name)+'&offset='+offset+'&limit=100');
-  const prev=Math.max(0,d.offset-d.limit), next=d.offset+d.limit;
-  $('#content').innerHTML='<div class="card"><h2>'+esc(name)+'</h2><div class="toolbar"><button '+(d.offset===0?'disabled':'')+' onclick="openDataset('+JSON.stringify(name)+','+prev+')">← Précédent</button><button '+(next>=d.total?'disabled':'')+' onclick="openDataset('+JSON.stringify(name)+','+next+')">Suivant →</button><span class="muted small">'+(d.offset+1)+'–'+Math.min(d.offset+d.rows.length,d.total)+' / '+d.total+'</span></div>'+tableHTML(d.columns,d.rows)+'</div>';
+function showOverview(){
+  if(!current)return;
+  const cats={};
+  for(const g of current.groups){const c=classify(g.dataset);cats[c]=(cats[c]||0)+g.rows.length}
+  let out='<div class="titlebar"><div><h1>Historique médical</h1><div class="sub">Vue de consultation issue de l\'export Easy Care</div></div></div>';
+  const consult=current.groups.filter(g=>classify(g.dataset)==="Consultations");
+  if(consult.length){
+    out+='<div class="timeline">'+consult.flatMap(g=>g.rows.slice(-20).reverse().map(r=>consultationCard(g,r))).join('')+'</div>';
+  }else{
+    out+='<div class="card"><div class="cardbody empty">Aucune consultation explicitement reliée à ce patient dans l\'export.</div></div>';
+  }
+  $('#mainContent').innerHTML=out;
 }
 let timer=null;
 $('#search').addEventListener('input',e=>{
@@ -308,22 +392,16 @@ $('#search').addEventListener('input',e=>{
     $('#searchResults').innerHTML=rows.length?rows.map(r=>{
       const given=r.used_given_name||r.first_birth_given_name||'';
       const fam=r.used_family_name||r.birth_family_name||'';
-      const label=(fam+' '+given).trim()||('Patient '+r.patient_id);
-      return '<button onclick="openPatient('+JSON.stringify(r.patient_id).replace(/"/g,'&quot;')+')"><strong>'+esc(label)+'</strong><br><span class="small muted">'+esc(r.birth_date||'')+' • '+esc(r.sex||'')+'</span></button>';
-    }).join(''):'<div class="small muted" style="padding:8px">Aucun résultat</div>';
+      const label=(given+' '+fam).trim()||('Patient '+r.patient_id);
+      return '<button onclick="openPatient('+JSON.stringify(r.patient_id).replace(/"/g,'&quot;')+')"><strong>'+esc(label)+'</strong><br><span class="sub">'+esc(r.birth_date||'')+' • '+esc(r.sex||'')+'</span></button>';
+    }).join(''):'<div class="empty" style="padding:10px">Aucun résultat</div>';
   },180);
 });
 async function openPatient(id){
-  $('#content').innerHTML='<div class="card">Chargement du dossier…</div>';
-  const d=await api('/api/patient?id='+encodeURIComponent(id));
-  let out='<div class="card"><h2>Dossier Easy Care</h2><div class="muted">'+d.linked_dataset_count+' datasets • '+d.linked_row_count+' lignes explicitement reliées par Identifiant patient</div></div>';
-  for(const g of d.groups){
-    out+='<div class="group card"><h3><span>'+esc(g.dataset)+'</span><span class="muted small">'+g.rows.length+' ligne(s)</span></h3>'+tableHTML(g.columns,g.rows)+'</div>';
-  }
-  if(!d.groups.length) out+='<div class="card">Aucune donnée reliée trouvée.</div>';
-  $('#content').innerHTML=out;
+  $('#mainContent').innerHTML='<div class="card"><div class="cardbody">Chargement du dossier…</div></div>';
+  current=await api('/api/patient?id='+encodeURIComponent(id));
+  patientHeader(current); buildNav(current); $('#searchResults').innerHTML=''; showOverview();
 }
-loadDatasets().catch(e=>$('#content').innerHTML='<div class="card">'+esc(e.message)+'</div>');
 </script>
 </body>
 </html>
