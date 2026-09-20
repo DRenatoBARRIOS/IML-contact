@@ -39,9 +39,13 @@ CREATE TABLE IF NOT EXISTS iml_legacy.dataset_column (
     dataset_id uuid NOT NULL REFERENCES iml_legacy.dataset(dataset_id) ON DELETE CASCADE,
     ordinal_position integer NOT NULL,
     source_column_name text NOT NULL,
-    PRIMARY KEY (dataset_id, ordinal_position),
-    UNIQUE (dataset_id, source_column_name)
+    PRIMARY KEY (dataset_id, ordinal_position)
 );
+
+-- v1.0.1 compatibility: legacy exports may contain duplicate column names.
+-- Column identity is therefore ordinal, not name-based.
+ALTER TABLE iml_legacy.dataset_column
+    DROP CONSTRAINT IF EXISTS dataset_column_dataset_id_source_column_name_key;
 
 CREATE TABLE IF NOT EXISTS iml_legacy.raw_record (
     raw_record_id uuid PRIMARY KEY,
@@ -82,7 +86,10 @@ CREATE INDEX IF NOT EXISTS mapping_raw_record_idx
 COMMENT ON SCHEMA iml_legacy IS
 'LOCAL-ONLY legacy preservation/import layer. Never synchronize patient/source rows to Neon.';
 
+COMMENT ON TABLE iml_legacy.dataset_column IS
+'Source columns preserved by ordinal position. Duplicate source column names are valid and retained.';
+
 COMMENT ON TABLE iml_legacy.raw_record IS
-'Immutable row-level preservation of the source dataset as JSONB. No inferred clinical relationships.';
+'Immutable row-level preservation of the source dataset as an ordered JSON array. No inferred clinical relationships.';
 
 COMMIT;
