@@ -6,7 +6,7 @@ BEGIN;
 INSERT INTO iml_workspace_edit.patient
 (patient_id, given_name, family_name, birth_date, sex_at_birth, fictional, notes)
 VALUES
-('TEST', 'Patient', 'TEST', DATE '1958-01-15', 'male', true,
+('TEST', '', 'TEST', DATE '1958-01-15', 'male', true,
  'Patient fictif de démonstration, polypathologique, destiné aux exercices IML.')
 ON CONFLICT (patient_id) DO UPDATE SET
   given_name=EXCLUDED.given_name,
