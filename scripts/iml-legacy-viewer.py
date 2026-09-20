@@ -33,7 +33,7 @@ import subprocess
 import sys
 from urllib.parse import parse_qs, urlparse
 
-VERSION = "0.4.0"
+VERSION = "0.5.0"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
 
@@ -339,7 +339,7 @@ table{border-collapse:collapse;width:max-content;min-width:100%;font-size:12px;b
   <div class="topitem">ACCUEIL</div><div class="topitem">AGENDA</div><div class="topitem active">PATIENTS</div>
   <div class="topitem">CONTACTS</div><div class="topitem">MESSAGERIE</div><div class="topitem">GESTION</div>
   <button id="modeClinical" class="rawtoggle" onclick="setMode('clinical')">CLINIQUE</button>
-  <button id="modeTechnical" class="rawtoggle" onclick="setMode('technical')">DONNÉES / TECHNIQUE</button>
+  <button id="modeTechnical" class="rawtoggle" onclick="setMode('technical')">TECHNIQUE CONSULTATION</button>
   <div class="local">LOCAL • lecture seule</div>
 </div>
 <div class="shell">
@@ -371,7 +371,7 @@ table{border-collapse:collapse;width:max-content;min-width:100%;font-size:12px;b
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 async function api(url){const r=await fetch(url);if(!r.ok)throw new Error(await r.text());return r.json()}
-let current=null,currentGroup=null,currentMode="clinical",allDatasets=[];
+let current=null,currentGroup=null,currentMode="clinical",currentConsultationId="";
 
 function objFrom(group,row){
   const o={};
@@ -425,7 +425,7 @@ function patientHeader(d){
 function buildNav(d){
   const cats={};
   for(const g of d.groups){const c=classify(g.dataset);cats[c]=(cats[c]||0)+g.rows.length}
-  const order=["Consultations","Antécédents","Allergies","Notes","Mesures","Prescriptions","Documents","Correspondants","Administratif","Identité","Autres données"];
+  const order=["Consultations","Antécédents","Allergies","Notes","Mesures","Prescriptions","Documents","Correspondants","Identité","Autres données"];
   $('#patientNav').innerHTML=order.filter(c=>cats[c]).map(c=>'<button class="navbtn" onclick="showCategory('+JSON.stringify(c).replace(/"/g,'&quot;')+')"><span>'+esc(c)+'</span><span class="count">'+cats[c]+'</span></button>').join('');
   $('#rightCounts').innerHTML='<div class="pills">'+order.filter(c=>cats[c]).map(c=>'<span class="pill">'+esc(c)+' '+cats[c]+'</span>').join('')+'</div>';
 }
@@ -461,16 +461,21 @@ function consultationChildrenHTML(consultId){
   const blocks=[];
   for(const g of current.groups){
     if(g.dataset==="Consultations.csv")continue;
+    const cat=classify(g.dataset);
+    if(["Administratif","Identité","Autres données"].includes(cat))continue;
     const rows=g.rows.filter(r=>consultationId(g,r)===consultId);
     if(!rows.length)continue;
     const rendered=rows.map(r=>{
       const o=objFrom(g,r);
       const txt=clinicalTextHTML(o);
-      return '<div style="padding:8px 0;border-top:1px solid #eef1f6">'+
-        (txt||fieldsHTML(Object.fromEntries(Object.entries(o).filter(([k])=>!/^Identifiant\b/i.test(k)))))+
-        '</div>';
+      const clean=Object.fromEntries(Object.entries(o).filter(([k,v])=>{
+        if(!String(v??"").trim())return false;
+        const n=k.toLowerCase();
+        return !/^identifiant\b/.test(n) && !n.includes("fichier") && !n.includes("nom patient") && !n.includes("prénom patient");
+      }));
+      return '<div style="padding:8px 0;border-top:1px solid #eef1f6">'+(txt||fieldsHTML(clean))+'</div>';
     }).join('');
-    blocks.push('<details open style="margin-top:10px"><summary><strong>'+esc(g.dataset.replace(".csv",""))+
+    blocks.push('<details open style="margin-top:10px"><summary><strong>'+esc(cat)+
       '</strong> <span class="sub">('+rows.length+')</span></summary>'+rendered+'</details>');
   }
   return blocks.join('');
@@ -487,7 +492,8 @@ function consultationCard(group,row){
   const cid=consultationId(group,row);
   const children=consultationChildrenHTML(cid);
   const mainClinical=text||fieldsHTML(compactObj);
-  return '<div class="event"><div class="eventdate">'+esc(date||('Ligne source '+row.source_row_number))+(doctor?' • '+esc(doctor):'')+'</div><div class="card"><div class="cardhead"><span>'+esc(motif)+'</span><button class="rawtoggle" onclick="this.parentElement.nextElementSibling.classList.toggle(\'hidden\')">Ouvrir</button></div><div class="cardbody hidden">'+mainClinical+children+'<details style="margin-top:12px"><summary class="sub">Données techniques source</summary><div style="margin-top:8px">'+fieldsHTML(o)+'</div></details></div></div></div>';
+  const openAction="currentConsultationId="+JSON.stringify(cid)+";this.parentElement.nextElementSibling.classList.toggle('hidden')";
+  return '<div class="event"><div class="eventdate">'+esc(date||('Ligne source '+row.source_row_number))+(doctor?' • '+esc(doctor):'')+'</div><div class="card"><div class="cardhead"><span>'+esc(motif)+'</span><button class="rawtoggle" onclick='+JSON.stringify(openAction)+'>Ouvrir</button></div><div class="cardbody hidden">'+mainClinical+children+'</div></div></div>';
 }
 function showCategory(cat){
   if(!current)return;
@@ -526,68 +532,74 @@ function showOverview(){
   $('#mainContent').innerHTML=out;
 }
 
-function tableHTML(cols,rows){
-  const counts={};
-  cols.forEach(c=>counts[c.source_column_name]=(counts[c.source_column_name]||0)+1);
-  const headers=cols.map(c=>counts[c.source_column_name]>1?c.source_column_name+" ["+c.ordinal_position+"]":c.source_column_name);
-  let out='<div class="tablewrap"><table><thead><tr><th># source</th>'+headers.map(h=>'<th>'+esc(h)+'</th>').join('')+'</tr></thead><tbody>';
-  for(const r of rows){
-    const a=Array.isArray(r.source_record)?r.source_record:[];
-    out+='<tr><td>'+esc(r.source_row_number)+'</td>';
-    for(let i=0;i<cols.length;i++)out+='<td>'+esc(a[i]??"")+'</td>';
-    out+='</tr>';
+function technicalRecordHTML(group,row){
+  const o=objFrom(group,row);
+  return '<div class="card"><div class="cardhead"><span>'+esc(group.dataset)+'</span><span class="sub">ligne source '+esc(row.source_row_number)+'</span></div><div class="cardbody">'+fieldsHTML(o)+'</div></div>';
+}
+function technicalConsultationHTML(consultId){
+  if(!current)return '<div class="card"><div class="cardbody empty">Aucun patient sélectionné.</div></div>';
+  const cg=current.groups.find(g=>g.dataset==="Consultations.csv");
+  if(!cg)return '<div class="card"><div class="cardbody empty">Aucune consultation trouvée.</div></div>';
+  const row=cg.rows.find(r=>consultationId(cg,r)===consultId) || cg.rows[0];
+  if(!row)return '<div class="card"><div class="cardbody empty">Aucune consultation trouvée.</div></div>';
+  const cid=consultationId(cg,row);
+  currentConsultationId=cid;
+  const o=objFrom(cg,row);
+  const date=consultationDate(cg,row);
+  const motif=val(o,"Motif de la consultation","Motif","Titre","Objet","Libellé")||"Consultation sans motif";
+  let out='<div class="titlebar"><div><h1>Technique consultation</h1><div class="sub">'+esc(date)+' • '+esc(motif)+'</div></div></div>';
+  out+=technicalRecordHTML(cg,row);
+  for(const g of current.groups){
+    if(g.dataset==="Consultations.csv")continue;
+    const rows=g.rows.filter(r=>consultationId(g,r)===cid);
+    for(const r of rows)out+=technicalRecordHTML(g,r);
   }
-  return out+'</tbody></table></div>';
+  return out;
+}
+function buildTechnicalNav(){
+  if(!current){$('#patientNav').innerHTML="";return}
+  const cg=current.groups.find(g=>g.dataset==="Consultations.csv");
+  if(!cg){$('#patientNav').innerHTML='<div class="empty" style="padding:12px">Aucune consultation</div>';return}
+  const items=cg.rows.map(r=>({r,date:consultationDate(cg,r),id:consultationId(cg,r),o:objFrom(cg,r)}));
+  items.sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
+  $('#patientNav').innerHTML=items.map(x=>{
+    const motif=val(x.o,"Motif de la consultation","Motif","Titre","Objet","Libellé")||"Sans motif";
+    return '<button class="navbtn" onclick="showTechnicalConsultation('+JSON.stringify(x.id).replace(/"/g,'&quot;')+')"><span>'+esc(x.date||"Sans date")+'<br><span class="sub">'+esc(motif)+'</span></span></button>';
+  }).join('');
+  if(!currentConsultationId && items.length)currentConsultationId=items[0].id;
+}
+function showTechnicalConsultation(id){
+  currentConsultationId=id;
+  $('#mainContent').innerHTML=technicalConsultationHTML(id);
 }
 async function setMode(mode){
   currentMode=mode;
   $('#modeClinical').style.fontWeight=mode==="clinical"?"800":"400";
   $('#modeTechnical').style.fontWeight=mode==="technical"?"800":"400";
+  $('#search').placeholder="Rechercher un patient…";
+  $('#patientSummary').style.display="";
   if(mode==="clinical"){
-    $('#search').placeholder="Rechercher un patient…";
-    $('#patientSummary').style.display="";
     if(current){patientHeader(current);buildNav(current);showOverview();}
     else{
       $('#patientNav').innerHTML="";
       $('#mainContent').innerHTML='<div class="titlebar"><h1>Dossier patient</h1></div><div class="card"><div class="cardbody">Recherchez un patient pour ouvrir son dossier clinique.</div></div>';
     }
   }else{
-    $('#searchResults').innerHTML="";
-    $('#patientSummary').style.display="none";
-    $('#search').placeholder="Filtrer les 56 datasets…";
-    await showTechnicalHome();
+    if(current){
+      patientHeader(current);
+      buildTechnicalNav();
+      $('#mainContent').innerHTML=technicalConsultationHTML(currentConsultationId);
+      $('#rightCounts').innerHTML='<div class="pills"><span class="pill">Sources consultation</span><span class="pill">Identifiants</span><span class="pill">Paiements</span><span class="pill">Documents</span></div>';
+    }else{
+      $('#patientNav').innerHTML="";
+      $('#mainContent').innerHTML='<div class="titlebar"><h1>Technique consultation</h1></div><div class="card"><div class="cardbody">Sélectionnez d’abord un patient. La vue technique restera centrée sur ses consultations.</div></div>';
+    }
   }
-}
-async function showTechnicalHome(filter=""){
-  if(!allDatasets.length) allDatasets=await api('/api/datasets');
-  const q=filter.trim().toLowerCase();
-  const ds=allDatasets.filter(d=>!q||d.relative_path.toLowerCase().includes(q));
-  const rows=allDatasets.reduce((n,d)=>n+Number(d.row_count||0),0);
-  const cols=allDatasets.reduce((n,d)=>n+Number(d.column_count||0),0);
-  $('#patientNav').innerHTML=ds.map(d=>'<button class="navbtn" onclick="openDataset('+JSON.stringify(d.relative_path).replace(/"/g,'&quot;')+',0)"><span>'+esc(d.relative_path)+'</span><span class="count">'+d.row_count+'</span></button>').join('');
-  $('#rightSummary').innerHTML='<strong>'+allDatasets.length+' datasets</strong><br><span class="sub">'+rows.toLocaleString('fr-FR')+' lignes importées</span>';
-  $('#rightCounts').innerHTML='<div class="pills"><span class="pill">'+cols+' colonnes</span><span class="pill">100 % accessibles</span></div>';
-  $('#mainContent').innerHTML='<div class="titlebar"><div><h1>Données / Technique</h1><div class="sub">Accès exhaustif à l\'import brut Easy Care</div></div></div>'+
-    '<div class="card"><div class="cardbody"><strong>'+allDatasets.length+' jeux de données</strong><br>'+rows.toLocaleString('fr-FR')+' lignes importées. Chaque dataset peut être ouvert à gauche, indépendamment de son rattachement clinique.</div></div>';
-}
-async function openDataset(name,offset=0){
-  const d=await api('/api/dataset?name='+encodeURIComponent(name)+'&offset='+offset+'&limit=100');
-  const prev=Math.max(0,d.offset-d.limit), next=d.offset+d.limit;
-  $('#mainContent').innerHTML='<div class="titlebar"><div><h1>'+esc(name)+'</h1><div class="sub">'+d.total.toLocaleString('fr-FR')+' lignes</div></div></div>'+
-    '<div class="toolbar"><button class="rawtoggle" '+(d.offset===0?'disabled':'')+' onclick="openDataset('+JSON.stringify(name)+','+prev+')">← Précédent</button>'+
-    '<button class="rawtoggle" '+(next>=d.total?'disabled':'')+' onclick="openDataset('+JSON.stringify(name)+','+next+')">Suivant →</button>'+
-    '<span class="sub">'+(d.offset+1)+'–'+Math.min(d.offset+d.rows.length,d.total)+' / '+d.total+'</span></div>'+
-    tableHTML(d.columns,d.rows);
 }
 
 let timer=null;
 $('#search').addEventListener('input',e=>{
   clearTimeout(timer); const q=e.target.value.trim();
-  if(currentMode==="technical"){
-    $('#searchResults').innerHTML='';
-    timer=setTimeout(()=>showTechnicalHome(q),120);
-    return;
-  }
   if(!q){$('#searchResults').innerHTML='';return}
   timer=setTimeout(async()=>{
     const rows=await api('/api/patient-search?q='+encodeURIComponent(q));
@@ -602,9 +614,16 @@ $('#search').addEventListener('input',e=>{
 async function openPatient(id){
   $('#mainContent').innerHTML='<div class="card"><div class="cardbody">Chargement du dossier…</div></div>';
   current=await api('/api/patient?id='+encodeURIComponent(id));
-  currentMode="clinical";
+  currentConsultationId="";
   $('#patientSummary').style.display="";
-  patientHeader(current); buildNav(current); $('#searchResults').innerHTML=''; showOverview();
+  patientHeader(current); $('#searchResults').innerHTML='';
+  if(currentMode==="technical"){
+    buildTechnicalNav();
+    $('#mainContent').innerHTML=technicalConsultationHTML(currentConsultationId);
+  }else{
+    buildNav(current);
+    showOverview();
+  }
 }
 setMode("clinical");
 </script>
