@@ -1,6 +1,6 @@
 # IML-OMRS-01 — OpenMRS O3 compatibility audit
 
-Version 0.1 · 21 September 2026
+Version 0.1.1 · 21 September 2026
 
 ## Purpose
 
@@ -26,7 +26,9 @@ IML retains its own canonical PostgreSQL model, terminology layer, country-speci
 | Patient identity | Mature, configurable identifiers and registration | Local and national identity, correction, provenance | Interoperate; retain IML trust layer |
 | Patient search | Mature | UI still evolving | Reuse workflow patterns |
 | Encounter / consultation | Mature | Canonical `iml_clinical.encounter` | Map rather than replace |
-| Problems / allergies / history | Mature patient chart functions | Part of IML clinical core | Reuse concepts and interaction patterns |
+| Conditions / problem list | Native O3 patient-chart function | Conditions and diagnoses remain part of the IML clinical model | Interoperate and reuse interaction patterns |
+| Antécédents / past medical history | No single native first-class O3 domain equivalent to the French clinical notion of structured antécédents. Information can be captured through conditions, notes, forms and implementation-specific history fields; procedure-history work also exists separately. | IML should represent structured longitudinal antecedents explicitly rather than treating them as a synonym for active conditions | IML clinical core |
+| Allergies | Native structured O3 patient-chart function | Part of IML clinical core | Interoperate |
 | Observations / vitals | Mature | Canonical IML clinical model | Map through FHIR Observation |
 | Clinical forms | O3 Form Builder and React form engine | Significant work remains in IML UI | Strong reuse/reference candidate |
 | Diagnoses / terminology | OpenMRS concept dictionary | KSH97-P, ICD-10, LOINC and deterministic mappings | IML remains canonical terminology layer |
@@ -40,6 +42,22 @@ IML retains its own canonical PostgreSQL model, terminology layer, country-speci
 | Offline / local operation | Supported patterns exist | Local-first and controlled synchronization are explicit IML requirements | Evaluate, do not assume equivalence |
 | Clinical AI | Experimental / evolving | `iml_ai` evidence retrieval, provenance and applicability | IML remains distinct |
 | Country ecosystem assessment | Out of OpenMRS scope | IML Country Profiles and six-domain framework | IML |
+
+## Important clinical distinction: conditions are not antécédents
+
+For this audit, OpenMRS **Conditions** must not be treated as equivalent to the broader French primary-care notion of **antécédents**.
+
+A condition/problem list is primarily a list of clinically relevant conditions. An antecedent record may include, depending on local clinical practice and configuration:
+
+- previous diseases that are no longer active but remain relevant;
+- surgical and procedural history;
+- family history;
+- obstetric or other domain-specific history;
+- clinically important historical events that should remain visible even when they are not active problems.
+
+OpenMRS can capture much of this information through forms, notes, observations, conditions and implementation-specific configuration, but O3 does not currently expose one standard, first-class patient-chart module that corresponds to this complete antecedent model.
+
+For IML, antecedents should therefore remain an explicit clinical-domain requirement rather than being inferred from the OpenMRS condition list.
 
 ## Preferred interoperability boundary
 
@@ -59,6 +77,8 @@ Initial mapping target:
 | Laboratory result | DiagnosticReport + Observation | Result / Obs |
 | Prescription | MedicationRequest | Drug order |
 | Dispensation | MedicationDispense | Dispensing |
+
+Antecedents are intentionally not collapsed into a single Condition mapping. Their detailed representation must be defined in the IML clinical model before an OpenMRS/FHIR mapping is considered complete.
 
 ## Laboratory relevance
 
