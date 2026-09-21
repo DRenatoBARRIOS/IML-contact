@@ -121,3 +121,24 @@ and `reference_set_member`
 
 The next step after a successful local load is clinical curation, starting
 with GP first-line and the BMR/ECBU tracer, before any promotion to Neon.
+
+
+## Catalogue biologique GP complet
+
+Le catalogue `data/loinc/gp-biological-catalog-v0.1.json` couvre la biologie
+de médecine générale selon quatre niveaux:
+
+- `GP_FIRST_LINE`
+- `GP_SECOND_LINE`
+- `GP_SPECIALIZED`
+- `GP_ACUTE_POCT`
+
+Il est rapproché du corpus LOINC local par:
+
+```bash
+python3 scripts/iml-loinc-gp-catalog.py --db iml_workspace
+```
+
+Le rapprochement produit des candidats et un rapport TSV dans
+`~/Documents/IML_GP_CATALOG_LOINC_2.83.tsv`. Aucun mapping n'est déclaré
+`VALIDATED` automatiquement et aucune donnée n'est envoyée à Neon.
