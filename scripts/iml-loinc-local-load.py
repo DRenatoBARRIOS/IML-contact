@@ -341,6 +341,7 @@ VALUES
  'Universal Lab Orders actifs avec CLASSTYPE=1.'),
 ({release_id}, 'GP_FIRST_LINE', 'Médecine générale — première ligne', 'clinical_layer', 'draft', null),
 ({release_id}, 'GP_SECOND_LINE', 'Médecine générale — deuxième ligne', 'clinical_layer', 'draft', null),
+({release_id}, 'GP_SPECIALIZED', 'Médecine générale — spécialisé', 'clinical_layer', 'draft', null),
 ({release_id}, 'GP_ACUTE_POCT', 'Médecine générale — aigu / POCT', 'clinical_layer', 'draft', null),
 ({release_id}, 'ED_CORE', 'Urgences — noyau', 'clinical_layer', 'draft', null),
 ({release_id}, 'BMR_ECBU_TRACE', 'BMR / ECBU — cas traceur', 'workflow_trace', 'draft', null)
