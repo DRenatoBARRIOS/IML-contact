@@ -139,6 +139,11 @@ def assert_local_database(db):
     print(f"PostgreSQL local vérifié: {database} ({address})")
 
 
+def sql_string_literal(value):
+    """Return a safely quoted PostgreSQL text literal."""
+    return "'" + str(value).replace("'", "''") + "'"
+
+
 def sql_path_literal(path):
     return str(path).replace("'", "''")
 
@@ -196,11 +201,14 @@ def make_raw_code_csv(zf, member_name, out_path):
 
 
 def get_release_id(db, version, zip_name, zip_sha):
-    sql = """
+    version_sql = sql_string_literal(version)
+    zip_name_sql = sql_string_literal(zip_name)
+    zip_sha_sql = sql_string_literal(zip_sha)
+    sql = f"""
 INSERT INTO iml_loinc_workbench.source_release(
     version_label, source_zip_name, source_zip_sha256, is_current
 )
-VALUES (:'version_label', :'zip_name', :'zip_sha', false)
+VALUES ({version_sql}, {zip_name_sql}, {zip_sha_sql}, false)
 ON CONFLICT (version_label) DO UPDATE SET
     source_zip_name = EXCLUDED.source_zip_name,
     source_zip_sha256 = EXCLUDED.source_zip_sha256,
@@ -209,12 +217,7 @@ RETURNING id;
 """
     cmd = psql_base(db)
     cmd.insert(2, "-qAt")
-    cmd += [
-        "-v", f"version_label={version}",
-        "-v", f"zip_name={zip_name}",
-        "-v", f"zip_sha={zip_sha}",
-        "-c", sql,
-    ]
+    cmd += ["-c", sql]
     out = subprocess.run(cmd, check=True, text=True, stdout=subprocess.PIPE).stdout
     ids = [line.strip() for line in out.splitlines() if line.strip().isdigit()]
     if not ids:
