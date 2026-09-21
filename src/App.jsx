@@ -1,15 +1,15 @@
 import { useEffect } from "react";
-import {
-  HomePage,
+import {HomePage,
   IdentityTrustPage,
   ClinicalWorkspacePage,
   InteroperabilityPage,
   CountryProfilesPage,
-  ManuscriptsPage,
   CollaboratePage,
   NotFoundPage,
 } from "./pages/SitePages.jsx";
+import IndicatorDefinitionsTable from "./components/IndicatorDefinitionsTable.jsx";
 import { LEGACY_HASHES, LEGACY_PATHS } from "./siteConfig.js";
+
 export const ROUTES = {
   "/": {
     component: HomePage,
@@ -37,18 +37,12 @@ export const ROUTES = {
     title: "Country Profiles — IML Health",
     description: "Evidence-oriented country interoperability profiles with explicit sources and limitations.",
   },
-  "/manuscripts": {
-    component: ManuscriptsPage,
-    title: "Manuscripts — IML Health",
-    description: "The founding vision and technical architecture manuscripts of IML Health.",
-  },
   "/collaborate": {
     component: CollaboratePage,
     title: "Collaborate — IML Health",
     description: "Contribute evidence, clinical review, research or open-source implementation experience to IML Health.",
   },
 };
-
 
 function cleanPath(pathname) {
   if (!pathname || pathname === "/") return "/";
@@ -120,6 +114,7 @@ export default function App() {
   return (
     <>
       <Page />
+      {location.routePath === "/country-profiles" ? <IndicatorDefinitionsTable /> : null}
     </>
   );
 }
