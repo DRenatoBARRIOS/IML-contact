@@ -82,13 +82,13 @@ def read_active_loinc(db, release_id):
     sql = f"""
 COPY (
   SELECT loinc_num,
-         coalesce(component,''),
-         coalesce(long_common_name,''),
-         coalesce(shortname,''),
-         coalesce(system_axis,''),
-         coalesce(class_code,''),
-         coalesce(method_typ,''),
-         coalesce(common_test_rank::text,'')
+         coalesce(component,'') AS component,
+         coalesce(long_common_name,'') AS long_common_name,
+         coalesce(shortname,'') AS shortname,
+         coalesce(system_axis,'') AS system_axis,
+         coalesce(class_code,'') AS class_code,
+         coalesce(method_typ,'') AS method_typ,
+         coalesce(common_test_rank::text,'') AS common_test_rank
   FROM iml_loinc_workbench.loinc_source
   WHERE release_id={release_id}
     AND upper(status)='ACTIVE'
