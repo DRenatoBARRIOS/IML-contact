@@ -119,6 +119,47 @@ CREATE TABLE IF NOT EXISTS iml_loinc_workbench.reference_set_member (
 CREATE INDEX IF NOT EXISTS idx_iml_loinc_set_member_code
     ON iml_loinc_workbench.reference_set_member(release_id, loinc_num);
 
+CREATE TABLE IF NOT EXISTS iml_loinc_workbench.gp_catalog_item (
+    catalog_code varchar(96) PRIMARY KEY,
+    group_code varchar(64) NOT NULL,
+    tier varchar(32) NOT NULL,
+    label_fr text NOT NULL,
+    clinical_intent text,
+    preferred_systems text[] NOT NULL DEFAULT '{}',
+    search_terms text[] NOT NULL DEFAULT '{}',
+    known_loinc_hint text,
+    mapping_status varchar(24) NOT NULL DEFAULT 'UNMAPPED',
+    selected_loinc_num text,
+    properties jsonb NOT NULL DEFAULT '{}'::jsonb,
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    CONSTRAINT ck_gp_catalog_tier
+      CHECK (tier IN ('GP_FIRST_LINE','GP_SECOND_LINE','GP_SPECIALIZED','GP_ACUTE_POCT')),
+    CONSTRAINT ck_gp_catalog_mapping_status
+      CHECK (mapping_status IN ('UNMAPPED','CANDIDATE','VALIDATED','AMBIGUOUS','ABSENT'))
+);
+
+CREATE TABLE IF NOT EXISTS iml_loinc_workbench.gp_catalog_candidate (
+    catalog_code varchar(96) NOT NULL
+      REFERENCES iml_loinc_workbench.gp_catalog_item(catalog_code) ON DELETE CASCADE,
+    release_id bigint NOT NULL
+      REFERENCES iml_loinc_workbench.source_release(id) ON DELETE CASCADE,
+    loinc_num text NOT NULL,
+    score integer NOT NULL,
+    rank_order integer NOT NULL,
+    candidate_label text,
+    system_axis text,
+    class_code text,
+    method_typ text,
+    common_test_rank integer,
+    PRIMARY KEY (catalog_code, release_id, loinc_num),
+    FOREIGN KEY (release_id, loinc_num)
+      REFERENCES iml_loinc_workbench.loinc_source(release_id, loinc_num)
+      ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_gp_catalog_candidate_rank
+  ON iml_loinc_workbench.gp_catalog_candidate(release_id, catalog_code, rank_order);
+
 CREATE OR REPLACE VIEW iml_loinc_workbench.v_source AS
 SELECT s.*
 FROM iml_loinc_workbench.loinc_source s
