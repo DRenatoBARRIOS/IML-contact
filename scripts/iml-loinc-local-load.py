@@ -294,7 +294,8 @@ CREATE TEMP TABLE _raw_stage (
 ) ON COMMIT DROP;
 \\copy _raw_stage FROM '{path}' WITH (FORMAT csv)
 INSERT INTO iml_loinc_workbench.{target_table}(release_id, loinc_num, raw_payload)
-SELECT {release_id}, s.loinc_num, s.raw_payload::jsonb
+SELECT DISTINCT ON (s.loinc_num)
+       {release_id}, s.loinc_num, s.raw_payload::jsonb
 FROM _raw_stage s
 JOIN iml_loinc_workbench.loinc_source l
   ON l.release_id = {release_id}
