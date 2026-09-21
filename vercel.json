@@ -14,7 +14,6 @@
     { "source": "/clinical-workspace", "destination": "/index.html" },
     { "source": "/interoperability", "destination": "/index.html" },
     { "source": "/country-profiles", "destination": "/index.html" },
-    { "source": "/manuscripts", "destination": "/index.html" },
     { "source": "/collaborate", "destination": "/index.html" }
   ]
 }
