@@ -70,7 +70,7 @@ const SOURCES = [
     title: "Tätigkeitsbericht Datenschutz 2025",
     publisher: "Hamburgischer Beauftragter für Datenschutz und Informationsfreiheit",
     url: "https://datenschutz-hamburg.de/service-information/taetigkeitsberichte/taetigkeitsbericht-datenschutz-2025",
-    publicationDate: "2026",
+    publicationDate: null,
     note: "Official regulator report documenting mitigation of ePA security weaknesses before nationwide rollout and enforcement after unauthorised access to a hospital patient record.",
     indicator: {
       code: "LRN-2",
@@ -84,7 +84,7 @@ const SOURCES = [
     title: "Jahresbericht 2024",
     publisher: "Berliner Beauftragte für Datenschutz und Informationsfreiheit",
     url: "https://www.datenschutz-berlin.de/jahresbericht-2024",
-    publicationDate: "2025",
+    publicationDate: null,
     note: "Official regulator report documenting a EUR 60,000 fine for security deficiencies in practice-management software affecting health-data confidentiality.",
     indicator: {
       code: "LRN-2",
