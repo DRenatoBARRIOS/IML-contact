@@ -886,10 +886,10 @@
         "Ser"
       ],
       "search_terms": [
-        "zinc transporter 8 antibody",
-        "ZnT8"
+        "zinc transporter 8 Ab",
+        "ZnT8 Ab"
       ],
-      "known_loinc_hint": null,
+      "known_loinc_hint": "76651-9",
       "mapping_kind": "SINGLE"
     },
     {
@@ -2406,10 +2406,10 @@
         "Ser"
       ],
       "search_terms": [
-        "extractable nuclear antigen",
-        "ENA"
+        "extractable nuclear Ab panel",
+        "ENA panel"
       ],
-      "known_loinc_hint": null,
+      "known_loinc_hint": "43119-7",
       "mapping_kind": "SINGLE"
     },
     {
@@ -2607,10 +2607,10 @@
       "clinical_intent": "Selon exposition / durée / symptômes",
       "preferred_systems": [],
       "search_terms": [
-        "ova parasite stool",
-        "parasite examination stool"
+        "ova and parasites stool microscopy",
+        "ova parasites"
       ],
-      "known_loinc_hint": null,
+      "known_loinc_hint": "10704-5",
       "mapping_kind": "SINGLE"
     },
     {
