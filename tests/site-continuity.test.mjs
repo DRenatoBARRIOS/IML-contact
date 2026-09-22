@@ -9,20 +9,33 @@ test("validated IML site continuity invariants", () => {
   const app = read("src/App.jsx");
   const sitePages = read("src/pages/SitePages.jsx");
   const vercel = read("vercel.json");
+  const sync = read("db/production-country-sync.mjs");
+  const productionSync = read("scripts/sync-production-country-data.mjs");
+  const packageJson = read("package.json");
+  const continuityWorkflow = read(".github/workflows/continuity-guard.yml");
 
   assert.match(api, /FRANCE_SECURITY_ADJUSTMENT\s*=\s*20/);
-  assert.match(api, /applyFranceLearningResponsivenessCorrection/);
-  assert.match(api, /"main-test"/);
-  assert.match(api, /seedUzbekistan/);
-  assert.match(api, /seedTunisia/);
-  assert.match(api, /c\.iso3 = 'TUN'/);
-  assert.match(api, /tunisia_scores_ready/);
-  assert.match(api, /tunisia_lrn5_ready/);
-  assert.match(api, /tunisia_source_route_ready/);
+  assert.match(api, /ensurePreviewCountryData/);
+  assert.doesNotMatch(api, /main-test/);
+
+  assert.match(sync, /seedUzbekistan/);
+  assert.match(sync, /seedTunisia/);
+  assert.match(sync, /applyFranceLearningResponsivenessCorrection/);
+  assert.match(sync, /env\.VERCEL_ENV === "production"/);
+  assert.match(sync, /env\.VERCEL_GIT_COMMIT_REF === "main"/);
+  assert.match(sync, /c\.iso3 = 'TUN'/);
+  assert.match(sync, /tunisia_scores_ready/);
+  assert.match(sync, /tunisia_lrn5_ready/);
+  assert.match(sync, /tunisia_source_route_ready/);
   assert.match(
-    api,
+    sync,
     /https:\/\/extranet\.who\.int\/uhcpartnershiplivemonitoring\/country-profile\?iso3=TUN/,
   );
+
+  assert.match(productionSync, /ensureRequiredCountryData/);
+  assert.match(productionSync, /shouldRunProductionCountrySync/);
+  assert.match(packageJson, /sync-production-country-data\.mjs/);
+  assert.doesNotMatch(continuityWorkflow, /main-test/);
 
   assert.doesNotMatch(app, /["']\/manuscripts["']/);
   assert.doesNotMatch(sitePages, /function\s+ManuscriptsPage\s*\(/);
@@ -34,6 +47,8 @@ test("validated IML site continuity invariants", () => {
   assert.equal(existsSync("db/seeds/20260822_uzbekistan.mjs"), true);
   assert.equal(existsSync("db/seeds/20260922_tunisia.mjs"), true);
   assert.equal(existsSync("db/seeds/20260901_france_learning_responsiveness.mjs"), true);
+  assert.equal(existsSync("db/production-country-sync.mjs"), true);
+  assert.equal(existsSync("scripts/sync-production-country-data.mjs"), true);
   assert.equal(existsSync("data/source-audits/tunisia.json"), true);
   assert.equal(existsSync("src/components/IndicatorDefinitionsTable.jsx"), true);
 });

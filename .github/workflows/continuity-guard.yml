@@ -3,11 +3,14 @@ name: IML continuity guard
 on:
   push:
     branches:
-      - main-test
       - main
     paths:
       - "api/countries.js"
       - "db/seeds/**"
+      - "tests/production-country-sync.test.mjs"
+      - "package.json"
+      - "scripts/sync-production-country-data.mjs"
+      - "db/production-country-sync.mjs"
       - "src/App.jsx"
       - "src/pages/**"
       - "src/components/**"
@@ -16,11 +19,14 @@ on:
       - ".github/workflows/continuity-guard.yml"
   pull_request:
     branches:
-      - main-test
       - main
     paths:
       - "api/countries.js"
       - "db/seeds/**"
+      - "tests/production-country-sync.test.mjs"
+      - "package.json"
+      - "scripts/sync-production-country-data.mjs"
+      - "db/production-country-sync.mjs"
       - "src/App.jsx"
       - "src/pages/**"
       - "src/components/**"
@@ -47,7 +53,7 @@ jobs:
         run: npm ci
 
       - name: Check continuity invariants
-        run: node --test tests/site-continuity.test.mjs
+        run: npm run check
 
       - name: Build site
         run: npm run build
