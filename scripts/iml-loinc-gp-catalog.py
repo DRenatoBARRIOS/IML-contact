@@ -26,7 +26,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-VERSION = "0.2.0"
+VERSION = "0.3.0"
 
 
 def clean(value):
@@ -279,7 +279,7 @@ def seed_catalog(db, catalog):
         statements.append(f"""
 INSERT INTO iml_loinc_workbench.gp_catalog_item(
   catalog_code, group_code, tier, label_fr, clinical_intent,
-  preferred_systems, search_terms, known_loinc_hint, mapping_status,
+  preferred_systems, search_terms, known_loinc_hint, mapping_kind, mapping_status,
   selected_loinc_num, properties, updated_at
 )
 VALUES (
@@ -291,6 +291,7 @@ VALUES (
   {sql_text_array(item.get('preferred_systems'))},
   {sql_text_array(item.get('search_terms'))},
   {sql_quote(item.get('known_loinc_hint'))},
+  {sql_quote(item.get('mapping_kind', 'SINGLE'))},
   'UNMAPPED',
   NULL,
   '{{}}'::jsonb,
@@ -304,6 +305,7 @@ ON CONFLICT (catalog_code) DO UPDATE SET
   preferred_systems=EXCLUDED.preferred_systems,
   search_terms=EXCLUDED.search_terms,
   known_loinc_hint=EXCLUDED.known_loinc_hint,
+  mapping_kind=EXCLUDED.mapping_kind,
   updated_at=now();
 """)
     statements.append("COMMIT;")
@@ -321,6 +323,7 @@ def save_candidates(db, release_id, catalog, rows, report_path):
         "candidate": 0,
         "ambiguous": 0,
         "absent": 0,
+        "family": 0,
     }
 
     for item in catalog["items"]:
@@ -328,7 +331,11 @@ def save_candidates(db, release_id, catalog, rows, report_path):
         hint = clean(item.get("known_loinc_hint"))
         hint_present = bool(hint and any(r["loinc_num"] == hint for r in rows))
 
-        if hint_present:
+        mapping_kind = item.get("mapping_kind", "SINGLE")
+        if mapping_kind == "FAMILY":
+            status = "FAMILY"
+            summary["family"] += 1
+        elif hint_present:
             status = "CANDIDATE"
             summary["hint_present"] += 1
             summary["candidate"] += 1
@@ -433,7 +440,7 @@ def main():
     ap.add_argument(
         "--catalog",
         default=None,
-        help="Catalogue JSON; par défaut data/loinc/gp-biological-catalog-v0.2.json",
+        help="Catalogue JSON; par défaut data/loinc/gp-biological-catalog-v0.3.json",
     )
     ap.add_argument(
         "--report",
@@ -448,7 +455,7 @@ def main():
 
     repo_root = Path(__file__).resolve().parents[1]
     catalog_path = Path(args.catalog) if args.catalog else (
-        repo_root / "data/loinc/gp-biological-catalog-v0.2.json"
+        repo_root / "data/loinc/gp-biological-catalog-v0.3.json"
     )
     schema_sql = repo_root / "db/local/loinc/001_loinc_workbench.sql"
     report_path = Path(args.report).expanduser()
@@ -487,6 +494,7 @@ def main():
     print(f"Entrées GP                  : {len(catalog['items'])}")
     print(f"Hints LOINC présents        : {summary['hint_present']}")
     print(f"Candidats exploitables      : {summary['candidate']}")
+    print(f"Familles multi-LOINC        : {summary['family']}")
     print(f"Ambigus à revoir            : {summary['ambiguous']}")
     print(f"Sans candidat               : {summary['absent']}")
     print(f"Rapport                     : {report_path}")
