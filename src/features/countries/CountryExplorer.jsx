@@ -307,14 +307,6 @@ function ProfilePanel({ country, profile }) {
   const sources = asArray(profile.sources);
   const assessment = profile.assessment || {};
   const evidenceCount = sources.flatMap((source) => asArray(source.indicators)).length;
-  const learningEvidence = sources.flatMap((source) =>
-    asArray(source.indicators)
-      .filter((indicator) => {
-        const code = String(indicator.code || "").toUpperCase();
-        return code.startsWith("LRN-") || code.includes("-LRN-");
-      })
-      .map((indicator) => ({ indicator, source }))
-  );
 
   return (
     <article className="profile-panel" aria-live="polite">
@@ -367,9 +359,6 @@ function ProfilePanel({ country, profile }) {
                   <td style={{ verticalAlign: "top", padding: "13px 16px", borderBottom: "1px solid var(--line)", color: "var(--soft)", lineHeight: 1.55 }}>
                     <strong style={{ color: "var(--navy)" }}>{DOMAIN_REPORT_GUIDANCE[axis]}</strong><br />
                     {scoreInterpretation(values[index])}
-                    {axis === "Learning" && profile.iso3 === "FRA" && Number(values[index]) === 10 ? (
-                      <><br /><strong style={{ color: "var(--teal-deep)" }}>France revision:</strong> 15 → 10 on 1 September 2026 following the adoption of LRN-5 and authoritative audit evidence on evaluation, enforcement and institutional follow-through.</>
-                    ) : null}
                   </td>
                 </tr>
               ))}
@@ -377,21 +366,6 @@ function ProfilePanel({ country, profile }) {
           </table>
         </div>
       </section>
-
-      {learningEvidence.length ? (
-        <div className="evidence-list" aria-label={`Learning score rationale for ${profile.name}`} style={{ marginTop: "24px" }}>
-          <article className="evidence-item">
-            <div className="evidence-title"><span>LRN</span><div><h5>Why Learning is {values[5]}/100</h5><p>Documented evidence linked to the Learning domain</p></div></div>
-            {learningEvidence.map(({ indicator, source }, index) => (
-              <div className="evidence-claim" key={`${indicator.code || "LRN"}-${index}`}>
-                <span>{indicator.code || "Learning indicator"} · evidence {indicator.evidence_level || "ungraded"}</span>
-                <p>{indicator.summary || "Evidence summary not recorded."}</p>
-                <small><strong>Source:</strong> {source.title || source.publisher || "Source not recorded"}{indicator.limitation ? <> · <strong>Limit:</strong> {indicator.limitation}</> : null}</small>
-              </div>
-            ))}
-          </article>
-        </div>
-      ) : null}
 
       <div className="profile-lists">
         <div><h4>Documented strengths</h4><ul>{asArray(profile.strengths).length ? profile.strengths.map((item, index) => <li key={index}>{item}</li>) : <li>No reviewed strength recorded.</li>}</ul></div>

@@ -44,6 +44,8 @@ test("validated IML site continuity invariants", () => {
   assert.match(read("src/components/CountryExplorer.jsx"), /groupEvidenceSources/);
   assert.match(read("src/components/CountryExplorer.jsx"), /Security adjusted downward after repeated officially documented hospital cyber incidents/);
   assert.doesNotMatch(read("src/components/CountryExplorer.jsx"), /Why Learning is/);
+  assert.doesNotMatch(read("src/features/countries/CountryExplorer.jsx"), /Why Learning is/);
+  assert.doesNotMatch(read("src/features/countries/CountryExplorer.jsx"), /France revision:/);
   assert.match(packageJson, /sync-production-country-data\.mjs/);
   assert.doesNotMatch(continuityWorkflow, /main-test/);
 
