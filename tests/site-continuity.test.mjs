@@ -18,6 +18,11 @@ test("validated IML site continuity invariants", () => {
   assert.match(api, /c\.iso3 = 'TUN'/);
   assert.match(api, /tunisia_scores_ready/);
   assert.match(api, /tunisia_lrn5_ready/);
+  assert.match(api, /tunisia_source_route_ready/);
+  assert.match(
+    api,
+    /https:\/\/extranet\.who\.int\/uhcpartnershiplivemonitoring\/country-profile\?iso3=TUN/,
+  );
 
   assert.doesNotMatch(app, /["']\/manuscripts["']/);
   assert.doesNotMatch(sitePages, /function\s+ManuscriptsPage\s*\(/);

@@ -60,6 +60,17 @@ async function ensureMainPreviewCountryData(sql) {
         SELECT 1
         FROM countries c
         JOIN country_profiles cp ON cp.country_id = c.id
+        JOIN country_profile_sources src ON src.profile_id = cp.id
+        WHERE c.iso3 = 'TUN'
+          AND cp.version = 1
+          AND src.source_url = 'https://extranet.who.int/uhcpartnershiplivemonitoring/country-profile?iso3=TUN'
+          AND src.public_url = 'https://extranet.who.int/uhcpartnershiplivemonitoring/country-profile?iso3=TUN'
+          AND src.url_status IN ('verified', 'redirected')
+      ) AS tunisia_source_route_ready,
+      EXISTS (
+        SELECT 1
+        FROM countries c
+        JOIN country_profiles cp ON cp.country_id = c.id
         JOIN country_profile_scores s ON s.profile_id = cp.id
         WHERE c.iso3 = 'FRA'
           AND cp.status = 'published'
@@ -94,7 +105,12 @@ async function ensureMainPreviewCountryData(sql) {
     await seedUzbekistan(sql);
   }
 
-  if (!state.tunisia_profile_ready || !state.tunisia_scores_ready || !state.tunisia_lrn5_ready) {
+  if (
+    !state.tunisia_profile_ready ||
+    !state.tunisia_scores_ready ||
+    !state.tunisia_lrn5_ready ||
+    !state.tunisia_source_route_ready
+  ) {
     await seedTunisia(sql);
   }
 
