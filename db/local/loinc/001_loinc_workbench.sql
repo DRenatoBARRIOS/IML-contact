@@ -128,15 +128,33 @@ CREATE TABLE IF NOT EXISTS iml_loinc_workbench.gp_catalog_item (
     preferred_systems text[] NOT NULL DEFAULT '{}',
     search_terms text[] NOT NULL DEFAULT '{}',
     known_loinc_hint text,
+    mapping_kind varchar(16) NOT NULL DEFAULT 'SINGLE',
     mapping_status varchar(24) NOT NULL DEFAULT 'UNMAPPED',
     selected_loinc_num text,
     properties jsonb NOT NULL DEFAULT '{}'::jsonb,
     updated_at timestamptz NOT NULL DEFAULT now(),
     CONSTRAINT ck_gp_catalog_tier
       CHECK (tier IN ('GP_FIRST_LINE','GP_SECOND_LINE','GP_SPECIALIZED','GP_ACUTE_POCT')),
+    CONSTRAINT ck_gp_catalog_mapping_kind
+      CHECK (mapping_kind IN ('SINGLE','FAMILY')),
     CONSTRAINT ck_gp_catalog_mapping_status
-      CHECK (mapping_status IN ('UNMAPPED','CANDIDATE','VALIDATED','AMBIGUOUS','ABSENT'))
+      CHECK (mapping_status IN ('UNMAPPED','CANDIDATE','VALIDATED','AMBIGUOUS','ABSENT','FAMILY'))
 );
+
+ALTER TABLE iml_loinc_workbench.gp_catalog_item
+  ADD COLUMN IF NOT EXISTS mapping_kind varchar(16) NOT NULL DEFAULT 'SINGLE';
+
+ALTER TABLE iml_loinc_workbench.gp_catalog_item
+  DROP CONSTRAINT IF EXISTS ck_gp_catalog_mapping_kind;
+ALTER TABLE iml_loinc_workbench.gp_catalog_item
+  ADD CONSTRAINT ck_gp_catalog_mapping_kind
+  CHECK (mapping_kind IN ('SINGLE','FAMILY'));
+
+ALTER TABLE iml_loinc_workbench.gp_catalog_item
+  DROP CONSTRAINT IF EXISTS ck_gp_catalog_mapping_status;
+ALTER TABLE iml_loinc_workbench.gp_catalog_item
+  ADD CONSTRAINT ck_gp_catalog_mapping_status
+  CHECK (mapping_status IN ('UNMAPPED','CANDIDATE','VALIDATED','AMBIGUOUS','ABSENT','FAMILY'));
 
 CREATE TABLE IF NOT EXISTS iml_loinc_workbench.gp_catalog_candidate (
     catalog_code varchar(96) NOT NULL
