@@ -3,11 +3,39 @@
 // Method: same operational incident-outcome review used for France.
 // Scope: DEU published profile only. France is not modified by this module.
 
-const SECURITY_WATCH =
-  "Security revised from 88 to 80 on 22 September 2026 after applying the same incident-outcome review used for France. Observed hospital and supplier incidents qualify the strength that can be inferred from Germany's formal statutory and technical safeguards.";
+const INTERNAL_REVIEW_MARKER = "[IML internal Germany audit rationale — 2026-09-22]";
+const INTERNAL_REVIEW_NOTE =
+  `${INTERNAL_REVIEW_MARKER}\nSecurity 88 → 80: operational hospital and supplier incidents qualify the strength that can be inferred from Germany's formal statutory and technical safeguards.\nLearning 65 → 70: several incident records document investigation, notification, mitigation, regulatory action or corrective follow-through; national complaint-to-resolution and final judicial-outcome data remain limited.`;
 
-const LEARNING_WATCH =
-  "Learning revised from 65 to 70 on 22 September 2026 because several incident records document investigation, notification, mitigation, regulatory action or corrective follow-through. National complaint-to-resolution and final judicial-outcome data remain limited.";
+async function storeInternalReviewNote(sql, profileId) {
+  const rows = await sql`
+    SELECT id, review_notes
+    FROM country_profile_assessments
+    WHERE profile_id = ${profileId}
+    LIMIT 1;
+  `;
+
+  if (!rows.length) {
+    await sql`
+      INSERT INTO country_profile_assessments (
+        profile_id, assessment_status, review_notes
+      )
+      VALUES (${profileId}, 'provisional', ${INTERNAL_REVIEW_NOTE});
+    `;
+    return;
+  }
+
+  if (!String(rows[0].review_notes || "").includes(INTERNAL_REVIEW_MARKER)) {
+    const updatedNotes = rows[0].review_notes
+      ? `${rows[0].review_notes}\n\n${INTERNAL_REVIEW_NOTE}`
+      : INTERNAL_REVIEW_NOTE;
+    await sql`
+      UPDATE country_profile_assessments
+      SET review_notes = ${updatedNotes}
+      WHERE id = ${rows[0].id};
+    `;
+  }
+}
 
 const SOURCES = [
   {
@@ -95,47 +123,6 @@ const SOURCES = [
     },
   },
 ];
-
-async function upsertWatchNote(sql, profileId, prefix, text) {
-  const rows = await sql`
-    SELECT id
-    FROM country_profile_notes
-    WHERE profile_id = ${profileId}
-      AND note_type = 'watch'
-      AND note_text LIKE ${prefix + "%"}
-    ORDER BY id
-    LIMIT 1;
-  `;
-
-  if (rows.length) {
-    await sql`
-      UPDATE country_profile_notes
-      SET note_text = ${text}
-      WHERE id = ${rows[0].id};
-    `;
-    return rows[0].id;
-  }
-
-  const inserted = await sql`
-    INSERT INTO country_profile_notes (
-      profile_id, note_type, display_order, note_text
-    )
-    VALUES (
-      ${profileId},
-      'watch',
-      COALESCE((
-        SELECT MAX(display_order) + 1
-        FROM country_profile_notes
-        WHERE profile_id = ${profileId}
-          AND note_type = 'watch'
-      ), 1),
-      ${text}
-    )
-    RETURNING id;
-  `;
-
-  return inserted[0].id;
-}
 
 async function upsertSource(sql, profileId, source) {
   const existing = await sql`
@@ -253,8 +240,17 @@ export async function applyGermanyCyberAuditCorrection(sql) {
     WHERE id = ${profileId};
   `;
 
-  await upsertWatchNote(sql, profileId, "Security revised from 88 to 80 on 22 September 2026", SECURITY_WATCH);
-  await upsertWatchNote(sql, profileId, "Learning revised from 65 to 70 on 22 September 2026", LEARNING_WATCH);
+  await storeInternalReviewNote(sql, profileId);
+
+  await sql`
+    DELETE FROM country_profile_notes
+    WHERE profile_id = ${profileId}
+      AND note_type = 'watch'
+      AND (
+        note_text LIKE 'Security revised from 88 to 80 on 22 September 2026%'
+        OR note_text LIKE 'Learning revised from 65 to 70 on 22 September 2026%'
+      );
+  `;
 
   const sourceIds = [];
   for (const source of SOURCES) {
