@@ -125,7 +125,7 @@ with GP first-line and the BMR/ECBU tracer, before any promotion to Neon.
 
 ## Catalogue biologique GP complet
 
-Le catalogue `data/loinc/gp-biological-catalog-v0.1.json` couvre la biologie
+Le catalogue `data/loinc/gp-biological-catalog-v0.2.json` couvre la biologie
 de médecine générale selon quatre niveaux:
 
 - `GP_FIRST_LINE`
