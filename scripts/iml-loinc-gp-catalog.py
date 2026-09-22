@@ -276,6 +276,9 @@ def sql_text_array(values):
 def seed_catalog(db, catalog):
     statements = ["BEGIN;"]
     for item in catalog["items"]:
+        item_properties = {}
+        if item.get("mapping_note"):
+            item_properties["mapping_note"] = item["mapping_note"]
         statements.append(f"""
 INSERT INTO iml_loinc_workbench.gp_catalog_item(
   catalog_code, group_code, tier, label_fr, clinical_intent,
@@ -306,6 +309,7 @@ ON CONFLICT (catalog_code) DO UPDATE SET
   search_terms=EXCLUDED.search_terms,
   known_loinc_hint=EXCLUDED.known_loinc_hint,
   mapping_kind=EXCLUDED.mapping_kind,
+  properties=EXCLUDED.properties,
   updated_at=now();
 """)
     statements.append("COMMIT;")
