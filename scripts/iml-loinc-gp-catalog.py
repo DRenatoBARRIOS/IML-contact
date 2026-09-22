@@ -26,7 +26,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 
 
 def clean(value):
@@ -114,37 +114,89 @@ COPY (
     return rows
 
 
+LAB_CLASS_PREFIXES = (
+    "CHEM", "HEM", "MICRO", "SERO", "COAG", "ALLERGY",
+    "DRUG/TOX", "PANEL.CHEM", "PANEL.HEM", "PANEL.MICRO",
+    "PANEL.COAG", "PANEL.SERO", "PANEL.ALLERGY", "CHAL",
+)
+
+
+def phrase_in(text, phrase):
+    """Whole-token/whole-phrase match on normalized strings."""
+    return f" {phrase} " in f" {text} "
+
+
+def system_compatible(system_axis, preferred_systems):
+    if not preferred_systems:
+        return True
+    system = clean(system_axis)
+    preferred = set(preferred_systems)
+    if system in preferred:
+        return True
+    parts = set(re.split(r"[/+]", system))
+    if parts & preferred:
+        return True
+    # Common LOINC compact system forms used for point-of-care blood.
+    if "Bld" in preferred and system in {"BldC", "Ser/Plas/Bld"}:
+        return True
+    if ({"Ser", "Plas"} & preferred) and system == "Ser/Plas":
+        return True
+    return False
+
+
+def lab_class_compatible(class_code):
+    cls = clean(class_code).upper()
+    return any(cls.startswith(prefix) for prefix in LAB_CLASS_PREFIXES)
+
+
 def score_candidate(item, row):
     score = 0
     hint = clean(item.get("known_loinc_hint"))
     if hint and row["loinc_num"] == hint:
         score += 10000
 
+    # GP biological catalogue: exclude imaging, surveys, administrative,
+    # pathology and other non-laboratory classes before lexical scoring.
+    if not lab_class_compatible(row.get("class_code")) and not (
+        hint and row["loinc_num"] == hint
+    ):
+        return 0
+
+    preferred = set(item.get("preferred_systems") or [])
+    if preferred and not system_compatible(row.get("system_axis"), preferred) and not (
+        hint and row["loinc_num"] == hint
+    ):
+        return 0
+
     text = row["_text"]
     component = row["_component"]
+    text_tokens = set(text.split())
     matched_terms = 0
+
     for term in item.get("search_terms", []):
         nt = normalize(term)
         if not nt:
             continue
+
         if nt == component:
-            score += 240
+            score += 260
             matched_terms += 1
-        elif nt in component:
-            score += 180
+        elif phrase_in(component, nt):
+            score += 200
             matched_terms += 1
-        elif nt in text:
-            score += 110
+        elif phrase_in(text, nt):
+            score += 130
             matched_terms += 1
         else:
-            tokens = [t for t in nt.split() if len(t) > 2]
-            token_hits = sum(1 for t in tokens if t in text)
-            if tokens and token_hits == len(tokens):
-                score += 50 + 10 * token_hits
+            # Exact-token fallback only. This intentionally prevents:
+            # FSH->FSHD, ANA->Zanca, PTH->Depth, TRAb->trabeculoplasty,
+            # FIT->benefit and similar substring collisions.
+            tokens = [t for t in nt.split() if len(t) > 1]
+            if tokens and all(t in text_tokens for t in tokens):
+                score += 55 + 10 * len(tokens)
                 matched_terms += 1
 
-    preferred = set(item.get("preferred_systems") or [])
-    if preferred and row["system_axis"] in preferred:
+    if preferred:
         score += 35
 
     rank = clean(row.get("common_test_rank"))
