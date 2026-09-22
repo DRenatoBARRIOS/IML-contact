@@ -1641,10 +1641,9 @@
         "Urine"
       ],
       "search_terms": [
-        "leukocytes urine",
-        "leukocyte esterase"
+        "leukocyte esterase urine test strip"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "5799-2"
     },
     {
       "catalog_code": "GP-URI-NIT",
@@ -1656,9 +1655,9 @@
         "Urine"
       ],
       "search_terms": [
-        "nitrite urine"
+        "nitrite urine test strip"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "5802-4"
     },
     {
       "catalog_code": "GP-URI-BLOOD",
@@ -2383,11 +2382,10 @@
       "clinical_intent": "Dépistage ou exploration selon contexte",
       "preferred_systems": [],
       "search_terms": [
-        "fecal immunochemical test",
-        "occult blood stool immunoassay",
-        "FIT"
+        "hemoglobin stool immunoassay",
+        "fecal immunochemical test"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "29771-3"
     },
     {
       "catalog_code": "GP-GI-CALP",
@@ -2464,10 +2462,10 @@
         "Ser"
       ],
       "search_terms": [
-        "immunoglobulin E total",
-        "total IgE"
+        "IgE",
+        "immunoglobulin E"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "19113-0"
     },
     {
       "catalog_code": "GP-ALL-IGE-S",
@@ -2570,10 +2568,10 @@
         "Bld"
       ],
       "search_terms": [
-        "C-reactive protein point of care",
+        "C reactive protein rapid immunoassay",
         "CRP rapid"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "106736-2"
     },
     {
       "catalog_code": "GP-POCT-INR",
@@ -2585,10 +2583,10 @@
         "Bld"
       ],
       "search_terms": [
-        "INR point of care",
-        "INR capillary"
+        "INR capillary blood",
+        "INR"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "46418-0"
     },
     {
       "catalog_code": "GP-POCT-HB",
