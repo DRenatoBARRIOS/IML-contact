@@ -1,8 +1,9 @@
 import { seedUzbekistan } from "./seeds/20260822_uzbekistan.mjs";
 import { seedTunisia } from "./seeds/20260922_tunisia.mjs";
 import { applyFranceLearningResponsivenessCorrection } from "./seeds/20260901_france_learning_responsiveness.mjs";
+import { applyGermanyCyberAuditCorrection } from "./seeds/20260922_germany_cyber_audit.mjs";
 
-export const PRODUCTION_COUNTRY_SYNC_VERSION = "2026-09-22.1";
+export const PRODUCTION_COUNTRY_SYNC_VERSION = "2026-09-22.2";
 
 export function shouldRunProductionCountrySync(env = process.env) {
   return env.VERCEL_ENV === "production" && env.VERCEL_GIT_COMMIT_REF === "main";
@@ -98,7 +99,48 @@ export async function readRequiredCountryDataState(sql) {
           AND cp.status = 'published'
           AND n.note_type = 'watch'
           AND n.note_text LIKE 'Learning revised from 15 to 10 on 1 September 2026.%'
-      ) AS france_note_ready;
+      ) AS france_note_ready,
+      (
+        SELECT COUNT(*) = 2
+        FROM countries c
+        JOIN country_profiles cp ON cp.country_id = c.id
+        JOIN country_profile_scores s ON s.profile_id = cp.id
+        WHERE c.iso3 = 'DEU'
+          AND cp.status = 'published'
+          AND (
+            (s.domain_code = 'security' AND s.score = 80) OR
+            (s.domain_code = 'learning' AND s.score = 70)
+          )
+      ) AS germany_scores_ready,
+      (
+        SELECT COUNT(*) >= 6
+        FROM countries c
+        JOIN country_profiles cp ON cp.country_id = c.id
+        JOIN country_profile_sources src ON src.profile_id = cp.id
+        WHERE c.iso3 = 'DEU'
+          AND cp.status = 'published'
+          AND src.source_url IN (
+            'https://www.bsi.bund.de/SharedDocs/Downloads/DE/BSI/DigitaleGesellschaft/SiKIS_Abschlussbericht.html',
+            'https://www.uniklinik-duesseldorf.de/ueber-uns/pressemitteilungen/detail/uniklinik-duesseldorf-wieder-bereit-fuer-notfaelle',
+            'https://www.klinikum-lippe.de/cyberangriff2022/',
+            'https://www.unimed.de/sicherheit/',
+            'https://datenschutz-hamburg.de/service-information/taetigkeitsberichte/taetigkeitsbericht-datenschutz-2025',
+            'https://www.datenschutz-berlin.de/jahresbericht-2024'
+          )
+      ) AS germany_audit_sources_ready,
+      (
+        SELECT COUNT(*) = 2
+        FROM countries c
+        JOIN country_profiles cp ON cp.country_id = c.id
+        JOIN country_profile_notes n ON n.profile_id = cp.id
+        WHERE c.iso3 = 'DEU'
+          AND cp.status = 'published'
+          AND n.note_type = 'watch'
+          AND (
+            n.note_text LIKE 'Security revised from 88 to 80 on 22 September 2026.%'
+            OR n.note_text LIKE 'Learning revised from 65 to 70 on 22 September 2026.%'
+          )
+      ) AS germany_notes_ready;
   `;
 
   return rows[0] || {};
@@ -113,7 +155,10 @@ function requiredStateIsReady(state) {
     state.tunisia_source_route_ready &&
     state.france_score_ready &&
     state.france_lrn5_ready &&
-    state.france_note_ready
+    state.france_note_ready &&
+    state.germany_scores_ready &&
+    state.germany_audit_sources_ready &&
+    state.germany_notes_ready
   );
 }
 
@@ -139,6 +184,15 @@ export async function ensureRequiredCountryData(sql) {
   if (!before.france_score_ready || !before.france_lrn5_ready || !before.france_note_ready) {
     await applyFranceLearningResponsivenessCorrection(sql);
     actions.push("applyFranceLearningResponsivenessCorrection");
+  }
+
+  if (
+    !before.germany_scores_ready ||
+    !before.germany_audit_sources_ready ||
+    !before.germany_notes_ready
+  ) {
+    await applyGermanyCyberAuditCorrection(sql);
+    actions.push("applyGermanyCyberAuditCorrection");
   }
 
   const after = await readRequiredCountryDataState(sql);
