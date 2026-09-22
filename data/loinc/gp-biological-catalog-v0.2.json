@@ -1,0 +1,2657 @@
+{
+  "catalog_code": "IML-GP-BIO-V0.1",
+  "title": "Catalogue biologique GP complet",
+  "version": "0.2",
+  "scope": "Médecine générale: première ligne, deuxième ligne, spécialisé et aigu/POCT. Les codes LOINC hints ne sont jamais considérés validés sans présence et contrôle dans le corpus local LOINC 2.83.",
+  "items": [
+    {
+      "catalog_code": "GP-HEM-CBC",
+      "group_code": "HEMATOLOGY",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "NFS / hémogramme complet",
+      "clinical_intent": "Numération formule sanguine complète",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "complete blood count",
+        "CBC",
+        "hemogram"
+      ],
+      "known_loinc_hint": "57021-8"
+    },
+    {
+      "catalog_code": "GP-HEM-RBC",
+      "group_code": "HEMATOLOGY",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Hématies",
+      "clinical_intent": "Numération des érythrocytes",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "erythrocytes",
+        "RBC"
+      ],
+      "known_loinc_hint": "789-8"
+    },
+    {
+      "catalog_code": "GP-HEM-HB",
+      "group_code": "HEMATOLOGY",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Hémoglobine",
+      "clinical_intent": "Concentration d'hémoglobine",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "hemoglobin"
+      ],
+      "known_loinc_hint": "718-7"
+    },
+    {
+      "catalog_code": "GP-HEM-HCT",
+      "group_code": "HEMATOLOGY",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Hématocrite",
+      "clinical_intent": "Hématocrite",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "hematocrit"
+      ],
+      "known_loinc_hint": "4544-3"
+    },
+    {
+      "catalog_code": "GP-HEM-MCV",
+      "group_code": "HEMATOLOGY",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "VGM",
+      "clinical_intent": "Volume globulaire moyen",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "mean corpuscular volume",
+        "MCV"
+      ],
+      "known_loinc_hint": "787-2"
+    },
+    {
+      "catalog_code": "GP-HEM-MCH",
+      "group_code": "HEMATOLOGY",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "TCMH",
+      "clinical_intent": "Teneur corpusculaire moyenne en hémoglobine",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "mean corpuscular hemoglobin",
+        "MCH"
+      ],
+      "known_loinc_hint": "785-6"
+    },
+    {
+      "catalog_code": "GP-HEM-MCHC",
+      "group_code": "HEMATOLOGY",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "CCMH",
+      "clinical_intent": "Concentration corpusculaire moyenne en hémoglobine",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "mean corpuscular hemoglobin concentration",
+        "MCHC"
+      ],
+      "known_loinc_hint": "786-4"
+    },
+    {
+      "catalog_code": "GP-HEM-RDW",
+      "group_code": "HEMATOLOGY",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "IDR / RDW",
+      "clinical_intent": "Indice de distribution érythrocytaire",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "red cell distribution width",
+        "RDW"
+      ],
+      "known_loinc_hint": "788-0"
+    },
+    {
+      "catalog_code": "GP-HEM-WBC",
+      "group_code": "HEMATOLOGY",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Leucocytes",
+      "clinical_intent": "Numération leucocytaire",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "leukocytes",
+        "WBC"
+      ],
+      "known_loinc_hint": "6690-2"
+    },
+    {
+      "catalog_code": "GP-HEM-NEUT-ABS",
+      "group_code": "HEMATOLOGY",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Neutrophiles absolus",
+      "clinical_intent": "Numération absolue des neutrophiles",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "neutrophils absolute",
+        "neutrophils count"
+      ],
+      "known_loinc_hint": "751-8"
+    },
+    {
+      "catalog_code": "GP-HEM-LYMPH-ABS",
+      "group_code": "HEMATOLOGY",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Lymphocytes absolus",
+      "clinical_intent": "Numération absolue des lymphocytes",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "lymphocytes absolute",
+        "lymphocytes count"
+      ],
+      "known_loinc_hint": "731-0"
+    },
+    {
+      "catalog_code": "GP-HEM-MONO-ABS",
+      "group_code": "HEMATOLOGY",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Monocytes absolus",
+      "clinical_intent": "Numération absolue des monocytes",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "monocytes absolute",
+        "monocytes count"
+      ],
+      "known_loinc_hint": "742-7"
+    },
+    {
+      "catalog_code": "GP-HEM-EOS-ABS",
+      "group_code": "HEMATOLOGY",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Éosinophiles absolus",
+      "clinical_intent": "Numération absolue des éosinophiles",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "eosinophils absolute",
+        "eosinophils count"
+      ],
+      "known_loinc_hint": "711-2"
+    },
+    {
+      "catalog_code": "GP-HEM-BASO-ABS",
+      "group_code": "HEMATOLOGY",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Basophiles absolus",
+      "clinical_intent": "Numération absolue des basophiles",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "basophils absolute",
+        "basophils count"
+      ],
+      "known_loinc_hint": "704-7"
+    },
+    {
+      "catalog_code": "GP-HEM-PLT",
+      "group_code": "HEMATOLOGY",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Plaquettes",
+      "clinical_intent": "Numération plaquettaire",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "platelets"
+      ],
+      "known_loinc_hint": "777-3"
+    },
+    {
+      "catalog_code": "GP-HEM-MPV",
+      "group_code": "HEMATOLOGY",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "VPM",
+      "clinical_intent": "Volume plaquettaire moyen",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "mean platelet volume",
+        "MPV"
+      ],
+      "known_loinc_hint": "32623-1"
+    },
+    {
+      "catalog_code": "GP-HEM-RETIC",
+      "group_code": "HEMATOLOGY",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Réticulocytes",
+      "clinical_intent": "Exploration d'une anémie ou régénération",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "reticulocytes"
+      ],
+      "known_loinc_hint": "14196-0"
+    },
+    {
+      "catalog_code": "GP-HEM-BLOOD-FILM",
+      "group_code": "HEMATOLOGY",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "Frottis sanguin",
+      "clinical_intent": "Morphologie sanguine en contexte",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "blood smear",
+        "blood film",
+        "morphology"
+      ],
+      "known_loinc_hint": "5909-7"
+    },
+    {
+      "catalog_code": "GP-REN-NA",
+      "group_code": "RENAL_ELECTROLYTES",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Sodium",
+      "clinical_intent": "Natrémie",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "sodium"
+      ],
+      "known_loinc_hint": "2951-2"
+    },
+    {
+      "catalog_code": "GP-REN-K",
+      "group_code": "RENAL_ELECTROLYTES",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Potassium",
+      "clinical_intent": "Kaliémie",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "potassium"
+      ],
+      "known_loinc_hint": "2823-3"
+    },
+    {
+      "catalog_code": "GP-REN-CL",
+      "group_code": "RENAL_ELECTROLYTES",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Chlorures",
+      "clinical_intent": "Chlorémie",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "chloride"
+      ],
+      "known_loinc_hint": "2075-0"
+    },
+    {
+      "catalog_code": "GP-REN-HCO3",
+      "group_code": "RENAL_ELECTROLYTES",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Bicarbonates / CO2 total",
+      "clinical_intent": "Équilibre acido-basique courant",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "bicarbonate",
+        "total CO2"
+      ],
+      "known_loinc_hint": "1963-8"
+    },
+    {
+      "catalog_code": "GP-REN-CREAT",
+      "group_code": "RENAL_ELECTROLYTES",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Créatinine",
+      "clinical_intent": "Fonction rénale",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "creatinine"
+      ],
+      "known_loinc_hint": "2160-0"
+    },
+    {
+      "catalog_code": "GP-REN-EGFR-CKDEPI",
+      "group_code": "RENAL_ELECTROLYTES",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "DFG estimé CKD-EPI",
+      "clinical_intent": "Estimation du DFG",
+      "preferred_systems": [],
+      "search_terms": [
+        "glomerular filtration rate CKD-EPI",
+        "eGFR CKD-EPI"
+      ],
+      "known_loinc_hint": "62238-1"
+    },
+    {
+      "catalog_code": "GP-REN-UREA",
+      "group_code": "RENAL_ELECTROLYTES",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Urée",
+      "clinical_intent": "Urée sanguine",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "urea",
+        "urea nitrogen",
+        "BUN"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-REN-URIC",
+      "group_code": "RENAL_ELECTROLYTES",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Acide urique",
+      "clinical_intent": "Uricémie",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "uric acid",
+        "urate"
+      ],
+      "known_loinc_hint": "3084-1"
+    },
+    {
+      "catalog_code": "GP-MIN-CA",
+      "group_code": "MINERALS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Calcium total",
+      "clinical_intent": "Calcémie totale",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "calcium total",
+        "calcium"
+      ],
+      "known_loinc_hint": "17861-6"
+    },
+    {
+      "catalog_code": "GP-MIN-CAION",
+      "group_code": "MINERALS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Calcium ionisé",
+      "clinical_intent": "Calcémie ionisée en contexte",
+      "preferred_systems": [
+        "Ser",
+        "Plas",
+        "Bld"
+      ],
+      "search_terms": [
+        "calcium ionized",
+        "ionized calcium"
+      ],
+      "known_loinc_hint": "1994-3"
+    },
+    {
+      "catalog_code": "GP-MIN-PHOS",
+      "group_code": "MINERALS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Phosphate",
+      "clinical_intent": "Phosphatémie",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "phosphate",
+        "phosphorus"
+      ],
+      "known_loinc_hint": "2777-1"
+    },
+    {
+      "catalog_code": "GP-MIN-MG",
+      "group_code": "MINERALS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Magnésium",
+      "clinical_intent": "Magnésémie",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "magnesium"
+      ],
+      "known_loinc_hint": "19123-9"
+    },
+    {
+      "catalog_code": "GP-LIV-AST",
+      "group_code": "LIVER",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "ASAT / TGO",
+      "clinical_intent": "Cytolyse hépatique",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "aspartate aminotransferase",
+        "AST"
+      ],
+      "known_loinc_hint": "1920-8"
+    },
+    {
+      "catalog_code": "GP-LIV-ALT",
+      "group_code": "LIVER",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "ALAT / TGP",
+      "clinical_intent": "Cytolyse hépatique",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "alanine aminotransferase",
+        "ALT"
+      ],
+      "known_loinc_hint": "1742-6"
+    },
+    {
+      "catalog_code": "GP-LIV-GGT",
+      "group_code": "LIVER",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "GGT",
+      "clinical_intent": "Cholestase / alcool / médicaments",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "gamma glutamyl transferase",
+        "GGT"
+      ],
+      "known_loinc_hint": "2324-2"
+    },
+    {
+      "catalog_code": "GP-LIV-ALP",
+      "group_code": "LIVER",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Phosphatases alcalines",
+      "clinical_intent": "Cholestase / os",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "alkaline phosphatase",
+        "ALP"
+      ],
+      "known_loinc_hint": "6768-6"
+    },
+    {
+      "catalog_code": "GP-LIV-BILI-T",
+      "group_code": "LIVER",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Bilirubine totale",
+      "clinical_intent": "Exploration hépatobiliaire / hémolyse",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "bilirubin total"
+      ],
+      "known_loinc_hint": "1975-2"
+    },
+    {
+      "catalog_code": "GP-LIV-BILI-D",
+      "group_code": "LIVER",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Bilirubine conjuguée / directe",
+      "clinical_intent": "Fractionnement de la bilirubine",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "bilirubin direct",
+        "conjugated bilirubin"
+      ],
+      "known_loinc_hint": "1968-7"
+    },
+    {
+      "catalog_code": "GP-PROT-ALB",
+      "group_code": "PROTEINS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Albumine",
+      "clinical_intent": "État nutritionnel / hépatique / rénal",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "albumin"
+      ],
+      "known_loinc_hint": "1751-7"
+    },
+    {
+      "catalog_code": "GP-PROT-TOTAL",
+      "group_code": "PROTEINS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Protéines totales",
+      "clinical_intent": "Protéinémie totale",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "protein total",
+        "total protein"
+      ],
+      "known_loinc_hint": "2885-2"
+    },
+    {
+      "catalog_code": "GP-PROT-SPEP",
+      "group_code": "PROTEINS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Électrophorèse des protéines sériques",
+      "clinical_intent": "Recherche de dysglobulinémie",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "protein electrophoresis",
+        "serum protein electrophoresis"
+      ],
+      "known_loinc_hint": "24351-9"
+    },
+    {
+      "catalog_code": "GP-PROT-IFE",
+      "group_code": "PROTEINS",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "Immunofixation sérique",
+      "clinical_intent": "Typage d'une gammapathie",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "immunofixation"
+      ],
+      "known_loinc_hint": "25700-6"
+    },
+    {
+      "catalog_code": "GP-PROT-FLC",
+      "group_code": "PROTEINS",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "Chaînes légères libres sériques",
+      "clinical_intent": "Exploration de gammapathie",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "free light chains",
+        "kappa lambda free"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-MUS-CK",
+      "group_code": "MUSCLE",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "CK / CPK",
+      "clinical_intent": "Atteinte musculaire",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "creatine kinase",
+        "CK"
+      ],
+      "known_loinc_hint": "2157-6"
+    },
+    {
+      "catalog_code": "GP-MUS-LDH",
+      "group_code": "MUSCLE",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "LDH",
+      "clinical_intent": "Hémolyse / atteinte tissulaire",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "lactate dehydrogenase",
+        "LDH"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-PAN-LIPASE",
+      "group_code": "PANCREAS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Lipase",
+      "clinical_intent": "Pancréatite suspectée",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "lipase"
+      ],
+      "known_loinc_hint": "3040-3"
+    },
+    {
+      "catalog_code": "GP-PAN-AMYLASE",
+      "group_code": "PANCREAS",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "Amylase",
+      "clinical_intent": "Exploration pancréatique sélectionnée",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "amylase"
+      ],
+      "known_loinc_hint": "1798-8"
+    },
+    {
+      "catalog_code": "GP-LIV-CDT",
+      "group_code": "LIVER",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "CDT",
+      "clinical_intent": "Biomarqueur de consommation chronique d'alcool en contexte",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "carbohydrate deficient transferrin",
+        "CDT"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-DIA-GLU",
+      "group_code": "DIABETES",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Glucose",
+      "clinical_intent": "Glycémie",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "glucose"
+      ],
+      "known_loinc_hint": "2345-7"
+    },
+    {
+      "catalog_code": "GP-DIA-HBA1C",
+      "group_code": "DIABETES",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "HbA1c",
+      "clinical_intent": "Diagnostic / suivi du diabète",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "hemoglobin A1c",
+        "HbA1c"
+      ],
+      "known_loinc_hint": "4548-4"
+    },
+    {
+      "catalog_code": "GP-DIA-FRUCT",
+      "group_code": "DIABETES",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Fructosamine",
+      "clinical_intent": "Suivi glycémique lorsque HbA1c peu interprétable",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "fructosamine"
+      ],
+      "known_loinc_hint": "15069-8"
+    },
+    {
+      "catalog_code": "GP-DIA-CPEP",
+      "group_code": "DIABETES",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Peptide C",
+      "clinical_intent": "Évaluation de la sécrétion insulinique",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "C peptide",
+        "C-peptide"
+      ],
+      "known_loinc_hint": "1986-9"
+    },
+    {
+      "catalog_code": "GP-DIA-GAD",
+      "group_code": "DIABETES",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "Anticorps anti-GAD",
+      "clinical_intent": "Diabète atypique / auto-immun suspecté",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "glutamate decarboxylase 65 Ab",
+        "GAD65 Ab"
+      ],
+      "known_loinc_hint": "112067-4"
+    },
+    {
+      "catalog_code": "GP-DIA-IA2",
+      "group_code": "DIABETES",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "Anticorps anti-IA2",
+      "clinical_intent": "Diabète auto-immun suspecté",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "islet cell 512 Ab",
+        "IA-2 Ab",
+        "tyrosine phosphatase IA2 antibody"
+      ],
+      "known_loinc_hint": "56718-0"
+    },
+    {
+      "catalog_code": "GP-DIA-ZNT8",
+      "group_code": "DIABETES",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "Anticorps anti-ZnT8",
+      "clinical_intent": "Diabète auto-immun suspecté",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "zinc transporter 8 antibody",
+        "ZnT8"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-DIA-INSAB",
+      "group_code": "DIABETES",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "Anticorps anti-insuline",
+      "clinical_intent": "Diabète auto-immun sélectionné",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "insulin Ab",
+        "insulin antibody"
+      ],
+      "known_loinc_hint": "56546-5"
+    },
+    {
+      "catalog_code": "GP-DIA-BOHB",
+      "group_code": "DIABETES",
+      "tier": "GP_ACUTE_POCT",
+      "label_fr": "Bêta-hydroxybutyrate / cétonémie",
+      "clinical_intent": "Cétose / acidocétose",
+      "preferred_systems": [
+        "Bld",
+        "Ser",
+        "Plas"
+      ],
+      "search_terms": [
+        "beta hydroxybutyrate",
+        "3-hydroxybutyrate"
+      ],
+      "known_loinc_hint": "66441-7"
+    },
+    {
+      "catalog_code": "GP-LIP-CHOL",
+      "group_code": "LIPIDS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Cholestérol total",
+      "clinical_intent": "Bilan lipidique",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "cholesterol total"
+      ],
+      "known_loinc_hint": "2093-3"
+    },
+    {
+      "catalog_code": "GP-LIP-HDL",
+      "group_code": "LIPIDS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "HDL-cholestérol",
+      "clinical_intent": "Bilan lipidique",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "HDL cholesterol"
+      ],
+      "known_loinc_hint": "2085-9"
+    },
+    {
+      "catalog_code": "GP-LIP-LDL-CALC",
+      "group_code": "LIPIDS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "LDL-cholestérol calculé",
+      "clinical_intent": "Bilan lipidique",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "LDL cholesterol calculated"
+      ],
+      "known_loinc_hint": "13457-7"
+    },
+    {
+      "catalog_code": "GP-LIP-LDL-DIR",
+      "group_code": "LIPIDS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "LDL-cholestérol direct",
+      "clinical_intent": "Lorsque le calcul est inadapté",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "LDL cholesterol direct"
+      ],
+      "known_loinc_hint": "18262-6"
+    },
+    {
+      "catalog_code": "GP-LIP-TG",
+      "group_code": "LIPIDS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Triglycérides",
+      "clinical_intent": "Bilan lipidique",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "triglycerides"
+      ],
+      "known_loinc_hint": "2571-8"
+    },
+    {
+      "catalog_code": "GP-LIP-APOB",
+      "group_code": "LIPIDS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Apolipoprotéine B",
+      "clinical_intent": "Risque cardiovasculaire sélectionné",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "apolipoprotein B",
+        "ApoB"
+      ],
+      "known_loinc_hint": "1884-6"
+    },
+    {
+      "catalog_code": "GP-LIP-LPA",
+      "group_code": "LIPIDS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Lipoprotéine(a)",
+      "clinical_intent": "Risque cardiovasculaire héréditaire / sélectionné",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "lipoprotein(a)",
+        "Lp(a)"
+      ],
+      "known_loinc_hint": "10835-7"
+    },
+    {
+      "catalog_code": "GP-IRON-FERR",
+      "group_code": "IRON_VITAMINS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Ferritine",
+      "clinical_intent": "Réserves martiales",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "ferritin"
+      ],
+      "known_loinc_hint": "2276-4"
+    },
+    {
+      "catalog_code": "GP-IRON-FE",
+      "group_code": "IRON_VITAMINS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Fer sérique",
+      "clinical_intent": "Bilan martial",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "iron"
+      ],
+      "known_loinc_hint": "2498-4"
+    },
+    {
+      "catalog_code": "GP-IRON-TRF",
+      "group_code": "IRON_VITAMINS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Transferrine",
+      "clinical_intent": "Bilan martial",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "transferrin"
+      ],
+      "known_loinc_hint": "3034-6"
+    },
+    {
+      "catalog_code": "GP-IRON-TSAT",
+      "group_code": "IRON_VITAMINS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Saturation de la transferrine",
+      "clinical_intent": "Bilan martial",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "transferrin saturation"
+      ],
+      "known_loinc_hint": "2502-3"
+    },
+    {
+      "catalog_code": "GP-VIT-B12",
+      "group_code": "IRON_VITAMINS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Vitamine B12",
+      "clinical_intent": "Anémie / neuropathie / malabsorption",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "vitamin B12",
+        "cobalamin"
+      ],
+      "known_loinc_hint": "2132-9"
+    },
+    {
+      "catalog_code": "GP-VIT-FOLATE",
+      "group_code": "IRON_VITAMINS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Folates",
+      "clinical_intent": "Anémie / carence",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "folate"
+      ],
+      "known_loinc_hint": "2284-8"
+    },
+    {
+      "catalog_code": "GP-VIT-D",
+      "group_code": "IRON_VITAMINS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "25-OH vitamine D",
+      "clinical_intent": "Métabolisme phosphocalcique / risque de carence",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "25-hydroxyvitamin D",
+        "vitamin D 25"
+      ],
+      "known_loinc_hint": "62292-8"
+    },
+    {
+      "catalog_code": "GP-COAG-PT",
+      "group_code": "COAGULATION",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Temps de prothrombine",
+      "clinical_intent": "Coagulation",
+      "preferred_systems": [
+        "Plas"
+      ],
+      "search_terms": [
+        "prothrombin time",
+        "PT"
+      ],
+      "known_loinc_hint": "5902-2"
+    },
+    {
+      "catalog_code": "GP-COAG-INR",
+      "group_code": "COAGULATION",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "INR",
+      "clinical_intent": "Suivi AVK / coagulation",
+      "preferred_systems": [
+        "Plas"
+      ],
+      "search_terms": [
+        "INR",
+        "international normalized ratio"
+      ],
+      "known_loinc_hint": "6301-6"
+    },
+    {
+      "catalog_code": "GP-COAG-APTT",
+      "group_code": "COAGULATION",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "TCA / aPTT",
+      "clinical_intent": "Coagulation",
+      "preferred_systems": [
+        "Plas"
+      ],
+      "search_terms": [
+        "aPTT",
+        "activated partial thromboplastin time"
+      ],
+      "known_loinc_hint": "14979-9"
+    },
+    {
+      "catalog_code": "GP-COAG-FIB",
+      "group_code": "COAGULATION",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Fibrinogène",
+      "clinical_intent": "Coagulation / inflammation",
+      "preferred_systems": [
+        "Plas"
+      ],
+      "search_terms": [
+        "fibrinogen"
+      ],
+      "known_loinc_hint": "3255-7"
+    },
+    {
+      "catalog_code": "GP-COAG-DDIMER",
+      "group_code": "COAGULATION",
+      "tier": "GP_ACUTE_POCT",
+      "label_fr": "D-dimères",
+      "clinical_intent": "Exclusion thromboembolique selon probabilité clinique",
+      "preferred_systems": [
+        "Plas",
+        "Bld"
+      ],
+      "search_terms": [
+        "D-dimer",
+        "D dimer"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-INF-CRP",
+      "group_code": "INFLAMMATION",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "CRP",
+      "clinical_intent": "Inflammation / infection",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "C-reactive protein",
+        "CRP"
+      ],
+      "known_loinc_hint": "1988-5"
+    },
+    {
+      "catalog_code": "GP-INF-ESR",
+      "group_code": "INFLAMMATION",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "VS",
+      "clinical_intent": "Inflammation sélectionnée",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "erythrocyte sedimentation rate",
+        "ESR",
+        "Westergren"
+      ],
+      "known_loinc_hint": "4537-7"
+    },
+    {
+      "catalog_code": "GP-INF-PCT",
+      "group_code": "INFLAMMATION",
+      "tier": "GP_ACUTE_POCT",
+      "label_fr": "Procalcitonine",
+      "clinical_intent": "Infection bactérienne sévère sélectionnée",
+      "preferred_systems": [
+        "Ser",
+        "Plas",
+        "Bld"
+      ],
+      "search_terms": [
+        "procalcitonin"
+      ],
+      "known_loinc_hint": "33959-8"
+    },
+    {
+      "catalog_code": "GP-THY-TSH",
+      "group_code": "THYROID",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "TSH",
+      "clinical_intent": "Dépistage / exploration thyroïdienne",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "thyroid stimulating hormone",
+        "TSH"
+      ],
+      "known_loinc_hint": "3016-3"
+    },
+    {
+      "catalog_code": "GP-THY-FT4",
+      "group_code": "THYROID",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "T4 libre",
+      "clinical_intent": "Selon TSH / contexte clinique",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "thyroxine free",
+        "free T4"
+      ],
+      "known_loinc_hint": "3024-7"
+    },
+    {
+      "catalog_code": "GP-THY-FT3",
+      "group_code": "THYROID",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "T3 libre",
+      "clinical_intent": "Hyperthyroïdie ou contexte sélectionné",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "triiodothyronine free",
+        "free T3"
+      ],
+      "known_loinc_hint": "3051-0"
+    },
+    {
+      "catalog_code": "GP-THY-TPO",
+      "group_code": "THYROID",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Anticorps anti-TPO",
+      "clinical_intent": "Auto-immunité thyroïdienne selon contexte",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "thyroid peroxidase antibody",
+        "TPO antibody"
+      ],
+      "known_loinc_hint": "8099-4"
+    },
+    {
+      "catalog_code": "GP-THY-TGAB",
+      "group_code": "THYROID",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Anticorps anti-thyroglobuline",
+      "clinical_intent": "Auto-immunité thyroïdienne selon contexte",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "thyroglobulin antibody"
+      ],
+      "known_loinc_hint": "8098-6"
+    },
+    {
+      "catalog_code": "GP-THY-TRAB",
+      "group_code": "THYROID",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "Anticorps anti-récepteur de la TSH / TRAb",
+      "clinical_intent": "Maladie de Basedow suspectée",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "thyrotropin receptor Ab",
+        "TSH receptor Ab"
+      ],
+      "known_loinc_hint": "5385-0"
+    },
+    {
+      "catalog_code": "GP-CARD-TNI-HS",
+      "group_code": "CARDIAC",
+      "tier": "GP_ACUTE_POCT",
+      "label_fr": "Troponine I haute sensibilité",
+      "clinical_intent": "Douleur thoracique / syndrome coronarien selon filière adaptée",
+      "preferred_systems": [
+        "Plas",
+        "Ser",
+        "Bld"
+      ],
+      "search_terms": [
+        "troponin I high sensitivity",
+        "high sensitivity troponin I"
+      ],
+      "known_loinc_hint": "106906-1"
+    },
+    {
+      "catalog_code": "GP-CARD-TNT-HS",
+      "group_code": "CARDIAC",
+      "tier": "GP_ACUTE_POCT",
+      "label_fr": "Troponine T haute sensibilité",
+      "clinical_intent": "Douleur thoracique / syndrome coronarien selon filière adaptée",
+      "preferred_systems": [
+        "Plas",
+        "Ser",
+        "Bld"
+      ],
+      "search_terms": [
+        "troponin T high sensitivity",
+        "high sensitivity troponin T"
+      ],
+      "known_loinc_hint": "67151-1"
+    },
+    {
+      "catalog_code": "GP-CARD-BNP",
+      "group_code": "CARDIAC",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "BNP",
+      "clinical_intent": "Insuffisance cardiaque suspectée",
+      "preferred_systems": [
+        "Plas",
+        "Bld"
+      ],
+      "search_terms": [
+        "B-type natriuretic peptide",
+        "BNP"
+      ],
+      "known_loinc_hint": "30934-4"
+    },
+    {
+      "catalog_code": "GP-CARD-NTBNP",
+      "group_code": "CARDIAC",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "NT-proBNP",
+      "clinical_intent": "Insuffisance cardiaque suspectée",
+      "preferred_systems": [
+        "Plas",
+        "Ser",
+        "Bld"
+      ],
+      "search_terms": [
+        "NT-proBNP",
+        "N-terminal pro-B-type natriuretic peptide"
+      ],
+      "known_loinc_hint": "33762-6"
+    },
+    {
+      "catalog_code": "GP-END-HCG-S",
+      "group_code": "ENDOCRINE",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "β-hCG sérique",
+      "clinical_intent": "Grossesse / contexte gynécologique",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "chorionic gonadotropin beta",
+        "hCG beta"
+      ],
+      "known_loinc_hint": "21198-7"
+    },
+    {
+      "catalog_code": "GP-END-HCG-U",
+      "group_code": "ENDOCRINE",
+      "tier": "GP_ACUTE_POCT",
+      "label_fr": "hCG urinaire",
+      "clinical_intent": "Test rapide de grossesse",
+      "preferred_systems": [
+        "Urine"
+      ],
+      "search_terms": [
+        "chorionic gonadotropin urine",
+        "hCG urine"
+      ],
+      "known_loinc_hint": "2106-3"
+    },
+    {
+      "catalog_code": "GP-END-CORT",
+      "group_code": "ENDOCRINE",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Cortisol",
+      "clinical_intent": "Exploration surrénalienne selon contexte",
+      "preferred_systems": [
+        "Ser",
+        "Plas"
+      ],
+      "search_terms": [
+        "cortisol"
+      ],
+      "known_loinc_hint": "2143-6"
+    },
+    {
+      "catalog_code": "GP-END-ACTH",
+      "group_code": "ENDOCRINE",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "ACTH",
+      "clinical_intent": "Exploration surrénalienne spécialisée",
+      "preferred_systems": [
+        "Plas"
+      ],
+      "search_terms": [
+        "corticotropin",
+        "ACTH"
+      ],
+      "known_loinc_hint": "2141-0"
+    },
+    {
+      "catalog_code": "GP-END-PRL",
+      "group_code": "ENDOCRINE",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Prolactine",
+      "clinical_intent": "Troubles gonadiques / galactorrhée",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "prolactin"
+      ],
+      "known_loinc_hint": "2842-3"
+    },
+    {
+      "catalog_code": "GP-END-FSH",
+      "group_code": "ENDOCRINE",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "FSH",
+      "clinical_intent": "Exploration gonadique",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "follicle stimulating hormone",
+        "FSH"
+      ],
+      "known_loinc_hint": "15067-2"
+    },
+    {
+      "catalog_code": "GP-END-LH",
+      "group_code": "ENDOCRINE",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "LH",
+      "clinical_intent": "Exploration gonadique",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "lutropin",
+        "luteinizing hormone"
+      ],
+      "known_loinc_hint": "10501-5"
+    },
+    {
+      "catalog_code": "GP-END-E2",
+      "group_code": "ENDOCRINE",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Estradiol",
+      "clinical_intent": "Exploration gonadique",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "estradiol"
+      ],
+      "known_loinc_hint": "2243-4"
+    },
+    {
+      "catalog_code": "GP-END-PROG",
+      "group_code": "ENDOCRINE",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Progestérone",
+      "clinical_intent": "Exploration ovulatoire / gonadique",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "progesterone"
+      ],
+      "known_loinc_hint": "2839-9"
+    },
+    {
+      "catalog_code": "GP-END-TESTO",
+      "group_code": "ENDOCRINE",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Testostérone totale",
+      "clinical_intent": "Exploration androgénique",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "testosterone"
+      ],
+      "known_loinc_hint": "2986-8"
+    },
+    {
+      "catalog_code": "GP-END-SHBG",
+      "group_code": "ENDOCRINE",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "SHBG",
+      "clinical_intent": "Interprétation des androgènes",
+      "preferred_systems": [
+        "Ser",
+        "Ser/Plas",
+        "Plas"
+      ],
+      "search_terms": [
+        "sex hormone binding globulin",
+        "SHBG"
+      ],
+      "known_loinc_hint": "13967-5"
+    },
+    {
+      "catalog_code": "GP-END-PTH",
+      "group_code": "ENDOCRINE",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "PTH",
+      "clinical_intent": "Métabolisme phosphocalcique",
+      "preferred_systems": [
+        "Ser",
+        "Plas"
+      ],
+      "search_terms": [
+        "parathyroid hormone",
+        "PTH"
+      ],
+      "known_loinc_hint": "2731-8"
+    },
+    {
+      "catalog_code": "GP-END-ALDO",
+      "group_code": "ENDOCRINE",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "Aldostérone",
+      "clinical_intent": "HTA secondaire / exploration spécialisée",
+      "preferred_systems": [
+        "Ser",
+        "Plas"
+      ],
+      "search_terms": [
+        "aldosterone"
+      ],
+      "known_loinc_hint": "1763-2"
+    },
+    {
+      "catalog_code": "GP-END-RENIN",
+      "group_code": "ENDOCRINE",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "Rénine",
+      "clinical_intent": "HTA secondaire / exploration spécialisée",
+      "preferred_systems": [
+        "Plas"
+      ],
+      "search_terms": [
+        "renin"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-URI-PH",
+      "group_code": "URINALYSIS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "pH urinaire",
+      "clinical_intent": "Bandelette / analyse urinaire",
+      "preferred_systems": [
+        "Urine"
+      ],
+      "search_terms": [
+        "urine pH"
+      ],
+      "known_loinc_hint": "2756-5"
+    },
+    {
+      "catalog_code": "GP-URI-SG",
+      "group_code": "URINALYSIS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Densité urinaire",
+      "clinical_intent": "Bandelette / analyse urinaire",
+      "preferred_systems": [
+        "Urine"
+      ],
+      "search_terms": [
+        "specific gravity urine"
+      ],
+      "known_loinc_hint": "2965-2"
+    },
+    {
+      "catalog_code": "GP-URI-LEU",
+      "group_code": "URINALYSIS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Leucocytes urinaires",
+      "clinical_intent": "Dépistage infection urinaire",
+      "preferred_systems": [
+        "Urine"
+      ],
+      "search_terms": [
+        "leukocyte esterase urine test strip"
+      ],
+      "known_loinc_hint": "5799-2"
+    },
+    {
+      "catalog_code": "GP-URI-NIT",
+      "group_code": "URINALYSIS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Nitrites urinaires",
+      "clinical_intent": "Dépistage infection urinaire",
+      "preferred_systems": [
+        "Urine"
+      ],
+      "search_terms": [
+        "nitrite urine test strip"
+      ],
+      "known_loinc_hint": "5802-4"
+    },
+    {
+      "catalog_code": "GP-URI-BLOOD",
+      "group_code": "URINALYSIS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Sang / hématies urinaires",
+      "clinical_intent": "Hématurie",
+      "preferred_systems": [
+        "Urine"
+      ],
+      "search_terms": [
+        "hemoglobin urine test strip",
+        "blood urine test strip"
+      ],
+      "known_loinc_hint": "5794-3"
+    },
+    {
+      "catalog_code": "GP-URI-PROT",
+      "group_code": "URINALYSIS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Protéines urinaires",
+      "clinical_intent": "Protéinurie",
+      "preferred_systems": [
+        "Urine"
+      ],
+      "search_terms": [
+        "protein urine test strip"
+      ],
+      "known_loinc_hint": "20454-5"
+    },
+    {
+      "catalog_code": "GP-URI-GLU",
+      "group_code": "URINALYSIS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Glucose urinaire",
+      "clinical_intent": "Glycosurie",
+      "preferred_systems": [
+        "Urine"
+      ],
+      "search_terms": [
+        "glucose urine"
+      ],
+      "known_loinc_hint": "2349-9"
+    },
+    {
+      "catalog_code": "GP-URI-KET",
+      "group_code": "URINALYSIS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Corps cétoniques urinaires",
+      "clinical_intent": "Cétonurie",
+      "preferred_systems": [
+        "Urine"
+      ],
+      "search_terms": [
+        "ketones urine"
+      ],
+      "known_loinc_hint": "2514-8"
+    },
+    {
+      "catalog_code": "GP-URI-ACR",
+      "group_code": "URINALYSIS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Rapport albumine/créatinine urinaire",
+      "clinical_intent": "Dépistage / suivi rénal",
+      "preferred_systems": [
+        "Urine"
+      ],
+      "search_terms": [
+        "albumin creatinine ratio urine",
+        "ACR urine"
+      ],
+      "known_loinc_hint": "9318-7"
+    },
+    {
+      "catalog_code": "GP-URI-PCR",
+      "group_code": "URINALYSIS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Rapport protéines/créatinine urinaire",
+      "clinical_intent": "Quantification de protéinurie",
+      "preferred_systems": [
+        "Urine"
+      ],
+      "search_terms": [
+        "protein creatinine ratio urine"
+      ],
+      "known_loinc_hint": "2890-2"
+    },
+    {
+      "catalog_code": "GP-URI-CREAT",
+      "group_code": "URINALYSIS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Créatinine urinaire",
+      "clinical_intent": "Interprétation des rapports urinaires",
+      "preferred_systems": [
+        "Urine"
+      ],
+      "search_terms": [
+        "creatinine urine"
+      ],
+      "known_loinc_hint": "2161-8"
+    },
+    {
+      "catalog_code": "GP-URI-WBCQ",
+      "group_code": "URINALYSIS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Leucocyturie quantitative",
+      "clinical_intent": "ECBU",
+      "preferred_systems": [
+        "Urine"
+      ],
+      "search_terms": [
+        "leukocytes urine quantitative",
+        "WBC urine quantitative"
+      ],
+      "known_loinc_hint": "30405-5"
+    },
+    {
+      "catalog_code": "GP-URI-RBCQ",
+      "group_code": "URINALYSIS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Hématurie quantitative",
+      "clinical_intent": "ECBU / sédiment",
+      "preferred_systems": [
+        "Urine"
+      ],
+      "search_terms": [
+        "erythrocytes urine quantitative",
+        "RBC urine quantitative"
+      ],
+      "known_loinc_hint": "30391-7"
+    },
+    {
+      "catalog_code": "GP-URI-CULT",
+      "group_code": "MICROBIOLOGY",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Culture urinaire / ECBU",
+      "clinical_intent": "Infection urinaire selon contexte",
+      "preferred_systems": [
+        "Urine"
+      ],
+      "search_terms": [
+        "urine culture",
+        "bacteria identified urine culture"
+      ],
+      "known_loinc_hint": "630-4"
+    },
+    {
+      "catalog_code": "GP-URI-AST",
+      "group_code": "MICROBIOLOGY",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Antibiogramme urinaire",
+      "clinical_intent": "Sensibilité aux antibiotiques après culture",
+      "preferred_systems": [],
+      "search_terms": [
+        "bacterial susceptibility panel",
+        "antimicrobial susceptibility"
+      ],
+      "known_loinc_hint": "29576-6"
+    },
+    {
+      "catalog_code": "GP-URI-MIC",
+      "group_code": "MICROBIOLOGY",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "CMI / MIC antibiogramme",
+      "clinical_intent": "Quantification de sensibilité lorsque rapportée",
+      "preferred_systems": [],
+      "search_terms": [
+        "susceptibility MIC",
+        "minimum inhibitory concentration"
+      ],
+      "known_loinc_hint": "50545-3"
+    },
+    {
+      "catalog_code": "GP-ID-HIV",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "VIH 1/2 Ag/Ac combiné",
+      "clinical_intent": "Dépistage VIH",
+      "preferred_systems": [
+        "Ser",
+        "Plas"
+      ],
+      "search_terms": [
+        "HIV 1 2 antibody antigen p24",
+        "HIV Ag Ab"
+      ],
+      "known_loinc_hint": "56888-1"
+    },
+    {
+      "catalog_code": "GP-ID-HBSAG",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Antigène HBs",
+      "clinical_intent": "Dépistage / diagnostic hépatite B",
+      "preferred_systems": [
+        "Ser",
+        "Plas"
+      ],
+      "search_terms": [
+        "hepatitis B surface antigen",
+        "HBsAg"
+      ],
+      "known_loinc_hint": "5196-1"
+    },
+    {
+      "catalog_code": "GP-ID-ANTIHBc",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Anticorps anti-HBc total",
+      "clinical_intent": "Statut VHB",
+      "preferred_systems": [
+        "Ser",
+        "Plas"
+      ],
+      "search_terms": [
+        "hepatitis B virus core Ab",
+        "HBV core Ab"
+      ],
+      "known_loinc_hint": "13952-7"
+    },
+    {
+      "catalog_code": "GP-ID-ANTIHBs",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Anticorps anti-HBs",
+      "clinical_intent": "Immunité VHB",
+      "preferred_systems": [
+        "Ser",
+        "Plas"
+      ],
+      "search_terms": [
+        "hepatitis B virus surface Ab",
+        "HBs Ab"
+      ],
+      "known_loinc_hint": "16935-9"
+    },
+    {
+      "catalog_code": "GP-ID-HCVAB",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Anticorps anti-VHC",
+      "clinical_intent": "Dépistage hépatite C",
+      "preferred_systems": [
+        "Ser",
+        "Plas"
+      ],
+      "search_terms": [
+        "hepatitis C antibody",
+        "HCV antibody"
+      ],
+      "known_loinc_hint": "13955-0"
+    },
+    {
+      "catalog_code": "GP-ID-HCVRNA",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "ARN VHC",
+      "clinical_intent": "Confirmation / suivi VHC",
+      "preferred_systems": [
+        "Plas",
+        "Ser"
+      ],
+      "search_terms": [
+        "hepatitis C RNA",
+        "HCV RNA"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-ID-SYPH",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Sérologie syphilis",
+      "clinical_intent": "Dépistage syphilis",
+      "preferred_systems": [
+        "Ser",
+        "Plas"
+      ],
+      "search_terms": [
+        "syphilis antibody",
+        "Treponema pallidum antibody"
+      ],
+      "known_loinc_hint": "34954-8"
+    },
+    {
+      "catalog_code": "GP-ID-CMV-IGM",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "CMV IgM",
+      "clinical_intent": "Infection récente suspectée / grossesse selon contexte",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "cytomegalovirus IgM",
+        "CMV IgM"
+      ],
+      "known_loinc_hint": "5126-8"
+    },
+    {
+      "catalog_code": "GP-ID-CMV-IGG",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "CMV IgG",
+      "clinical_intent": "Statut immunitaire / datation avec contexte",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "cytomegalovirus IgG",
+        "CMV IgG"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-ID-EBV-IGM",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "EBV VCA IgM",
+      "clinical_intent": "Mononucléose / infection récente",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "EBV viral capsid antigen IgM",
+        "VCA IgM"
+      ],
+      "known_loinc_hint": "7886-5"
+    },
+    {
+      "catalog_code": "GP-ID-EBV-IGG",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "EBV VCA IgG",
+      "clinical_intent": "Statut EBV",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "EBV viral capsid antigen IgG",
+        "VCA IgG"
+      ],
+      "known_loinc_hint": "7885-7"
+    },
+    {
+      "catalog_code": "GP-ID-TOXO-IGG",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Toxoplasmose IgG",
+      "clinical_intent": "Statut immunitaire / grossesse selon contexte",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "Toxoplasma IgG"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-ID-TOXO-IGM",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Toxoplasmose IgM",
+      "clinical_intent": "Infection récente suspectée",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "Toxoplasma IgM"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-ID-RUB-IGG",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Rubéole IgG",
+      "clinical_intent": "Immunité notamment préconception / grossesse",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "rubella IgG"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-ID-PARVO-IGM",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "Parvovirus B19 IgM",
+      "clinical_intent": "Contexte clinique ou grossesse sélectionné",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "parvovirus B19 IgM"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-ID-LYME",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Sérologie borréliose de Lyme",
+      "clinical_intent": "Selon exposition et clinique",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "Borrelia antibody",
+        "Lyme antibody"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-ID-CHLAM",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Chlamydia trachomatis NAAT",
+      "clinical_intent": "IST",
+      "preferred_systems": [
+        "Urine"
+      ],
+      "search_terms": [
+        "Chlamydia trachomatis nucleic acid"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-ID-GONO",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Neisseria gonorrhoeae NAAT",
+      "clinical_intent": "IST",
+      "preferred_systems": [
+        "Urine"
+      ],
+      "search_terms": [
+        "Neisseria gonorrhoeae nucleic acid"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-ID-HPYLORI",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Helicobacter pylori antigène selles",
+      "clinical_intent": "Diagnostic / contrôle d'éradication",
+      "preferred_systems": [],
+      "search_terms": [
+        "Helicobacter pylori Ag",
+        "H pylori Ag"
+      ],
+      "known_loinc_hint": "17780-8"
+    },
+    {
+      "catalog_code": "GP-ID-STREPA",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_ACUTE_POCT",
+      "label_fr": "Streptocoque A rapide",
+      "clinical_intent": "Angine selon stratégie clinique",
+      "preferred_systems": [],
+      "search_terms": [
+        "Streptococcus pyogenes Ag",
+        "strep A"
+      ],
+      "known_loinc_hint": "78012-2"
+    },
+    {
+      "catalog_code": "GP-ID-COVID-AG",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_ACUTE_POCT",
+      "label_fr": "SARS-CoV-2 antigène",
+      "clinical_intent": "Infection respiratoire aiguë",
+      "preferred_systems": [],
+      "search_terms": [
+        "SARS-CoV-2 Ag",
+        "SARS coronavirus 2 Ag"
+      ],
+      "known_loinc_hint": "94558-4"
+    },
+    {
+      "catalog_code": "GP-ID-COVID-PCR",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "SARS-CoV-2 PCR / NAAT",
+      "clinical_intent": "Confirmation selon contexte",
+      "preferred_systems": [],
+      "search_terms": [
+        "SARS-CoV-2 RNA",
+        "SARS-CoV-2 nucleic acid"
+      ],
+      "known_loinc_hint": "94500-6"
+    },
+    {
+      "catalog_code": "GP-ID-FLUAB",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_ACUTE_POCT",
+      "label_fr": "Grippe A/B rapide",
+      "clinical_intent": "Infection respiratoire aiguë",
+      "preferred_systems": [],
+      "search_terms": [
+        "influenza A B antigen",
+        "influenza A B rapid"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-ID-RSV",
+      "group_code": "INFECTIOUS",
+      "tier": "GP_ACUTE_POCT",
+      "label_fr": "VRS / RSV rapide",
+      "clinical_intent": "Infection respiratoire aiguë",
+      "preferred_systems": [],
+      "search_terms": [
+        "respiratory syncytial virus antigen",
+        "RSV rapid"
+      ],
+      "known_loinc_hint": "72885-7"
+    },
+    {
+      "catalog_code": "GP-AI-RF",
+      "group_code": "AUTOIMMUNE",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Facteur rhumatoïde",
+      "clinical_intent": "Arthrite inflammatoire selon contexte",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "rheumatoid factor"
+      ],
+      "known_loinc_hint": "11572-5"
+    },
+    {
+      "catalog_code": "GP-AI-CCP",
+      "group_code": "AUTOIMMUNE",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Anticorps anti-CCP",
+      "clinical_intent": "Polyarthrite rhumatoïde suspectée",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "cyclic citrullinated peptide Ab",
+        "CCP antibody"
+      ],
+      "known_loinc_hint": "32218-0"
+    },
+    {
+      "catalog_code": "GP-AI-ANA",
+      "group_code": "AUTOIMMUNE",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Anticorps antinucléaires / ANA",
+      "clinical_intent": "Maladie systémique selon contexte",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "antinuclear antibody",
+        "ANA"
+      ],
+      "known_loinc_hint": "5048-4"
+    },
+    {
+      "catalog_code": "GP-AI-DSDNA",
+      "group_code": "AUTOIMMUNE",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "Anticorps anti-ADN double brin",
+      "clinical_intent": "Lupus selon contexte",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "DNA double strand Ab",
+        "dsDNA antibody"
+      ],
+      "known_loinc_hint": "5130-0"
+    },
+    {
+      "catalog_code": "GP-AI-ENA",
+      "group_code": "AUTOIMMUNE",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "ENA",
+      "clinical_intent": "Connectivite selon contexte",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "extractable nuclear antigen",
+        "ENA"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-AI-C3",
+      "group_code": "AUTOIMMUNE",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "Complément C3",
+      "clinical_intent": "Connectivite / consommation du complément",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "complement C3"
+      ],
+      "known_loinc_hint": "4485-9"
+    },
+    {
+      "catalog_code": "GP-AI-C4",
+      "group_code": "AUTOIMMUNE",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "Complément C4",
+      "clinical_intent": "Connectivite / consommation du complément",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "complement C4"
+      ],
+      "known_loinc_hint": "4498-2"
+    },
+    {
+      "catalog_code": "GP-AI-ANCA",
+      "group_code": "AUTOIMMUNE",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "ANCA",
+      "clinical_intent": "Vascularite suspectée",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "antineutrophil cytoplasmic antibody",
+        "ANCA"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-AI-TTGA",
+      "group_code": "AUTOIMMUNE",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Anti-transglutaminase IgA",
+      "clinical_intent": "Maladie cœliaque suspectée",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "tissue transglutaminase IgA",
+        "tTG IgA"
+      ],
+      "known_loinc_hint": "31017-7"
+    },
+    {
+      "catalog_code": "GP-AI-IGA",
+      "group_code": "AUTOIMMUNE",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "IgA totales",
+      "clinical_intent": "Interprétation sérologie cœliaque / immunité",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "IgA",
+        "immunoglobulin A"
+      ],
+      "known_loinc_hint": "2458-8"
+    },
+    {
+      "catalog_code": "GP-PSA-T",
+      "group_code": "PROSTATE",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "PSA total",
+      "clinical_intent": "Exploration prostatique après décision clinique partagée",
+      "preferred_systems": [
+        "Ser",
+        "Plas"
+      ],
+      "search_terms": [
+        "prostate specific antigen total",
+        "PSA total"
+      ],
+      "known_loinc_hint": "2857-1"
+    },
+    {
+      "catalog_code": "GP-PSA-F",
+      "group_code": "PROSTATE",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "PSA libre",
+      "clinical_intent": "Affinement de l'interprétation du PSA selon contexte",
+      "preferred_systems": [
+        "Ser",
+        "Plas"
+      ],
+      "search_terms": [
+        "prostate specific antigen free",
+        "PSA free"
+      ],
+      "known_loinc_hint": "10886-0"
+    },
+    {
+      "catalog_code": "GP-PSA-RATIO",
+      "group_code": "PROSTATE",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Rapport PSA libre / total",
+      "clinical_intent": "Interprétation conditionnelle",
+      "preferred_systems": [
+        "Ser",
+        "Plas"
+      ],
+      "search_terms": [
+        "prostate specific Ag free/prostate specific Ag total",
+        "PSA free total ratio"
+      ],
+      "known_loinc_hint": "12841-3"
+    },
+    {
+      "catalog_code": "GP-GI-FIT",
+      "group_code": "GASTRO",
+      "tier": "GP_FIRST_LINE",
+      "label_fr": "Test immunologique de sang occulte dans les selles / FIT",
+      "clinical_intent": "Dépistage ou exploration selon contexte",
+      "preferred_systems": [],
+      "search_terms": [
+        "hemoglobin stool immunoassay",
+        "fecal immunochemical test"
+      ],
+      "known_loinc_hint": "29771-3"
+    },
+    {
+      "catalog_code": "GP-GI-CALP",
+      "group_code": "GASTRO",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Calprotectine fécale",
+      "clinical_intent": "Différenciation inflammation digestive fonctionnelle / organique",
+      "preferred_systems": [],
+      "search_terms": [
+        "calprotectin stool",
+        "fecal calprotectin"
+      ],
+      "known_loinc_hint": "38445-3"
+    },
+    {
+      "catalog_code": "GP-GI-CDIFF",
+      "group_code": "GASTRO",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Clostridioides difficile toxine / NAAT",
+      "clinical_intent": "Diarrhée selon contexte",
+      "preferred_systems": [],
+      "search_terms": [
+        "Clostridioides difficile toxin",
+        "C difficile nucleic acid"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-GI-STOOL-CULT",
+      "group_code": "GASTRO",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Coproculture",
+      "clinical_intent": "Diarrhée infectieuse selon contexte",
+      "preferred_systems": [],
+      "search_terms": [
+        "stool culture",
+        "bacteria identified stool culture"
+      ],
+      "known_loinc_hint": "625-4"
+    },
+    {
+      "catalog_code": "GP-GI-PARASITE",
+      "group_code": "GASTRO",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Examen parasitologique des selles",
+      "clinical_intent": "Selon exposition / durée / symptômes",
+      "preferred_systems": [],
+      "search_terms": [
+        "ova parasite stool",
+        "parasite examination stool"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-GI-ELASTASE",
+      "group_code": "GASTRO",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "Élastase fécale",
+      "clinical_intent": "Insuffisance pancréatique exocrine suspectée",
+      "preferred_systems": [],
+      "search_terms": [
+        "pancreatic elastase stool",
+        "fecal elastase"
+      ],
+      "known_loinc_hint": "25907-7"
+    },
+    {
+      "catalog_code": "GP-ALL-IGE-T",
+      "group_code": "ALLERGY",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "IgE totales",
+      "clinical_intent": "Exploration allergologique sélectionnée",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "IgE",
+        "immunoglobulin E"
+      ],
+      "known_loinc_hint": "19113-0"
+    },
+    {
+      "catalog_code": "GP-ALL-IGE-S",
+      "group_code": "ALLERGY",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "IgE spécifiques",
+      "clinical_intent": "Exploration allergologique ciblée",
+      "preferred_systems": [
+        "Ser"
+      ],
+      "search_terms": [
+        "allergen specific IgE",
+        "specific IgE"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-TDM-LITH",
+      "group_code": "THERAPEUTIC_DRUG",
+      "tier": "GP_SECOND_LINE",
+      "label_fr": "Lithémie",
+      "clinical_intent": "Suivi du lithium",
+      "preferred_systems": [
+        "Ser",
+        "Plas"
+      ],
+      "search_terms": [
+        "lithium"
+      ],
+      "known_loinc_hint": "14334-7"
+    },
+    {
+      "catalog_code": "GP-TDM-DIG",
+      "group_code": "THERAPEUTIC_DRUG",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "Digoxine",
+      "clinical_intent": "Surveillance thérapeutique selon traitement",
+      "preferred_systems": [
+        "Ser",
+        "Plas"
+      ],
+      "search_terms": [
+        "digoxin"
+      ],
+      "known_loinc_hint": "10535-3"
+    },
+    {
+      "catalog_code": "GP-TDM-VALP",
+      "group_code": "THERAPEUTIC_DRUG",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "Valproate",
+      "clinical_intent": "Surveillance thérapeutique sélectionnée",
+      "preferred_systems": [
+        "Ser",
+        "Plas"
+      ],
+      "search_terms": [
+        "valproate",
+        "valproic acid"
+      ],
+      "known_loinc_hint": "4086-5"
+    },
+    {
+      "catalog_code": "GP-TDM-CBZ",
+      "group_code": "THERAPEUTIC_DRUG",
+      "tier": "GP_SPECIALIZED",
+      "label_fr": "Carbamazépine",
+      "clinical_intent": "Surveillance thérapeutique sélectionnée",
+      "preferred_systems": [
+        "Ser",
+        "Plas"
+      ],
+      "search_terms": [
+        "carbamazepine"
+      ],
+      "known_loinc_hint": "3432-2"
+    },
+    {
+      "catalog_code": "GP-POCT-GLU",
+      "group_code": "POCT",
+      "tier": "GP_ACUTE_POCT",
+      "label_fr": "Glycémie capillaire",
+      "clinical_intent": "Mesure immédiate au cabinet",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "glucose capillary blood",
+        "glucose point of care"
+      ],
+      "known_loinc_hint": "41653-7"
+    },
+    {
+      "catalog_code": "GP-POCT-CRP",
+      "group_code": "POCT",
+      "tier": "GP_ACUTE_POCT",
+      "label_fr": "CRP rapide",
+      "clinical_intent": "Aide à la décision en infection aiguë selon dispositif",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "C reactive protein rapid immunoassay",
+        "CRP rapid"
+      ],
+      "known_loinc_hint": "106736-2"
+    },
+    {
+      "catalog_code": "GP-POCT-INR",
+      "group_code": "POCT",
+      "tier": "GP_ACUTE_POCT",
+      "label_fr": "INR capillaire",
+      "clinical_intent": "Suivi AVK par dispositif POCT",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "INR capillary blood",
+        "INR"
+      ],
+      "known_loinc_hint": "46418-0"
+    },
+    {
+      "catalog_code": "GP-POCT-HB",
+      "group_code": "POCT",
+      "tier": "GP_ACUTE_POCT",
+      "label_fr": "Hémoglobine capillaire",
+      "clinical_intent": "Anémie / situation aiguë sélectionnée",
+      "preferred_systems": [
+        "Bld"
+      ],
+      "search_terms": [
+        "hemoglobin point of care",
+        "hemoglobin capillary"
+      ],
+      "known_loinc_hint": "30352-9"
+    },
+    {
+      "catalog_code": "GP-POCT-URINE",
+      "group_code": "POCT",
+      "tier": "GP_ACUTE_POCT",
+      "label_fr": "Bandelette urinaire multiparamétrique",
+      "clinical_intent": "Évaluation immédiate au cabinet",
+      "preferred_systems": [
+        "Urine"
+      ],
+      "search_terms": [
+        "urinalysis macro dipstick panel",
+        "urinalysis dipstick panel"
+      ],
+      "known_loinc_hint": "24357-6"
+    },
+    {
+      "catalog_code": "GP-POCT-HIV",
+      "group_code": "POCT",
+      "tier": "GP_ACUTE_POCT",
+      "label_fr": "TROD VIH",
+      "clinical_intent": "Dépistage rapide selon cadre applicable",
+      "preferred_systems": [
+        "Bld",
+        "Ser",
+        "Plas"
+      ],
+      "search_terms": [
+        "HIV rapid test",
+        "HIV point of care"
+      ],
+      "known_loinc_hint": null
+    },
+    {
+      "catalog_code": "GP-POCT-HCV",
+      "group_code": "POCT",
+      "tier": "GP_ACUTE_POCT",
+      "label_fr": "TROD VHC",
+      "clinical_intent": "Dépistage rapide selon cadre applicable",
+      "preferred_systems": [
+        "Bld",
+        "Ser",
+        "Plas"
+      ],
+      "search_terms": [
+        "HCV rapid test",
+        "hepatitis C point of care"
+      ],
+      "known_loinc_hint": null
+    }
+  ],
+  "mapping_note": "known_loinc_hint = principal candidate only; never equivalent to automatic clinical validation. Multi-method/multi-unit families remain unresolved until explicit curation."
+}
