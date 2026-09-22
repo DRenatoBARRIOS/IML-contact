@@ -137,8 +137,8 @@ export async function readRequiredCountryDataState(sql) {
           AND cp.status = 'published'
           AND n.note_type = 'watch'
           AND (
-            n.note_text LIKE 'Security revised from 88 to 80 on 22 September 2026.%'
-            OR n.note_text LIKE 'Learning revised from 65 to 70 on 22 September 2026.%'
+            n.note_text LIKE 'Security revised from 88 to 80 on 22 September 2026%'
+            OR n.note_text LIKE 'Learning revised from 65 to 70 on 22 September 2026%'
           )
       ) AS germany_notes_ready;
   `;
