@@ -433,7 +433,7 @@ def main():
     ap.add_argument(
         "--catalog",
         default=None,
-        help="Catalogue JSON; par défaut data/loinc/gp-biological-catalog-v0.1.json",
+        help="Catalogue JSON; par défaut data/loinc/gp-biological-catalog-v0.2.json",
     )
     ap.add_argument(
         "--report",
@@ -448,7 +448,7 @@ def main():
 
     repo_root = Path(__file__).resolve().parents[1]
     catalog_path = Path(args.catalog) if args.catalog else (
-        repo_root / "data/loinc/gp-biological-catalog-v0.1.json"
+        repo_root / "data/loinc/gp-biological-catalog-v0.2.json"
     )
     schema_sql = repo_root / "db/local/loinc/001_loinc_workbench.sql"
     report_path = Path(args.report).expanduser()
