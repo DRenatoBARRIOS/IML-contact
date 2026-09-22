@@ -125,7 +125,7 @@ with GP first-line and the BMR/ECBU tracer, before any promotion to Neon.
 
 ## Catalogue biologique GP complet
 
-Le catalogue `data/loinc/gp-biological-catalog-v0.2.json` couvre la biologie
+Le catalogue `data/loinc/gp-biological-catalog-v0.3.json` couvre la biologie
 de médecine générale selon quatre niveaux:
 
 - `GP_FIRST_LINE`
@@ -142,3 +142,16 @@ python3 scripts/iml-loinc-gp-catalog.py --db iml_workspace
 Le rapprochement produit des candidats et un rapport TSV dans
 `~/Documents/IML_GP_CATALOG_LOINC_2.83.tsv`. Aucun mapping n'est déclaré
 `VALIDATED` automatiquement et aucune donnée n'est envoyée à Neon.
+
+
+### SINGLE vs FAMILY
+
+Le catalogue GP distingue désormais deux types de mapping:
+
+- `SINGLE`: un code LOINC principal peut être proposé pour le concept clinique;
+- `FAMILY`: plusieurs codes LOINC sont légitimement nécessaires selon méthode,
+  unité, cible, spécimen ou modalité de rendu. Aucun code unique n'est forcé.
+
+Le statut `FAMILY` signifie donc « pluralité attendue et assumée », et non
+« ambiguïté non résolue ». La justification est conservée dans les propriétés
+du catalogue local.
