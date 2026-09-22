@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/sync-production-country-data.mjs",
     "preview": "vite preview",
     "check": "node --test tests/*.test.mjs"
   },
