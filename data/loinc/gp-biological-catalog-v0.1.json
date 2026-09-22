@@ -816,10 +816,11 @@
         "Ser"
       ],
       "search_terms": [
-        "IA-2 antibody",
-        "islet antigen 2 antibody"
+        "islet cell 512 Ab",
+        "IA-2 Ab",
+        "tyrosine phosphatase IA2 antibody"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "56718-0"
     },
     {
       "catalog_code": "GP-DIA-ZNT8",
@@ -1873,10 +1874,10 @@
         "Plas"
       ],
       "search_terms": [
-        "hepatitis B core antibody total",
-        "anti-HBc"
+        "hepatitis B virus core Ab",
+        "HBV core Ab"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "13952-7"
     },
     {
       "catalog_code": "GP-ID-ANTIHBs",
@@ -1889,10 +1890,10 @@
         "Plas"
       ],
       "search_terms": [
-        "hepatitis B surface antibody",
-        "anti-HBs"
+        "hepatitis B virus surface Ab",
+        "HBs Ab"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "16935-9"
     },
     {
       "catalog_code": "GP-ID-HCVAB",
@@ -2135,9 +2136,10 @@
       "clinical_intent": "Infection respiratoire aiguë",
       "preferred_systems": [],
       "search_terms": [
-        "SARS-CoV-2 antigen"
+        "SARS-CoV-2 Ag",
+        "SARS coronavirus 2 Ag"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "94558-4"
     },
     {
       "catalog_code": "GP-ID-COVID-PCR",
@@ -2613,10 +2615,10 @@
         "Urine"
       ],
       "search_terms": [
-        "urinalysis dipstick panel",
-        "urine dipstick"
+        "urinalysis macro dipstick panel",
+        "urinalysis dipstick panel"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "24357-6"
     },
     {
       "catalog_code": "GP-POCT-HIV",
