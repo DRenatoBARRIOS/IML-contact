@@ -3,7 +3,7 @@ import { seedTunisia } from "./seeds/20260922_tunisia.mjs";
 import { applyFranceLearningResponsivenessCorrection } from "./seeds/20260901_france_learning_responsiveness.mjs";
 import { applyGermanyCyberAuditCorrection } from "./seeds/20260922_germany_cyber_audit.mjs";
 
-export const PRODUCTION_COUNTRY_SYNC_VERSION = "2026-09-22.2";
+export const PRODUCTION_COUNTRY_SYNC_VERSION = "2026-09-23.1";
 
 export function shouldRunProductionCountrySync(env = process.env) {
   return env.VERCEL_ENV === "production" && env.VERCEL_GIT_COMMIT_REF === "main";
@@ -90,16 +90,27 @@ export async function readRequiredCountryDataState(sql) {
           AND cp.status = 'published'
           AND i.indicator_code = 'LRN-5'
       ) AS france_lrn5_ready,
-      EXISTS (
-        SELECT 1
-        FROM countries c
-        JOIN country_profiles cp ON cp.country_id = c.id
-        JOIN country_profile_notes n ON n.profile_id = cp.id
-        WHERE c.iso3 = 'FRA'
-          AND cp.status = 'published'
-          AND n.note_type = 'watch'
-          AND n.note_text LIKE 'Learning revised from 15 to 10 on 1 September 2026.%'
-      ) AS france_note_ready,
+      (
+        EXISTS (
+          SELECT 1
+          FROM countries c
+          JOIN country_profiles cp ON cp.country_id = c.id
+          JOIN country_profile_assessments a ON a.profile_id = cp.id
+          WHERE c.iso3 = 'FRA'
+            AND cp.status = 'published'
+            AND a.review_notes LIKE '%[IML internal Learning rationale — 2026-09-01]%'
+        )
+        AND NOT EXISTS (
+          SELECT 1
+          FROM countries c
+          JOIN country_profiles cp ON cp.country_id = c.id
+          JOIN country_profile_notes n ON n.profile_id = cp.id
+          WHERE c.iso3 = 'FRA'
+            AND cp.status = 'published'
+            AND n.note_type = 'watch'
+            AND n.note_text LIKE 'Learning revised from 15 to 10 on 1 September 2026.%'
+        )
+      ) AS france_internal_review_ready,
       (
         SELECT COUNT(*) = 2
         FROM countries c
@@ -129,18 +140,29 @@ export async function readRequiredCountryDataState(sql) {
           )
       ) AS germany_audit_sources_ready,
       (
-        SELECT COUNT(*) = 2
-        FROM countries c
-        JOIN country_profiles cp ON cp.country_id = c.id
-        JOIN country_profile_notes n ON n.profile_id = cp.id
-        WHERE c.iso3 = 'DEU'
-          AND cp.status = 'published'
-          AND n.note_type = 'watch'
-          AND (
-            n.note_text LIKE 'Security revised from 88 to 80 on 22 September 2026%'
-            OR n.note_text LIKE 'Learning revised from 65 to 70 on 22 September 2026%'
-          )
-      ) AS germany_notes_ready;
+        EXISTS (
+          SELECT 1
+          FROM countries c
+          JOIN country_profiles cp ON cp.country_id = c.id
+          JOIN country_profile_assessments a ON a.profile_id = cp.id
+          WHERE c.iso3 = 'DEU'
+            AND cp.status = 'published'
+            AND a.review_notes LIKE '%[IML internal Germany audit rationale — 2026-09-22]%'
+        )
+        AND NOT EXISTS (
+          SELECT 1
+          FROM countries c
+          JOIN country_profiles cp ON cp.country_id = c.id
+          JOIN country_profile_notes n ON n.profile_id = cp.id
+          WHERE c.iso3 = 'DEU'
+            AND cp.status = 'published'
+            AND n.note_type = 'watch'
+            AND (
+              n.note_text LIKE 'Security revised from 88 to 80 on 22 September 2026%'
+              OR n.note_text LIKE 'Learning revised from 65 to 70 on 22 September 2026%'
+            )
+        )
+      ) AS germany_internal_review_ready;
   `;
 
   return rows[0] || {};
@@ -155,10 +177,10 @@ function requiredStateIsReady(state) {
     state.tunisia_source_route_ready &&
     state.france_score_ready &&
     state.france_lrn5_ready &&
-    state.france_note_ready &&
+    state.france_internal_review_ready &&
     state.germany_scores_ready &&
     state.germany_audit_sources_ready &&
-    state.germany_notes_ready
+    state.germany_internal_review_ready
   );
 }
 
@@ -181,7 +203,7 @@ export async function ensureRequiredCountryData(sql) {
     actions.push("seedTunisia");
   }
 
-  if (!before.france_score_ready || !before.france_lrn5_ready || !before.france_note_ready) {
+  if (!before.france_score_ready || !before.france_lrn5_ready || !before.france_internal_review_ready) {
     await applyFranceLearningResponsivenessCorrection(sql);
     actions.push("applyFranceLearningResponsivenessCorrection");
   }
@@ -189,7 +211,7 @@ export async function ensureRequiredCountryData(sql) {
   if (
     !before.germany_scores_ready ||
     !before.germany_audit_sources_ready ||
-    !before.germany_notes_ready
+    !before.germany_internal_review_ready
   ) {
     await applyGermanyCyberAuditCorrection(sql);
     actions.push("applyGermanyCyberAuditCorrection");
