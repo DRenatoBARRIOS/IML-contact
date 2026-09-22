@@ -148,3 +148,70 @@ A Country Profile update should not be promoted to Production unless:
 ## Coverage
 
 The weekly Production/API audit covers every published country and source. Romania, Tunisia and Uzbekistan have source-specific semantic manifests. The remaining country profiles should be migrated progressively to the same content-level verification standard.
+
+## Evidence hierarchy A/B/C/D
+
+`evidence_level` and `support_type` are separate dimensions.
+
+`evidence_level` describes documentary authority, proximity and directness.  
+`support_type` describes how the source supports the specific proposition or indicator.
+
+A source may therefore be **A + context_only** without contradiction.
+
+### A — primary or directly authoritative evidence
+
+Country-specific or otherwise directly applicable primary evidence from an authoritative source, including legislation, official national systems, official technical documentation, competent audit/control bodies, official national data, and official international sources explicitly reporting on the country.
+
+Level A does **not** mean that implementation is complete. Scope, implementation status, evidence summary, support type and limitation still control what can be concluded.
+
+### B — authoritative or credible but indirect/partial evidence
+
+Reliable institutional or high-quality secondary evidence that is relevant but less direct, narrower in scope or partly derivative.
+
+Typical examples include republished official announcements, institutional guidance/toolkits, sectoral or international assessments, pilots, first-phase implementation evidence, or corroborative documents that do not establish full national coverage.
+
+### C — credible contextual evidence
+
+Useful contextual or secondary evidence that helps document a trajectory, project, implementation pathway or hypothesis, but is insufficient on its own to justify a strong claim or score.
+
+It should normally be paired with `context_only` or an explicit limitation.
+
+### D — indicative or legacy evidence
+
+Evidence retained for discovery, orientation or historical continuity, but with low probative weight for a current conclusion.
+
+A D-level source must not determine a score by itself, must not be used to infer nationwide implementation, and should progressively be replaced by stronger evidence when available.
+
+### Current support types
+
+- `supports` — directly supports the stated proposition;
+- `partially_supports` — supports only part of the proposition or with limited scope;
+- `context_only` — provides useful context but does not validate the proposition or score by itself.
+
+Never infer `support_type` automatically from `evidence_level`, or vice versa.
+
+### Anti-overclaim rule
+
+Even A-level evidence must not turn:
+
+- a project into a completed implementation;
+- a pilot into national coverage;
+- a legal obligation into demonstrated compliance;
+- an existing platform into routine adoption;
+- an announced architecture into operational interoperability;
+- a complaint channel into demonstrated institutional responsiveness.
+
+Every material claim must preserve scope, implementation status, evidence summary and limitation.
+
+## Change-control rule for source-quality documentation
+
+Before changing this protocol or a CURRENT production document:
+
+1. read the current canonical file first;
+2. retrieve the related canonical protocol files before rewriting;
+3. do not replace a validated rule with a shorter summary unless explicitly requested;
+4. flag contradictions before changing an established rule;
+5. keep one canonical CURRENT document in the Library instead of parallel versions;
+6. verify after writing that the mandatory sections remain present;
+7. treat a documentation change as complete only after the final file and relevant CI checks have been reviewed.
+
