@@ -1,5 +1,6 @@
 import { neon } from "@neondatabase/serverless";
 import { seedUzbekistan } from "../db/seeds/20260822_uzbekistan.mjs";
+import { seedTunisia } from "../db/seeds/20260922_tunisia.mjs";
 import { applyFranceLearningResponsivenessCorrection } from "../db/seeds/20260901_france_learning_responsiveness.mjs";
 
 const FRANCE_SECURITY_ADJUSTMENT = 20;
@@ -20,6 +21,41 @@ async function ensureMainPreviewCountryData(sql) {
           AND c.is_active = TRUE
           AND cp.status = 'published'
       ) AS uzbekistan_ready,
+      EXISTS (
+        SELECT 1
+        FROM countries c
+        JOIN country_profiles cp ON cp.country_id = c.id
+        WHERE c.iso3 = 'TUN'
+          AND c.is_active = TRUE
+          AND cp.status = 'published'
+          AND cp.assessment_date = '2026-09-22'
+      ) AS tunisia_profile_ready,
+      (
+        SELECT COUNT(*) = 6
+        FROM countries c
+        JOIN country_profiles cp ON cp.country_id = c.id
+        JOIN country_profile_scores s ON s.profile_id = cp.id
+        WHERE c.iso3 = 'TUN'
+          AND cp.version = 1
+          AND (
+            (s.domain_code = 'governance' AND s.score = 62) OR
+            (s.domain_code = 'technical' AND s.score = 55) OR
+            (s.domain_code = 'identity' AND s.score = 54) OR
+            (s.domain_code = 'adoption' AND s.score = 58) OR
+            (s.domain_code = 'security' AND s.score = 52) OR
+            (s.domain_code = 'learning' AND s.score = 47)
+          )
+      ) AS tunisia_scores_ready,
+      EXISTS (
+        SELECT 1
+        FROM countries c
+        JOIN country_profiles cp ON cp.country_id = c.id
+        JOIN country_profile_sources src ON src.profile_id = cp.id
+        JOIN country_profile_source_indicators i ON i.source_id = src.id
+        WHERE c.iso3 = 'TUN'
+          AND cp.version = 1
+          AND i.indicator_code = 'LRN-5'
+      ) AS tunisia_lrn5_ready,
       EXISTS (
         SELECT 1
         FROM countries c
@@ -56,6 +92,10 @@ async function ensureMainPreviewCountryData(sql) {
 
   if (!state.uzbekistan_ready) {
     await seedUzbekistan(sql);
+  }
+
+  if (!state.tunisia_profile_ready || !state.tunisia_scores_ready || !state.tunisia_lrn5_ready) {
+    await seedTunisia(sql);
   }
 
   if (!state.france_score_ready || !state.france_lrn5_ready || !state.france_note_ready) {

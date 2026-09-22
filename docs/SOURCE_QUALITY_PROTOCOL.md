@@ -144,4 +144,4 @@ A Country Profile update should not be promoted to Production unless:
 
 ## Coverage
 
-The weekly Production/API audit covers every published country and source. Romania and Uzbekistan have source-specific semantic manifests. The remaining country profiles should be migrated progressively to the same content-level verification standard.
+The weekly Production/API audit covers every published country and source. Romania, Tunisia and Uzbekistan have source-specific semantic manifests. The remaining country profiles should be migrated progressively to the same content-level verification standard.

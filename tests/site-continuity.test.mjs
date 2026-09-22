@@ -14,6 +14,10 @@ test("validated IML site continuity invariants", () => {
   assert.match(api, /applyFranceLearningResponsivenessCorrection/);
   assert.match(api, /"main-test"/);
   assert.match(api, /seedUzbekistan/);
+  assert.match(api, /seedTunisia/);
+  assert.match(api, /c\.iso3 = 'TUN'/);
+  assert.match(api, /tunisia_scores_ready/);
+  assert.match(api, /tunisia_lrn5_ready/);
 
   assert.doesNotMatch(app, /["']\/manuscripts["']/);
   assert.doesNotMatch(sitePages, /function\s+ManuscriptsPage\s*\(/);
@@ -23,6 +27,8 @@ test("validated IML site continuity invariants", () => {
 
   assert.equal(existsSync("src/pages/ManuscriptsPage.jsx"), false);
   assert.equal(existsSync("db/seeds/20260822_uzbekistan.mjs"), true);
+  assert.equal(existsSync("db/seeds/20260922_tunisia.mjs"), true);
   assert.equal(existsSync("db/seeds/20260901_france_learning_responsiveness.mjs"), true);
+  assert.equal(existsSync("data/source-audits/tunisia.json"), true);
   assert.equal(existsSync("src/components/IndicatorDefinitionsTable.jsx"), true);
 });
