@@ -1,6 +1,9 @@
 {
   "audit_id": "TUN-2026-09-22",
-  "country": { "iso3": "TUN", "name": "Tunisia" },
+  "country": {
+    "iso3": "TUN",
+    "name": "Tunisia"
+  },
   "policy": {
     "require_successful_http_for_public_links": true,
     "require_expected_domain": true,
@@ -11,27 +14,48 @@
   "sources": [
     {
       "id": "TN-WHO-UHC-DIGITAL",
-      "title": "Tunisia — UHC Partnership country support: digital-health transformation",
-      "url": "https://extranet.who.int/uhcpartnership/country-profile/tunisia",
+      "title": "WHO UHC Live Monitoring — Tunisia digital-health transformation",
+      "url": "https://extranet.who.int/uhcpartnershiplivemonitoring/country-profile?iso3=TUN",
       "required_public_link": true,
-      "expected_domains": ["extranet.who.int"],
+      "expected_domains": [
+        "extranet.who.int"
+      ],
       "required_text_groups": [
-        ["National Digital Health Transformation strategy"],
-        ["integrated digital platforms"],
-        ["national registry and directory services"]
-      ]
+        [
+          "National Digital Health Transformation strategy"
+        ],
+        [
+          "integrated digital platforms"
+        ],
+        [
+          "national registry and directory services"
+        ]
+      ],
+      "required_url_params": {
+        "iso3": "TUN"
+      }
     },
     {
       "id": "TN-WORLD-BANK-HSSP",
       "title": "Tunisia Health System Strengthening Project",
       "url": "https://www.worldbank.org/en/news/press-release/2025/05/28/new-project-to-boost-tunisia-s-health-system-and-pandemic-response",
       "required_public_link": true,
-      "expected_domains": ["www.worldbank.org"],
+      "expected_domains": [
+        "www.worldbank.org"
+      ],
       "required_text_groups": [
-        ["Tunisia Health System Strengthening Project"],
-        ["US$125.16 million"],
-        ["electronic medical records"],
-        ["telemedicine"]
+        [
+          "Tunisia Health System Strengthening Project"
+        ],
+        [
+          "US$125.16 million"
+        ],
+        [
+          "electronic medical records"
+        ],
+        [
+          "telemedicine"
+        ]
       ]
     },
     {
@@ -39,7 +63,9 @@
       "title": "Progress of public-administration digital-transformation projects",
       "url": "https://www.pm.gov.tn/ar/decision-gouvernementale/tqdwm-anjaz-mshary-althwwl-alrwqmy-lladart-mhwr-mjls-wzary-bashraf-ryyst",
       "required_public_link": true,
-      "expected_domains": ["www.pm.gov.tn"],
+      "expected_domains": [
+        "www.pm.gov.tn"
+      ],
       "secondary_review": {
         "checked_at": "2026-09-22",
         "method": "independent browser fetch",
@@ -48,10 +74,18 @@
         "note": "The page was readable in an independent browser despite the CI-style Node probe returning a transient 502 response."
       },
       "required_text_groups": [
-        ["المستشفى الرقمي"],
-        ["Najda.tn"],
-        ["منصة وطنية للترابط البيني"],
-        ["192"]
+        [
+          "المستشفى الرقمي"
+        ],
+        [
+          "Najda.tn"
+        ],
+        [
+          "منصة وطنية للترابط البيني"
+        ],
+        [
+          "192"
+        ]
       ]
     },
     {
@@ -59,7 +93,9 @@
       "title": "Framework agreement for paperless data exchange using the Labes platform",
       "url": "https://www.social.gov.tn/index.php/fr/signature-d%E2%80%99un-accord-cadre-pour-l%C3%A9change-immat%C3%A9riel-des-donn%C3%A9es-entre-les-minist%C3%A8res-des-affaires",
       "required_public_link": false,
-      "expected_domains": ["www.social.gov.tn"],
+      "expected_domains": [
+        "www.social.gov.tn"
+      ],
       "secondary_review": {
         "checked_at": "2026-09-22",
         "method": "independent browser fetch",
@@ -68,10 +104,19 @@
         "note": "The indexed documentary evidence remains relevant, but repeated fetches were transient; the public profile link is intentionally hidden pending revalidation."
       },
       "required_text_groups": [
-        ["Labes"],
-        ["92"],
-        ["CNAM"],
-        ["échange immatériel", "échanges"]
+        [
+          "Labes"
+        ],
+        [
+          "92"
+        ],
+        [
+          "CNAM"
+        ],
+        [
+          "échange immatériel",
+          "échanges"
+        ]
       ]
     },
     {
@@ -79,7 +124,9 @@
       "title": "E-CNAM access through Tunisia's national digital identity",
       "url": "https://www.mtc.gov.tn/index.php?cHash=633ad82bb4c9397f6335574270cc556b&id=119&tx_ttnews%5Btt_news%5D=4823",
       "required_public_link": true,
-      "expected_domains": ["www.mtc.gov.tn"],
+      "expected_domains": [
+        "www.mtc.gov.tn"
+      ],
       "secondary_review": {
         "checked_at": "2026-09-22",
         "method": "independent browser fetch",
@@ -88,9 +135,15 @@
         "note": "The page was readable in an independent browser despite the CI-style Node probe returning a transient 502 response."
       },
       "required_text_groups": [
-        ["E-CNAM"],
-        ["الهوية الرقمية"],
-        ["متابعة مراحل معالجة الملفات"]
+        [
+          "E-CNAM"
+        ],
+        [
+          "الهوية الرقمية"
+        ],
+        [
+          "متابعة مراحل معالجة الملفات"
+        ]
       ]
     },
     {
@@ -98,11 +151,20 @@
       "title": "Sahetna.tn and National Health Identifier rollout",
       "url": "https://fr.allafrica.com/stories/202607210663.html",
       "required_public_link": true,
-      "expected_domains": ["fr.allafrica.com"],
+      "expected_domains": [
+        "fr.allafrica.com"
+      ],
       "required_text_groups": [
-        ["Sahetna.tn"],
-        ["Identifiant Unique de Sant", "Identifiant National de Sant"],
-        ["phase finale"]
+        [
+          "Sahetna.tn"
+        ],
+        [
+          "Identifiant Unique de Sant",
+          "Identifiant National de Sant"
+        ],
+        [
+          "phase finale"
+        ]
       ]
     },
     {
@@ -110,12 +172,22 @@
       "title": "Law No. 2024-32 on the rights of beneficiaries of health services and medical responsibility",
       "url": "https://lois.tn/doc/77522",
       "required_public_link": true,
-      "expected_domains": ["lois.tn"],
+      "expected_domains": [
+        "lois.tn"
+      ],
       "required_text_groups": [
-        ["Loi n° 2024-32"],
-        ["dossier m&eacute;dical"],
-        ["suggestions et r&eacute;clamations"],
-        ["consentement pr&eacute;alable libre et &eacute;clair&eacute;"]
+        [
+          "Loi n° 2024-32"
+        ],
+        [
+          "dossier m&eacute;dical"
+        ],
+        [
+          "suggestions et r&eacute;clamations"
+        ],
+        [
+          "consentement pr&eacute;alable libre et &eacute;clair&eacute;"
+        ]
       ]
     },
     {
@@ -123,12 +195,22 @@
       "title": "Legal and regulatory framework for information-system security audits",
       "url": "https://ancs.tn/index.php/fr/audit-reglementaire",
       "required_public_link": true,
-      "expected_domains": ["ancs.tn"],
+      "expected_domains": [
+        "ancs.tn"
+      ],
       "required_text_groups": [
-        ["Cadre juridique et réglementaire"],
-        ["Décret-loi 2023-17"],
-        ["organismes publics"],
-        ["mise en œuvre des recommandations"]
+        [
+          "Cadre juridique et réglementaire"
+        ],
+        [
+          "Décret-loi 2023-17"
+        ],
+        [
+          "organismes publics"
+        ],
+        [
+          "mise en œuvre des recommandations"
+        ]
       ]
     },
     {
@@ -136,12 +218,22 @@
       "title": "Health-sector personal-data protection toolkit for Tunisia",
       "url": "https://www.coe.int/fr/web/tunis/-/une-nouvelle-boite-outils-pour-une-meilleure-protection-des-donnees-personnelles-dans-le-secteur-de-la-sante-en-tunisie",
       "required_public_link": true,
-      "expected_domains": ["www.coe.int"],
+      "expected_domains": [
+        "www.coe.int"
+      ],
       "required_text_groups": [
-        ["boîte à outils"],
-        ["protection des données personnelles"],
-        ["secteur de la santé en Tunisie"],
-        ["INPDP"]
+        [
+          "boîte à outils"
+        ],
+        [
+          "protection des données personnelles"
+        ],
+        [
+          "secteur de la santé en Tunisie"
+        ],
+        [
+          "INPDP"
+        ]
       ]
     },
     {
@@ -149,12 +241,22 @@
       "title": "WHO results report 2024–2025 — Tunisia",
       "url": "https://www.who.int/about/accountability/results/who-results-report-2024-2025/region-EMRO/2024/tunisia",
       "required_public_link": true,
-      "expected_domains": ["www.who.int"],
+      "expected_domains": [
+        "www.who.int"
+      ],
       "required_text_groups": [
-        ["AI-driven analytics"],
-        ["Health Resources Availability Mapping System"],
-        ["digital health information systems"],
-        ["outbreak detection"]
+        [
+          "AI-driven analytics"
+        ],
+        [
+          "Health Resources Availability Mapping System"
+        ],
+        [
+          "digital health information systems"
+        ],
+        [
+          "outbreak detection"
+        ]
       ]
     },
     {
@@ -162,10 +264,18 @@
       "title": "WHO SCORE country summaries index — Tunisia document available",
       "url": "https://www.who.int/fr/data/data-collection-tools/score/country-summaries",
       "required_public_link": false,
-      "expected_domains": ["www.who.int"],
+      "expected_domains": [
+        "www.who.int"
+      ],
       "required_text_groups": [
-        ["SCORE Assessment Country Summaries", "SCORE Assessment Country Summary"],
-        ["Tunisia", "Tunisie"]
+        [
+          "SCORE Assessment Country Summaries",
+          "SCORE Assessment Country Summary"
+        ],
+        [
+          "Tunisia",
+          "Tunisie"
+        ]
       ]
     },
     {
@@ -173,12 +283,22 @@
       "title": "E-health investment programme for Tunisian public hospitals",
       "url": "https://www.afd.fr/fr/projets/reequilibrer-lacces-aux-soins-en-deployant-une-strategie-e-sante-dans-les-hopitaux-publics",
       "required_public_link": true,
-      "expected_domains": ["www.afd.fr"],
+      "expected_domains": [
+        "www.afd.fr"
+      ],
       "required_text_groups": [
-        ["stratégie e-santé"],
-        ["15 hôpitaux publics"],
-        ["dossier médical informatisé"],
-        ["télémédecine"]
+        [
+          "stratégie e-santé"
+        ],
+        [
+          "15 hôpitaux publics"
+        ],
+        [
+          "dossier médical informatisé"
+        ],
+        [
+          "télémédecine"
+        ]
       ]
     }
   ]

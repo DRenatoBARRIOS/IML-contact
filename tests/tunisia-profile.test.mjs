@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { queryParamsAllowed } from "../scripts/audit-sources.mjs";
 
 const seed = readFileSync("db/seeds/20260922_tunisia.mjs", "utf8");
 const manifest = JSON.parse(readFileSync("data/source-audits/tunisia.json", "utf8"));
@@ -34,6 +35,21 @@ test("Tunisia semantic source manifest is complete and country-specific", () => 
     assert.ok(source.expected_domains.length >= 1);
     assert.ok(source.required_text_groups.length >= 2);
   }
+
+  const whoUhc = manifest.sources.find((source) => source.id === "TN-WHO-UHC-DIGITAL");
+  assert.equal(
+    whoUhc.url,
+    "https://extranet.who.int/uhcpartnershiplivemonitoring/country-profile?iso3=TUN",
+  );
+  assert.deepEqual(whoUhc.required_url_params, { iso3: "TUN" });
+  assert.equal(queryParamsAllowed(whoUhc.url, whoUhc.required_url_params), true);
+  assert.equal(
+    queryParamsAllowed(
+      "https://extranet.who.int/uhcpartnership/country-profile/tunisia",
+      whoUhc.required_url_params,
+    ),
+    false,
+  );
 
   const optional = manifest.sources.filter((source) => source.required_public_link === false);
   assert.ok(optional.some((source) => source.id === "TN-LABES-CNAM"));

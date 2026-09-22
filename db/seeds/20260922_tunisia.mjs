@@ -8,11 +8,11 @@
 
 const SOURCES = [
   {
-    title: "Tunisia — UHC Partnership country support: digital-health transformation",
+    title: "WHO UHC Live Monitoring — Tunisia digital-health transformation",
     publisher: "World Health Organization",
-    url: "https://extranet.who.int/uhcpartnership/country-profile/tunisia",
-    publicUrl: "https://extranet.who.int/uhcpartnership/country-profile/tunisia",
-    publicationDate: null,
+    url: "https://extranet.who.int/uhcpartnershiplivemonitoring/country-profile?iso3=TUN",
+    publicUrl: "https://extranet.who.int/uhcpartnershiplivemonitoring/country-profile?iso3=TUN",
+    publicationDate: "2026-05-27",
     accessedAt: "2026-09-22",
     note: "WHO describes the roll-out of Tunisia's National Digital Health Transformation strategy as ongoing and supports integrated platforms focused on primary care, real-time data and clinical decision support. The associated outcome indicator measures facilities using point-of-service tools that exchange data through national registry and directory services.",
     indicators: [

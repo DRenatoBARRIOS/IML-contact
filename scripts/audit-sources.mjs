@@ -32,6 +32,13 @@ function domainAllowed(url, expectedDomains = []) {
   return expectedDomains.some((domain) => hostname === domain.toLowerCase());
 }
 
+export function queryParamsAllowed(url, requiredParams = {}) {
+  const parsed = new URL(url);
+  return Object.entries(requiredParams).every(
+    ([key, value]) => parsed.searchParams.get(key) === String(value),
+  );
+}
+
 function checkTextGroups(text, groups = []) {
   const normalized = normalizeText(text);
   return groups.map((group) => {
@@ -69,13 +76,14 @@ export async function auditSource(source, options = {}) {
 
     const finalUrl = response.url || source.url;
     const expectedDomain = domainAllowed(finalUrl, source.expected_domains);
+    const requiredUrlParams = queryParamsAllowed(finalUrl, source.required_url_params);
     const body = response.ok ? await response.text() : "";
     const textChecks = checkTextGroups(body, source.required_text_groups);
     const contentVerified = textChecks.every((item) => item.matched);
 
     let urlStatus;
     if (!response.ok) urlStatus = classifyHttpStatus(response.status);
-    else if (!expectedDomain || !contentVerified) urlStatus = "unverified";
+    else if (!expectedDomain || !requiredUrlParams || !contentVerified) urlStatus = "unverified";
     else urlStatus = response.redirected ? "redirected" : "verified";
 
     return withGate(source, {
@@ -88,6 +96,7 @@ export async function auditSource(source, options = {}) {
       url_status: urlStatus,
       redirected: response.redirected,
       expected_domain: expectedDomain,
+      required_url_params_verified: requiredUrlParams,
       content_verified: contentVerified,
       text_checks: textChecks,
       checked_at: checkedAt,

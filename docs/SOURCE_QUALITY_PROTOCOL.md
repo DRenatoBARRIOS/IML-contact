@@ -70,7 +70,10 @@ Country-specificity rule:
 
 - a public link presented as evidence for a country should normally land on country-specific evidence;
 - a multi-country or international source may remain valid documentary evidence when it explicitly supports the country claim;
-- such a general source should not be presented as the country-specific public link when a better national or country-specific source exists.
+- such a general source should not be presented as the country-specific public link when a better national or country-specific source exists;
+- on a dynamic site, the country must be encoded in the path or in an explicit query parameter and the link must load that country's evidence immediately;
+- a landing page that requires the reader to select the country does not pass, even when country content is present elsewhere in the page source;
+- semantic manifests should record required query parameters when they are necessary to preserve country routing.
 
 ## Layer 4 — Human/independent secondary verification
 
