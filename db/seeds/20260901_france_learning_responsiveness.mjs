@@ -6,8 +6,39 @@
 const COUR_DES_COMPTES_TITLE =
   "Sécurité sociale 2024 — Mon espace santé : des conditions de réussite encore à réunir";
 
-const UPDATED_WATCH_NOTE =
-  "Learning revised from 15 to 10 on 1 September 2026. The French Court of Auditors documents objectives changed without adequate prior evaluation, uptake below expectations, limited enforceability of obligations and persistent institutional blockages. Under IML LRN-5, these authoritative findings demonstrate weak institutional answerability and follow-through; their functional effect is recorded as passive institutional obstruction without imputing individual intent.";
+const INTERNAL_REVIEW_MARKER = "[IML internal Learning rationale — 2026-09-01]";
+const INTERNAL_REVIEW_NOTE =
+  `${INTERNAL_REVIEW_MARKER}\nLearning 15 → 10. The French Court of Auditors documents objectives changed without adequate prior evaluation, uptake below expectations, limited enforceability of obligations and persistent institutional blockages. Under IML LRN-5, these authoritative findings demonstrate weak institutional answerability and follow-through; their functional effect is recorded as passive institutional obstruction without imputing individual intent.`;
+
+async function storeInternalReviewNote(sql, profileId) {
+  const rows = await sql`
+    SELECT id, review_notes
+    FROM country_profile_assessments
+    WHERE profile_id = ${profileId}
+    LIMIT 1;
+  `;
+
+  if (!rows.length) {
+    await sql`
+      INSERT INTO country_profile_assessments (
+        profile_id, assessment_status, review_notes
+      )
+      VALUES (${profileId}, 'provisional', ${INTERNAL_REVIEW_NOTE});
+    `;
+    return;
+  }
+
+  if (!String(rows[0].review_notes || "").includes(INTERNAL_REVIEW_MARKER)) {
+    const updatedNotes = rows[0].review_notes
+      ? `${rows[0].review_notes}\n\n${INTERNAL_REVIEW_NOTE}`
+      : INTERNAL_REVIEW_NOTE;
+    await sql`
+      UPDATE country_profile_assessments
+      SET review_notes = ${updatedNotes}
+      WHERE id = ${rows[0].id};
+    `;
+  }
+}
 
 export async function applyFranceLearningResponsivenessCorrection(sql) {
   const profileRows = await sql`
@@ -66,40 +97,13 @@ export async function applyFranceLearningResponsivenessCorrection(sql) {
     WHERE id = ${profileId};
   `;
 
+  await storeInternalReviewNote(sql, profileId);
+
   await sql`
-    WITH changed AS (
-      UPDATE country_profile_notes
-      SET note_text = ${UPDATED_WATCH_NOTE}
-      WHERE profile_id = ${profileId}
-        AND note_type = 'watch'
-        AND (
-          note_text = 'Correction and redress remain slow, opaque and frequently ineffective'
-          OR note_text LIKE 'Authoritative audit findings document persistent failures of evaluation%'
-          OR note_text LIKE 'Learning revised from 15 to 10 on 1 September 2026.%'
-        )
-      RETURNING id
-    )
-    INSERT INTO country_profile_notes (
-      profile_id, note_type, display_order, note_text
-    )
-    SELECT
-      ${profileId},
-      'watch',
-      COALESCE((
-        SELECT MAX(display_order) + 1
-        FROM country_profile_notes
-        WHERE profile_id = ${profileId}
-          AND note_type = 'watch'
-      ), 1),
-      ${UPDATED_WATCH_NOTE}
-    WHERE NOT EXISTS (SELECT 1 FROM changed)
-      AND NOT EXISTS (
-        SELECT 1
-        FROM country_profile_notes
-        WHERE profile_id = ${profileId}
-          AND note_type = 'watch'
-          AND note_text = ${UPDATED_WATCH_NOTE}
-      );
+    DELETE FROM country_profile_notes
+    WHERE profile_id = ${profileId}
+      AND note_type = 'watch'
+      AND note_text LIKE 'Learning revised from 15 to 10 on 1 September 2026.%';
   `;
 
   const evidenceSummary =
