@@ -199,6 +199,23 @@ def score_candidate(item, row):
     if preferred:
         score += 35
 
+    # Prefer the requested analyte over derived ratios or panels unless the
+    # catalogue item explicitly asks for a ratio/panel.
+    intent_text = normalize(
+        " ".join([
+            item.get("label_fr", ""),
+            item.get("clinical_intent", ""),
+            " ".join(item.get("search_terms", [])),
+        ])
+    )
+    ratio_intent = any(x in intent_text.split() for x in ("ratio", "rapport"))
+    panel_intent = "panel" in intent_text.split()
+    component_has_ratio = "/" in clean(row.get("component")) or " ratio " in f" {text} "
+    if component_has_ratio and not ratio_intent:
+        score -= 140
+    if clean(row.get("class_code")).upper().startswith("PANEL.") and not panel_intent:
+        score -= 90
+
     rank = clean(row.get("common_test_rank"))
     if rank:
         try:
