@@ -1,7 +1,7 @@
 {
   "catalog_code": "IML-GP-BIO-V0.1",
   "title": "Catalogue biologique GP complet",
-  "version": "0.1",
+  "version": "0.2",
   "scope": "Médecine générale: première ligne, deuxième ligne, spécialisé et aigu/POCT. Les codes LOINC hints ne sont jamais considérés validés sans présence et contrôle dans le corpus local LOINC 2.83.",
   "items": [
     {
@@ -254,7 +254,7 @@
       "search_terms": [
         "reticulocytes"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "14196-0"
     },
     {
       "catalog_code": "GP-HEM-BLOOD-FILM",
@@ -270,7 +270,7 @@
         "blood film",
         "morphology"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "5909-7"
     },
     {
       "catalog_code": "GP-REN-NA",
@@ -433,7 +433,7 @@
         "calcium ionized",
         "ionized calcium"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "1994-3"
     },
     {
       "catalog_code": "GP-MIN-PHOS",
@@ -629,7 +629,7 @@
       "search_terms": [
         "immunofixation"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "25700-6"
     },
     {
       "catalog_code": "GP-PROT-FLC",
@@ -661,7 +661,7 @@
         "creatine kinase",
         "CK"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "2157-6"
     },
     {
       "catalog_code": "GP-MUS-LDH",
@@ -694,7 +694,7 @@
       "search_terms": [
         "lipase"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "3040-3"
     },
     {
       "catalog_code": "GP-PAN-AMYLASE",
@@ -710,7 +710,7 @@
       "search_terms": [
         "amylase"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "1798-8"
     },
     {
       "catalog_code": "GP-LIV-CDT",
@@ -772,7 +772,7 @@
       "search_terms": [
         "fructosamine"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "15069-8"
     },
     {
       "catalog_code": "GP-DIA-CPEP",
@@ -789,7 +789,7 @@
         "C peptide",
         "C-peptide"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "1986-9"
     },
     {
       "catalog_code": "GP-DIA-GAD",
@@ -801,10 +801,10 @@
         "Ser"
       ],
       "search_terms": [
-        "glutamic acid decarboxylase antibody",
-        "GAD antibody"
+        "glutamate decarboxylase 65 Ab",
+        "GAD65 Ab"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "112067-4"
     },
     {
       "catalog_code": "GP-DIA-IA2",
@@ -846,9 +846,10 @@
         "Ser"
       ],
       "search_terms": [
+        "insulin Ab",
         "insulin antibody"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "56546-5"
     },
     {
       "catalog_code": "GP-DIA-BOHB",
@@ -865,7 +866,7 @@
         "beta hydroxybutyrate",
         "3-hydroxybutyrate"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "66441-7"
     },
     {
       "catalog_code": "GP-LIP-CHOL",
@@ -929,7 +930,7 @@
       "search_terms": [
         "LDL cholesterol direct"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "18262-6"
     },
     {
       "catalog_code": "GP-LIP-TG",
@@ -962,7 +963,7 @@
         "apolipoprotein B",
         "ApoB"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "1884-6"
     },
     {
       "catalog_code": "GP-LIP-LPA",
@@ -979,7 +980,7 @@
         "lipoprotein(a)",
         "Lp(a)"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "10835-7"
     },
     {
       "catalog_code": "GP-IRON-FERR",
@@ -1091,7 +1092,7 @@
         "25-hydroxyvitamin D",
         "vitamin D 25"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "62292-8"
     },
     {
       "catalog_code": "GP-COAG-PT",
@@ -1133,10 +1134,10 @@
         "Plas"
       ],
       "search_terms": [
-        "activated partial thromboplastin time",
-        "aPTT"
+        "aPTT",
+        "activated partial thromboplastin time"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "14979-9"
     },
     {
       "catalog_code": "GP-COAG-FIB",
@@ -1215,7 +1216,7 @@
       "search_terms": [
         "procalcitonin"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "33959-8"
     },
     {
       "catalog_code": "GP-THY-TSH",
@@ -1307,10 +1308,10 @@
         "Ser"
       ],
       "search_terms": [
-        "TSH receptor antibody",
-        "TRAb"
+        "thyrotropin receptor Ab",
+        "TSH receptor Ab"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "5385-0"
     },
     {
       "catalog_code": "GP-CARD-TNI-HS",
@@ -1327,7 +1328,7 @@
         "troponin I high sensitivity",
         "high sensitivity troponin I"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "106906-1"
     },
     {
       "catalog_code": "GP-CARD-TNT-HS",
@@ -1344,7 +1345,7 @@
         "troponin T high sensitivity",
         "high sensitivity troponin T"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "67151-1"
     },
     {
       "catalog_code": "GP-CARD-BNP",
@@ -1360,7 +1361,7 @@
         "B-type natriuretic peptide",
         "BNP"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "30934-4"
     },
     {
       "catalog_code": "GP-CARD-NTBNP",
@@ -1377,7 +1378,7 @@
         "NT-proBNP",
         "N-terminal pro-B-type natriuretic peptide"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "33762-6"
     },
     {
       "catalog_code": "GP-END-HCG-S",
@@ -1394,7 +1395,7 @@
         "chorionic gonadotropin beta",
         "hCG beta"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "21198-7"
     },
     {
       "catalog_code": "GP-END-HCG-U",
@@ -1409,7 +1410,7 @@
         "chorionic gonadotropin urine",
         "hCG urine"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "2106-3"
     },
     {
       "catalog_code": "GP-END-CORT",
@@ -1424,7 +1425,7 @@
       "search_terms": [
         "cortisol"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "2143-6"
     },
     {
       "catalog_code": "GP-END-ACTH",
@@ -1436,10 +1437,10 @@
         "Plas"
       ],
       "search_terms": [
-        "adrenocorticotropic hormone",
+        "corticotropin",
         "ACTH"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "2141-0"
     },
     {
       "catalog_code": "GP-END-PRL",
@@ -1455,7 +1456,7 @@
       "search_terms": [
         "prolactin"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "2842-3"
     },
     {
       "catalog_code": "GP-END-FSH",
@@ -1472,7 +1473,7 @@
         "follicle stimulating hormone",
         "FSH"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "15067-2"
     },
     {
       "catalog_code": "GP-END-LH",
@@ -1486,10 +1487,10 @@
         "Plas"
       ],
       "search_terms": [
-        "luteinizing hormone",
-        "LH"
+        "lutropin",
+        "luteinizing hormone"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "10501-5"
     },
     {
       "catalog_code": "GP-END-E2",
@@ -1505,7 +1506,7 @@
       "search_terms": [
         "estradiol"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "2243-4"
     },
     {
       "catalog_code": "GP-END-PROG",
@@ -1521,7 +1522,7 @@
       "search_terms": [
         "progesterone"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "2839-9"
     },
     {
       "catalog_code": "GP-END-TESTO",
@@ -1535,9 +1536,9 @@
         "Plas"
       ],
       "search_terms": [
-        "testosterone total"
+        "testosterone"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "2986-8"
     },
     {
       "catalog_code": "GP-END-SHBG",
@@ -1554,7 +1555,7 @@
         "sex hormone binding globulin",
         "SHBG"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "13967-5"
     },
     {
       "catalog_code": "GP-END-PTH",
@@ -1570,7 +1571,7 @@
         "parathyroid hormone",
         "PTH"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "2731-8"
     },
     {
       "catalog_code": "GP-END-ALDO",
@@ -1585,7 +1586,7 @@
       "search_terms": [
         "aldosterone"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "1763-2"
     },
     {
       "catalog_code": "GP-END-RENIN",
@@ -1613,7 +1614,7 @@
       "search_terms": [
         "urine pH"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "2756-5"
     },
     {
       "catalog_code": "GP-URI-SG",
@@ -1627,7 +1628,7 @@
       "search_terms": [
         "specific gravity urine"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "2965-2"
     },
     {
       "catalog_code": "GP-URI-LEU",
@@ -1668,11 +1669,10 @@
         "Urine"
       ],
       "search_terms": [
-        "blood urine",
-        "erythrocytes urine",
-        "RBC urine"
+        "hemoglobin urine test strip",
+        "blood urine test strip"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "5794-3"
     },
     {
       "catalog_code": "GP-URI-PROT",
@@ -1684,9 +1684,9 @@
         "Urine"
       ],
       "search_terms": [
-        "protein urine"
+        "protein urine test strip"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "20454-5"
     },
     {
       "catalog_code": "GP-URI-GLU",
@@ -1700,7 +1700,7 @@
       "search_terms": [
         "glucose urine"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "2349-9"
     },
     {
       "catalog_code": "GP-URI-KET",
@@ -1714,7 +1714,7 @@
       "search_terms": [
         "ketones urine"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "2514-8"
     },
     {
       "catalog_code": "GP-URI-ACR",
@@ -1729,7 +1729,7 @@
         "albumin creatinine ratio urine",
         "ACR urine"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "9318-7"
     },
     {
       "catalog_code": "GP-URI-PCR",
@@ -1743,7 +1743,7 @@
       "search_terms": [
         "protein creatinine ratio urine"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "2890-2"
     },
     {
       "catalog_code": "GP-URI-CREAT",
@@ -1757,7 +1757,7 @@
       "search_terms": [
         "creatinine urine"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "2161-8"
     },
     {
       "catalog_code": "GP-URI-WBCQ",
@@ -2109,10 +2109,10 @@
       "clinical_intent": "Diagnostic / contrôle d'éradication",
       "preferred_systems": [],
       "search_terms": [
-        "Helicobacter pylori antigen stool",
-        "H pylori antigen feces"
+        "Helicobacter pylori Ag",
+        "H pylori Ag"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "17780-8"
     },
     {
       "catalog_code": "GP-ID-STREPA",
@@ -2122,10 +2122,10 @@
       "clinical_intent": "Angine selon stratégie clinique",
       "preferred_systems": [],
       "search_terms": [
-        "Streptococcus pyogenes antigen",
-        "Strep A rapid"
+        "Streptococcus pyogenes Ag",
+        "strep A"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "78012-2"
     },
     {
       "catalog_code": "GP-ID-COVID-AG",
@@ -2150,7 +2150,7 @@
         "SARS-CoV-2 RNA",
         "SARS-CoV-2 nucleic acid"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "94500-6"
     },
     {
       "catalog_code": "GP-ID-FLUAB",
@@ -2176,7 +2176,7 @@
         "respiratory syncytial virus antigen",
         "RSV rapid"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "72885-7"
     },
     {
       "catalog_code": "GP-AI-RF",
@@ -2190,7 +2190,7 @@
       "search_terms": [
         "rheumatoid factor"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "11572-5"
     },
     {
       "catalog_code": "GP-AI-CCP",
@@ -2202,10 +2202,10 @@
         "Ser"
       ],
       "search_terms": [
-        "cyclic citrullinated peptide antibody",
+        "cyclic citrullinated peptide Ab",
         "CCP antibody"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "32218-0"
     },
     {
       "catalog_code": "GP-AI-ANA",
@@ -2220,7 +2220,7 @@
         "antinuclear antibody",
         "ANA"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "5048-4"
     },
     {
       "catalog_code": "GP-AI-DSDNA",
@@ -2232,10 +2232,10 @@
         "Ser"
       ],
       "search_terms": [
-        "double stranded DNA antibody",
+        "DNA double strand Ab",
         "dsDNA antibody"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "5130-0"
     },
     {
       "catalog_code": "GP-AI-ENA",
@@ -2264,7 +2264,7 @@
       "search_terms": [
         "complement C3"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "4485-9"
     },
     {
       "catalog_code": "GP-AI-C4",
@@ -2278,7 +2278,7 @@
       "search_terms": [
         "complement C4"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "4498-2"
     },
     {
       "catalog_code": "GP-AI-ANCA",
@@ -2308,7 +2308,7 @@
         "tissue transglutaminase IgA",
         "tTG IgA"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "31017-7"
     },
     {
       "catalog_code": "GP-AI-IGA",
@@ -2320,10 +2320,10 @@
         "Ser"
       ],
       "search_terms": [
-        "immunoglobulin A",
-        "IgA total"
+        "IgA",
+        "immunoglobulin A"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "2458-8"
     },
     {
       "catalog_code": "GP-PSA-T",
@@ -2368,10 +2368,10 @@
         "Plas"
       ],
       "search_terms": [
-        "PSA free total ratio",
-        "prostate specific antigen ratio"
+        "prostate specific Ag free/prostate specific Ag total",
+        "PSA free total ratio"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "12841-3"
     },
     {
       "catalog_code": "GP-GI-FIT",
@@ -2398,7 +2398,7 @@
         "calprotectin stool",
         "fecal calprotectin"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "38445-3"
     },
     {
       "catalog_code": "GP-GI-CDIFF",
@@ -2424,7 +2424,7 @@
         "stool culture",
         "bacteria identified stool culture"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "625-4"
     },
     {
       "catalog_code": "GP-GI-PARASITE",
@@ -2450,7 +2450,7 @@
         "pancreatic elastase stool",
         "fecal elastase"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "25907-7"
     },
     {
       "catalog_code": "GP-ALL-IGE-T",
@@ -2495,7 +2495,7 @@
       "search_terms": [
         "lithium"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "14334-7"
     },
     {
       "catalog_code": "GP-TDM-DIG",
@@ -2510,7 +2510,7 @@
       "search_terms": [
         "digoxin"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "10535-3"
     },
     {
       "catalog_code": "GP-TDM-VALP",
@@ -2526,7 +2526,7 @@
         "valproate",
         "valproic acid"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "4086-5"
     },
     {
       "catalog_code": "GP-TDM-CBZ",
@@ -2541,7 +2541,7 @@
       "search_terms": [
         "carbamazepine"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "3432-2"
     },
     {
       "catalog_code": "GP-POCT-GLU",
@@ -2556,7 +2556,7 @@
         "glucose capillary blood",
         "glucose point of care"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "41653-7"
     },
     {
       "catalog_code": "GP-POCT-CRP",
@@ -2601,7 +2601,7 @@
         "hemoglobin point of care",
         "hemoglobin capillary"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "30352-9"
     },
     {
       "catalog_code": "GP-POCT-URINE",
@@ -2652,5 +2652,6 @@
       ],
       "known_loinc_hint": null
     }
-  ]
+  ],
+  "mapping_note": "known_loinc_hint = principal candidate only; never equivalent to automatic clinical validation. Multi-method/multi-unit families remain unresolved until explicit curation."
 }
