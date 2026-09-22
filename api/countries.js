@@ -1,124 +1,7 @@
 import { neon } from "@neondatabase/serverless";
-import { seedUzbekistan } from "../db/seeds/20260822_uzbekistan.mjs";
-import { seedTunisia } from "../db/seeds/20260922_tunisia.mjs";
-import { applyFranceLearningResponsivenessCorrection } from "../db/seeds/20260901_france_learning_responsiveness.mjs";
+import { ensurePreviewCountryData } from "../db/production-country-sync.mjs";
 
 const FRANCE_SECURITY_ADJUSTMENT = 20;
-
-async function ensureMainPreviewCountryData(sql) {
-  if (process.env.VERCEL_ENV !== "preview") return;
-
-  const previewBranch = String(process.env.VERCEL_GIT_COMMIT_REF || "");
-  if (!["main", "main-test"].includes(previewBranch)) return;
-
-  const stateRows = await sql`
-    SELECT
-      EXISTS (
-        SELECT 1
-        FROM countries c
-        JOIN country_profiles cp ON cp.country_id = c.id
-        WHERE c.iso3 = 'UZB'
-          AND c.is_active = TRUE
-          AND cp.status = 'published'
-      ) AS uzbekistan_ready,
-      EXISTS (
-        SELECT 1
-        FROM countries c
-        JOIN country_profiles cp ON cp.country_id = c.id
-        WHERE c.iso3 = 'TUN'
-          AND c.is_active = TRUE
-          AND cp.status = 'published'
-          AND cp.assessment_date = '2026-09-22'
-      ) AS tunisia_profile_ready,
-      (
-        SELECT COUNT(*) = 6
-        FROM countries c
-        JOIN country_profiles cp ON cp.country_id = c.id
-        JOIN country_profile_scores s ON s.profile_id = cp.id
-        WHERE c.iso3 = 'TUN'
-          AND cp.version = 1
-          AND (
-            (s.domain_code = 'governance' AND s.score = 62) OR
-            (s.domain_code = 'technical' AND s.score = 55) OR
-            (s.domain_code = 'identity' AND s.score = 54) OR
-            (s.domain_code = 'adoption' AND s.score = 58) OR
-            (s.domain_code = 'security' AND s.score = 52) OR
-            (s.domain_code = 'learning' AND s.score = 47)
-          )
-      ) AS tunisia_scores_ready,
-      EXISTS (
-        SELECT 1
-        FROM countries c
-        JOIN country_profiles cp ON cp.country_id = c.id
-        JOIN country_profile_sources src ON src.profile_id = cp.id
-        JOIN country_profile_source_indicators i ON i.source_id = src.id
-        WHERE c.iso3 = 'TUN'
-          AND cp.version = 1
-          AND i.indicator_code = 'LRN-5'
-      ) AS tunisia_lrn5_ready,
-      EXISTS (
-        SELECT 1
-        FROM countries c
-        JOIN country_profiles cp ON cp.country_id = c.id
-        JOIN country_profile_sources src ON src.profile_id = cp.id
-        WHERE c.iso3 = 'TUN'
-          AND cp.version = 1
-          AND src.source_url = 'https://extranet.who.int/uhcpartnershiplivemonitoring/country-profile?iso3=TUN'
-          AND src.public_url = 'https://extranet.who.int/uhcpartnershiplivemonitoring/country-profile?iso3=TUN'
-          AND src.url_status IN ('verified', 'redirected')
-      ) AS tunisia_source_route_ready,
-      EXISTS (
-        SELECT 1
-        FROM countries c
-        JOIN country_profiles cp ON cp.country_id = c.id
-        JOIN country_profile_scores s ON s.profile_id = cp.id
-        WHERE c.iso3 = 'FRA'
-          AND cp.status = 'published'
-          AND s.domain_code = 'learning'
-          AND s.score = 10
-      ) AS france_score_ready,
-      EXISTS (
-        SELECT 1
-        FROM countries c
-        JOIN country_profiles cp ON cp.country_id = c.id
-        JOIN country_profile_sources src ON src.profile_id = cp.id
-        JOIN country_profile_source_indicators i ON i.source_id = src.id
-        WHERE c.iso3 = 'FRA'
-          AND cp.status = 'published'
-          AND i.indicator_code = 'LRN-5'
-      ) AS france_lrn5_ready,
-      EXISTS (
-        SELECT 1
-        FROM countries c
-        JOIN country_profiles cp ON cp.country_id = c.id
-        JOIN country_profile_notes n ON n.profile_id = cp.id
-        WHERE c.iso3 = 'FRA'
-          AND cp.status = 'published'
-          AND n.note_type = 'watch'
-          AND n.note_text LIKE 'Learning revised from 15 to 10 on 1 September 2026.%'
-      ) AS france_note_ready;
-  `;
-
-  const state = stateRows[0] || {};
-
-  if (!state.uzbekistan_ready) {
-    await seedUzbekistan(sql);
-  }
-
-  if (
-    !state.tunisia_profile_ready ||
-    !state.tunisia_scores_ready ||
-    !state.tunisia_lrn5_ready ||
-    !state.tunisia_source_route_ready
-  ) {
-    await seedTunisia(sql);
-  }
-
-  if (!state.france_score_ready || !state.france_lrn5_ready || !state.france_note_ready) {
-    await applyFranceLearningResponsivenessCorrection(sql);
-  }
-}
-
 
 const FRANCE_CYBER_EVIDENCE = {
   watch: "Security score adjusted downward by 20 points in the France working profile. IML starts from official and administrative evidence about cybersecurity structures, controls and programmes, but cross-checks those claims against officially documented incidents and operational outcomes. In France, repeated hospital cyber incidents over several years have produced documented impacts on availability, continuity of care, confidentiality and recovery, materially qualifying the level of effective security that might otherwise be inferred from formal administrative information alone. This is a provisional country-profile evidence adjustment, not a judgment that every French healthcare institution has the same maturity. Better incident reporting is not penalised: transparency is treated separately as a positive governance and learning signal. Major incidents include Rouen, Dax, Villefranche-sur-Saône, Corbeil-Essonnes, Versailles, Brest, Rennes, Armentières and Cannes. The 2022 Corbeil-Essonnes attack caused major care disruption and data exfiltration; public official sources identify LockBit 3.0 but do not provide a complete public root-cause account of the initial compromise. CERT Santé recorded 764 security incidents in 2025, confirming that cyber risk is a continuing system-level issue rather than an isolated event.",
@@ -249,7 +132,7 @@ export async function GET() {
   try {
     const sql = neon(process.env.DATABASE_URL);
 
-    await ensureMainPreviewCountryData(sql);
+    await ensurePreviewCountryData(sql);
 
     const countries = await sql`
       SELECT
