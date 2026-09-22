@@ -1,7 +1,7 @@
 {
-  "catalog_code": "IML-GP-BIO-V0.1",
+  "catalog_code": "IML-GP-BIO-V0.3",
   "title": "Catalogue biologique GP complet",
-  "version": "0.2",
+  "version": "0.3",
   "scope": "Médecine générale: première ligne, deuxième ligne, spécialisé et aigu/POCT. Les codes LOINC hints ne sont jamais considérés validés sans présence et contrôle dans le corpus local LOINC 2.83.",
   "items": [
     {
@@ -18,7 +18,8 @@
         "CBC",
         "hemogram"
       ],
-      "known_loinc_hint": "57021-8"
+      "known_loinc_hint": "57021-8",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-HEM-RBC",
@@ -33,7 +34,8 @@
         "erythrocytes",
         "RBC"
       ],
-      "known_loinc_hint": "789-8"
+      "known_loinc_hint": "789-8",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-HEM-HB",
@@ -47,7 +49,8 @@
       "search_terms": [
         "hemoglobin"
       ],
-      "known_loinc_hint": "718-7"
+      "known_loinc_hint": "718-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-HEM-HCT",
@@ -61,7 +64,8 @@
       "search_terms": [
         "hematocrit"
       ],
-      "known_loinc_hint": "4544-3"
+      "known_loinc_hint": "4544-3",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-HEM-MCV",
@@ -76,7 +80,8 @@
         "mean corpuscular volume",
         "MCV"
       ],
-      "known_loinc_hint": "787-2"
+      "known_loinc_hint": "787-2",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-HEM-MCH",
@@ -91,7 +96,8 @@
         "mean corpuscular hemoglobin",
         "MCH"
       ],
-      "known_loinc_hint": "785-6"
+      "known_loinc_hint": "785-6",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-HEM-MCHC",
@@ -106,7 +112,8 @@
         "mean corpuscular hemoglobin concentration",
         "MCHC"
       ],
-      "known_loinc_hint": "786-4"
+      "known_loinc_hint": "786-4",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-HEM-RDW",
@@ -121,7 +128,8 @@
         "red cell distribution width",
         "RDW"
       ],
-      "known_loinc_hint": "788-0"
+      "known_loinc_hint": "788-0",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-HEM-WBC",
@@ -136,7 +144,8 @@
         "leukocytes",
         "WBC"
       ],
-      "known_loinc_hint": "6690-2"
+      "known_loinc_hint": "6690-2",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-HEM-NEUT-ABS",
@@ -151,7 +160,8 @@
         "neutrophils absolute",
         "neutrophils count"
       ],
-      "known_loinc_hint": "751-8"
+      "known_loinc_hint": "751-8",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-HEM-LYMPH-ABS",
@@ -166,7 +176,8 @@
         "lymphocytes absolute",
         "lymphocytes count"
       ],
-      "known_loinc_hint": "731-0"
+      "known_loinc_hint": "731-0",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-HEM-MONO-ABS",
@@ -181,7 +192,8 @@
         "monocytes absolute",
         "monocytes count"
       ],
-      "known_loinc_hint": "742-7"
+      "known_loinc_hint": "742-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-HEM-EOS-ABS",
@@ -196,7 +208,8 @@
         "eosinophils absolute",
         "eosinophils count"
       ],
-      "known_loinc_hint": "711-2"
+      "known_loinc_hint": "711-2",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-HEM-BASO-ABS",
@@ -211,7 +224,8 @@
         "basophils absolute",
         "basophils count"
       ],
-      "known_loinc_hint": "704-7"
+      "known_loinc_hint": "704-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-HEM-PLT",
@@ -225,7 +239,8 @@
       "search_terms": [
         "platelets"
       ],
-      "known_loinc_hint": "777-3"
+      "known_loinc_hint": "777-3",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-HEM-MPV",
@@ -240,7 +255,8 @@
         "mean platelet volume",
         "MPV"
       ],
-      "known_loinc_hint": "32623-1"
+      "known_loinc_hint": "32623-1",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-HEM-RETIC",
@@ -254,7 +270,8 @@
       "search_terms": [
         "reticulocytes"
       ],
-      "known_loinc_hint": "14196-0"
+      "known_loinc_hint": "14196-0",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-HEM-BLOOD-FILM",
@@ -270,7 +287,8 @@
         "blood film",
         "morphology"
       ],
-      "known_loinc_hint": "5909-7"
+      "known_loinc_hint": "5909-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-REN-NA",
@@ -286,7 +304,8 @@
       "search_terms": [
         "sodium"
       ],
-      "known_loinc_hint": "2951-2"
+      "known_loinc_hint": "2951-2",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-REN-K",
@@ -302,7 +321,8 @@
       "search_terms": [
         "potassium"
       ],
-      "known_loinc_hint": "2823-3"
+      "known_loinc_hint": "2823-3",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-REN-CL",
@@ -318,7 +338,8 @@
       "search_terms": [
         "chloride"
       ],
-      "known_loinc_hint": "2075-0"
+      "known_loinc_hint": "2075-0",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-REN-HCO3",
@@ -335,7 +356,8 @@
         "bicarbonate",
         "total CO2"
       ],
-      "known_loinc_hint": "1963-8"
+      "known_loinc_hint": "1963-8",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-REN-CREAT",
@@ -351,7 +373,8 @@
       "search_terms": [
         "creatinine"
       ],
-      "known_loinc_hint": "2160-0"
+      "known_loinc_hint": "2160-0",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-REN-EGFR-CKDEPI",
@@ -364,7 +387,8 @@
         "glomerular filtration rate CKD-EPI",
         "eGFR CKD-EPI"
       ],
-      "known_loinc_hint": "62238-1"
+      "known_loinc_hint": "62238-1",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-REN-UREA",
@@ -379,10 +403,10 @@
       ],
       "search_terms": [
         "urea",
-        "urea nitrogen",
-        "BUN"
+        "urea serum plasma"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "22664-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-REN-URIC",
@@ -399,7 +423,8 @@
         "uric acid",
         "urate"
       ],
-      "known_loinc_hint": "3084-1"
+      "known_loinc_hint": "3084-1",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-MIN-CA",
@@ -416,7 +441,8 @@
         "calcium total",
         "calcium"
       ],
-      "known_loinc_hint": "17861-6"
+      "known_loinc_hint": "17861-6",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-MIN-CAION",
@@ -433,7 +459,8 @@
         "calcium ionized",
         "ionized calcium"
       ],
-      "known_loinc_hint": "1994-3"
+      "known_loinc_hint": "1994-3",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-MIN-PHOS",
@@ -450,7 +477,8 @@
         "phosphate",
         "phosphorus"
       ],
-      "known_loinc_hint": "2777-1"
+      "known_loinc_hint": "2777-1",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-MIN-MG",
@@ -466,7 +494,8 @@
       "search_terms": [
         "magnesium"
       ],
-      "known_loinc_hint": "19123-9"
+      "known_loinc_hint": "19123-9",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-LIV-AST",
@@ -483,7 +512,8 @@
         "aspartate aminotransferase",
         "AST"
       ],
-      "known_loinc_hint": "1920-8"
+      "known_loinc_hint": "1920-8",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-LIV-ALT",
@@ -500,7 +530,8 @@
         "alanine aminotransferase",
         "ALT"
       ],
-      "known_loinc_hint": "1742-6"
+      "known_loinc_hint": "1742-6",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-LIV-GGT",
@@ -517,7 +548,8 @@
         "gamma glutamyl transferase",
         "GGT"
       ],
-      "known_loinc_hint": "2324-2"
+      "known_loinc_hint": "2324-2",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-LIV-ALP",
@@ -534,7 +566,8 @@
         "alkaline phosphatase",
         "ALP"
       ],
-      "known_loinc_hint": "6768-6"
+      "known_loinc_hint": "6768-6",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-LIV-BILI-T",
@@ -550,7 +583,8 @@
       "search_terms": [
         "bilirubin total"
       ],
-      "known_loinc_hint": "1975-2"
+      "known_loinc_hint": "1975-2",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-LIV-BILI-D",
@@ -567,7 +601,8 @@
         "bilirubin direct",
         "conjugated bilirubin"
       ],
-      "known_loinc_hint": "1968-7"
+      "known_loinc_hint": "1968-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-PROT-ALB",
@@ -583,7 +618,8 @@
       "search_terms": [
         "albumin"
       ],
-      "known_loinc_hint": "1751-7"
+      "known_loinc_hint": "1751-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-PROT-TOTAL",
@@ -600,7 +636,8 @@
         "protein total",
         "total protein"
       ],
-      "known_loinc_hint": "2885-2"
+      "known_loinc_hint": "2885-2",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-PROT-SPEP",
@@ -615,7 +652,8 @@
         "protein electrophoresis",
         "serum protein electrophoresis"
       ],
-      "known_loinc_hint": "24351-9"
+      "known_loinc_hint": "24351-9",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-PROT-IFE",
@@ -629,7 +667,8 @@
       "search_terms": [
         "immunofixation"
       ],
-      "known_loinc_hint": "25700-6"
+      "known_loinc_hint": "25700-6",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-PROT-FLC",
@@ -644,7 +683,9 @@
         "free light chains",
         "kappa lambda free"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": null,
+      "mapping_kind": "FAMILY",
+      "mapping_note": "L'exploration comprend kappa libre, lambda libre et leur ratio; ce n'est pas un analyte unique."
     },
     {
       "catalog_code": "GP-MUS-CK",
@@ -661,7 +702,8 @@
         "creatine kinase",
         "CK"
       ],
-      "known_loinc_hint": "2157-6"
+      "known_loinc_hint": "2157-6",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-MUS-LDH",
@@ -678,7 +720,9 @@
         "lactate dehydrogenase",
         "LDH"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": null,
+      "mapping_kind": "FAMILY",
+      "mapping_note": "LOINC distingue notamment les deux sens de réaction enzymatique."
     },
     {
       "catalog_code": "GP-PAN-LIPASE",
@@ -694,7 +738,8 @@
       "search_terms": [
         "lipase"
       ],
-      "known_loinc_hint": "3040-3"
+      "known_loinc_hint": "3040-3",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-PAN-AMYLASE",
@@ -710,7 +755,8 @@
       "search_terms": [
         "amylase"
       ],
-      "known_loinc_hint": "1798-8"
+      "known_loinc_hint": "1798-8",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-LIV-CDT",
@@ -725,7 +771,9 @@
         "carbohydrate deficient transferrin",
         "CDT"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": null,
+      "mapping_kind": "FAMILY",
+      "mapping_note": "CDT peut être rapportée en concentration ou en ratio/forme standardisée."
     },
     {
       "catalog_code": "GP-DIA-GLU",
@@ -741,7 +789,8 @@
       "search_terms": [
         "glucose"
       ],
-      "known_loinc_hint": "2345-7"
+      "known_loinc_hint": "2345-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-DIA-HBA1C",
@@ -756,7 +805,8 @@
         "hemoglobin A1c",
         "HbA1c"
       ],
-      "known_loinc_hint": "4548-4"
+      "known_loinc_hint": "4548-4",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-DIA-FRUCT",
@@ -772,7 +822,8 @@
       "search_terms": [
         "fructosamine"
       ],
-      "known_loinc_hint": "15069-8"
+      "known_loinc_hint": "15069-8",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-DIA-CPEP",
@@ -789,7 +840,8 @@
         "C peptide",
         "C-peptide"
       ],
-      "known_loinc_hint": "1986-9"
+      "known_loinc_hint": "1986-9",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-DIA-GAD",
@@ -804,7 +856,8 @@
         "glutamate decarboxylase 65 Ab",
         "GAD65 Ab"
       ],
-      "known_loinc_hint": "112067-4"
+      "known_loinc_hint": "112067-4",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-DIA-IA2",
@@ -820,7 +873,8 @@
         "IA-2 Ab",
         "tyrosine phosphatase IA2 antibody"
       ],
-      "known_loinc_hint": "56718-0"
+      "known_loinc_hint": "56718-0",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-DIA-ZNT8",
@@ -835,7 +889,8 @@
         "zinc transporter 8 antibody",
         "ZnT8"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": null,
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-DIA-INSAB",
@@ -850,7 +905,8 @@
         "insulin Ab",
         "insulin antibody"
       ],
-      "known_loinc_hint": "56546-5"
+      "known_loinc_hint": "56546-5",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-DIA-BOHB",
@@ -867,7 +923,8 @@
         "beta hydroxybutyrate",
         "3-hydroxybutyrate"
       ],
-      "known_loinc_hint": "66441-7"
+      "known_loinc_hint": "66441-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-LIP-CHOL",
@@ -883,7 +940,8 @@
       "search_terms": [
         "cholesterol total"
       ],
-      "known_loinc_hint": "2093-3"
+      "known_loinc_hint": "2093-3",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-LIP-HDL",
@@ -899,7 +957,8 @@
       "search_terms": [
         "HDL cholesterol"
       ],
-      "known_loinc_hint": "2085-9"
+      "known_loinc_hint": "2085-9",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-LIP-LDL-CALC",
@@ -915,7 +974,8 @@
       "search_terms": [
         "LDL cholesterol calculated"
       ],
-      "known_loinc_hint": "13457-7"
+      "known_loinc_hint": "13457-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-LIP-LDL-DIR",
@@ -931,7 +991,8 @@
       "search_terms": [
         "LDL cholesterol direct"
       ],
-      "known_loinc_hint": "18262-6"
+      "known_loinc_hint": "18262-6",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-LIP-TG",
@@ -947,7 +1008,8 @@
       "search_terms": [
         "triglycerides"
       ],
-      "known_loinc_hint": "2571-8"
+      "known_loinc_hint": "2571-8",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-LIP-APOB",
@@ -964,7 +1026,8 @@
         "apolipoprotein B",
         "ApoB"
       ],
-      "known_loinc_hint": "1884-6"
+      "known_loinc_hint": "1884-6",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-LIP-LPA",
@@ -981,7 +1044,8 @@
         "lipoprotein(a)",
         "Lp(a)"
       ],
-      "known_loinc_hint": "10835-7"
+      "known_loinc_hint": "10835-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-IRON-FERR",
@@ -997,7 +1061,8 @@
       "search_terms": [
         "ferritin"
       ],
-      "known_loinc_hint": "2276-4"
+      "known_loinc_hint": "2276-4",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-IRON-FE",
@@ -1013,7 +1078,8 @@
       "search_terms": [
         "iron"
       ],
-      "known_loinc_hint": "2498-4"
+      "known_loinc_hint": "2498-4",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-IRON-TRF",
@@ -1029,7 +1095,8 @@
       "search_terms": [
         "transferrin"
       ],
-      "known_loinc_hint": "3034-6"
+      "known_loinc_hint": "3034-6",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-IRON-TSAT",
@@ -1045,7 +1112,8 @@
       "search_terms": [
         "transferrin saturation"
       ],
-      "known_loinc_hint": "2502-3"
+      "known_loinc_hint": "2502-3",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-VIT-B12",
@@ -1062,7 +1130,8 @@
         "vitamin B12",
         "cobalamin"
       ],
-      "known_loinc_hint": "2132-9"
+      "known_loinc_hint": "2132-9",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-VIT-FOLATE",
@@ -1078,7 +1147,8 @@
       "search_terms": [
         "folate"
       ],
-      "known_loinc_hint": "2284-8"
+      "known_loinc_hint": "2284-8",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-VIT-D",
@@ -1093,7 +1163,8 @@
         "25-hydroxyvitamin D",
         "vitamin D 25"
       ],
-      "known_loinc_hint": "62292-8"
+      "known_loinc_hint": "62292-8",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-COAG-PT",
@@ -1108,7 +1179,8 @@
         "prothrombin time",
         "PT"
       ],
-      "known_loinc_hint": "5902-2"
+      "known_loinc_hint": "5902-2",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-COAG-INR",
@@ -1123,7 +1195,8 @@
         "INR",
         "international normalized ratio"
       ],
-      "known_loinc_hint": "6301-6"
+      "known_loinc_hint": "6301-6",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-COAG-APTT",
@@ -1138,7 +1211,8 @@
         "aPTT",
         "activated partial thromboplastin time"
       ],
-      "known_loinc_hint": "14979-9"
+      "known_loinc_hint": "14979-9",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-COAG-FIB",
@@ -1152,7 +1226,8 @@
       "search_terms": [
         "fibrinogen"
       ],
-      "known_loinc_hint": "3255-7"
+      "known_loinc_hint": "3255-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-COAG-DDIMER",
@@ -1168,7 +1243,9 @@
         "D-dimer",
         "D dimer"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": null,
+      "mapping_kind": "FAMILY",
+      "mapping_note": "Codes distincts selon FEU/DDU, spécimen et méthode/POCT."
     },
     {
       "catalog_code": "GP-INF-CRP",
@@ -1185,7 +1262,8 @@
         "C-reactive protein",
         "CRP"
       ],
-      "known_loinc_hint": "1988-5"
+      "known_loinc_hint": "1988-5",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-INF-ESR",
@@ -1201,7 +1279,8 @@
         "ESR",
         "Westergren"
       ],
-      "known_loinc_hint": "4537-7"
+      "known_loinc_hint": "4537-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-INF-PCT",
@@ -1217,7 +1296,8 @@
       "search_terms": [
         "procalcitonin"
       ],
-      "known_loinc_hint": "33959-8"
+      "known_loinc_hint": "33959-8",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-THY-TSH",
@@ -1234,7 +1314,8 @@
         "thyroid stimulating hormone",
         "TSH"
       ],
-      "known_loinc_hint": "3016-3"
+      "known_loinc_hint": "3016-3",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-THY-FT4",
@@ -1251,7 +1332,8 @@
         "thyroxine free",
         "free T4"
       ],
-      "known_loinc_hint": "3024-7"
+      "known_loinc_hint": "3024-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-THY-FT3",
@@ -1268,7 +1350,8 @@
         "triiodothyronine free",
         "free T3"
       ],
-      "known_loinc_hint": "3051-0"
+      "known_loinc_hint": "3051-0",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-THY-TPO",
@@ -1283,7 +1366,8 @@
         "thyroid peroxidase antibody",
         "TPO antibody"
       ],
-      "known_loinc_hint": "8099-4"
+      "known_loinc_hint": "8099-4",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-THY-TGAB",
@@ -1297,7 +1381,8 @@
       "search_terms": [
         "thyroglobulin antibody"
       ],
-      "known_loinc_hint": "8098-6"
+      "known_loinc_hint": "8098-6",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-THY-TRAB",
@@ -1312,7 +1397,8 @@
         "thyrotropin receptor Ab",
         "TSH receptor Ab"
       ],
-      "known_loinc_hint": "5385-0"
+      "known_loinc_hint": "5385-0",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-CARD-TNI-HS",
@@ -1329,7 +1415,8 @@
         "troponin I high sensitivity",
         "high sensitivity troponin I"
       ],
-      "known_loinc_hint": "106906-1"
+      "known_loinc_hint": "106906-1",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-CARD-TNT-HS",
@@ -1346,7 +1433,8 @@
         "troponin T high sensitivity",
         "high sensitivity troponin T"
       ],
-      "known_loinc_hint": "67151-1"
+      "known_loinc_hint": "67151-1",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-CARD-BNP",
@@ -1362,7 +1450,8 @@
         "B-type natriuretic peptide",
         "BNP"
       ],
-      "known_loinc_hint": "30934-4"
+      "known_loinc_hint": "30934-4",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-CARD-NTBNP",
@@ -1379,7 +1468,8 @@
         "NT-proBNP",
         "N-terminal pro-B-type natriuretic peptide"
       ],
-      "known_loinc_hint": "33762-6"
+      "known_loinc_hint": "33762-6",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-END-HCG-S",
@@ -1396,7 +1486,8 @@
         "chorionic gonadotropin beta",
         "hCG beta"
       ],
-      "known_loinc_hint": "21198-7"
+      "known_loinc_hint": "21198-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-END-HCG-U",
@@ -1411,7 +1502,8 @@
         "chorionic gonadotropin urine",
         "hCG urine"
       ],
-      "known_loinc_hint": "2106-3"
+      "known_loinc_hint": "2106-3",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-END-CORT",
@@ -1426,7 +1518,8 @@
       "search_terms": [
         "cortisol"
       ],
-      "known_loinc_hint": "2143-6"
+      "known_loinc_hint": "2143-6",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-END-ACTH",
@@ -1441,7 +1534,8 @@
         "corticotropin",
         "ACTH"
       ],
-      "known_loinc_hint": "2141-0"
+      "known_loinc_hint": "2141-0",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-END-PRL",
@@ -1457,7 +1551,8 @@
       "search_terms": [
         "prolactin"
       ],
-      "known_loinc_hint": "2842-3"
+      "known_loinc_hint": "2842-3",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-END-FSH",
@@ -1474,7 +1569,8 @@
         "follicle stimulating hormone",
         "FSH"
       ],
-      "known_loinc_hint": "15067-2"
+      "known_loinc_hint": "15067-2",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-END-LH",
@@ -1491,7 +1587,8 @@
         "lutropin",
         "luteinizing hormone"
       ],
-      "known_loinc_hint": "10501-5"
+      "known_loinc_hint": "10501-5",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-END-E2",
@@ -1507,7 +1604,8 @@
       "search_terms": [
         "estradiol"
       ],
-      "known_loinc_hint": "2243-4"
+      "known_loinc_hint": "2243-4",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-END-PROG",
@@ -1523,7 +1621,8 @@
       "search_terms": [
         "progesterone"
       ],
-      "known_loinc_hint": "2839-9"
+      "known_loinc_hint": "2839-9",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-END-TESTO",
@@ -1539,7 +1638,8 @@
       "search_terms": [
         "testosterone"
       ],
-      "known_loinc_hint": "2986-8"
+      "known_loinc_hint": "2986-8",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-END-SHBG",
@@ -1556,7 +1656,8 @@
         "sex hormone binding globulin",
         "SHBG"
       ],
-      "known_loinc_hint": "13967-5"
+      "known_loinc_hint": "13967-5",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-END-PTH",
@@ -1572,7 +1673,8 @@
         "parathyroid hormone",
         "PTH"
       ],
-      "known_loinc_hint": "2731-8"
+      "known_loinc_hint": "2731-8",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-END-ALDO",
@@ -1587,7 +1689,8 @@
       "search_terms": [
         "aldosterone"
       ],
-      "known_loinc_hint": "1763-2"
+      "known_loinc_hint": "1763-2",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-END-RENIN",
@@ -1601,7 +1704,9 @@
       "search_terms": [
         "renin"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": null,
+      "mapping_kind": "FAMILY",
+      "mapping_note": "Codes distincts pour activité rénine et concentration de rénine."
     },
     {
       "catalog_code": "GP-URI-PH",
@@ -1615,7 +1720,8 @@
       "search_terms": [
         "urine pH"
       ],
-      "known_loinc_hint": "2756-5"
+      "known_loinc_hint": "2756-5",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-URI-SG",
@@ -1629,7 +1735,8 @@
       "search_terms": [
         "specific gravity urine"
       ],
-      "known_loinc_hint": "2965-2"
+      "known_loinc_hint": "2965-2",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-URI-LEU",
@@ -1643,7 +1750,8 @@
       "search_terms": [
         "leukocyte esterase urine test strip"
       ],
-      "known_loinc_hint": "5799-2"
+      "known_loinc_hint": "5799-2",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-URI-NIT",
@@ -1657,7 +1765,8 @@
       "search_terms": [
         "nitrite urine test strip"
       ],
-      "known_loinc_hint": "5802-4"
+      "known_loinc_hint": "5802-4",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-URI-BLOOD",
@@ -1672,7 +1781,8 @@
         "hemoglobin urine test strip",
         "blood urine test strip"
       ],
-      "known_loinc_hint": "5794-3"
+      "known_loinc_hint": "5794-3",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-URI-PROT",
@@ -1686,7 +1796,8 @@
       "search_terms": [
         "protein urine test strip"
       ],
-      "known_loinc_hint": "20454-5"
+      "known_loinc_hint": "20454-5",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-URI-GLU",
@@ -1700,7 +1811,8 @@
       "search_terms": [
         "glucose urine"
       ],
-      "known_loinc_hint": "2349-9"
+      "known_loinc_hint": "2349-9",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-URI-KET",
@@ -1714,7 +1826,8 @@
       "search_terms": [
         "ketones urine"
       ],
-      "known_loinc_hint": "2514-8"
+      "known_loinc_hint": "2514-8",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-URI-ACR",
@@ -1729,7 +1842,8 @@
         "albumin creatinine ratio urine",
         "ACR urine"
       ],
-      "known_loinc_hint": "9318-7"
+      "known_loinc_hint": "9318-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-URI-PCR",
@@ -1743,7 +1857,8 @@
       "search_terms": [
         "protein creatinine ratio urine"
       ],
-      "known_loinc_hint": "2890-2"
+      "known_loinc_hint": "2890-2",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-URI-CREAT",
@@ -1757,7 +1872,8 @@
       "search_terms": [
         "creatinine urine"
       ],
-      "known_loinc_hint": "2161-8"
+      "known_loinc_hint": "2161-8",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-URI-WBCQ",
@@ -1772,7 +1888,8 @@
         "leukocytes urine quantitative",
         "WBC urine quantitative"
       ],
-      "known_loinc_hint": "30405-5"
+      "known_loinc_hint": "30405-5",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-URI-RBCQ",
@@ -1787,7 +1904,8 @@
         "erythrocytes urine quantitative",
         "RBC urine quantitative"
       ],
-      "known_loinc_hint": "30391-7"
+      "known_loinc_hint": "30391-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-URI-CULT",
@@ -1802,7 +1920,8 @@
         "urine culture",
         "bacteria identified urine culture"
       ],
-      "known_loinc_hint": "630-4"
+      "known_loinc_hint": "630-4",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-URI-AST",
@@ -1815,7 +1934,8 @@
         "bacterial susceptibility panel",
         "antimicrobial susceptibility"
       ],
-      "known_loinc_hint": "29576-6"
+      "known_loinc_hint": "29576-6",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-URI-MIC",
@@ -1828,7 +1948,8 @@
         "susceptibility MIC",
         "minimum inhibitory concentration"
       ],
-      "known_loinc_hint": "50545-3"
+      "known_loinc_hint": "50545-3",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-ID-HIV",
@@ -1844,7 +1965,8 @@
         "HIV 1 2 antibody antigen p24",
         "HIV Ag Ab"
       ],
-      "known_loinc_hint": "56888-1"
+      "known_loinc_hint": "56888-1",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-ID-HBSAG",
@@ -1860,7 +1982,8 @@
         "hepatitis B surface antigen",
         "HBsAg"
       ],
-      "known_loinc_hint": "5196-1"
+      "known_loinc_hint": "5196-1",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-ID-ANTIHBc",
@@ -1876,7 +1999,8 @@
         "hepatitis B virus core Ab",
         "HBV core Ab"
       ],
-      "known_loinc_hint": "13952-7"
+      "known_loinc_hint": "13952-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-ID-ANTIHBs",
@@ -1892,7 +2016,8 @@
         "hepatitis B virus surface Ab",
         "HBs Ab"
       ],
-      "known_loinc_hint": "16935-9"
+      "known_loinc_hint": "16935-9",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-ID-HCVAB",
@@ -1908,7 +2033,8 @@
         "hepatitis C antibody",
         "HCV antibody"
       ],
-      "known_loinc_hint": "13955-0"
+      "known_loinc_hint": "13955-0",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-ID-HCVRNA",
@@ -1924,7 +2050,9 @@
         "hepatitis C RNA",
         "HCV RNA"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": null,
+      "mapping_kind": "FAMILY",
+      "mapping_note": "Résultats qualitatifs, quantitatifs et logarithmiques ont des codes distincts."
     },
     {
       "catalog_code": "GP-ID-SYPH",
@@ -1940,7 +2068,8 @@
         "syphilis antibody",
         "Treponema pallidum antibody"
       ],
-      "known_loinc_hint": "34954-8"
+      "known_loinc_hint": "34954-8",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-ID-CMV-IGM",
@@ -1955,7 +2084,8 @@
         "cytomegalovirus IgM",
         "CMV IgM"
       ],
-      "known_loinc_hint": "5126-8"
+      "known_loinc_hint": "5126-8",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-ID-CMV-IGG",
@@ -1970,7 +2100,9 @@
         "cytomegalovirus IgG",
         "CMV IgG"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": null,
+      "mapping_kind": "FAMILY",
+      "mapping_note": "Présence, concentration et interprétation sont des observations distinctes."
     },
     {
       "catalog_code": "GP-ID-EBV-IGM",
@@ -1985,7 +2117,8 @@
         "EBV viral capsid antigen IgM",
         "VCA IgM"
       ],
-      "known_loinc_hint": "7886-5"
+      "known_loinc_hint": "7886-5",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-ID-EBV-IGG",
@@ -2000,7 +2133,8 @@
         "EBV viral capsid antigen IgG",
         "VCA IgG"
       ],
-      "known_loinc_hint": "7885-7"
+      "known_loinc_hint": "7885-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-ID-TOXO-IGG",
@@ -2014,7 +2148,9 @@
       "search_terms": [
         "Toxoplasma IgG"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": null,
+      "mapping_kind": "FAMILY",
+      "mapping_note": "Présence, concentration et méthode sont distinguées par LOINC."
     },
     {
       "catalog_code": "GP-ID-TOXO-IGM",
@@ -2028,7 +2164,9 @@
       "search_terms": [
         "Toxoplasma IgM"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": null,
+      "mapping_kind": "FAMILY",
+      "mapping_note": "Présence, concentration et méthode sont distinguées par LOINC."
     },
     {
       "catalog_code": "GP-ID-RUB-IGG",
@@ -2042,7 +2180,9 @@
       "search_terms": [
         "rubella IgG"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": null,
+      "mapping_kind": "FAMILY",
+      "mapping_note": "Présence, concentration et interprétation sont des observations distinctes."
     },
     {
       "catalog_code": "GP-ID-PARVO-IGM",
@@ -2056,7 +2196,9 @@
       "search_terms": [
         "parvovirus B19 IgM"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": null,
+      "mapping_kind": "FAMILY",
+      "mapping_note": "Présence, concentration et méthode sont distinguées par LOINC."
     },
     {
       "catalog_code": "GP-ID-LYME",
@@ -2068,10 +2210,11 @@
         "Ser"
       ],
       "search_terms": [
-        "Borrelia antibody",
-        "Lyme antibody"
+        "Borrelia burgdorferi IgG and IgM panel",
+        "Borrelia burgdorferi antibody"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "34942-3",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-ID-CHLAM",
@@ -2083,9 +2226,11 @@
         "Urine"
       ],
       "search_terms": [
-        "Chlamydia trachomatis nucleic acid"
+        "Chlamydia trachomatis DNA",
+        "Chlamydia trachomatis urine NAA"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "6357-8",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-ID-GONO",
@@ -2097,9 +2242,11 @@
         "Urine"
       ],
       "search_terms": [
-        "Neisseria gonorrhoeae nucleic acid"
+        "Neisseria gonorrhoeae DNA",
+        "Neisseria gonorrhoeae urine NAA"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "21416-3",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-ID-HPYLORI",
@@ -2112,7 +2259,8 @@
         "Helicobacter pylori Ag",
         "H pylori Ag"
       ],
-      "known_loinc_hint": "17780-8"
+      "known_loinc_hint": "17780-8",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-ID-STREPA",
@@ -2125,7 +2273,8 @@
         "Streptococcus pyogenes Ag",
         "strep A"
       ],
-      "known_loinc_hint": "78012-2"
+      "known_loinc_hint": "78012-2",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-ID-COVID-AG",
@@ -2138,7 +2287,8 @@
         "SARS-CoV-2 Ag",
         "SARS coronavirus 2 Ag"
       ],
-      "known_loinc_hint": "94558-4"
+      "known_loinc_hint": "94558-4",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-ID-COVID-PCR",
@@ -2151,7 +2301,8 @@
         "SARS-CoV-2 RNA",
         "SARS-CoV-2 nucleic acid"
       ],
-      "known_loinc_hint": "94500-6"
+      "known_loinc_hint": "94500-6",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-ID-FLUAB",
@@ -2164,7 +2315,9 @@
         "influenza A B antigen",
         "influenza A B rapid"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": null,
+      "mapping_kind": "FAMILY",
+      "mapping_note": "Les dispositifs peuvent rapporter Influenza A et B séparément ou via un panel combiné."
     },
     {
       "catalog_code": "GP-ID-RSV",
@@ -2177,7 +2330,8 @@
         "respiratory syncytial virus antigen",
         "RSV rapid"
       ],
-      "known_loinc_hint": "72885-7"
+      "known_loinc_hint": "72885-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-AI-RF",
@@ -2191,7 +2345,8 @@
       "search_terms": [
         "rheumatoid factor"
       ],
-      "known_loinc_hint": "11572-5"
+      "known_loinc_hint": "11572-5",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-AI-CCP",
@@ -2206,7 +2361,8 @@
         "cyclic citrullinated peptide Ab",
         "CCP antibody"
       ],
-      "known_loinc_hint": "32218-0"
+      "known_loinc_hint": "32218-0",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-AI-ANA",
@@ -2221,7 +2377,8 @@
         "antinuclear antibody",
         "ANA"
       ],
-      "known_loinc_hint": "5048-4"
+      "known_loinc_hint": "5048-4",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-AI-DSDNA",
@@ -2236,7 +2393,8 @@
         "DNA double strand Ab",
         "dsDNA antibody"
       ],
-      "known_loinc_hint": "5130-0"
+      "known_loinc_hint": "5130-0",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-AI-ENA",
@@ -2251,7 +2409,8 @@
         "extractable nuclear antigen",
         "ENA"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": null,
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-AI-C3",
@@ -2265,7 +2424,8 @@
       "search_terms": [
         "complement C3"
       ],
-      "known_loinc_hint": "4485-9"
+      "known_loinc_hint": "4485-9",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-AI-C4",
@@ -2279,7 +2439,8 @@
       "search_terms": [
         "complement C4"
       ],
-      "known_loinc_hint": "4498-2"
+      "known_loinc_hint": "4498-2",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-AI-ANCA",
@@ -2294,7 +2455,9 @@
         "antineutrophil cytoplasmic antibody",
         "ANCA"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": null,
+      "mapping_kind": "FAMILY",
+      "mapping_note": "Le terme clinique ANCA recouvre plusieurs cibles/patterns et méthodes (p-ANCA, c-ANCA, PR3, MPO)."
     },
     {
       "catalog_code": "GP-AI-TTGA",
@@ -2309,7 +2472,8 @@
         "tissue transglutaminase IgA",
         "tTG IgA"
       ],
-      "known_loinc_hint": "31017-7"
+      "known_loinc_hint": "31017-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-AI-IGA",
@@ -2324,7 +2488,8 @@
         "IgA",
         "immunoglobulin A"
       ],
-      "known_loinc_hint": "2458-8"
+      "known_loinc_hint": "2458-8",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-PSA-T",
@@ -2340,7 +2505,8 @@
         "prostate specific antigen total",
         "PSA total"
       ],
-      "known_loinc_hint": "2857-1"
+      "known_loinc_hint": "2857-1",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-PSA-F",
@@ -2356,7 +2522,8 @@
         "prostate specific antigen free",
         "PSA free"
       ],
-      "known_loinc_hint": "10886-0"
+      "known_loinc_hint": "10886-0",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-PSA-RATIO",
@@ -2372,7 +2539,8 @@
         "prostate specific Ag free/prostate specific Ag total",
         "PSA free total ratio"
       ],
-      "known_loinc_hint": "12841-3"
+      "known_loinc_hint": "12841-3",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-GI-FIT",
@@ -2385,7 +2553,8 @@
         "hemoglobin stool immunoassay",
         "fecal immunochemical test"
       ],
-      "known_loinc_hint": "29771-3"
+      "known_loinc_hint": "29771-3",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-GI-CALP",
@@ -2398,7 +2567,8 @@
         "calprotectin stool",
         "fecal calprotectin"
       ],
-      "known_loinc_hint": "38445-3"
+      "known_loinc_hint": "38445-3",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-GI-CDIFF",
@@ -2411,7 +2581,9 @@
         "Clostridioides difficile toxin",
         "C difficile nucleic acid"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": null,
+      "mapping_kind": "FAMILY",
+      "mapping_note": "La stratégie peut rapporter toxines A/B, antigène ou gènes par NAAT."
     },
     {
       "catalog_code": "GP-GI-STOOL-CULT",
@@ -2424,7 +2596,8 @@
         "stool culture",
         "bacteria identified stool culture"
       ],
-      "known_loinc_hint": "625-4"
+      "known_loinc_hint": "625-4",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-GI-PARASITE",
@@ -2437,7 +2610,8 @@
         "ova parasite stool",
         "parasite examination stool"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": null,
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-GI-ELASTASE",
@@ -2450,7 +2624,8 @@
         "pancreatic elastase stool",
         "fecal elastase"
       ],
-      "known_loinc_hint": "25907-7"
+      "known_loinc_hint": "25907-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-ALL-IGE-T",
@@ -2465,7 +2640,8 @@
         "IgE",
         "immunoglobulin E"
       ],
-      "known_loinc_hint": "19113-0"
+      "known_loinc_hint": "19113-0",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-ALL-IGE-S",
@@ -2480,7 +2656,9 @@
         "allergen specific IgE",
         "specific IgE"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": null,
+      "mapping_kind": "FAMILY",
+      "mapping_note": "Un code LOINC distinct existe pour chaque allergène ou panel; pas de code unique générique pour toutes les IgE spécifiques."
     },
     {
       "catalog_code": "GP-TDM-LITH",
@@ -2495,7 +2673,8 @@
       "search_terms": [
         "lithium"
       ],
-      "known_loinc_hint": "14334-7"
+      "known_loinc_hint": "14334-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-TDM-DIG",
@@ -2510,7 +2689,8 @@
       "search_terms": [
         "digoxin"
       ],
-      "known_loinc_hint": "10535-3"
+      "known_loinc_hint": "10535-3",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-TDM-VALP",
@@ -2526,7 +2706,8 @@
         "valproate",
         "valproic acid"
       ],
-      "known_loinc_hint": "4086-5"
+      "known_loinc_hint": "4086-5",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-TDM-CBZ",
@@ -2541,7 +2722,8 @@
       "search_terms": [
         "carbamazepine"
       ],
-      "known_loinc_hint": "3432-2"
+      "known_loinc_hint": "3432-2",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-POCT-GLU",
@@ -2556,7 +2738,8 @@
         "glucose capillary blood",
         "glucose point of care"
       ],
-      "known_loinc_hint": "41653-7"
+      "known_loinc_hint": "41653-7",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-POCT-CRP",
@@ -2571,7 +2754,8 @@
         "C reactive protein rapid immunoassay",
         "CRP rapid"
       ],
-      "known_loinc_hint": "106736-2"
+      "known_loinc_hint": "106736-2",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-POCT-INR",
@@ -2586,7 +2770,8 @@
         "INR capillary blood",
         "INR"
       ],
-      "known_loinc_hint": "46418-0"
+      "known_loinc_hint": "46418-0",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-POCT-HB",
@@ -2601,7 +2786,8 @@
         "hemoglobin point of care",
         "hemoglobin capillary"
       ],
-      "known_loinc_hint": "30352-9"
+      "known_loinc_hint": "30352-9",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-POCT-URINE",
@@ -2616,7 +2802,8 @@
         "urinalysis macro dipstick panel",
         "urinalysis dipstick panel"
       ],
-      "known_loinc_hint": "24357-6"
+      "known_loinc_hint": "24357-6",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-POCT-HIV",
@@ -2630,10 +2817,11 @@
         "Plas"
       ],
       "search_terms": [
-        "HIV rapid test",
-        "HIV point of care"
+        "HIV 1+2 Ab rapid immunoassay",
+        "HIV rapid immunoassay"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "80387-4",
+      "mapping_kind": "SINGLE"
     },
     {
       "catalog_code": "GP-POCT-HCV",
@@ -2647,11 +2835,12 @@
         "Plas"
       ],
       "search_terms": [
-        "HCV rapid test",
-        "hepatitis C point of care"
+        "Hepatitis C virus Ab rapid immunoassay",
+        "HCV Ab rapid immunoassay"
       ],
-      "known_loinc_hint": null
+      "known_loinc_hint": "72376-7",
+      "mapping_kind": "SINGLE"
     }
   ],
-  "mapping_note": "known_loinc_hint = principal candidate only; never equivalent to automatic clinical validation. Multi-method/multi-unit families remain unresolved until explicit curation."
+  "mapping_note": "SINGLE: principal LOINC candidate may be proposed. FAMILY: the clinical test intentionally maps to multiple legitimate LOINC variants; no forced single code. No mapping is clinically VALIDATED automatically."
 }
