@@ -69,7 +69,7 @@ def main():
                     def esc(x): return (x or "").replace("|","\\\\|")
                     lines.append(f"|{c['candidate_rank']}|{c['loinc_num']}|{c['score']}|{esc(c['candidate_label'])}|{esc(c['system_axis'])}|{esc(c['method_typ'])}|{esc(c['class_code'])}|{c['common_test_rank']}|")
                 lines.append("")
-    out.write_text("\\n".join(lines)+"\\n", encoding="utf-8")
+    out.write_text("\n".join(lines)+"\n", encoding="utf-8")
     print(f"Entrées à revoir: {len(by_item)}")
     print(f"Rapport: {out}")
     return 0
