@@ -18,6 +18,13 @@ test("validated IML site continuity invariants", () => {
   assert.match(api, /ensurePreviewCountryData/);
   assert.doesNotMatch(api, /main-test/);
 
+  assert.match(api, /Security: repeated hospital cyber incidents reveal a gap between formal safeguards and observed operational resilience\./);
+  assert.doesNotMatch(api, /IML starts from official and administrative evidence about cybersecurity/);
+  assert.match(api, /simplifyFranceWatch/);
+  assert.match(api, /url_status: "verified"/);
+  assert.match(api, /documentary_url:/);
+  assert.match(api, /last_checked_at: "2026-09-22T00:00:00\+00:00"/);
+
   assert.match(sync, /seedUzbekistan/);
   assert.match(sync, /seedTunisia/);
   assert.match(sync, /applyFranceLearningResponsivenessCorrection/);
@@ -34,6 +41,9 @@ test("validated IML site continuity invariants", () => {
 
   assert.match(productionSync, /ensureRequiredCountryData/);
   assert.match(productionSync, /shouldRunProductionCountrySync/);
+  assert.match(read("src/components/CountryExplorer.jsx"), /groupEvidenceSources/);
+  assert.match(read("src/components/CountryExplorer.jsx"), /Security adjusted downward after repeated officially documented hospital cyber incidents/);
+  assert.doesNotMatch(read("src/components/CountryExplorer.jsx"), /Why Learning is/);
   assert.match(packageJson, /sync-production-country-data\.mjs/);
   assert.doesNotMatch(continuityWorkflow, /main-test/);
 
