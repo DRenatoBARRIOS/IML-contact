@@ -309,12 +309,11 @@ img { display: block; max-width: 100%; }
 .audience-grid p { margin: 0; color: #c4d9d5; font-size: .82rem; line-height: 1.55; }
 
 .site-footer { background: #0d1d29; color: #dae2e4; padding-block: 66px 28px; }
-.footer-contact { display: flex; align-items: center; justify-content: space-between; gap: 40px; }
+.footer-contact { display: flex; align-items: center; gap: 40px; }
 .footer-brand { display: flex; align-items: center; }
-.footer-brand strong { font-family: var(--font-source-serif), Georgia, serif; font-size: 1.7rem; font-weight: 600; }
+.footer-brand-link { color: #dae2e4; font-family: var(--font-source-serif), Georgia, serif; font-size: 1.7rem; font-weight: 600; text-decoration: none; }
+.footer-brand-link:hover { color: white; text-decoration: underline; text-underline-offset: .16em; }
 .footer-brand p { max-width: 450px; margin: 7px 0 0; color: #9aabb5; font-size: .85rem; }
-.footer-email { color: white; font-size: clamp(1.5rem, 2.6vw, 2.35rem); font-weight: 600; letter-spacing: -.02em; text-decoration: underline; text-underline-offset: .16em; }
-.footer-email:hover { color: #cfe4df; }
 .footer-bottom { display: flex; justify-content: flex-start; gap: 30px; margin-top: 44px; border-top: 1px solid rgba(255,255,255,.12); color: #798c98; padding-top: 24px; font-size: .65rem; }
 
 .profiles-heading { display: flex; align-items: center; justify-content: space-between; gap: 28px; margin-bottom: 30px; }
