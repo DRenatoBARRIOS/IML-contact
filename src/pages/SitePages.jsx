@@ -63,7 +63,7 @@ function SiteFooter() {
       </div>
       <div className="shell footer-bottom">
         <span>© {new Date().getFullYear()} IML Health</span>
-        <span>Contact: iml.health@pm.me</span>
+        <span>Contact: <a href="mailto:iml.health@pm.me">iml.health@pm.me</a></span>
       </div>
     </footer>
   );
