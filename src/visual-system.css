@@ -636,9 +636,16 @@ body[data-iml-route="/collaborate"] #root .collaborate-section::before {
   top: -26rem;
   width: 48rem;
   height: 48rem;
+  pointer-events: none;
   border: 1px solid rgba(216,231,229,.08);
   border-radius: 50%;
   content: "";
+}
+
+#root .footer-contact,
+#root .footer-bottom {
+  position: relative;
+  z-index: 1;
 }
 
 /* Motion is nearly imperceptible and never required for comprehension */
