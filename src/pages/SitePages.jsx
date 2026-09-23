@@ -45,13 +45,12 @@ function SiteFooter() {
       <div className="shell footer-contact">
         <div className="footer-brand">
           <div>
-            <strong>IML Health</strong>
+            <a className="footer-brand-link" href="mailto:iml.health@pm.me?subject=IML%20Health" aria-label="Email IML Health">
+              IML Health
+            </a>
             <p>Independent, non-commercial and open for scientific review.</p>
           </div>
         </div>
-        <a className="footer-email" href="mailto:iml.health@pm.me?subject=IML%20Health" aria-label="Email IML Health at iml.health@pm.me">
-          iml.health@pm.me
-        </a>
       </div>
       <div className="shell footer-bottom">
         <span>© {new Date().getFullYear()} IML Health</span>
