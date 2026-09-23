@@ -42,28 +42,19 @@ function SiteHeader({ active, home }) {
 function SiteFooter() {
   return (
     <footer className="site-footer">
-      <div className="shell footer-grid">
+      <div className="shell footer-contact">
         <div className="footer-brand">
           <div>
             <strong>IML Health</strong>
             <p>Independent, non-commercial and open for scientific review.</p>
           </div>
         </div>
-        <div>
-          <h3>Explore</h3>
-          <a href="/clinical-workspace">Clinical workspace</a>
-          <a href="/interoperability">Interoperability</a>
-          <a href="/country-profiles">Country profiles</a>
-        </div>
-        <div>
-          <h3>Project</h3>
-          <a href="/identity-trust">Identity &amp; Trust</a>
-          <a href="/collaborate">Collaborate</a>
-        </div>
+        <a className="footer-email" href="mailto:iml.health@pm.me">
+          iml.health@pm.me
+        </a>
       </div>
       <div className="shell footer-bottom">
         <span>© {new Date().getFullYear()} IML Health</span>
-        <span>Contact: <a href="mailto:iml.health@pm.me">iml.health@pm.me</a></span>
       </div>
     </footer>
   );
