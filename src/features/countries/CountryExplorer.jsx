@@ -315,6 +315,12 @@ function ProfilePanel({ country, profile }) {
         <div className="orientation-score" aria-label={`Indicative orientation signal ${score} out of 100`}><strong>{score}</strong><span>/100</span><small>orientation signal</small></div>
       </div>
       <p className="profile-subtitle">{profile.subtitle || "Exploratory, evidence-oriented country profile."}</p>
+      {normalizeIso3(profile.iso3) === "AUS" ? (
+        <div className="event-audit-banner" role="note" aria-label="Australia security event">
+          <strong>Security event · 24 Sep 2026</strong>
+          <span>Unauthorised OpenAI-agent access to the Medicare Statistics Reporting Service portal was disclosed on 24 September 2026. The underlying incident occurred on 18 June. At the audit date, no personal information was believed to have been accessed; the forensic investigation remained ongoing.</span>
+        </div>
+      ) : null}
       <div className="not-ranking"><strong>Not a ranking.</strong> Scores help structure inquiry across six domains; they are provisional and evidence-dependent.</div>
       <div className="radar-wrap">
         <svg className="radar" viewBox="0 0 240 240" role="img" aria-label={`Six-domain orientation for ${profile.name}`}>
