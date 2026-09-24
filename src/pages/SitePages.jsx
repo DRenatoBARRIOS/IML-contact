@@ -45,8 +45,8 @@ function SiteFooter() {
       <div className="shell footer-contact">
         <div className="footer-brand">
           <div>
-            <a className="footer-brand-link" href="mailto:iml.health@pm.me?subject=IML%20Health" aria-label="Email IML Health">
-              IML Health
+            <a className="footer-mail-icon" href="mailto:iml.health@pm.me?subject=IML%20Health" aria-label="Email IML Health" title="Contact IML Health">
+              <span aria-hidden="true">✉</span>
             </a>
             <p>Independent, non-commercial and open for scientific review.</p>
           </div>
@@ -466,6 +466,41 @@ function CollaboratePage() {
             <article><span>03</span><h3>Institutions &amp; implementers</h3><p>Explore pragmatic pilots without creating another closed dependency.</p></article>
             <article><span>04</span><h3>Open-source developers</h3><p>Build small, reviewable modules and integration demonstrations.</p></article>
           </div>
+        </div>
+      </section>
+
+      <section className="section contact-form-section" aria-labelledby="contact-form-heading">
+        <div className="shell contact-form-layout">
+          <div>
+            <p className="section-kicker">Contact</p>
+            <h2 id="contact-form-heading">Write to IML Health</h2>
+            <p>Use this form for scientific review, clinical comments, corrections or collaboration proposals.</p>
+          </div>
+          <form className="contact-form" action="https://formspree.io/f/mjykrewj" method="POST">
+            <input type="hidden" name="_subject" value="IML Health website contact" />
+            <div className="form-grid">
+              <label>
+                Name
+                <input name="name" autoComplete="name" placeholder="Your name" required />
+              </label>
+              <label>
+                Email
+                <input name="email" autoComplete="email" placeholder="name@organisation.org" type="email" required />
+              </label>
+            </div>
+            <label>
+              Organisation
+              <input name="organisation" autoComplete="organization" placeholder="University, clinical service, institution, research group..." />
+            </label>
+            <label>
+              Message
+              <textarea name="message" placeholder="Share a comment, correction, proposal or question." rows="7" required />
+            </label>
+            <div className="form-actions">
+              <button type="submit" className="contact-submit">Send message</button>
+              <span className="form-note">Your message will be sent securely through Formspree.</span>
+            </div>
+          </form>
         </div>
       </section>
     </PageFrame>
