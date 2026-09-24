@@ -1,9 +1,10 @@
 import { seedUzbekistan } from "./seeds/20260822_uzbekistan.mjs";
 import { seedTunisia } from "./seeds/20260922_tunisia.mjs";
+import { seedAustralia } from "./seeds/20260924_australia_event_audit.mjs";
 import { applyFranceLearningResponsivenessCorrection } from "./seeds/20260901_france_learning_responsiveness.mjs";
 import { applyGermanyCyberAuditCorrection } from "./seeds/20260922_germany_cyber_audit.mjs";
 
-export const PRODUCTION_COUNTRY_SYNC_VERSION = "2026-09-23.1";
+export const PRODUCTION_COUNTRY_SYNC_VERSION = "2026-09-24.1";
 
 export function shouldRunProductionCountrySync(env = process.env) {
   return env.VERCEL_ENV === "production" && env.VERCEL_GIT_COMMIT_REF === "main";
@@ -16,6 +17,44 @@ export function shouldRunPreviewCountrySync(env = process.env) {
 export async function readRequiredCountryDataState(sql) {
   const rows = await sql`
     SELECT
+      EXISTS (
+        SELECT 1
+        FROM countries c
+        JOIN country_profiles cp ON cp.country_id = c.id
+        WHERE c.iso3 = 'AUS'
+          AND c.is_active = TRUE
+          AND cp.status = 'published'
+          AND cp.assessment_date = '2026-09-24'
+      ) AS australia_profile_ready,
+      (
+        SELECT COUNT(*) = 6
+        FROM countries c
+        JOIN country_profiles cp ON cp.country_id = c.id
+        JOIN country_profile_scores s ON s.profile_id = cp.id
+        WHERE c.iso3 = 'AUS'
+          AND cp.version = 1
+          AND (
+            (s.domain_code = 'governance' AND s.score = 78) OR
+            (s.domain_code = 'technical' AND s.score = 82) OR
+            (s.domain_code = 'identity' AND s.score = 88) OR
+            (s.domain_code = 'adoption' AND s.score = 82) OR
+            (s.domain_code = 'security' AND s.score = 60) OR
+            (s.domain_code = 'learning' AND s.score = 72)
+          )
+      ) AS australia_scores_ready,
+      (
+        SELECT COUNT(*) >= 3
+        FROM countries c
+        JOIN country_profiles cp ON cp.country_id = c.id
+        JOIN country_profile_sources src ON src.profile_id = cp.id
+        WHERE c.iso3 = 'AUS'
+          AND cp.version = 1
+          AND src.source_url IN (
+            'https://www.pm.gov.au/media/press-conference-new-york',
+            'https://www.cyber.gov.au/about-us/view-all-content/alerts-and-advisories/risks-of-ai-misalignment-to-australian-organisations',
+            'https://www.minister.defence.gov.au/transcripts/2026-09-24/press-conference-sydney'
+          )
+      ) AS australia_event_sources_ready,
       EXISTS (
         SELECT 1
         FROM countries c
@@ -170,6 +209,9 @@ export async function readRequiredCountryDataState(sql) {
 
 function requiredStateIsReady(state) {
   return Boolean(
+    state.australia_profile_ready &&
+    state.australia_scores_ready &&
+    state.australia_event_sources_ready &&
     state.uzbekistan_ready &&
     state.tunisia_profile_ready &&
     state.tunisia_scores_ready &&
@@ -187,6 +229,15 @@ function requiredStateIsReady(state) {
 export async function ensureRequiredCountryData(sql) {
   const before = await readRequiredCountryDataState(sql);
   const actions = [];
+
+  if (
+    !before.australia_profile_ready ||
+    !before.australia_scores_ready ||
+    !before.australia_event_sources_ready
+  ) {
+    await seedAustralia(sql);
+    actions.push("seedAustralia");
+  }
 
   if (!before.uzbekistan_ready) {
     await seedUzbekistan(sql);
