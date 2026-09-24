@@ -6,6 +6,7 @@ const seed = readFileSync("db/seeds/20260924_australia_event_audit.mjs", "utf8")
 const audit = readFileSync("docs/AUSTRALIA_COUNTRY_EVENT_AUDIT_2026-09-24.md", "utf8");
 const manifest = JSON.parse(readFileSync("data/source-audits/australia.json", "utf8"));
 const sync = readFileSync("db/production-country-sync.mjs", "utf8");
+const explorer = readFileSync("src/features/countries/CountryExplorer.jsx", "utf8");
 
 test("Australia event audit preserves the six-domain decision and date zero", () => {
   assert.match(seed, /'AUS', 'australia', 'Australia'/);
@@ -54,4 +55,11 @@ test("Production sync explicitly protects Australia v0.1", () => {
   assert.match(sync, /australia_scores_ready/);
   assert.match(sync, /australia_event_sources_ready/);
   assert.match(sync, /2026-09-24\.1/);
+});
+
+
+test("Australia security event banner is visible in the active country profile UI", () => {
+  assert.match(explorer, /Security event · 24 Sep 2026/);
+  assert.match(explorer, /Medicare Statistics Reporting Service portal/);
+  assert.match(explorer, /forensic investigation remained ongoing/);
 });
