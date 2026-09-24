@@ -407,3 +407,27 @@ img { display: block; max-width: 100%; }
 
 
 
+
+
+.event-audit-banner {
+  display: grid;
+  gap: 6px;
+  margin: 14px 0 16px;
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--teal);
+  border-radius: 12px;
+  background: var(--light);
+  color: var(--navy);
+}
+
+.event-audit-banner strong {
+  font-size: .9rem;
+  letter-spacing: .01em;
+}
+
+.event-audit-banner span {
+  color: var(--soft);
+  font-size: .9rem;
+  line-height: 1.55;
+}
