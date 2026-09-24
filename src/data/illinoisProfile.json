@@ -25,7 +25,7 @@
   ],
   "watch": [
     "Illinois no longer operates the former state-run ILHIE model. The Illinois Health Information Exchange and Technology Act was repealed in 2023 and the former HIE Office was dissolved; current exchange is distributed across HFS, IDPH, federal requirements and vendor-mediated networks.",
-    "The 2021 State Medicaid Health Information Technology Plan described the former state-run HIE as financially unsustainable and noted limited commitment to regional HIE options, with providers relying substantially on vendor-mediated networks. This source is historical context and is not treated as proof of the 2026 landscape by itself.",
+    "The 2022 State Medicaid Health Information Technology Plan described the former state-run HIE as financially unsustainable and noted limited commitment to regional HIE options, with providers relying substantially on vendor-mediated networks. This source is historical context and is not treated as proof of the 2026 landscape by itself.",
     "The 2026 HFS compliance examination reported repeated weaknesses in cybersecurity programs and practices, inadequate IT general controls and inadequate data-protection controls.",
     "The 2026 IDPH compliance examination reported repeated cybersecurity weaknesses, including missing or incomplete risk, data-classification, backup and vulnerability-management controls during the audit period; IDPH reported establishing a cybersecurity plan effective in 2026.",
     "HFS disclosed phishing-related incidents in 2024 and 2025 affecting employee accounts and potentially exposing Medicaid or other personally identifiable information. These incidents are treated as observed security outcomes, not evidence that every Illinois health system shares the same risk.",
@@ -55,7 +55,9 @@
           "summary": "Documents mandatory or broad participation across hospitals and multiple Medicaid provider classes.",
           "limitation": "The page does not provide a complete 2026 denominator-based participation rate for every provider category."
         }
-      ]
+      ],
+      "last_checked_at": "2026-09-24T19:35:00Z",
+      "replacement_reason": "Public source and expected evidence independently rechecked on 24 September 2026."
     },
     {
       "title": "HealthChoice Illinois ADT FAQ",
@@ -80,7 +82,9 @@
           "summary": "Documents required participation for hospitals and specified community, behavioral-health and long-term-care provider groups.",
           "limitation": "Requirements do not by themselves prove complete conformance or routine use at every site."
         }
-      ]
+      ],
+      "last_checked_at": "2026-09-24T19:35:00Z",
+      "replacement_reason": "Public source and expected evidence independently rechecked on 24 September 2026."
     },
     {
       "title": "HFS HL7 ADT Data Quality Standards",
@@ -98,7 +102,9 @@
           "summary": "Provides explicit technical and data-quality requirements for standardized ADT exchange.",
           "limitation": "The standard is message-specific and does not establish statewide FHIR or semantic interoperability for all clinical data."
         }
-      ]
+      ],
+      "last_checked_at": "2026-09-24T19:35:00Z",
+      "replacement_reason": "Public source and expected evidence independently rechecked on 24 September 2026."
     },
     {
       "title": "Syndromic Surveillance",
@@ -123,7 +129,9 @@
           "summary": "Shows an operational statewide public-health data flow with rapid availability for surveillance.",
           "limitation": "The page is outcome-oriented and does not fully document every transport and semantic layer."
         }
-      ]
+      ],
+      "last_checked_at": "2026-09-24T19:35:00Z",
+      "replacement_reason": "Public source and expected evidence independently rechecked on 24 September 2026."
     },
     {
       "title": "Illinois Electronic Visit Verification",
@@ -148,7 +156,9 @@
           "summary": "Ongoing implementation milestones, town halls and technical guidance show iterative programme adjustment.",
           "limitation": "Programme iteration does not prove effective correction across the wider health-information environment."
         }
-      ]
+      ],
+      "last_checked_at": "2026-09-24T19:35:00Z",
+      "replacement_reason": "Public source and expected evidence independently rechecked on 24 September 2026."
     },
     {
       "title": "IMPACT Login and identity proofing",
@@ -166,13 +176,15 @@
           "summary": "Documents individual identity proofing and non-shareable user identity for a major Illinois Medicaid provider system.",
           "limitation": "Provider-system identity proofing is not equivalent to a universal patient identity architecture."
         }
-      ]
+      ],
+      "last_checked_at": "2026-09-24T19:35:00Z",
+      "replacement_reason": "Public source and expected evidence independently rechecked on 24 September 2026."
     },
     {
       "title": "HIE opt-out requirements — 740 ILCS 110/9.6",
       "publisher": "Illinois General Assembly",
-      "url": "https://www.ilga.gov/legislation/ilcs/fulltext?DocName=074001100K9.6",
-      "url_status": "verified",
+      "url": null,
+      "url_status": "unverified",
       "documentary_url": "https://www.ilga.gov/legislation/ilcs/fulltext?DocName=074001100K9.6",
       "accessed_at": "2026-09-24",
       "note": "Illinois law requires HIE participants to provide meaningful notice and a reasonable opportunity to opt out of further HIE disclosure, with revocation mechanisms.",
@@ -191,14 +203,16 @@
           "summary": "Provides a durable legal governance layer for privacy and patient choice in health-information exchange.",
           "limitation": "Privacy governance does not replace operational interoperability governance."
         }
-      ]
+      ],
+      "last_checked_at": "2026-09-24T19:35:00Z",
+      "replacement_reason": "Public link hidden after user-browser failure and independent fetch returned a server error on 24 September 2026. The official ILGA text remains documentary evidence pending public-link revalidation."
     },
     {
       "title": "Dissolution of the Health Information Exchange Office and Fund",
       "publisher": "Illinois General Assembly",
-      "url": "https://ilga.gov/legislation/ILCS/details?ActID=326&ActName=Civil+Administrative+Code+of+Illinois.+%28Department+of+Healthcare+and+Family+Services+Law%29&ChapAct=20+ILCS+2205%2F&Chapter=&ChapterID=5&MajorTopic=&Print=True&SeqEnd=&SeqStart=300000",
+      "url": "https://www.ilga.gov/Legislation/ILCS/Articles?ActID=326&ChapterID=5&Print=True",
       "url_status": "verified",
-      "documentary_url": "https://ilga.gov/legislation/ILCS/details?ActID=326&ActName=Civil+Administrative+Code+of+Illinois.+%28Department+of+Healthcare+and+Family+Services+Law%29&ChapAct=20+ILCS+2205%2F&Chapter=&ChapterID=5&MajorTopic=&Print=True&SeqEnd=&SeqStart=300000",
+      "documentary_url": "https://www.ilga.gov/Legislation/ILCS/Articles?ActID=326&ChapterID=5&Print=True",
       "accessed_at": "2026-09-24",
       "note": "Current Illinois law documents the dissolution of the former Health Information Exchange Office and Fund following repeal of the Illinois Health Information Exchange and Technology Act.",
       "indicators": [
@@ -209,16 +223,18 @@
           "summary": "Confirms that Illinois no longer relies on the former dedicated state HIE authority/office governance model.",
           "limitation": "Dissolution does not imply absence of HIE; current exchange functions continue through HFS, IDPH, federal requirements and vendor networks."
         }
-      ]
+      ],
+      "last_checked_at": "2026-09-24T19:35:00Z",
+      "replacement_reason": "Replaced the failing ILGA details URL with the current official ILCS Articles page independently verified on 24 September 2026."
     },
     {
-      "title": "State Medicaid Health Information Technology Plan Update",
+      "title": "State Medicaid Health Information Technology Plan Update (2022)",
       "publisher": "Illinois Department of Healthcare and Family Services",
       "url": "https://hfs.illinois.gov/content/dam/soi/en/web/hfs/sitecollectiondocuments/illinoishitsmhpu2021final50.pdf",
       "url_status": "verified",
       "documentary_url": "https://hfs.illinois.gov/content/dam/soi/en/web/hfs/sitecollectiondocuments/illinoishitsmhpu2021final50.pdf",
       "accessed_at": "2026-09-24",
-      "note": "The 2021 plan records that the state-run ILHIE model had been financially unsustainable and infrequently used, with limited regional HIE growth and increasing reliance on vendor-mediated exchange networks.",
+      "note": "The 2022 plan records that the state-run ILHIE model had been financially unsustainable and infrequently used, with limited regional HIE growth and increasing reliance on vendor-mediated exchange networks.",
       "indicators": [
         {
           "code": "IL-GOV-04",
@@ -227,12 +243,14 @@
           "summary": "Provides authoritative historical context for the shift from a state-run HIE toward distributed/vendor-mediated exchange.",
           "limitation": "The document is from 2021 and must not be treated as a complete description of the 2026 environment."
         }
-      ]
+      ],
+      "last_checked_at": "2026-09-24T19:35:00Z",
+      "replacement_reason": "Document independently verified on 24 September 2026; the PDF itself is dated 30 March 2022, correcting the earlier 2021 label."
     },
     {
       "title": "HFS 2025 State Compliance Examination",
       "publisher": "Illinois Office of the Auditor General",
-      "url": "https://www.auditor.illinois.gov/Audit-Reports/Compliance-Agency-List/DHFS/FY25-DHFS-Comp-Full.pdf",
+      "url": "https://www.auditor.illinois.gov/Audit-Reports/HEALTHCARE-FAMILY-SERVICES-FORMERLY-KNOWN-PUBLIC-AID.asp",
       "url_status": "verified",
       "documentary_url": "https://www.auditor.illinois.gov/Audit-Reports/Compliance-Agency-List/DHFS/FY25-DHFS-Comp-Full.pdf",
       "publication_date": "2026-08-18",
@@ -260,12 +278,14 @@
           "summary": "HFS formally accepts and responds to Auditor General recommendations.",
           "limitation": "Audit responses are not representative evidence of response times to external documented inquiries; LRN-5 remains not assessed."
         }
-      ]
+      ],
+      "last_checked_at": "2026-09-24T19:35:00Z",
+      "replacement_reason": "Stable Auditor General audit index used as the public link; the full 2025 compliance report remains the documentary source."
     },
     {
       "title": "IDPH 2025 State Compliance Examination",
       "publisher": "Illinois Office of the Auditor General",
-      "url": "https://www.auditor.illinois.gov/Audit-Reports/Compliance-Agency-List/Pub-Health/FY25-DPH-Comp-Full.pdf",
+      "url": "https://www.auditor.illinois.gov/Audit-Reports/PUBLIC-HEALTH-DEPARTMENT.asp",
       "url_status": "verified",
       "documentary_url": "https://www.auditor.illinois.gov/Audit-Reports/Compliance-Agency-List/Pub-Health/FY25-DPH-Comp-Full.pdf",
       "publication_date": "2026-07-23",
@@ -286,14 +306,16 @@
           "summary": "Formal audit follow-up records both repeated deficiencies and remediation actions.",
           "limitation": "A high proportion of repeated findings indicates that the correction cycle remains incomplete."
         }
-      ]
+      ],
+      "last_checked_at": "2026-09-24T19:35:00Z",
+      "replacement_reason": "Stable Auditor General audit index used as the public link; the full 2025 compliance report remains the documentary source."
     },
     {
       "title": "HFS notice of phishing incident involving personally identifiable information",
       "publisher": "Illinois Department of Healthcare and Family Services",
-      "url": "https://hfs.illinois.gov/content/dam/soi/en/web/hfs/sitecollectiondocuments/phishingbreachmednot.pdf",
+      "url": "https://www.illinois.gov/content/dam/soi/en/web/illinois/iisnewsattachments/31387-060625-phishing-breach-media-notification.pdf.pdf",
       "url_status": "verified",
-      "documentary_url": "https://hfs.illinois.gov/content/dam/soi/en/web/hfs/sitecollectiondocuments/phishingbreachmednot.pdf",
+      "documentary_url": "https://www.illinois.gov/content/dam/soi/en/web/illinois/iisnewsattachments/31387-060625-phishing-breach-media-notification.pdf.pdf",
       "publication_date": "2025-06-06",
       "accessed_at": "2026-09-24",
       "note": "HFS disclosed a phishing incident compromising an employee account and documents, affecting 933 individuals, including 564 Illinois residents, with potentially exposed Medicaid and other personally identifiable information.",
@@ -305,7 +327,9 @@
           "summary": "Provides direct operational evidence of a realized security incident involving HFS-held sensitive information.",
           "limitation": "The event was limited in scale relative to the full Illinois health system and HFS documented containment, password reset and notification actions."
         }
-      ]
+      ],
+      "last_checked_at": "2026-09-24T19:35:00Z",
+      "replacement_reason": "Replaced the HFS PDF path that failed in the user's browser with an independently verified official Illinois.gov mirror on 24 September 2026."
     }
   ],
   "methodology": {
