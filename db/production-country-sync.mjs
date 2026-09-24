@@ -7,13 +7,7 @@ import { applyGermanyCyberAuditCorrection } from "./seeds/20260922_germany_cyber
 export const PRODUCTION_COUNTRY_SYNC_VERSION = "2026-09-24.1";
 
 export function shouldRunProductionCountrySync(env = process.env) {
-  const productionMain =
-    env.VERCEL_ENV === "production" && env.VERCEL_GIT_COMMIT_REF === "main";
-  const australiaPreviewSeed =
-    env.VERCEL_ENV === "preview" &&
-    env.VERCEL_GIT_COMMIT_REF === "fix/rebuild-from-production-20260924";
-
-  return productionMain || australiaPreviewSeed;
+  return env.VERCEL_ENV === "production" && env.VERCEL_GIT_COMMIT_REF === "main";
 }
 
 export function shouldRunPreviewCountrySync(env = process.env) {
