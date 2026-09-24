@@ -1,7 +1,7 @@
 # IML — Synchronisation GitHub → Neon → Vercel
 
 **Statut : CURRENT**  
-**Date : 22 septembre 2026**  
+**Date : 24 septembre 2026**  
 **Référence canonique :** ce document remplace les notes antérieures relatives à `main-test`, au déploiement des profils pays et à leur synchronisation avec Neon.
 
 ## 1. Chaîne de production canonique
@@ -63,9 +63,11 @@ Ce module :
 
 Les profils actuellement protégés par ce registre sont notamment :
 
+- Australie — audit événementiel v0.1, date zéro 24 septembre 2026 ;
 - Ouzbékistan ;
 - Tunisie ;
-- correction Learning France / LRN-5.
+- correction Learning France / LRN-5 ;
+- correction cyber-résilience Allemagne.
 
 ## 4. Synchronisation lors d'un déploiement Production
 
@@ -120,9 +122,9 @@ Le protocole est :
 2. ajouter ou mettre à jour le manifeste d'audit des sources ;
 3. ajouter le pays au registre `db/production-country-sync.mjs` avec un test d'état explicite ;
 4. ajouter les tests de continuité correspondants ;
-5. fusionner le travail dans `main` ;
-6. laisser Vercel exécuter le build Production ;
-7. vérifier `https://www.imlhealth.org/api/countries` après déploiement.
+6. fusionner le travail dans `main` ;
+7. laisser Vercel exécuter le build Production ;
+8. vérifier `https://www.imlhealth.org/api/countries` après déploiement.
 
 Le pays n'est considéré comme publié que lorsque l'API publique confirme sa présence.
 
@@ -159,7 +161,7 @@ Neon project           IML
 Neon branch            production
 Public domain          imlhealth.org
 Tunisia / TUN          published
-Public country count   18
+Public country count   18 avant publication Australia v0.1
 ```
 
 ## 10. Règle opérationnelle
