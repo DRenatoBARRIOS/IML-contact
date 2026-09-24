@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import worldCountries from "../../world-countries.json";
 import logoImage from "../../assets/iml-logo.png";
+import illinoisProfileData from "../../data/illinoisProfile.json";
 
 const MAP_WIDTH = 1000;
 const MAP_HEIGHT = 500;
@@ -22,7 +23,8 @@ const SUBNATIONAL_PROFILE_OPTIONS = {
       name: "Illinois",
       countryIso3: "USA",
       profileIso3: null,
-      note: "Illinois is being assessed as an independent subnational profile. Federal United States scores are not inherited; the world map remains country-level.",
+      jurisdictionProfileId: "USA-IL",
+      note: "Illinois is independently assessed. Federal United States scores are not inherited; the world map remains country-level.",
     },
   ],
 };
@@ -435,6 +437,7 @@ export default function CountryExplorer() {
   }, []);
 
   const profilesByIso3 = useMemo(() => new Map(profiles.map((profile) => [profile.iso3, profile])), [profiles]);
+  const jurisdictionProfilesById = useMemo(() => new Map([["USA-IL", normalizeProfile(illinoisProfileData)]]), []);
   const features = useMemo(() => worldCountries.features.filter((feature) => !isAntarctica(feature) && featureIso3(feature) && featureIso3(feature) !== "-99"), []);
   const countryOptions = useMemo(() => Array.from(new Map(features.map((feature) => [featureIso3(feature), { iso3: featureIso3(feature), name: profilesByIso3.get(featureIso3(feature))?.name || featureName(feature) }])).values()).sort((a, b) => a.name.localeCompare(b.name)), [features, profilesByIso3]);
   const selectedFeature = features.find((feature) => featureIso3(feature) === selectedIso3);
@@ -450,9 +453,11 @@ export default function CountryExplorer() {
       : { iso3: selectedIso3, name: profilesByIso3.get(selectedIso3)?.name || featureName(selectedFeature) }
     : null;
   const selectedProfile = selectedJurisdiction
-    ? selectedJurisdiction.profileIso3
-      ? profilesByIso3.get(selectedJurisdiction.profileIso3) || null
-      : null
+    ? selectedJurisdiction.jurisdictionProfileId
+      ? jurisdictionProfilesById.get(selectedJurisdiction.jurisdictionProfileId) || null
+      : selectedJurisdiction.profileIso3
+        ? profilesByIso3.get(selectedJurisdiction.profileIso3) || null
+        : null
     : profilesByIso3.get(selectedIso3) || null;
   const chooseCountry = (iso3) => {
     setSelectedIso3(iso3);
@@ -470,7 +475,7 @@ export default function CountryExplorer() {
             <span>Choose jurisdiction</span>
             <select value={selectedJurisdiction?.id || ""} onChange={(event) => setSelectedJurisdictionId(event.target.value)}>
               {jurisdictionOptions.map((option) => (
-                <option key={option.id} value={option.id}>{option.label}{option.profileIso3 ? " — examined" : " — not examined"}</option>
+                <option key={option.id} value={option.id}>{option.label}{(option.profileIso3 || option.jurisdictionProfileId) ? " — examined" : " — not examined"}</option>
               ))}
             </select>
           </label>
