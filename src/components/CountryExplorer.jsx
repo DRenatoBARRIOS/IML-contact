@@ -7,6 +7,26 @@ const MAP_HEIGHT = 500;
 const MAP_VISIBLE_HEIGHT = 430;
 const RADAR_LABELS = ["Governance", "Technical", "Identity", "Adoption", "Security", "Learning"];
 
+const SUBNATIONAL_PROFILE_OPTIONS = {
+  USA: [
+    {
+      id: "USA-FED",
+      label: "United States — Federal",
+      name: "United States",
+      countryIso3: "USA",
+      profileIso3: "USA",
+    },
+    {
+      id: "USA-IL",
+      label: "Illinois — United States",
+      name: "Illinois",
+      countryIso3: "USA",
+      profileIso3: null,
+      note: "Illinois is being assessed as an independent subnational profile. Federal United States scores are not inherited; the world map remains country-level.",
+    },
+  ],
+};
+
 const DOMAIN_INDICATOR_DESCRIPTIONS = {
   Governance: "Standards, responsibilities, oversight and institutional coordination.",
   Technical: "Structured, secure and reliable exchange between information systems.",
@@ -154,7 +174,7 @@ function ProfilePanel({ country, profile }) {
         <div>
           <p className="profile-overline">{country?.iso3 || "Country"} · documentary coverage</p>
           <h3>{country?.name || "Select a country"}</h3>
-          <p>This country has not yet been examined in the current IML evidence register. Neutral colour means absence of a reviewed profile, never low maturity.</p>
+          <p>{country?.note || "This jurisdiction has not yet been examined in the current IML evidence register. Neutral colour means absence of a reviewed profile, never low maturity."}</p>
           <div className="not-ranking"><strong>Not yet examined.</strong> The selected outline identifies what you are viewing; it does not assign a score.</div>
         </div>
       </article>
@@ -250,6 +270,7 @@ function ProfilePanel({ country, profile }) {
 export default function CountryExplorer() {
   const [profiles, setProfiles] = useState([]);
   const [selectedIso3, setSelectedIso3] = useState("FRA");
+  const [selectedJurisdictionId, setSelectedJurisdictionId] = useState("USA-FED");
   const [hovered, setHovered] = useState(null);
   const [status, setStatus] = useState({ loading: true, warning: "", apiVersion: "" });
 
@@ -276,8 +297,26 @@ export default function CountryExplorer() {
   }), []);
   const countryOptions = useMemo(() => Array.from(new Map(features.map((feature) => [featureIso3(feature), { iso3: featureIso3(feature), name: profilesByIso3.get(featureIso3(feature))?.name || featureName(feature) }])).values()).sort((a, b) => a.name.localeCompare(b.name)), [features, profilesByIso3]);
   const selectedFeature = features.find((feature) => featureIso3(feature) === selectedIso3);
-  const selectedCountry = selectedFeature ? { iso3: selectedIso3, name: profilesByIso3.get(selectedIso3)?.name || featureName(selectedFeature) } : null;
-  const selectedProfile = profilesByIso3.get(selectedIso3) || null;
+  const jurisdictionOptions = SUBNATIONAL_PROFILE_OPTIONS[selectedIso3] || [];
+  const selectedJurisdiction = jurisdictionOptions.find((option) => option.id === selectedJurisdictionId) || jurisdictionOptions[0] || null;
+  const selectedCountry = selectedFeature
+    ? selectedJurisdiction
+      ? {
+          iso3: selectedJurisdiction.profileIso3 || selectedJurisdiction.id,
+          name: selectedJurisdiction.name,
+          note: selectedJurisdiction.note || "",
+        }
+      : { iso3: selectedIso3, name: profilesByIso3.get(selectedIso3)?.name || featureName(selectedFeature) }
+    : null;
+  const selectedProfile = selectedJurisdiction
+    ? selectedJurisdiction.profileIso3
+      ? profilesByIso3.get(selectedJurisdiction.profileIso3) || null
+      : null
+    : profilesByIso3.get(selectedIso3) || null;
+  const chooseCountry = (iso3) => {
+    setSelectedIso3(iso3);
+    setSelectedJurisdictionId(iso3 === "USA" ? "USA-FED" : "");
+  };
 
   if (status.loading) return <div className="explorer-loading" role="status"><span />Loading the live evidence register…</div>;
 
@@ -285,7 +324,17 @@ export default function CountryExplorer() {
     <div className="country-explorer">
       <div className="explorer-toolbar">
         <div><span className={`live-indicator${status.warning ? " is-warning" : ""}`}><i />{status.warning ? "Profile service unavailable" : "Live PostgreSQL dataset"}</span><p>{profiles.length} documented profiles{status.apiVersion ? ` · API ${status.apiVersion}` : ""}</p></div>
-        <label><span>Choose any country</span><select value={selectedIso3} onChange={(event) => setSelectedIso3(event.target.value)}>{countryOptions.map((country) => <option value={country.iso3} key={country.iso3}>{country.name} — {profilesByIso3.has(country.iso3) ? "examined" : "not examined"}</option>)}</select></label>
+        <label><span>Choose any country</span><select value={selectedIso3} onChange={(event) => chooseCountry(event.target.value)}>{countryOptions.map((country) => <option value={country.iso3} key={country.iso3}>{country.name} — {profilesByIso3.has(country.iso3) ? "examined" : "not examined"}</option>)}</select></label>
+        {jurisdictionOptions.length ? (
+          <label>
+            <span>Choose jurisdiction</span>
+            <select value={selectedJurisdiction?.id || ""} onChange={(event) => setSelectedJurisdictionId(event.target.value)}>
+              {jurisdictionOptions.map((option) => (
+                <option key={option.id} value={option.id}>{option.label}{option.profileIso3 ? " — examined" : " — not examined"}</option>
+              ))}
+            </select>
+          </label>
+        ) : null}
       </div>
 
       {status.warning ? <div className="explorer-warning" role="status"><strong>Country profiles could not be loaded.</strong><span>{status.warning}</span> The map remains usable and clearly shows that no current documentary profile is available.</div> : null}
@@ -298,12 +347,12 @@ export default function CountryExplorer() {
               <title id="map-title">IML country profiles world map</title><desc id="map-description">Examined countries use a four-step colour scale. Countries not yet examined are neutral. Every country can be selected.</desc>
               {features.map((feature) => {
                 const iso3 = featureIso3(feature); const profile = profilesByIso3.get(iso3); const selected = selectedIso3 === iso3; const score = profile ? profileScore(profile) : null;
-                return <path key={`${iso3}-${featureName(feature)}`} d={geometryToPath(feature.geometry)} fillRule="evenodd" className={`map-country${profile ? ` is-examined score-band-${scoreBand(score)}` : " is-unexamined"}${selected ? " is-selected" : ""}`} aria-label={profile ? `${profile.name}: examined, orientation signal ${score} out of 100` : `${featureName(feature)}: not yet examined`} aria-current={selected ? "true" : undefined} role="button" tabIndex={0} onClick={() => setSelectedIso3(iso3)} onMouseMove={(event) => { const bounds = event.currentTarget.ownerSVGElement.getBoundingClientRect(); setHovered({ x: event.clientX - bounds.left, y: event.clientY - bounds.top, name: profile?.name || featureName(feature), profile, score }); }} onMouseLeave={() => setHovered(null)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedIso3(iso3); } }}><title>{profile ? `${profile.name} — examined · orientation signal ${score}/100` : `${featureName(feature)} — not yet examined`}</title></path>;
+                return <path key={`${iso3}-${featureName(feature)}`} d={geometryToPath(feature.geometry)} fillRule="evenodd" className={`map-country${profile ? ` is-examined score-band-${scoreBand(score)}` : " is-unexamined"}${selected ? " is-selected" : ""}`} aria-label={profile ? `${profile.name}: examined, orientation signal ${score} out of 100` : `${featureName(feature)}: not yet examined`} aria-current={selected ? "true" : undefined} role="button" tabIndex={0} onClick={() => chooseCountry(iso3)} onMouseMove={(event) => { const bounds = event.currentTarget.ownerSVGElement.getBoundingClientRect(); setHovered({ x: event.clientX - bounds.left, y: event.clientY - bounds.top, name: profile?.name || featureName(feature), profile, score }); }} onMouseLeave={() => setHovered(null)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); chooseCountry(iso3); } }}><title>{profile ? `${profile.name} — examined · orientation signal ${score}/100` : `${featureName(feature)} — not yet examined`}</title></path>;
               })}
             </svg>
             {hovered ? <div className="map-tooltip" style={{ left: `${Math.min(hovered.x + 14, 820)}px`, top: `${Math.max(12, hovered.y - 24)}px` }}><strong>{hovered.name}</strong><span>{hovered.profile ? `${hovered.score}/100 · examined profile` : "Not yet examined"}</span></div> : null}
           </div>
-          <p className="map-caption">Colour distinguishes documentary coverage and groups examined profiles by their provisional orientation signal. It is not a ranking. A neutral country is “not yet examined”, never “low maturity”.</p>
+          <p className="map-caption">Colour distinguishes documentary coverage and groups examined profiles by their provisional orientation signal. It is not a ranking. A neutral country is “not yet examined”, never “low maturity”. The world map remains country-level; subnational profiles are selected from the jurisdiction menu.</p>
         </div>
         <ProfilePanel country={selectedCountry} profile={selectedProfile} />
       </div>
