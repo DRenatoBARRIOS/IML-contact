@@ -46,13 +46,12 @@ function SiteFooter() {
       <div className="shell footer-contact">
         <div className="footer-brand">
           <div>
-            <strong>IML Health</strong>
+            <a className="footer-email" href="mailto:iml.health@pm.me?subject=IML%20Health" aria-label="Email IML Health at iml.health@pm.me">
+              iml.health@pm.me
+            </a>
             <p>Independent, non-commercial and open for scientific review.</p>
           </div>
         </div>
-        <a className="footer-email" href="mailto:iml.health@pm.me?subject=IML%20Health" aria-label="Email IML Health at iml.health@pm.me">
-          iml.health@pm.me
-        </a>
       </div>
       <div className="shell footer-bottom">
         <span>© {new Date().getFullYear()} IML Health</span>
@@ -486,7 +485,7 @@ function CollaboratePage() {
       form.reset();
       setContactStatus({
         state: "success",
-        message: "Message accepted by the IML contact service.",
+        message: "Message received by the contact service. Email notification is processed separately.",
       });
     } catch (error) {
       console.error("IML contact form submission failed:", error);
@@ -518,7 +517,6 @@ function CollaboratePage() {
             <p className="section-kicker">Contact</p>
             <h2 id="contact-form-heading">Write to IML Health</h2>
             <p>Use this form for scientific review, clinical comments, corrections or collaboration proposals.</p>
-            <p><a className="text-link" href="mailto:iml.health@pm.me?subject=IML%20Health">iml.health@pm.me</a></p>
           </div>
           <form
             className="contact-form"
