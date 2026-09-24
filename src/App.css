@@ -330,7 +330,7 @@ img { display: block; max-width: 100%; }
 .contact-status a { color: inherit; font-weight: 800; text-decoration: underline; text-underline-offset: .14em; }
 
 .site-footer { background: #0d1d29; color: #dae2e4; padding-block: 66px 28px; }
-.footer-contact { display: flex; align-items: center; justify-content: space-between; gap: 40px; }
+.footer-contact { display: flex; align-items: center; justify-content: flex-start; gap: 40px; }
 .footer-brand { display: flex; align-items: center; }
 .footer-brand strong { font-family: var(--font-source-serif), Georgia, serif; font-size: 1.7rem; font-weight: 600; }
 .footer-brand p { max-width: 450px; margin: 7px 0 0; color: #9aabb5; font-size: .85rem; }
