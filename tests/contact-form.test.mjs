@@ -23,3 +23,21 @@ test("Contact styles are isolated from footer styles", () => {
   assert.match(css, /\.contact-submit/);
   assert.match(css, /\.footer-email/);
 });
+
+
+test("Contact status reflects the real Formspree HTTP response", () => {
+  assert.match(page, /onSubmit=\{handleContactSubmit\}/);
+  assert.match(page, /fetch\(form\.action/);
+  assert.match(page, /Accept: "application\/json"/);
+  assert.match(page, /if \(!response\.ok\)/);
+  assert.match(page, /Message accepted by the IML contact service\./);
+  assert.match(page, /The message could not be sent\./);
+  assert.match(page, /disabled=\{contactStatus\.state === "sending"\}/);
+  assert.match(page, /Email IML Health directly\./);
+});
+
+test("Contact feedback has visible success and error states", () => {
+  assert.match(css, /\.contact-status\.is-success/);
+  assert.match(css, /\.contact-status\.is-error/);
+  assert.match(css, /\.contact-submit:disabled/);
+});
