@@ -323,6 +323,11 @@ img { display: block; max-width: 100%; }
 .contact-submit { border: 0; border-radius: 999px; background: var(--teal-deep); color: white; padding: 13px 22px; font: inherit; font-weight: 700; cursor: pointer; }
 .contact-submit:hover { background: var(--teal); }
 .form-note { color: var(--soft); font-size: .76rem; line-height: 1.5; }
+.contact-submit:disabled { cursor: wait; opacity: .66; }
+.contact-status { margin: 0; border-radius: 14px; padding: 12px 14px; font-size: .78rem; line-height: 1.55; }
+.contact-status.is-success { border: 1px solid rgba(46,111,106,.24); background: var(--teal-wash); color: var(--teal-deep); }
+.contact-status.is-error { border: 1px solid rgba(156,63,45,.28); background: #fff0ec; color: #7a2f22; }
+.contact-status a { color: inherit; font-weight: 800; text-decoration: underline; text-underline-offset: .14em; }
 
 .site-footer { background: #0d1d29; color: #dae2e4; padding-block: 66px 28px; }
 .footer-contact { display: flex; align-items: center; justify-content: space-between; gap: 40px; }
