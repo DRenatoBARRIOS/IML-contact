@@ -469,6 +469,42 @@ function CollaboratePage() {
           </div>
         </div>
       </section>
+
+      <section className="section contact-form-section" aria-labelledby="contact-form-heading">
+        <div className="shell contact-form-layout">
+          <div>
+            <p className="section-kicker">Contact</p>
+            <h2 id="contact-form-heading">Write to IML Health</h2>
+            <p>Use this form for scientific review, clinical comments, corrections or collaboration proposals.</p>
+            <p><a className="text-link" href="mailto:iml.health@pm.me?subject=IML%20Health">iml.health@pm.me</a></p>
+          </div>
+          <form className="contact-form" action="https://formspree.io/f/mjykrewj" method="POST">
+            <input type="hidden" name="_subject" value="IML Health website contact" />
+            <div className="form-grid">
+              <label>
+                Name
+                <input name="name" autoComplete="name" placeholder="Your name" required />
+              </label>
+              <label>
+                Email
+                <input name="email" autoComplete="email" placeholder="name@organisation.org" type="email" required />
+              </label>
+            </div>
+            <label>
+              Organisation
+              <input name="organisation" autoComplete="organization" placeholder="University, clinical service, institution, research group..." />
+            </label>
+            <label>
+              Message
+              <textarea name="message" placeholder="Share a comment, correction, proposal or question." rows="7" required />
+            </label>
+            <div className="form-actions">
+              <button type="submit" className="contact-submit">Send message</button>
+              <span className="form-note">Messages are sent through the site contact service.</span>
+            </div>
+          </form>
+        </div>
+      </section>
     </PageFrame>
   );
 }
