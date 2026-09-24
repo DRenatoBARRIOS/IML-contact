@@ -26,3 +26,12 @@ Files in this directory are approved semantic audit manifests. They are added on
 | United States | USA | — | Pending full semantic manifest |
 
 The weekly Production/API audit covers all published countries and sources. Semantic manifests add the stronger content-level verification layer.
+
+
+## Subnational semantic manifests
+
+| Jurisdiction | Parent | Manifest | Status |
+|---|---|---|---|
+| Illinois | United States | `usa-illinois.json` | Preview-reviewed — source-specific semantic audit; one ILGA source retained documentary-only after public-link failure |
+
+Subnational manifests do not imply completion of the parent-country semantic audit and must not inherit parent-country scores.

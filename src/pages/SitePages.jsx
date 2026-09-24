@@ -1,3 +1,4 @@
+import { useState } from "react";
 import logoImage from "../assets/iml-logo.png";
 import heroLampImage from "../assets/hero-lamp-editorial.png";
 import CountryExplorer from "../features/countries/CountryExplorer.jsx";
@@ -45,8 +46,8 @@ function SiteFooter() {
       <div className="shell footer-contact">
         <div className="footer-brand">
           <div>
-            <a className="footer-mail-icon" href="mailto:iml.health@pm.me?subject=IML%20Health" aria-label="Email IML Health" title="Contact IML Health">
-              <span aria-hidden="true">✉</span>
+            <a className="footer-email" href="mailto:iml.health@pm.me?subject=IML%20Health" aria-label="Email IML Health at iml.health@pm.me">
+              iml.health@pm.me
             </a>
             <p>Independent, non-commercial and open for scientific review.</p>
           </div>
@@ -454,6 +455,47 @@ function InteroperabilityPage() {
 }
 
 function CollaboratePage() {
+  const [contactStatus, setContactStatus] = useState({ state: "idle", message: "" });
+
+  async function handleContactSubmit(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    setContactStatus({ state: "sending", message: "Sending…" });
+
+    try {
+      const response = await fetch(form.action, {
+        method: "POST",
+        body: formData,
+        headers: { Accept: "application/json" },
+      });
+
+      if (!response.ok) {
+        let detail = "";
+        try {
+          const payload = await response.json();
+          detail = payload?.errors?.map((item) => item?.message).filter(Boolean).join(" ") || payload?.error || "";
+        } catch {
+          detail = "";
+        }
+        throw new Error(detail || `Contact service returned HTTP ${response.status}.`);
+      }
+
+      form.reset();
+      setContactStatus({
+        state: "success",
+        message: "Message received by the contact service. Email notification is processed separately.",
+      });
+    } catch (error) {
+      console.error("IML contact form submission failed:", error);
+      setContactStatus({
+        state: "error",
+        message: "The message could not be sent. Please write directly to iml.health@pm.me.",
+      });
+    }
+  }
+
   return (
     <PageFrame active="/collaborate">
       <PageMasthead title="Bring evidence, clinical reality or implementation experience." lede="IML is independent, non-commercial and open to rigorous contribution." mirroredLamp />
@@ -476,7 +518,12 @@ function CollaboratePage() {
             <h2 id="contact-form-heading">Write to IML Health</h2>
             <p>Use this form for scientific review, clinical comments, corrections or collaboration proposals.</p>
           </div>
-          <form className="contact-form" action="https://formspree.io/f/mjykrewj" method="POST">
+          <form
+            className="contact-form"
+            action="https://formspree.io/f/mjykrewj"
+            method="POST"
+            onSubmit={handleContactSubmit}
+          >
             <input type="hidden" name="_subject" value="IML Health website contact" />
             <div className="form-grid">
               <label>
@@ -497,9 +544,27 @@ function CollaboratePage() {
               <textarea name="message" placeholder="Share a comment, correction, proposal or question." rows="7" required />
             </label>
             <div className="form-actions">
-              <button type="submit" className="contact-submit">Send message</button>
-              <span className="form-note">Your message will be sent securely through Formspree.</span>
+              <button
+                type="submit"
+                className="contact-submit"
+                disabled={contactStatus.state === "sending"}
+              >
+                {contactStatus.state === "sending" ? "Sending…" : "Send message"}
+              </button>
+              <span className="form-note">Messages are sent through the IML contact service.</span>
             </div>
+            {contactStatus.message ? (
+              <p
+                className={`contact-status is-${contactStatus.state}`}
+                role={contactStatus.state === "error" ? "alert" : "status"}
+                aria-live="polite"
+              >
+                {contactStatus.message}
+                {contactStatus.state === "error" ? (
+                  <> <a href="mailto:iml.health@pm.me?subject=IML%20Health">Email IML Health directly.</a></>
+                ) : null}
+              </p>
+            ) : null}
           </form>
         </div>
       </section>

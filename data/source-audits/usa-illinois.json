@@ -1,0 +1,334 @@
+{
+  "audit_id": "USA-IL-2026-09-24-0.1",
+  "jurisdiction": {
+    "code": "US-IL",
+    "name": "Illinois",
+    "parent_iso3": "USA",
+    "type": "state"
+  },
+  "policy": {
+    "require_successful_http_for_public_links": true,
+    "require_expected_domain": true,
+    "require_content_markers": true,
+    "subnational_scores_must_not_inherit_parent_scores": true,
+    "documentary_sources_may_be_retained_when_temporarily_unavailable": true,
+    "country_profile_public_links_should_land_on_country_specific_evidence": true
+  },
+  "sources": [
+    {
+      "id": "IL-HFS-ADT",
+      "url": "https://hfs.illinois.gov/healthchoiceadt.html",
+      "expected_domains": [
+        "hfs.illinois.gov"
+      ],
+      "required_text_groups": [
+        [
+          "statewide data exchange platform"
+        ],
+        [
+          "admission, discharge, and transfer"
+        ],
+        [
+          "managed care organizations"
+        ]
+      ],
+      "required_public_link": true,
+      "secondary_review": {
+        "checked_at": "2026-09-24",
+        "method": "independent browser/web fetch",
+        "usable": true,
+        "relevant_evidence_present": true,
+        "note": "Official source opened successfully and the source-specific evidence was confirmed."
+      }
+    },
+    {
+      "id": "IL-HFS-ADT-FAQ",
+      "url": "https://hfs.illinois.gov/healthchoiceadt/healthchoiceadtfaq.html",
+      "expected_domains": [
+        "hfs.illinois.gov"
+      ],
+      "required_text_groups": [
+        [
+          "required to connect"
+        ],
+        [
+          "HL7"
+        ],
+        [
+          "no cost"
+        ]
+      ],
+      "required_public_link": true,
+      "secondary_review": {
+        "checked_at": "2026-09-24",
+        "method": "independent browser/web fetch",
+        "usable": true,
+        "relevant_evidence_present": true,
+        "note": "Official source opened successfully and the source-specific evidence was confirmed."
+      }
+    },
+    {
+      "id": "IL-HFS-ADT-DQ",
+      "url": "https://hfs.illinois.gov/healthchoiceadt/hl7adtdataqualitystandards.html",
+      "expected_domains": [
+        "hfs.illinois.gov"
+      ],
+      "required_text_groups": [
+        [
+          "HL7 ADT Data Quality Standards"
+        ],
+        [
+          "interoperability"
+        ],
+        [
+          "patient demographic"
+        ]
+      ],
+      "required_public_link": true,
+      "secondary_review": {
+        "checked_at": "2026-09-24",
+        "method": "independent browser/web fetch",
+        "usable": true,
+        "relevant_evidence_present": true,
+        "note": "Official source opened successfully and the source-specific evidence was confirmed."
+      }
+    },
+    {
+      "id": "IL-IDPH-SYNDROMIC",
+      "url": "https://dph.illinois.gov/data-statistics/syndromic-surveillance.html",
+      "expected_domains": [
+        "dph.illinois.gov"
+      ],
+      "required_text_groups": [
+        [
+          "185 acute care hospitals"
+        ],
+        [
+          "near real-time"
+        ],
+        [
+          "Emergency Department"
+        ]
+      ],
+      "required_public_link": true,
+      "secondary_review": {
+        "checked_at": "2026-09-24",
+        "method": "independent browser/web fetch",
+        "usable": true,
+        "relevant_evidence_present": true,
+        "note": "Official source opened successfully and the source-specific evidence was confirmed."
+      }
+    },
+    {
+      "id": "IL-HFS-EVV",
+      "url": "https://hfs.illinois.gov/medicalproviders/electronicvisitverification.html",
+      "expected_domains": [
+        "hfs.illinois.gov"
+      ],
+      "required_text_groups": [
+        [
+          "March 2, 2026"
+        ],
+        [
+          "HHAeXchange"
+        ],
+        [
+          "aggregator"
+        ]
+      ],
+      "required_public_link": true,
+      "secondary_review": {
+        "checked_at": "2026-09-24",
+        "method": "independent browser/web fetch",
+        "usable": true,
+        "relevant_evidence_present": true,
+        "note": "Official source opened successfully and the source-specific evidence was confirmed."
+      }
+    },
+    {
+      "id": "IL-HFS-IMPACT",
+      "url": "https://hfs.illinois.gov/impact/login.html",
+      "expected_domains": [
+        "hfs.illinois.gov"
+      ],
+      "required_text_groups": [
+        [
+          "identity proofing"
+        ],
+        [
+          "user account"
+        ],
+        [
+          "IMPACT"
+        ]
+      ],
+      "required_public_link": true,
+      "secondary_review": {
+        "checked_at": "2026-09-24",
+        "method": "independent browser/web fetch",
+        "usable": true,
+        "relevant_evidence_present": true,
+        "note": "Official source opened successfully and the source-specific evidence was confirmed."
+      }
+    },
+    {
+      "id": "IL-HIE-OPTOUT",
+      "url": "https://www.ilga.gov/legislation/ilcs/fulltext?DocName=074001100K9.6",
+      "expected_domains": [
+        "www.ilga.gov"
+      ],
+      "required_text_groups": [
+        [
+          "reasonable opportunity"
+        ],
+        [
+          "opt out"
+        ],
+        [
+          "health information exchange"
+        ]
+      ],
+      "required_public_link": false,
+      "documentary_url": "https://www.ilga.gov/legislation/ilcs/fulltext?DocName=074001100K9.6",
+      "secondary_review": {
+        "checked_at": "2026-09-24",
+        "method": "independent browser/web fetch",
+        "usable": false,
+        "relevant_evidence_present": true,
+        "note": "Official ILGA statutory text remains indexed and evidentially relevant, but the direct public URL failed the user's browser check and an independent fetch returned a server error. It is retained documentary-only pending revalidation."
+      }
+    },
+    {
+      "id": "IL-HIE-DISSOLUTION",
+      "url": "https://www.ilga.gov/Legislation/ILCS/Articles?ActID=326&ChapterID=5&Print=True",
+      "expected_domains": [
+        "www.ilga.gov"
+      ],
+      "required_text_groups": [
+        [
+          "Dissolution of the Health Information Exchange Office and Fund"
+        ],
+        [
+          "repeal"
+        ],
+        [
+          "Department of Healthcare and Family Services"
+        ]
+      ],
+      "required_public_link": true,
+      "secondary_review": {
+        "checked_at": "2026-09-24",
+        "method": "independent browser/web fetch",
+        "usable": true,
+        "relevant_evidence_present": true,
+        "note": "Current official ILCS Articles page opened successfully and contains section 20 ILCS 2205/2205-40 and the dissolution text."
+      }
+    },
+    {
+      "id": "IL-HFS-SMHP-2022",
+      "url": "https://hfs.illinois.gov/content/dam/soi/en/web/hfs/sitecollectiondocuments/illinoishitsmhpu2021final50.pdf",
+      "expected_domains": [
+        "hfs.illinois.gov"
+      ],
+      "required_text_groups": [
+        [
+          "financially unsustainable"
+        ],
+        [
+          "vendor mediated exchanges"
+        ],
+        [
+          "Health Information Exchange"
+        ]
+      ],
+      "required_public_link": true,
+      "secondary_review": {
+        "checked_at": "2026-09-24",
+        "method": "independent browser/web fetch",
+        "usable": true,
+        "relevant_evidence_present": true,
+        "note": "Official HFS PDF opened successfully. The document is dated 30 March 2022; the earlier 2021 label was corrected."
+      }
+    },
+    {
+      "id": "IL-OAG-HFS-2026",
+      "url": "https://www.auditor.illinois.gov/Audit-Reports/Compliance-Agency-List/DHFS/FY25-DHFS-Comp-Full.pdf",
+      "expected_domains": [
+        "www.auditor.illinois.gov"
+      ],
+      "required_text_groups": [
+        [
+          "Weaknesses in Cybersecurity Programs and Practices"
+        ],
+        [
+          "Inadequate Information Technology General Controls"
+        ],
+        [
+          "Inadequate Controls Over Data Protection"
+        ]
+      ],
+      "required_public_link": true,
+      "public_url": "https://www.auditor.illinois.gov/Audit-Reports/HEALTHCARE-FAMILY-SERVICES-FORMERLY-KNOWN-PUBLIC-AID.asp",
+      "secondary_review": {
+        "checked_at": "2026-09-24",
+        "method": "independent browser/web fetch",
+        "usable": true,
+        "relevant_evidence_present": true,
+        "note": "Stable Auditor General index opened successfully and links the 2025 compliance examination released 18 August 2026; semantic markers remain checked against the full report PDF."
+      }
+    },
+    {
+      "id": "IL-OAG-IDPH-2026",
+      "url": "https://www.auditor.illinois.gov/Audit-Reports/Compliance-Agency-List/Pub-Health/FY25-DPH-Comp-Full.pdf",
+      "expected_domains": [
+        "www.auditor.illinois.gov"
+      ],
+      "required_text_groups": [
+        [
+          "Weaknesses in Cybersecurity Programs and Practices"
+        ],
+        [
+          "cybersecurity plan"
+        ],
+        [
+          "Repeated Findings"
+        ]
+      ],
+      "required_public_link": true,
+      "public_url": "https://www.auditor.illinois.gov/Audit-Reports/PUBLIC-HEALTH-DEPARTMENT.asp",
+      "secondary_review": {
+        "checked_at": "2026-09-24",
+        "method": "independent browser/web fetch",
+        "usable": true,
+        "relevant_evidence_present": true,
+        "note": "Stable Auditor General index opened successfully and links the 2025 compliance examination released 23 July 2026; semantic markers remain checked against the full report PDF."
+      }
+    },
+    {
+      "id": "IL-HFS-PHISHING-2025",
+      "url": "https://www.illinois.gov/content/dam/soi/en/web/illinois/iisnewsattachments/31387-060625-phishing-breach-media-notification.pdf.pdf",
+      "expected_domains": [
+        "www.illinois.gov"
+      ],
+      "required_text_groups": [
+        [
+          "phishing campaign"
+        ],
+        [
+          "933"
+        ],
+        [
+          "Medicaid identification"
+        ]
+      ],
+      "required_public_link": true,
+      "secondary_review": {
+        "checked_at": "2026-09-24",
+        "method": "independent browser/web fetch",
+        "usable": true,
+        "relevant_evidence_present": true,
+        "note": "Official Illinois.gov mirror opened successfully and confirms the incident, affected data categories, and 933 affected individuals including 564 Illinois residents."
+      }
+    }
+  ]
+}
