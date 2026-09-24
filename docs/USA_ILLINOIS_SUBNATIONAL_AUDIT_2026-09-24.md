@@ -51,7 +51,7 @@ The audit environment is strong enough to document deficiencies and management r
 6. Illinois HFS — IMPACT Login / identity proofing.
 7. Illinois General Assembly — 740 ILCS 110/9.6 HIE opt-out.
 8. Illinois General Assembly — dissolution of the HIE Office and Fund.
-9. Illinois HFS — State Medicaid Health Information Technology Plan Update (2021), historical context only.
+9. Illinois HFS — State Medicaid Health Information Technology Plan Update (2022), historical context only.
 10. Illinois Auditor General — HFS State Compliance Examination, released 18 Aug 2026.
 11. Illinois Auditor General — IDPH State Compliance Examination, released 23 Jul 2026.
 12. Illinois HFS — 6 Jun 2025 phishing-incident notice.
@@ -65,3 +65,16 @@ Before Production, retain the Illinois profile only if:
 - no federal score is inherited by Illinois;
 - the map remains country-level;
 - Production country profiles remain unchanged.
+
+
+## Source-quality review — 24 September 2026
+
+The Illinois evidence register was rechecked under the IML Source Quality Protocol v2.0 after public-link failures were reported.
+
+- The six HFS/IDPH operational pages used for ADT, ADT FAQ, HL7 data quality, syndromic surveillance, EVV and IMPACT were independently reopened and their key evidence markers confirmed.
+- The direct ILGA link for 740 ILCS 110/9.6 was not publicly usable in the secondary check. The statutory evidence is retained as documentary evidence, but the public button is hidden pending revalidation.
+- The obsolete/failing ILGA details link for dissolution of the former HIE Office/Fund was replaced by the current official ILCS Articles page containing 20 ILCS 2205/2205-40.
+- The HFS State Medicaid Health Information Technology Plan Update is dated 30 March 2022; the earlier 2021 label was corrected.
+- The HFS and IDPH Auditor General entries now expose stable audit-index pages publicly while retaining the full report PDFs as documentary sources.
+- The HFS phishing PDF path that failed in a normal browser was replaced by the official Illinois.gov mirror that independently opened and preserved the same notice.
+- No score or substantive conclusion was changed solely because a public URL moved or was hidden. Documentary validity and public usability remain separate fields under the protocol.
