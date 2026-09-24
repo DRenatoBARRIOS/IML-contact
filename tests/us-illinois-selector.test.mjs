@@ -52,3 +52,28 @@ test("Illinois v0.1 preserves key governance, adoption and security evidence", (
   assert.match(joined, /Weaknesses in Cybersecurity Programs and Practices/);
   assert.match(joined, /HIE opt-out/i);
 });
+
+
+test("Illinois public-source metadata follows the source-quality protocol", () => {
+  const optOut = illinois.sources.find((source) => source.title.includes("740 ILCS 110/9.6"));
+  assert.equal(optOut.url, null);
+  assert.equal(optOut.url_status, "unverified");
+  assert.match(optOut.documentary_url, /ilga\.gov/);
+
+  const dissolution = illinois.sources.find((source) => source.title.includes("Dissolution"));
+  assert.match(dissolution.url, /ILCS\/Articles\?ActID=326/);
+  assert.doesNotMatch(dissolution.url, /ILCS\/details/);
+
+  const phishing = illinois.sources.find((source) => source.title.includes("phishing"));
+  assert.match(phishing.url, /www\.illinois\.gov/);
+  assert.doesNotMatch(phishing.url, /hfs\.illinois\.gov\/content\/dam/);
+
+  const smhp = illinois.sources.find((source) => source.title.includes("State Medicaid Health Information Technology Plan"));
+  assert.match(smhp.title, /2022/);
+
+  for (const source of illinois.sources) {
+    if (source.url) assert.ok(["verified", "redirected"].includes(source.url_status));
+    assert.ok(source.documentary_url);
+    assert.ok(source.last_checked_at);
+  }
+});
