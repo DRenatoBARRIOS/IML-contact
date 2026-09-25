@@ -27,9 +27,11 @@ for (const path of paths) {
     assert.match(source, /selectedJurisdiction\.jurisdictionProfileId[\s\S]*jurisdictionProfilesById\.get/);
   });
 
-  test(`${path}: USA selection exposes an explicit jurisdiction menu`, () => {
-    assert.match(source, /USA-FED/);
-    assert.match(source, /setSelectedJurisdictionId\(iso3 === "USA" \? "USA-FED" : ""\)/);
+  test(`${path}: USA selection exposes Illinois as the only jurisdiction choice`, () => {
+    assert.match(source, /<option value="" disabled>Choose jurisdiction<\/option>/);
+    assert.match(source, /id: "USA-IL"/);
+    assert.doesNotMatch(source, /id: "USA-FED"/);
+    assert.match(source, /setSelectedJurisdictionId\(""\)/);
     assert.match(source, /jurisdictionOptions\.map/);
   });
 }
