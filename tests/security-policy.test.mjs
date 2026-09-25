@@ -123,6 +123,32 @@ test('AI DENY_FINAL is terminal and does not inspect or invoke alternatives', as
   assert.deepEqual(invokeCalls, []);
 });
 
+test('unknown/non-ALLOW AI decision is terminal too', async () => {
+  const decisionCalls = [];
+  const invokeCalls = [];
+
+  await assert.rejects(
+    () => executeAiAccessPlan({
+      candidates: ['primary-source', 'alternate-source'],
+      decide: async (candidate) => {
+        decisionCalls.push(candidate);
+        return {
+          effect: 'UNKNOWN_EFFECT',
+          reasonCode: 'MALFORMED_POLICY_RESPONSE',
+        };
+      },
+      invoke: async (candidate) => {
+        invokeCalls.push(candidate);
+        return 'should-not-run';
+      },
+    }),
+    (error) => error instanceof PolicyDeniedError && error.terminal === true,
+  );
+
+  assert.deepEqual(decisionCalls, ['primary-source']);
+  assert.deepEqual(invokeCalls, []);
+});
+
 test('technical unavailability may fall back only after ALLOW', async () => {
   const decisionCalls = [];
   const invokeCalls = [];
