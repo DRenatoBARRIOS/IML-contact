@@ -47,12 +47,47 @@ test("Illinois v0.1 has six independent scores and explicit no-inheritance metad
 
 test("Illinois v0.1 preserves key governance, adoption and security evidence", () => {
   const joined = JSON.stringify(illinois);
+
   assert.match(joined, /185 acute-care hospitals/i);
   assert.match(joined, /HealthChoice Illinois ADT/);
-  assert.match(joined, /Weaknesses in Cybersecurity Programs and Practices/);
   assert.match(joined, /HIE opt-out/i);
-});
 
+  const hfsAudit = illinois.sources.find(
+    (source) => source.title === "HFS 2025 State Compliance Examination"
+  );
+  assert.ok(hfsAudit, "HFS compliance examination source must remain present");
+  assert.equal(hfsAudit.publisher, "Illinois Office of the Auditor General");
+  assert.ok(
+    hfsAudit.indicators.some(
+      (indicator) =>
+        indicator.code === "IL-SEC-01" &&
+        indicator.evidence_level === "A" &&
+        indicator.support_type === "supports"
+    ),
+    "HFS audit must retain IL-SEC-01 as level-A supporting evidence"
+  );
+  assert.match(
+    [hfsAudit.note, ...hfsAudit.indicators.map((indicator) => indicator.summary)]
+      .filter(Boolean)
+      .join(" "),
+    /cybersecurity/i
+  );
+
+  const idphAudit = illinois.sources.find(
+    (source) => source.title === "IDPH 2025 State Compliance Examination"
+  );
+  assert.ok(idphAudit, "IDPH compliance examination source must remain present");
+  assert.equal(idphAudit.publisher, "Illinois Office of the Auditor General");
+  assert.ok(
+    idphAudit.indicators.some(
+      (indicator) =>
+        indicator.code === "IL-SEC-02" &&
+        indicator.evidence_level === "A" &&
+        indicator.support_type === "supports"
+    ),
+    "IDPH audit must retain IL-SEC-02 as level-A supporting evidence"
+  );
+});
 
 test("Illinois public-source metadata follows the source-quality protocol", () => {
   const optOut = illinois.sources.find((source) => source.title.includes("740 ILCS 110/9.6"));
