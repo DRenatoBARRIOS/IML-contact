@@ -241,6 +241,8 @@ DECLARE
   v_occurred_at timestamptz := clock_timestamp();
   v_prev_hash bytea;
   v_event_hash bytea;
+  v_payload text;
+  v_pgcrypto_schema text;
 BEGIN
   PERFORM pg_advisory_xact_lock(hashtext('IML:SECURITY:AUDIT_CHAIN'));
 
@@ -250,23 +252,39 @@ BEGIN
   ORDER BY seq DESC
   LIMIT 1;
 
-  v_event_hash := digest(
-    concat_ws('|',
-      encode(COALESCE(v_prev_hash, ''::bytea), 'hex'),
-      v_event_id::text,
-      v_occurred_at::text,
-      COALESCE(p_actor_type, ''),
-      COALESCE(p_actor_id::text, ''),
-      COALESCE(p_action, ''),
-      COALESCE(p_resource_type, ''),
-      COALESCE(p_resource_id, ''),
-      COALESCE(p_outcome, ''),
-      COALESCE(p_purpose_of_use, ''),
-      COALESCE(p_request_id::text, ''),
-      COALESCE(p_metadata, '{}'::jsonb)::text
-    ),
-    'sha256'
+  SELECT n.nspname
+    INTO v_pgcrypto_schema
+  FROM pg_catalog.pg_extension e
+  JOIN pg_catalog.pg_namespace n
+    ON n.oid = e.extnamespace
+  WHERE e.extname = 'pgcrypto';
+
+  IF v_pgcrypto_schema IS NULL THEN
+    RAISE EXCEPTION 'IML SECURITY requires pgcrypto for audit hashing';
+  END IF;
+
+  v_payload := concat_ws('|',
+    encode(COALESCE(v_prev_hash, ''::bytea), 'hex'),
+    v_event_id::text,
+    v_occurred_at::text,
+    COALESCE(p_actor_type, ''),
+    COALESCE(p_actor_id::text, ''),
+    COALESCE(p_action, ''),
+    COALESCE(p_resource_type, ''),
+    COALESCE(p_resource_id, ''),
+    COALESCE(p_outcome, ''),
+    COALESCE(p_purpose_of_use, ''),
+    COALESCE(p_request_id::text, ''),
+    COALESCE(p_metadata, '{}'::jsonb)::text
   );
+
+  EXECUTE format(
+    'SELECT %I.digest($1::text, %L)',
+    v_pgcrypto_schema,
+    'sha256'
+  )
+  INTO v_event_hash
+  USING v_payload;
 
   INSERT INTO iml_security.audit_event (
     event_id,
