@@ -277,7 +277,7 @@ jobs:
         shell: bash
         run: |
           psql -v ON_ERROR_STOP=1 <<'SQL'
-          DO $$
+          DO $
           DECLARE
             v_version text;
           BEGIN
@@ -290,5 +290,32 @@ jobs:
               RAISE EXCEPTION 'unexpected SECURITY_LAYER version: %', v_version;
             END IF;
           END
-          $$;
+          $;
           SQL
+
+
+      - name: Validate consolidated Neon maquette bundle in fresh database
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          createdb iml_security_bundle_test
+
+          PGDATABASE=iml_security_bundle_test psql -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE SCHEMA iml_system;
+
+          CREATE TABLE iml_system.module_registry (
+            code text PRIMARY KEY,
+            name text NOT NULL,
+            category text NOT NULL,
+            status text NOT NULL,
+            version text NOT NULL,
+            description text NOT NULL,
+            created_at timestamptz NOT NULL DEFAULT now(),
+            updated_at timestamptz NOT NULL DEFAULT now()
+          );
+          SQL
+
+          PGDATABASE=iml_security_bundle_test psql -v ON_ERROR_STOP=1             -f db/neon/IML_SECURITY_MAQUETTE_v0_4.sql
+
+          PGDATABASE=iml_security_bundle_test psql -v ON_ERROR_STOP=1             -f db/tests/security_neon_maquette_assertions.sql
