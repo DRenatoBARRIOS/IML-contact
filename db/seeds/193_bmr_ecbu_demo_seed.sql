@@ -8,6 +8,27 @@
 BEGIN;
 SELECT pg_advisory_xact_lock(hashtext('IML:DEMO:BMR_ECBU:DEMO-001'));
 
+DO $
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema='iml_laboratory'
+      AND table_name='lab_observation'
+      AND column_name='loinc_concept_id'
+  ) OR NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema='iml_laboratory'
+      AND table_name='microbiology_isolate'
+      AND column_name='identification_observation_id'
+  ) THEN
+    RAISE EXCEPTION
+      'DEMO-001 v0.2 requires migrations 194 and 195 before seeding';
+  END IF;
+END
+$;
+
 INSERT INTO iml_identity.practitioner
 (id,family_name,given_names,profession,specialty,active)
 VALUES
@@ -50,7 +71,12 @@ VALUES
  'Examen cytobactériologique des urines',
  'Dysuria and urinary frequency; suspected symptomatic UTI',
  'ROUTINE','COMPLETED','2026-09-25T09:30:00+02:00')
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+  test_code = EXCLUDED.test_code,
+  test_label = EXCLUDED.test_label,
+  indication = EXCLUDED.indication,
+  priority = EXCLUDED.priority,
+  status = EXCLUDED.status;
 
 INSERT INTO iml_laboratory.lab_specimen
 (id,lab_order_id,encounter_id,specimen_type,collected_at,received_at,
@@ -82,7 +108,12 @@ VALUES
  'IML_BMR_ECBU','0.2','SYNTHETIC_DEMO','NOT_APPLICABLE','DEMO-001',
  '2026-09-25T15:35:00+02:00',
  '55555555-5555-4555-8555-555555555555')
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+  content_profile = EXCLUDED.content_profile,
+  content_profile_version = EXCLUDED.content_profile_version,
+  specimen_id = EXCLUDED.specimen_id,
+  report_status = EXCLUDED.report_status,
+  validated_at = EXCLUDED.validated_at;
 
 INSERT INTO iml_laboratory.lab_observation
 (id,lab_report_id,local_code,loinc_code,label,value_text,value_numeric,
@@ -157,7 +188,27 @@ VALUES
  'Synthetic demonstrator classification','DEMO-0.1',
  'ESBL','ESBL phenotype',false,NULL,
  'IML_DEMO','DEMO-001-ISOLATE-1','reported')
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+  lab_report_id = EXCLUDED.lab_report_id,
+  identification_observation_id = EXCLUDED.identification_observation_id,
+  isolate_rank = EXCLUDED.isolate_rank,
+  organism_name = EXCLUDED.organism_name,
+  identification_method = EXCLUDED.identification_method,
+  identification_confidence = EXCLUDED.identification_confidence,
+  organism_count = EXCLUDED.organism_count,
+  organism_count_unit = EXCLUDED.organism_count_unit,
+  colony_count_text = EXCLUDED.colony_count_text,
+  polymicrobial = EXCLUDED.polymicrobial,
+  bmr_flag = EXCLUDED.bmr_flag,
+  bmr_definition = EXCLUDED.bmr_definition,
+  bmr_definition_version = EXCLUDED.bmr_definition_version,
+  phenotype = EXCLUDED.phenotype,
+  resistance_mechanism = EXCLUDED.resistance_mechanism,
+  mechanism_confirmed = EXCLUDED.mechanism_confirmed,
+  source_system = EXCLUDED.source_system,
+  source_identifier = EXCLUDED.source_identifier,
+  data_status = EXCLUDED.data_status,
+  updated_at = clock_timestamp();
 
 INSERT INTO iml_laboratory.antimicrobial_susceptibility
 (id,lab_report_id,specimen,organism,antibiotic,mic_or_diameter,unit,
