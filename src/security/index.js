@@ -46,3 +46,23 @@ export {
   prepareExportRows,
   executeControlledExport,
 } from './exportGateway.js';
+
+export {
+  KEY_BROKER_VERSION,
+  DATA_CIPHER,
+  AES_GCM_KEY_BITS,
+  KeyBrokerError,
+  validateKeyReference,
+  createKeyBroker,
+} from './keyBroker.js';
+
+export {
+  CRYPTO_ENVELOPE_VERSION,
+  AES_GCM_NONCE_BYTES,
+  AES_GCM_TAG_BITS,
+  buildAadContext,
+  fingerprintAad,
+  encryptEnvelope,
+  decryptEnvelope,
+  rewrapEnvelope,
+} from './cryptoEnvelope.js';
