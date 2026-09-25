@@ -47,6 +47,12 @@ function validateCryptoKey(cryptoKey, usage) {
     });
   }
 
+  if (cryptoKey.extractable === true) {
+    throw new KeyBrokerError('Data key must be non-extractable', {
+      errors: ['EXTRACTABLE_DATA_KEY_FORBIDDEN'],
+    });
+  }
+
   if (cryptoKey.algorithm?.name !== 'AES-GCM') {
     throw new KeyBrokerError('Data key must use AES-GCM', {
       errors: ['INVALID_DATA_KEY_ALGORITHM'],
