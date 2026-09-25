@@ -3,7 +3,7 @@
 **Assessment date:** 24 September 2026  
 **Jurisdiction:** Illinois, United States  
 **Code:** US-IL / internal selector USA-IL  
-**Status:** Preview candidate, independently scored  
+**Status:** Published, independently scored  
 **Parent-score inheritance:** prohibited
 
 ## Scope
@@ -56,6 +56,16 @@ The audit environment is strong enough to document deficiencies and management r
 11. Illinois Auditor General — IDPH State Compliance Examination, released 23 Jul 2026.
 12. Illinois HFS — 6 Jun 2025 phishing-incident notice.
 
+## Research continuation — NIU / BMR
+
+The Illinois audit is now being used as the environmental context for a separate research-design workstream:
+
+- `docs/ILLINOIS_NIU_RESEARCH_NOTE_v0.1.md`
+- `docs/IML_BMR_ILLINOIS_PILOT_v0.1.md`
+- `docs/IML_NIU_HUGHES_MEETING_BRIEF.md`
+
+This research workstream does **not** modify the Illinois v0.1 scores or scoring methodology.
+
 ## Promotion condition
 
 Before Production, retain the Illinois profile only if:
@@ -65,7 +75,6 @@ Before Production, retain the Illinois profile only if:
 - no federal score is inherited by Illinois;
 - the map remains country-level;
 - Production country profiles remain unchanged.
-
 
 ## Source-quality review — 24 September 2026
 
