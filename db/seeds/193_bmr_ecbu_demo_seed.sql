@@ -185,7 +185,7 @@ VALUES
  'a2222222-2222-4222-8222-222222222222',
  1,'Escherichia coli',NULL,NULL,'Culture','high',
  100000,'CFU/mL','>= 10^5 CFU/mL',false,true,
- 'Synthetic demonstrator classification','DEMO-0.1',
+ 'Synthetic demonstrator classification','DEMO-0.2',
  'ESBL','ESBL phenotype',false,NULL,
  'IML_DEMO','DEMO-001-ISOLATE-1','reported')
 ON CONFLICT (id) DO UPDATE SET
