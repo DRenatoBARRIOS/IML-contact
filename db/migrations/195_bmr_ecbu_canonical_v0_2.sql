@@ -322,7 +322,7 @@ CREATE TABLE IF NOT EXISTS iml_laboratory.microbiology_isolate (
 ALTER TABLE iml_laboratory.microbiology_isolate
   ADD COLUMN IF NOT EXISTS identification_observation_id uuid NULL;
 
-DO $
+DO $isolate_fk$
 BEGIN
   IF NOT EXISTS (
     SELECT 1
@@ -337,7 +337,7 @@ BEGIN
       ON DELETE RESTRICT;
   END IF;
 END
-$;
+$isolate_fk$;
 
 COMMENT ON TABLE iml_laboratory.microbiology_isolate IS
 'Normalized microbiology isolate. The reported organism identification is anchored to canonical lab_observation/LOINC when available. Colony count and BMR phenotype remain laboratory facts and do not by themselves establish clinical infection.';
@@ -371,7 +371,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_microbiology_isolate_report_rank
 CREATE OR REPLACE FUNCTION iml_laboratory.bmr_ecbu_check_isolate_observation()
 RETURNS trigger
 LANGUAGE plpgsql
-AS $
+AS $isolate_guard$
 DECLARE
   observation_report_id uuid;
 BEGIN
@@ -398,7 +398,7 @@ BEGIN
 
   RETURN NEW;
 END;
-$;
+$isolate_guard$;
 
 DROP TRIGGER IF EXISTS trg_bmr_ecbu_isolate_observation
   ON iml_laboratory.microbiology_isolate;
