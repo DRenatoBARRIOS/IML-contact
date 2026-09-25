@@ -8,7 +8,7 @@
 BEGIN;
 SELECT pg_advisory_xact_lock(hashtext('IML:DEMO:BMR_ECBU:DEMO-001'));
 
-DO $
+DO $seed$
 BEGIN
   IF NOT EXISTS (
     SELECT 1
@@ -27,7 +27,7 @@ BEGIN
       'DEMO-001 v0.2 requires migrations 194 and 195 before seeding';
   END IF;
 END
-$;
+$seed$;
 
 INSERT INTO iml_identity.practitioner
 (id,family_name,given_names,profession,specialty,active)
