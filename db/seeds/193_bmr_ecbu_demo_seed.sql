@@ -138,6 +138,7 @@ ON CONFLICT (id) DO UPDATE SET
   original_unit = EXCLUDED.original_unit,
   normalized_unit = EXCLUDED.normalized_unit,
   normalized_unit_system = EXCLUDED.normalized_unit_system,
+  loinc_concept_id = NULL,
   reference_range = EXCLUDED.reference_range,
   method = EXCLUDED.method,
   abnormal_flag = EXCLUDED.abnormal_flag;
@@ -187,7 +188,7 @@ VALUES
  100000,'CFU/mL','>= 10^5 CFU/mL',false,true,
  'Synthetic demonstrator classification','DEMO-0.2',
  'ESBL','ESBL phenotype',false,NULL,
- 'IML_DEMO','DEMO-001-ISOLATE-1','reported')
+ 'IML_DEMO','DEMO-001-ISOLATE-1','derived')
 ON CONFLICT (id) DO UPDATE SET
   lab_report_id = EXCLUDED.lab_report_id,
   identification_observation_id = EXCLUDED.identification_observation_id,
