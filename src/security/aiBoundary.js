@@ -23,7 +23,7 @@ function isTechnicalUnavailable(error) {
  *
  * Rules:
  * - Each candidate must receive an explicit policy decision before invocation.
- * - DENY_FINAL stops the plan immediately.
+ * - Any decision other than ALLOW is terminal.
  * - Alternatives are considered only after a technical failure of an already
  *   authorized candidate.
  * - The caller is responsible for ensuring alternatives remain within the
@@ -56,7 +56,7 @@ export async function executeAiAccessPlan({
       index,
     });
 
-    if (!decision || decision.effect === POLICY_EFFECT.DENY_FINAL) {
+    if (!decision || decision.effect !== POLICY_EFFECT.ALLOW) {
       await onEvent({
         type: 'denied_final',
         candidate,
