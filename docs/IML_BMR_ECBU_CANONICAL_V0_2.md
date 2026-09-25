@@ -56,6 +56,9 @@ entrer en collision avec `192_iml_sync_foundation.sql`.
 cd ~/IML-contact
 
 psql -d iml_workspace_bmr_test -v ON_ERROR_STOP=1 \
+  -f db/migrations/194_laboratory_terminology_foundation.sql
+
+psql -d iml_workspace_bmr_test -v ON_ERROR_STOP=1 \
   -f db/migrations/195_bmr_ecbu_canonical_v0_2.sql
 
 psql -d iml_workspace_bmr_test -v ON_ERROR_STOP=1 \
@@ -67,6 +70,10 @@ psql -d iml_workspace_bmr_test -v ON_ERROR_STOP=1 \
 psql -d iml_workspace_bmr_test -v ON_ERROR_STOP=1 \
   -f db/tests/195_bmr_ecbu_canonical_assertions.sql
 ```
+
+La base `iml_workspace_bmr_test` issue du démonstrateur v0.1 peut précéder
+la migration 194. Il faut donc appliquer d'abord la fondation LAB/LOINC 194,
+puis la consolidation BMR 195.
 
 Le seed 193 est ré-exécutable: les UUID synthétiques restent stables et les
 anciennes lignes `DEMO-*` sont mises à niveau.
