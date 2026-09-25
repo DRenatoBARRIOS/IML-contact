@@ -1,6 +1,10 @@
 -- IML BMR / ECBU demonstrator
 -- 193_bmr_ecbu_demo_seed.sql
+-- Canonical LAB/LOINC seed v0.2
 -- Synthetic data only. Test/demo databases only.
+--
+-- Laboratory facts use the canonical lab_observation LOINC columns introduced
+-- by migration 194. No BMR-specific terminology tables are used.
 BEGIN;
 SELECT pg_advisory_xact_lock(hashtext('IML:DEMO:BMR_ECBU:DEMO-001'));
 
@@ -42,7 +46,7 @@ VALUES
  '33333333-3333-4333-8333-333333333333',
  NULL,
  '11111111-1111-4111-8111-111111111111',
- 'ECBU-DEMO',
+ 'ECBU',
  'Examen cytobactériologique des urines',
  'Dysuria and urinary frequency; suspected symptomatic UTI',
  'ROUTINE','COMPLETED','2026-09-25T09:30:00+02:00')
@@ -75,24 +79,55 @@ VALUES
  'FINAL',
  '2026-09-25T10:00:00+02:00',
  '2026-09-25T15:30:00+02:00',
- 'IML_BMR_ECBU','0.1','SYNTHETIC_DEMO','NOT_APPLICABLE','DEMO-001',
+ 'IML_BMR_ECBU','0.2','SYNTHETIC_DEMO','NOT_APPLICABLE','DEMO-001',
  '2026-09-25T15:35:00+02:00',
  '55555555-5555-4555-8555-555555555555')
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO iml_laboratory.lab_observation
 (id,lab_report_id,local_code,loinc_code,label,value_text,value_numeric,
- original_unit,normalized_unit,reference_range,method,abnormal_flag,corrected_from)
+ original_unit,normalized_unit,normalized_unit_system,reference_range,
+ method,abnormal_flag,corrected_from)
 VALUES
 ('a1111111-1111-4111-8111-111111111111',
  '66666666-6666-4666-8666-666666666666',
- 'DEMO-LEUKOCYTES',NULL,'Leucocytes urinaires',NULL,125000,
- '/mL','/mL',NULL,'Synthetic demo','H',NULL),
+ 'GP-URI-WBCQ','30405-5','Leucocyturie quantitative',NULL,125000,
+ '/mL','/mL','UCUM',NULL,'Synthetic quantitative microscopy','H',NULL),
 ('a2222222-2222-4222-8222-222222222222',
  '66666666-6666-4666-8666-666666666666',
- 'DEMO-CULTURE-COUNT',NULL,'Numération bactérienne urinaire',NULL,100000,
- 'CFU/mL','CFU/mL',NULL,'Culture','H',NULL)
-ON CONFLICT (id) DO NOTHING;
+ 'GP-URI-CULT','630-4','Bacteria identified in urine by culture',
+ 'Escherichia coli',NULL,
+ NULL,NULL,NULL,NULL,'Culture',NULL,NULL)
+ON CONFLICT (id) DO UPDATE SET
+  local_code = EXCLUDED.local_code,
+  loinc_code = EXCLUDED.loinc_code,
+  label = EXCLUDED.label,
+  value_text = EXCLUDED.value_text,
+  value_numeric = EXCLUDED.value_numeric,
+  original_unit = EXCLUDED.original_unit,
+  normalized_unit = EXCLUDED.normalized_unit,
+  normalized_unit_system = EXCLUDED.normalized_unit_system,
+  reference_range = EXCLUDED.reference_range,
+  method = EXCLUDED.method,
+  abnormal_flag = EXCLUDED.abnormal_flag;
+
+-- If selected LOINC 2.83 concepts have already been promoted from the local
+-- workbench into the canonical terminology tables, link them. Otherwise the
+-- exchanged loinc_code remains authoritative and loinc_concept_id stays NULL,
+-- exactly as allowed by migration 194.
+UPDATE iml_laboratory.lab_observation o
+SET loinc_concept_id = c.id
+FROM iml_terminology.concept c
+JOIN iml_terminology.release r ON r.id = c.release_id
+JOIN iml_terminology.system s ON s.id = r.system_id
+WHERE o.id IN (
+    'a1111111-1111-4111-8111-111111111111'::uuid,
+    'a2222222-2222-4222-8222-222222222222'::uuid
+  )
+  AND s.system_code = 'LOINC'
+  AND r.release_key = 'LOINC_2.83'
+  AND c.code = o.loinc_code
+  AND o.loinc_concept_id IS DISTINCT FROM c.id;
 
 INSERT INTO iml_laboratory.microbiology_context
 (id,lab_report_id,symptoms,fever,leukocyturia,pregnancy,urinary_device,
@@ -107,7 +142,8 @@ VALUES
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO iml_laboratory.microbiology_isolate
-(id,lab_report_id,isolate_rank,organism_name,organism_code,taxonomy_system,
+(id,lab_report_id,identification_observation_id,isolate_rank,
+ organism_name,organism_code,taxonomy_system,
  identification_method,identification_confidence,organism_count,organism_count_unit,
  colony_count_text,polymicrobial,bmr_flag,bmr_definition,bmr_definition_version,
  phenotype,resistance_mechanism,mechanism_confirmed,mechanism_method,
@@ -115,11 +151,12 @@ INSERT INTO iml_laboratory.microbiology_isolate
 VALUES
 ('88888888-8888-4888-8888-888888888888',
  '66666666-6666-4666-8666-666666666666',
- 1,'Escherichia coli',NULL,NULL,'Synthetic identification','high',
+ 'a2222222-2222-4222-8222-222222222222',
+ 1,'Escherichia coli',NULL,NULL,'Culture','high',
  100000,'CFU/mL','>= 10^5 CFU/mL',false,true,
  'Synthetic demonstrator classification','DEMO-0.1',
  'ESBL','ESBL phenotype',false,NULL,
- 'IML_DEMO','DEMO-001-ISOLATE-1','derived')
+ 'IML_DEMO','DEMO-001-ISOLATE-1','reported')
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO iml_laboratory.antimicrobial_susceptibility
@@ -146,8 +183,8 @@ VALUES
  'symptomatic_uti','high',
  '[{"type":"symptom","code":"dysuria","present":true},
    {"type":"symptom","code":"frequency","present":true},
-   {"type":"laboratory","code":"leukocyturia","present":true},
-   {"type":"culture","organism":"Escherichia coli","count":100000,"unit":"CFU/mL"}]'::jsonb,
+   {"type":"laboratory","catalog_code":"GP-URI-WBCQ","loinc":"30405-5","present":true},
+   {"type":"culture","catalog_code":"GP-URI-CULT","loinc":"630-4","organism":"Escherichia coli","count":100000,"unit":"CFU/mL"}]'::jsonb,
  '[{"type":"systemic_sign","code":"fever","present":false}]'::jsonb,
  'clinician_asserted',
  '11111111-1111-4111-8111-111111111111',
