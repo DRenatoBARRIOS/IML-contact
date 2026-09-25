@@ -6,8 +6,9 @@ on:
       - main
     paths:
       - "db/migrations/192_security_layer.sql"
+      - "db/migrations/193_security_access_controls.sql"
       - "src/security/**"
-      - "tests/security-policy.test.mjs"
+      - "tests/security-*.test.mjs"
       - "docs/IML_SECURITY_01_IMPLEMENTATION.md"
       - ".github/workflows/security-guard.yml"
   push:
@@ -15,8 +16,9 @@ on:
       - "feat/iml-security-layer"
     paths:
       - "db/migrations/192_security_layer.sql"
+      - "db/migrations/193_security_access_controls.sql"
       - "src/security/**"
-      - "tests/security-policy.test.mjs"
+      - "tests/security-*.test.mjs"
       - "docs/IML_SECURITY_01_IMPLEMENTATION.md"
       - ".github/workflows/security-guard.yml"
 
@@ -39,21 +41,24 @@ jobs:
         run: npm ci
 
       - name: Run security tests
-        run: node --test tests/security-policy.test.mjs
+        run: node --test tests/security-*.test.mjs
 
-      - name: Verify security migration remains additive
+      - name: Verify security migrations remain additive
         shell: bash
         run: |
           set -euo pipefail
-          migration="db/migrations/192_security_layer.sql"
-          if grep -Eiq '^[[:space:]]*(DROP[[:space:]]+(TABLE|SCHEMA)|TRUNCATE|ALTER[[:space:]]+(TABLE|SCHEMA)[[:space:]]+iml_(clinical|identity|terminology|laboratory))' "$migration"; then
-            echo "Security migration contains a destructive change to an existing IML functional schema."
-            exit 1
-          fi
+          for migration in db/migrations/192_security_layer.sql db/migrations/193_security_access_controls.sql; do
+            if grep -Eiq '^[[:space:]]*(DROP[[:space:]]+(TABLE|SCHEMA)|TRUNCATE|ALTER[[:space:]]+(TABLE|SCHEMA)[[:space:]]+iml_(clinical|identity|terminology|laboratory))' "$migration"; then
+              echo "$migration contains a destructive change to an existing IML functional schema."
+              exit 1
+            fi
+          done
 
-      - name: Verify terminal-denial test is present
+      - name: Verify terminal-denial and break-glass invariants are tested
         shell: bash
         run: |
           set -euo pipefail
           grep -q "AI DENY_FINAL is terminal" tests/security-policy.test.mjs
           grep -q "UNKNOWN_EFFECT" tests/security-policy.test.mjs
+          grep -q "AI cannot create a break-glass grant" tests/security-access-matrix.test.mjs
+          grep -q "break-glass rule cannot be reused for another patient" tests/security-access-matrix.test.mjs
