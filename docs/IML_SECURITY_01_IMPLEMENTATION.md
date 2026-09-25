@@ -1,4 +1,4 @@
-# IML-SECURITY-01 / SECURITY-02 — Implementation v0.2
+# IML-SECURITY-01 / 02 / 03 — Implementation v0.3
 
 Status: implementation scaffold on `feat/iml-security-layer`.
 
@@ -6,19 +6,19 @@ Status: implementation scaffold on `feat/iml-security-layer`.
 
 This change is additive. It does not alter validated IML clinical, terminology, laboratory, country-profile or interoperability protocols.
 
-The implementation establishes reusable security primitives for the Open Clinical Workspace:
+The implementation now establishes:
 
 - default-deny policy decisions;
 - RBAC/ABAC role bindings and contextual policy inputs;
 - external key references with no secret key material in PostgreSQL;
 - contextual pseudonym bindings using opaque subject references;
-- export authorization records;
-- AI boundary events;
+- AI boundary events and terminal denial;
 - tamper-evident append-only audit chaining;
-- application-side terminal-denial enforcement;
-- minimum-necessary outbound field selection;
 - canonical access roles and source-controlled baseline policy rules;
-- human-only, step-up authenticated emergency access.
+- human-only, step-up authenticated emergency access;
+- canonical data classification;
+- a controlled Export Gateway with field and volume limits;
+- mandatory encryption before delivery of personal/health exports.
 
 ## Non-negotiable AI rule
 
@@ -35,9 +35,7 @@ When a policy decision returns `DENY_FINAL`, the current access plan stops immed
 
 A fallback is allowed only after a candidate was explicitly `ALLOW`ed and then failed for a technical reason represented by `IML_TECHNICAL_UNAVAILABLE`. Every fallback candidate must receive its own explicit authorization decision before invocation.
 
-## Database objects
-
-### SECURITY-01
+## SECURITY-01 — Foundation
 
 Migration: `db/migrations/192_security_layer.sql`
 
@@ -55,15 +53,15 @@ Objects:
 - `audit_event`
 - `append_audit_event(...)`
 
-### SECURITY-02
+## SECURITY-02 — Access matrix and emergency access
 
 Migration: `db/migrations/193_security_access_controls.sql`
 
 Adds:
 
 - `role_definition`;
-- canonical role definitions;
-- referential control from role bindings to the canonical role catalogue;
+- canonical role catalogue;
+- referential control from role bindings to roles;
 - `emergency_access_grant`;
 - maximum 30-minute emergency access;
 - step-up authentication freshness requirement;
@@ -73,110 +71,101 @@ Adds:
 
 ### Canonical roles
 
-The current baseline contains six roles:
+- `physician`
+- `medical_assistant`
+- `laboratory_service`
+- `local_connector`
+- `ai_service`
+- `security_admin`
 
-- `physician`;
-- `medical_assistant`;
-- `laboratory_service`;
-- `local_connector`;
-- `ai_service`;
-- `security_admin`.
+### Important boundaries
 
-These roles are deliberately narrow.
-
-A security administrator does not acquire clinical access by virtue of being a security administrator.
-
-An AI principal has no identity, re-identification, export or emergency-access entitlement.
-
-## Access matrix
-
-`src/security/accessMatrix.js` is the source-controlled baseline policy bundle.
-
-Version: `IML-SECURITY-02/0.2.0`.
-
-The initial matrix implements:
-
-### Physician
-
-For `treatment`:
-
-- read minimum identity summary;
-- read clinical record, encounter, laboratory order and laboratory result;
-- create/update clinical record, encounter and laboratory order.
-
-### Medical assistant
-
-For `administration` and `care_coordination`:
-
-- read identity summary and administrative record;
-- create/update administrative record.
-
-There is no default unrestricted clinical-record read.
-
-A deployment may later add a narrower delegated clinical permission, but it must be explicit.
-
-### Laboratory service
-
-For `laboratory_processing`:
-
-- read laboratory orders;
-- create/update laboratory results.
-
-It receives no general patient-record browsing right.
-
-### Local Connector
-
-For `device_integration`:
-
-- execute allowlisted connector jobs;
-- handle minimum connector payloads.
-
-The Local Connector is not treated as a clinical user.
-
-### AI service
-
-For `clinical_support`:
-
-- read only a prepared/minimized `ai_context`.
-
-Explicit terminal denies cover:
-
-- identity access;
-- re-identification;
-- export;
-- pseudonym linkage material.
-
-### Security administrator
-
-For `security_operations`:
-
-- read audit events, key references and policy configuration;
-- administer key-reference metadata and policy configuration.
-
-Explicit terminal denies cover clinical and identity content.
+- a medical assistant has no default unrestricted clinical-record read;
+- a laboratory service cannot browse the full patient chart;
+- the Local Connector is a device/integration principal, not a clinician;
+- AI is limited to prepared/minimized `ai_context`;
+- AI has explicit terminal denies for identity, re-identification, export and linkage material;
+- a security administrator has no implicit clinical or identity access.
 
 ## Human emergency access / break-glass
 
-`src/security/breakGlass.js` implements the application-side safeguards.
-
-Current baseline:
+`src/security/breakGlass.js` implements:
 
 1. human principal only;
 2. `physician` role only;
-3. subject/patient scoped;
-4. meaningful justification required;
-5. recent step-up authentication required;
+3. subject/patient scope;
+4. meaningful justification;
+5. recent step-up authentication;
 6. maximum lifetime 30 minutes;
 7. read-only emergency rule;
-8. alert required;
-9. post-event review required;
-10. cannot be created by an AI, service or device principal.
+8. required alert;
+9. required post-event review;
+10. no AI/service/device use.
 
 Break-glass is **not** a retry after an AI policy refusal.
 
-It is a separate human emergency authorization flow with its own purpose of use: `emergency_treatment`.
+It is a distinct human emergency authorization path with purpose `emergency_treatment`.
 
-The first implementation is intentionally read-only. Write permissions should not be added until a real emergency clinical workflow demonstrates the need and its audit requirements are defined.
+## SECURITY-03 — Data classification and Export Gateway
+
+Migration: `db/migrations/196_security_data_export_controls.sql`.
+
+The number 196 is intentional so the security branch does not collide with the parallel LAB/BMR migration sequence using 194/195.
+
+### Canonical data classifications
+
+- `PUBLIC`
+- `INTERNAL`
+- `PERSONAL`
+- `HEALTH`
+- `RESTRICTED_IDENTITY`
+- `LINKAGE_RESTRICTED`
+- `SECRET_MATERIAL`
+
+### Generic export rules
+
+The generic Export Gateway may export only classifications explicitly approved for that authorization.
+
+The following are **never** permitted through the generic gateway:
+
+- `RESTRICTED_IDENTITY`
+- `LINKAGE_RESTRICTED`
+- `SECRET_MATERIAL`
+
+Direct patient identity export, if ever required for a lawful workflow, must use a separate specifically designed path. It must not be enabled by weakening the generic gateway.
+
+### Export authorization requirements
+
+Before an export may be approved:
+
+- a non-empty field allowlist is required;
+- a positive maximum record count is required;
+- allowed classifications are explicit;
+- destination class is explicit;
+- sensitive data require encrypted delivery.
+
+A completed export must record:
+
+- record count;
+- artifact hash;
+- external encryption key reference when encryption is required.
+
+`export_event` provides an append-only control trail without copying clinical payloads into the log.
+
+### Application gateway
+
+`src/security/exportGateway.js` ensures:
+
+- every allowlisted field has a classification;
+- fields outside the allowlist are omitted;
+- restricted classifications cause a terminal denial;
+- volume above `maxRecords` causes a terminal denial;
+- expired authorization causes a terminal denial;
+- AI principals cannot execute exports;
+- PERSONAL/HEALTH rows are passed to `encrypt()` before `deliver()`;
+- if encryption is absent or ineffective, `deliver()` is never invoked.
+
+This is application-level exfiltration control. It cannot prevent photography of a screen or a user manually retyping visible information; those are separate physical/endpoint risks.
 
 ## Key management
 
@@ -190,6 +179,8 @@ It must never contain:
 - recovery secrets;
 - private signing keys.
 
+The Export Gateway currently expects an external key reference for completed sensitive exports. Actual KMS/keystore binding remains a later gate.
+
 ## Audit
 
 `audit_event` is hash chained and protected against ordinary UPDATE/DELETE through triggers.
@@ -197,34 +188,6 @@ It must never contain:
 This makes the database ledger tamper-evident, not absolutely immutable. A production deployment must export and/or sign audit events in a second trust domain so that a privileged database administrator cannot silently rewrite both data and history.
 
 Audit metadata must not become a duplicate clinical record.
-
-## Application objects
-
-`src/security/policyEngine.js`
-
-Provides:
-
-- `evaluateAccess()`
-- `assertAllowed()`
-- `executeAuthorized()`
-- `pickAllowedFields()`
-- `PolicyDeniedError`
-
-Policy semantics:
-
-1. malformed context -> `DENY_FINAL`;
-2. matching deny overrides matching allow;
-3. matching explicit allow -> `ALLOW`;
-4. no rule -> `DENY_FINAL`.
-
-`src/security/aiBoundary.js`
-
-Provides:
-
-- `executeAiAccessPlan()`
-- `TechnicalUnavailableError`
-
-Its control flow deliberately distinguishes policy denial from technical unavailability.
 
 ## Deployment boundary
 
@@ -234,34 +197,34 @@ For the current IML architecture:
 
 - local PostgreSQL remains the reference location for patient/clinical data;
 - Neon remains a control/reference plane unless a jurisdiction-specific deployment has explicitly validated another arrangement;
-- the local-to-Neon synchronization remains whitelist based;
-- pseudonymised data are still personal data in the GDPR sense and are not automatically eligible for cloud synchronization.
+- local-to-Neon synchronization remains whitelist based;
+- pseudonymised data remain personal data and are not automatically eligible for cloud synchronization.
 
-## Completed implementation gate
+## Completed gates
 
-The first canonical application access matrix is now defined for:
+Implemented and tested in source:
 
-- physician;
-- medical assistant;
-- laboratory service;
-- Local Connector;
-- AI service;
-- security administrator.
-
-The first emergency-access model is also defined and tested.
+- terminal AI denial;
+- minimum-necessary field selection;
+- canonical access matrix;
+- human emergency access;
+- data classification;
+- controlled export gateway;
+- sensitive-export encryption-before-delivery invariant.
 
 ## Next implementation gates
 
 Before connecting SECURITY to clinical routes:
 
 1. inventory real PostgreSQL roles and service identities;
-2. test migrations 192 and 193 on an isolated database branch/clone;
+2. test migrations 192, 193 and 196 on an isolated database branch/clone;
 3. bind a real MFA-capable identity provider;
-4. select the first external/local key provider;
+4. select and bind the first external/local key provider;
 5. create the audit sink outside the clinical database;
 6. wrap one narrow clinical read path with the Policy Engine;
-7. implement the Export Gateway around `export_authorization`;
-8. test denial, export restriction, emergency access and offline scenarios;
-9. only then expand coverage.
+7. define offline/device trust and Local Connector isolation;
+8. add backup/restore security controls;
+9. add dependency/SBOM/signing controls;
+10. only then expand coverage.
 
-No production database migration should be applied until migrations 192 and 193 have been tested on an isolated clone/branch and reviewed against the actual IML Clinical Workspace schema.
+No production database migration should be applied until the security migrations have been tested on an isolated clone/branch and reviewed against the actual IML Clinical Workspace schema.
