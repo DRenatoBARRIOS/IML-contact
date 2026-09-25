@@ -1,5 +1,3 @@
-import { randomUUID } from 'node:crypto';
-
 import { POLICY_EFFECT } from './policyEngine.js';
 import {
   PURPOSE,
@@ -18,6 +16,14 @@ function asDate(value, fieldName) {
   }
 
   return date;
+}
+
+function newId() {
+  if (!globalThis.crypto?.randomUUID) {
+    throw new Error('Secure random UUID generation is unavailable');
+  }
+
+  return globalThis.crypto.randomUUID();
 }
 
 export class BreakGlassDeniedError extends Error {
@@ -91,7 +97,7 @@ export function createBreakGlassGrant(request, now = new Date()) {
   );
 
   return Object.freeze({
-    id: randomUUID(),
+    id: newId(),
     principalId: request.principal.id,
     principalType: 'human',
     roleCode: ROLE_CODE.PHYSICIAN,
