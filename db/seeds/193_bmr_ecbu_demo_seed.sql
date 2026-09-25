@@ -214,12 +214,21 @@ INSERT INTO iml_laboratory.antimicrobial_susceptibility
 (id,lab_report_id,specimen,organism,antibiotic,mic_or_diameter,unit,
  interpretation,interpretation_standard,standard_version,validated_at,isolate_id)
 VALUES
-('b1111111-1111-4111-8111-111111111111','66666666-6666-4666-8666-666666666666','urine','Escherichia coli','Amoxicillin',NULL,NULL,'R','DEMO','0.1','2026-09-25T15:30:00+02:00','88888888-8888-4888-8888-888888888888'),
-('b2222222-2222-4222-8222-222222222222','66666666-6666-4666-8666-666666666666','urine','Escherichia coli','Cefotaxime',NULL,NULL,'R','DEMO','0.1','2026-09-25T15:30:00+02:00','88888888-8888-4888-8888-888888888888'),
-('b3333333-3333-4333-8333-333333333333','66666666-6666-4666-8666-666666666666','urine','Escherichia coli','Ciprofloxacin',NULL,NULL,'R','DEMO','0.1','2026-09-25T15:30:00+02:00','88888888-8888-4888-8888-888888888888'),
-('b4444444-4444-4444-8444-444444444444','66666666-6666-4666-8666-666666666666','urine','Escherichia coli','Fosfomycin',NULL,NULL,'S','DEMO','0.1','2026-09-25T15:30:00+02:00','88888888-8888-4888-8888-888888888888'),
-('b5555555-5555-4555-8555-555555555555','66666666-6666-4666-8666-666666666666','urine','Escherichia coli','Nitrofurantoin',NULL,NULL,'S','DEMO','0.1','2026-09-25T15:30:00+02:00','88888888-8888-4888-8888-888888888888')
-ON CONFLICT (id) DO NOTHING;
+('b1111111-1111-4111-8111-111111111111','66666666-6666-4666-8666-666666666666','urine','Escherichia coli','Amoxicillin',NULL,NULL,'R','DEMO','0.2','2026-09-25T15:30:00+02:00','88888888-8888-4888-8888-888888888888'),
+('b2222222-2222-4222-8222-222222222222','66666666-6666-4666-8666-666666666666','urine','Escherichia coli','Cefotaxime',NULL,NULL,'R','DEMO','0.2','2026-09-25T15:30:00+02:00','88888888-8888-4888-8888-888888888888'),
+('b3333333-3333-4333-8333-333333333333','66666666-6666-4666-8666-666666666666','urine','Escherichia coli','Ciprofloxacin',NULL,NULL,'R','DEMO','0.2','2026-09-25T15:30:00+02:00','88888888-8888-4888-8888-888888888888'),
+('b4444444-4444-4444-8444-444444444444','66666666-6666-4666-8666-666666666666','urine','Escherichia coli','Fosfomycin',NULL,NULL,'S','DEMO','0.2','2026-09-25T15:30:00+02:00','88888888-8888-4888-8888-888888888888'),
+('b5555555-5555-4555-8555-555555555555','66666666-6666-4666-8666-666666666666','urine','Escherichia coli','Nitrofurantoin',NULL,NULL,'S','DEMO','0.2','2026-09-25T15:30:00+02:00','88888888-8888-4888-8888-888888888888')
+ON CONFLICT (id) DO UPDATE SET
+  lab_report_id = EXCLUDED.lab_report_id,
+  specimen = EXCLUDED.specimen,
+  organism = EXCLUDED.organism,
+  antibiotic = EXCLUDED.antibiotic,
+  interpretation = EXCLUDED.interpretation,
+  interpretation_standard = EXCLUDED.interpretation_standard,
+  standard_version = EXCLUDED.standard_version,
+  validated_at = EXCLUDED.validated_at,
+  isolate_id = EXCLUDED.isolate_id;
 
 INSERT INTO iml_clinical.microbiology_interpretation
 (id,lab_report_id,microbiology_context_id,encounter_id,isolate_id,
