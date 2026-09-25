@@ -11,13 +11,6 @@ const RADAR_LABELS = ["Governance", "Technical", "Identity", "Adoption", "Securi
 const SUBNATIONAL_PROFILE_OPTIONS = {
   USA: [
     {
-      id: "USA-FED",
-      label: "United States — Federal",
-      name: "United States",
-      countryIso3: "USA",
-      profileIso3: "USA",
-    },
-    {
       id: "USA-IL",
       label: "Illinois — United States",
       name: "Illinois",
@@ -418,7 +411,7 @@ function ProfilePanel({ country, profile }) {
 export default function CountryExplorer() {
   const [profiles, setProfiles] = useState([]);
   const [selectedIso3, setSelectedIso3] = useState("FRA");
-  const [selectedJurisdictionId, setSelectedJurisdictionId] = useState("USA-FED");
+  const [selectedJurisdictionId, setSelectedJurisdictionId] = useState("");
   const [hovered, setHovered] = useState(null);
   const [status, setStatus] = useState({ loading: true, warning: "" });
 
@@ -442,7 +435,7 @@ export default function CountryExplorer() {
   const countryOptions = useMemo(() => Array.from(new Map(features.map((feature) => [featureIso3(feature), { iso3: featureIso3(feature), name: profilesByIso3.get(featureIso3(feature))?.name || featureName(feature) }])).values()).sort((a, b) => a.name.localeCompare(b.name)), [features, profilesByIso3]);
   const selectedFeature = features.find((feature) => featureIso3(feature) === selectedIso3);
   const jurisdictionOptions = SUBNATIONAL_PROFILE_OPTIONS[selectedIso3] || [];
-  const selectedJurisdiction = jurisdictionOptions.find((option) => option.id === selectedJurisdictionId) || jurisdictionOptions[0] || null;
+  const selectedJurisdiction = jurisdictionOptions.find((option) => option.id === selectedJurisdictionId) || null;
   const selectedCountry = selectedFeature
     ? selectedJurisdiction
       ? {
@@ -461,7 +454,7 @@ export default function CountryExplorer() {
     : profilesByIso3.get(selectedIso3) || null;
   const chooseCountry = (iso3) => {
     setSelectedIso3(iso3);
-    setSelectedJurisdictionId(iso3 === "USA" ? "USA-FED" : "");
+    setSelectedJurisdictionId("");
   };
 
   if (status.loading) return <div className="explorer-loading" role="status"><span />Loading country profiles…</div>;
@@ -474,6 +467,7 @@ export default function CountryExplorer() {
           <label>
             <span>Choose jurisdiction</span>
             <select value={selectedJurisdiction?.id || ""} onChange={(event) => setSelectedJurisdictionId(event.target.value)}>
+              <option value="" disabled>Choose jurisdiction</option>
               {jurisdictionOptions.map((option) => (
                 <option key={option.id} value={option.id}>{option.label}{(option.profileIso3 || option.jurisdictionProfileId) ? " — examined" : " — not examined"}</option>
               ))}
