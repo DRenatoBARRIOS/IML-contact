@@ -1,0 +1,59 @@
+name: IML security guard
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "db/migrations/192_security_layer.sql"
+      - "src/security/**"
+      - "tests/security-policy.test.mjs"
+      - "docs/IML_SECURITY_01_IMPLEMENTATION.md"
+      - ".github/workflows/security-guard.yml"
+  push:
+    branches:
+      - "feat/iml-security-layer"
+    paths:
+      - "db/migrations/192_security_layer.sql"
+      - "src/security/**"
+      - "tests/security-policy.test.mjs"
+      - "docs/IML_SECURITY_01_IMPLEMENTATION.md"
+      - ".github/workflows/security-guard.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  security-invariants:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run repository tests
+        run: npm run check
+
+      - name: Verify security migration remains additive
+        shell: bash
+        run: |
+          set -euo pipefail
+          migration="db/migrations/192_security_layer.sql"
+          if grep -Eiq '^[[:space:]]*(DROP[[:space:]]+(TABLE|SCHEMA)|TRUNCATE|ALTER[[:space:]]+(TABLE|SCHEMA)[[:space:]]+iml_(clinical|identity|terminology|laboratory))' "$migration"; then
+            echo "Security migration contains a destructive change to an existing IML functional schema."
+            exit 1
+          fi
+
+      - name: Verify terminal-denial test is present
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q "AI DENY_FINAL is terminal" tests/security-policy.test.mjs
+          grep -q "UNKNOWN_EFFECT" tests/security-policy.test.mjs
