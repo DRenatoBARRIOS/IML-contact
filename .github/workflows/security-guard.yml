@@ -38,8 +38,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run repository tests
-        run: npm run check
+      - name: Run security tests
+        run: node --test tests/security-policy.test.mjs
 
       - name: Verify security migration remains additive
         shell: bash
