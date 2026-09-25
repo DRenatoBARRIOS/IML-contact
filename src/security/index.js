@@ -29,3 +29,20 @@ export {
   validateBreakGlassGrant,
   buildBreakGlassReadRule,
 } from './breakGlass.js';
+
+export {
+  DATA_CLASSIFICATION,
+  CLASSIFICATION_POLICY,
+  classificationPolicy,
+  requiresEncryptedExport,
+  isGenericExportAllowed,
+} from './dataClassification.js';
+
+export {
+  EXPORT_POLICY_VERSION,
+  GENERIC_EXPORT_FORBIDDEN_CLASSIFICATIONS,
+  ExportDeniedError,
+  validateExportAuthorization,
+  prepareExportRows,
+  executeControlledExport,
+} from './exportGateway.js';
