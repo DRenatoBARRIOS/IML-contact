@@ -101,15 +101,6 @@ CREATE INDEX IF NOT EXISTS idx_security_crypto_resource
 CREATE INDEX IF NOT EXISTS idx_security_crypto_key
   ON iml_security.crypto_envelope(key_reference_id, status, created_at DESC);
 
-CREATE INDEX IF NOT EXISTS idx_security_crypto_rotation
-  ON iml_security.crypto_envelope(rotation_group, status)
-  WHERE rotation_group IS NOT NULL;
-
--- rotation_group belongs to key_reference, not crypto_envelope. The conditional
--- index above is therefore intentionally omitted if the column is unavailable
--- on crypto_envelope in this version.
-DROP INDEX IF EXISTS iml_security.idx_security_crypto_rotation;
-
 CREATE INDEX IF NOT EXISTS idx_security_key_rotation_group
   ON iml_security.key_reference(rotation_group, status)
   WHERE rotation_group IS NOT NULL;
