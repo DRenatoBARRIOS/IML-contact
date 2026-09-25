@@ -12,16 +12,6 @@ import {
 
 const crypto = globalThis.crypto;
 
-function bytesEqual(left, right) {
-  if (left.byteLength !== right.byteLength) return false;
-
-  for (let index = 0; index < left.byteLength; index += 1) {
-    if (left[index] !== right[index]) return false;
-  }
-
-  return true;
-}
-
 async function createTestProvider() {
   const keys = new Map();
 
@@ -74,14 +64,14 @@ async function createTestProvider() {
     );
   }
 
-  async function unwrapDataKey(wrappedKey, kek) {
+  async function unwrapDataKey(wrappedKey, kek, extractable = false) {
     return crypto.subtle.unwrapKey(
       'raw',
       wrappedKey,
       kek,
       { name: 'AES-KW' },
       { name: 'AES-GCM', length: 256 },
-      false,
+      extractable,
       ['encrypt', 'decrypt'],
     );
   }
@@ -131,6 +121,7 @@ async function createTestProvider() {
         const dataKey = await unwrapDataKey(
           request.wrappedKey,
           selected.cryptoKey,
+          false,
         );
 
         return callback(dataKey);
@@ -139,13 +130,20 @@ async function createTestProvider() {
       async rewrapDataKey(request) {
         const current = keyByReference(request.currentKeyReference);
         const target = keyByReference(request.targetKeyReference);
-        const dataKey = await unwrapDataKey(
+
+        // This extractable CryptoKey exists only inside the simulated provider
+        // boundary. The IML Key Broker never receives it.
+        const providerInternalDataKey = await unwrapDataKey(
           request.wrappedKey,
           current.cryptoKey,
+          true,
         );
 
         return {
-          wrappedKey: await wrapDataKey(dataKey, target.cryptoKey),
+          wrappedKey: await wrapDataKey(
+            providerInternalDataKey,
+            target.cryptoKey,
+          ),
           keyReference: target.reference,
           wrapAlgorithm: 'AES-KW-256',
         };
@@ -254,10 +252,10 @@ test('tampered ciphertext fails before plaintext is returned', async () => {
     keyBroker: broker,
   });
 
-  const final = envelope.ciphertext.at(-1);
+  const first = envelope.ciphertext[0];
   const tampered = {
     ...envelope,
-    ciphertext: envelope.ciphertext.slice(0, -1) + (final === 'A' ? 'B' : 'A'),
+    ciphertext: (first === 'A' ? 'B' : 'A') + envelope.ciphertext.slice(1),
   };
 
   await assert.rejects(
@@ -316,7 +314,12 @@ test('invalid or inactive external key reference is rejected', async () => {
   const broker = createKeyBroker({
     ...provider,
     async withGeneratedDataKey(request, callback) {
-      return provider.withGeneratedDataKey(request, ({ cryptoKey, wrappedKey, keyReference, wrapAlgorithm }) => (
+      return provider.withGeneratedDataKey(request, ({
+        cryptoKey,
+        wrappedKey,
+        keyReference,
+        wrapAlgorithm,
+      }) => (
         callback({
           cryptoKey,
           wrappedKey,
