@@ -272,9 +272,7 @@ CREATE TABLE IF NOT EXISTS iml_laboratory.microbiology_isolate (
     REFERENCES iml_laboratory.lab_report(id)
     ON DELETE RESTRICT,
 
-  identification_observation_id uuid NULL
-    REFERENCES iml_laboratory.lab_observation(id)
-    ON DELETE RESTRICT,
+  identification_observation_id uuid NULL,
 
   isolate_rank smallint NULL
     CHECK (isolate_rank IS NULL OR isolate_rank > 0),
