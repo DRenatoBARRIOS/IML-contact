@@ -276,22 +276,9 @@ jobs:
       - name: Verify module registry advanced to SECURITY-04
         shell: bash
         run: |
-          psql -v ON_ERROR_STOP=1 <<'SQL'
-          DO $
-          DECLARE
-            v_version text;
-          BEGIN
-            SELECT version
-              INTO v_version
-            FROM iml_system.module_registry
-            WHERE code = 'SECURITY_LAYER';
-
-            IF v_version <> 'IML-SECURITY-01/0.4.0' THEN
-              RAISE EXCEPTION 'unexpected SECURITY_LAYER version: %', v_version;
-            END IF;
-          END
-          $;
-          SQL
+          set -euo pipefail
+          version="$(psql -v ON_ERROR_STOP=1 -Atc "SELECT version FROM iml_system.module_registry WHERE code = 'SECURITY_LAYER';")"
+          test "$version" = "IML-SECURITY-01/0.4.0"
 
 
       - name: Validate consolidated Neon maquette bundle in fresh database
