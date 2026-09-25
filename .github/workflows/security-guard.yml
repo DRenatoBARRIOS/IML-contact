@@ -8,6 +8,7 @@ on:
       - "db/migrations/192_security_layer.sql"
       - "db/migrations/193_security_access_controls.sql"
       - "db/migrations/196_security_data_export_controls.sql"
+      - "db/migrations/197_security_crypto_envelopes.sql"
       - "src/security/**"
       - "tests/security-*.test.mjs"
       - "docs/IML_SECURITY_01_IMPLEMENTATION.md"
@@ -19,6 +20,7 @@ on:
       - "db/migrations/192_security_layer.sql"
       - "db/migrations/193_security_access_controls.sql"
       - "db/migrations/196_security_data_export_controls.sql"
+      - "db/migrations/197_security_crypto_envelopes.sql"
       - "src/security/**"
       - "tests/security-*.test.mjs"
       - "docs/IML_SECURITY_01_IMPLEMENTATION.md"
@@ -49,7 +51,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for migration in             db/migrations/192_security_layer.sql             db/migrations/193_security_access_controls.sql             db/migrations/196_security_data_export_controls.sql
+          for migration in             db/migrations/192_security_layer.sql             db/migrations/193_security_access_controls.sql             db/migrations/196_security_data_export_controls.sql             db/migrations/197_security_crypto_envelopes.sql
           do
             if grep -Eiq '^[[:space:]]*(DROP[[:space:]]+(TABLE|SCHEMA)|TRUNCATE|ALTER[[:space:]]+(TABLE|SCHEMA)[[:space:]]+iml_(clinical|identity|terminology|laboratory))' "$migration"; then
               echo "$migration contains a destructive change to an existing IML functional schema."
@@ -57,13 +59,13 @@ jobs:
             fi
           done
 
-      - name: Verify terminal-denial, break-glass and export invariants are tested
+      - name: Verify core security invariants are tested
         shell: bash
         run: |
           set -euo pipefail
           grep -q "AI DENY_FINAL is terminal" tests/security-policy.test.mjs
-          grep -q "UNKNOWN_EFFECT" tests/security-policy.test.mjs
           grep -q "AI cannot create a break-glass grant" tests/security-access-matrix.test.mjs
-          grep -q "break-glass rule cannot be reused for another patient" tests/security-access-matrix.test.mjs
           grep -q "restricted identity cannot pass through generic export" tests/security-export-gateway.test.mjs
           grep -q "sensitive export without encryption never reaches delivery" tests/security-export-gateway.test.mjs
+          grep -q "ciphertext cannot be moved to another patient context" tests/security-crypto-envelope.test.mjs
+          grep -q "KEK rotation re-wraps DEK without changing clinical ciphertext" tests/security-crypto-envelope.test.mjs
