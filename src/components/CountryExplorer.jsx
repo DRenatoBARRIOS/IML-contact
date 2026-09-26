@@ -309,7 +309,6 @@ export default function CountryExplorer() {
   return (
     <div className="country-explorer">
       <div className="explorer-toolbar">
-        <div><span className={`live-indicator${status.warning ? " is-warning" : ""}`}><i />{status.warning ? "Profile service unavailable" : "Live PostgreSQL dataset"}</span><p>{profiles.length} country profiles{jurisdictions.length ? ` · ${jurisdictions.length} jurisdiction profile${jurisdictions.length === 1 ? "" : "s"}` : ""}{status.apiVersion ? ` · API ${status.apiVersion}` : ""}</p></div>
         <label><span>Choose country</span><select value={selectedIso3} onChange={(event) => chooseCountry(event.target.value)}>{countryOptions.map((country) => <option value={country.iso3} key={country.iso3}>{country.name} — {profilesByIso3.has(country.iso3) ? "examined" : "not examined"}</option>)}</select></label>
         {jurisdictionOptions.length ? (
           <label>
