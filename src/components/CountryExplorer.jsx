@@ -313,12 +313,12 @@ export default function CountryExplorer() {
         <label><span>Choose country</span><select value={selectedIso3} onChange={(event) => chooseCountry(event.target.value)}>{countryOptions.map((country) => <option value={country.iso3} key={country.iso3}>{country.name} — {profilesByIso3.has(country.iso3) ? "examined" : "not examined"}</option>)}</select></label>
         {jurisdictionOptions.length ? (
           <label>
-            <span>Choose jurisdiction</span>
             <select
+              aria-label="Choose jurisdiction"
               value={selectedJurisdictionId}
               onChange={(event) => setSelectedJurisdictionId(event.target.value)}
             >
-              <option value="" disabled hidden>Choose jurisdiction</option>
+              <option value="">Choose jurisdiction</option>
               {jurisdictionOptions.map((option) => (
                 <option key={option.id} value={option.id}>{option.name}</option>
               ))}
