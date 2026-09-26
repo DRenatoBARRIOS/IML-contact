@@ -452,3 +452,35 @@ img { display: block; max-width: 100%; }
   font-size: .9rem;
   line-height: 1.55;
 }
+
+
+/* Neon-backed subnational jurisdiction selector */
+.jurisdiction-menu {
+  display: grid;
+  gap: 8px;
+  min-width: 220px;
+}
+.jurisdiction-menu > span {
+  color: var(--soft);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.jurisdiction-menu button {
+  appearance: none;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  padding: 10px 12px;
+  text-align: left;
+}
+.jurisdiction-menu button:hover,
+.jurisdiction-menu button:focus-visible,
+.jurisdiction-menu button.is-selected {
+  border-color: var(--teal-deep);
+  outline: none;
+}

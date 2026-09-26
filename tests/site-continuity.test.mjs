@@ -26,6 +26,7 @@ test("public IML site uses one Neon-backed profile architecture", () => {
   assert.doesNotMatch(sitePages, /features\/countries\/CountryExplorer/);
 
   assert.match(profileService, /jurisdictions/);
+  assert.doesNotMatch(profileService, /countriesApi|loadGlobalMapProfiles/);
   assert.match(explorer, /Choose jurisdiction/);
   assert.match(explorer, /jurisdictions/);
   assert.match(explorer, /parent_iso3/);
@@ -41,6 +42,8 @@ test("public IML site uses one Neon-backed profile architecture", () => {
   assert.equal(existsSync("src/world-countries.json"), false);
   assert.equal(existsSync("db/production-country-sync.mjs"), false);
   assert.equal(existsSync("scripts/sync-production-country-data.mjs"), false);
+  assert.equal(existsSync("src/services/countriesApi.js"), false);
+  assert.equal(existsSync("docs/PRODUCTION_COUNTRY_SYNC.md"), false);
   assert.equal(existsSync("db/seeds"), false);
 
   assert.equal(existsSync("src/data/world-countries.json"), true);

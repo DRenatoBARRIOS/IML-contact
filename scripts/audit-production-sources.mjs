@@ -140,9 +140,11 @@ async function main() {
   if (!response.ok) throw new Error(`Country API returned HTTP ${response.status}`);
   const payload = await response.json();
   const countries = Array.isArray(payload.countries) ? payload.countries : [];
+  const jurisdictions = Array.isArray(payload.jurisdictions) ? payload.jurisdictions : [];
+  const profiles = [...countries, ...jurisdictions];
 
   const sourceRows = [];
-  for (const country of countries) {
+  for (const country of profiles) {
     const sources = Array.isArray(country.sources) ? country.sources : [];
     const duplicatePublicUrls = duplicates(sources.map((source) => source.url));
     const duplicateDocumentaryUrls = duplicates(sources.map((source) => source.documentary_url));
@@ -190,7 +192,7 @@ async function main() {
     return { ...row, probe: probe || { outcome: "not_public", attempts: [] }, errors: [...new Set(errors)], warnings: [...new Set(warnings)] };
   });
 
-  const byCountry = countries.map((country) => {
+  const byCountry = profiles.map((country) => {
     const rows = results.filter((row) => row.iso3 === country.iso3);
     return {
       iso3: country.iso3,
@@ -210,6 +212,8 @@ async function main() {
     audited_at: new Date().toISOString(),
     api_url: apiUrl,
     countries: countries.length,
+    jurisdictions: jurisdictions.length,
+    profiles: profiles.length,
     sources: results.length,
     public_links: results.filter((row) => row.public_url).length,
     documentary_only: results.filter((row) => !row.public_url).length,

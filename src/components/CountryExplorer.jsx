@@ -167,12 +167,7 @@ function ProfilePanel({ country, profile }) {
   const sourceGroups = groupEvidenceSources(sources);
   const assessment = profile.assessment || {};
   const evidenceCount = sources.flatMap((source) => asArray(source.indicators)).length;
-  const watchItems = asArray(profile.watch).map((item) => {
-    if (normalizeIso3(profile.iso3) === "FRA" && String(item).startsWith("Security score adjusted downward by 20 points")) {
-      return "Security adjusted downward after repeated officially documented hospital cyber incidents showed a gap between formal safeguards and observed resilience. Transparency in incident reporting is not penalised.";
-    }
-    return item;
-  });
+  const watchItems = asArray(profile.watch);
 
   return (
     <article className="profile-panel" aria-live="polite">
@@ -324,7 +319,7 @@ export default function CountryExplorer() {
                 type="button"
                 key={option.id}
                 className={selectedJurisdiction?.id === option.id ? "is-selected" : ""}
-                onClick={() => setSelectedJurisdictionId(option.id)}
+                onClick={() => setSelectedJurisdictionId(selectedJurisdiction?.id === option.id ? "" : option.id)}
               >
                 {option.label}
               </button>
