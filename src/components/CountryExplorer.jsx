@@ -301,7 +301,9 @@ export default function CountryExplorer() {
         }
       : { iso3: selectedIso3, name: profilesByIso3.get(selectedIso3)?.name || featureName(selectedFeature) }
     : null;
-  const selectedProfile = selectedJurisdiction?.profile || profilesByIso3.get(selectedIso3) || null;
+  const selectedProfile = selectedJurisdiction
+    ? { ...selectedJurisdiction.profile, name: selectedJurisdiction.label }
+    : profilesByIso3.get(selectedIso3) || null;
   const chooseCountry = (iso3) => {
     setSelectedIso3(iso3);
     setSelectedJurisdictionId("");
@@ -315,15 +317,19 @@ export default function CountryExplorer() {
         <div><span className={`live-indicator${status.warning ? " is-warning" : ""}`}><i />{status.warning ? "Profile service unavailable" : "Live PostgreSQL dataset"}</span><p>{profiles.length} country profiles{jurisdictions.length ? ` · ${jurisdictions.length} jurisdiction profile${jurisdictions.length === 1 ? "" : "s"}` : ""}{status.apiVersion ? ` · API ${status.apiVersion}` : ""}</p></div>
         <label><span>Choose country</span><select value={selectedIso3} onChange={(event) => chooseCountry(event.target.value)}>{countryOptions.map((country) => <option value={country.iso3} key={country.iso3}>{country.name} — {profilesByIso3.has(country.iso3) ? "examined" : "not examined"}</option>)}</select></label>
         {jurisdictionOptions.length ? (
-          <label>
+          <div className="jurisdiction-menu" aria-label="Choose jurisdiction">
             <span>Choose jurisdiction</span>
-            <select value={selectedJurisdiction?.id || ""} onChange={(event) => setSelectedJurisdictionId(event.target.value)}>
-              <option value="">{profilesByIso3.get(selectedIso3)?.name || featureName(selectedFeature)} — Federal</option>
-              {jurisdictionOptions.map((option) => (
-                <option key={option.id} value={option.id}>{option.label} — examined</option>
-              ))}
-            </select>
-          </label>
+            {jurisdictionOptions.map((option) => (
+              <button
+                type="button"
+                key={option.id}
+                className={selectedJurisdiction?.id === option.id ? "is-selected" : ""}
+                onClick={() => setSelectedJurisdictionId(option.id)}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
         ) : null}
       </div>
 
