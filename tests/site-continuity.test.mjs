@@ -4,63 +4,54 @@ import { existsSync, readFileSync } from "node:fs";
 
 const read = (path) => readFileSync(path, "utf8");
 
-test("validated IML site continuity invariants", () => {
+test("public IML site uses one Neon-backed profile architecture", () => {
   const api = read("api/countries.js");
   const app = read("src/App.jsx");
   const sitePages = read("src/pages/SitePages.jsx");
+  const explorer = read("src/components/CountryExplorer.jsx");
+  const profileService = read("src/services/profileService.js");
+  const packageJson = JSON.parse(read("package.json"));
   const vercel = read("vercel.json");
-  const sync = read("db/production-country-sync.mjs");
-  const productionSync = read("scripts/sync-production-country-data.mjs");
-  const packageJson = read("package.json");
-  const continuityWorkflow = read(".github/workflows/continuity-guard.yml");
 
-  assert.match(api, /FRANCE_SECURITY_ADJUSTMENT\s*=\s*20/);
-  assert.match(api, /ensurePreviewCountryData/);
-  assert.doesNotMatch(api, /main-test/);
+  assert.match(api, /DATABASE_URL_MANUAL\s*\|\|\s*process\.env\.DATABASE_URL/);
+  assert.match(api, /country_profile_assessments/);
+  assert.match(api, /geo_relations/);
+  assert.match(api, /administrative_part_of/);
+  assert.match(api, /jurisdiction_count/);
+  assert.doesNotMatch(api, /FRANCE_SECURITY_ADJUSTMENT/);
+  assert.doesNotMatch(api, /ensurePreviewCountryData/);
+  assert.doesNotMatch(api, /seed[A-Z]/);
 
-  assert.match(api, /Security: repeated hospital cyber incidents reveal a gap between formal safeguards and observed operational resilience\./);
-  assert.doesNotMatch(api, /IML starts from official and administrative evidence about cybersecurity/);
-  assert.match(api, /simplifyFranceWatch/);
-  assert.match(api, /url_status: "verified"/);
-  assert.match(api, /documentary_url:/);
-  assert.match(api, /last_checked_at: "2026-09-22T00:00:00\+00:00"/);
+  assert.match(sitePages, /\.\.\/components\/CountryExplorer\.jsx/);
+  assert.doesNotMatch(sitePages, /features\/countries\/CountryExplorer/);
 
-  assert.match(sync, /seedUzbekistan/);
-  assert.match(sync, /seedTunisia/);
-  assert.match(sync, /applyFranceLearningResponsivenessCorrection/);
-  assert.match(sync, /env\.VERCEL_ENV === "production"/);
-  assert.match(sync, /env\.VERCEL_GIT_COMMIT_REF === "main"/);
-  assert.match(sync, /c\.iso3 = 'TUN'/);
-  assert.match(sync, /tunisia_scores_ready/);
-  assert.match(sync, /tunisia_lrn5_ready/);
-  assert.match(sync, /tunisia_source_route_ready/);
-  assert.match(
-    sync,
-    /https:\/\/extranet\.who\.int\/uhcpartnershiplivemonitoring\/country-profile\?iso3=TUN/,
-  );
+  assert.match(profileService, /jurisdictions/);
+  assert.match(explorer, /Choose jurisdiction/);
+  assert.match(explorer, /jurisdictions/);
+  assert.match(explorer, /parent_iso3/);
+  assert.doesNotMatch(explorer, /illinoisProfileData/);
+  assert.doesNotMatch(explorer, /SUBNATIONAL_PROFILE_OPTIONS/);
+  assert.doesNotMatch(explorer, /USA-FED/);
 
-  assert.match(productionSync, /ensureRequiredCountryData/);
-  assert.match(productionSync, /shouldRunProductionCountrySync/);
-  assert.match(read("src/components/CountryExplorer.jsx"), /groupEvidenceSources/);
-  assert.match(read("src/components/CountryExplorer.jsx"), /Security adjusted downward after repeated officially documented hospital cyber incidents/);
-  assert.doesNotMatch(read("src/components/CountryExplorer.jsx"), /Why Learning is/);
-  assert.doesNotMatch(read("src/features/countries/CountryExplorer.jsx"), /Why Learning is/);
-  assert.doesNotMatch(read("src/features/countries/CountryExplorer.jsx"), /France revision:/);
-  assert.match(packageJson, /sync-production-country-data\.mjs/);
-  assert.doesNotMatch(continuityWorkflow, /main-test/);
+  assert.equal(packageJson.scripts.build, "vite build");
+  assert.doesNotMatch(JSON.stringify(packageJson), /sync-production-country-data/);
+
+  assert.equal(existsSync("src/features/countries/CountryExplorer.jsx"), false);
+  assert.equal(existsSync("src/data/illinoisProfile.json"), false);
+  assert.equal(existsSync("src/world-countries.json"), false);
+  assert.equal(existsSync("db/production-country-sync.mjs"), false);
+  assert.equal(existsSync("scripts/sync-production-country-data.mjs"), false);
+  assert.equal(existsSync("db/seeds"), false);
+
+  assert.equal(existsSync("src/data/world-countries.json"), true);
+  assert.equal(existsSync("data/source-audits/usa-illinois.json"), true);
+  assert.equal(existsSync("docs/USA_ILLINOIS_SUBNATIONAL_AUDIT_2026-09-24.md"), true);
+  assert.equal(existsSync("scripts/audit-sources.mjs"), true);
+  assert.equal(existsSync("scripts/audit-production-sources.mjs"), true);
 
   assert.doesNotMatch(app, /["']\/manuscripts["']/);
   assert.doesNotMatch(sitePages, /function\s+ManuscriptsPage\s*\(/);
   assert.match(sitePages, /IML_Founding_Manuscript\.pdf/);
   assert.match(sitePages, /IML_Technical_Manuscript\.pdf/);
   assert.doesNotMatch(vercel, /"source"\s*:\s*"\/manuscripts"/);
-
-  assert.equal(existsSync("src/pages/ManuscriptsPage.jsx"), false);
-  assert.equal(existsSync("db/seeds/20260822_uzbekistan.mjs"), true);
-  assert.equal(existsSync("db/seeds/20260922_tunisia.mjs"), true);
-  assert.equal(existsSync("db/seeds/20260901_france_learning_responsiveness.mjs"), true);
-  assert.equal(existsSync("db/production-country-sync.mjs"), true);
-  assert.equal(existsSync("scripts/sync-production-country-data.mjs"), true);
-  assert.equal(existsSync("data/source-audits/tunisia.json"), true);
-  assert.equal(existsSync("src/components/IndicatorDefinitionsTable.jsx"), true);
 });
