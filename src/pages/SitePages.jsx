@@ -1,7 +1,7 @@
 import { useState } from "react";
 import logoImage from "../assets/iml-logo.png";
 import heroLampImage from "../assets/hero-lamp-editorial.png";
-import CountryExplorer from "../features/countries/CountryExplorer.jsx";
+import CountryExplorer from "../components/CountryExplorer.jsx";
 import { navigation, interoperabilityLayers } from "../siteConfig.js";
 import { latestRegulatoryWatch } from "../data/regulatoryWatch.js";
 import { latestSoftwareWatch } from "../data/softwareWatch.js";
