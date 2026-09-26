@@ -18,11 +18,13 @@ if (!shouldRunProductionCountrySync(env)) {
   process.exit(0);
 }
 
-if (!env.DATABASE_URL) {
-  throw new Error("DATABASE_URL is required for production country synchronization.");
+const databaseUrl = env.DATABASE_URL_MANUAL || env.DATABASE_URL;
+
+if (!databaseUrl) {
+  throw new Error("DATABASE_URL_MANUAL or DATABASE_URL is required for production country synchronization.");
 }
 
-const sql = neon(env.DATABASE_URL);
+const sql = neon(databaseUrl);
 const sync = await ensureRequiredCountryData(sql);
 
 const rows = await sql`

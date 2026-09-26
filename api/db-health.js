@@ -1,7 +1,9 @@
 import { neon } from "@neondatabase/serverless";
 
 export async function GET() {
-  if (!process.env.DATABASE_URL) {
+  const databaseUrl = process.env.DATABASE_URL_MANUAL || process.env.DATABASE_URL;
+
+  if (!databaseUrl) {
     return Response.json(
       {
         ok: false,
@@ -12,7 +14,7 @@ export async function GET() {
   }
 
   try {
-    const sql = neon(process.env.DATABASE_URL);
+    const sql = neon(databaseUrl);
 
     const [result] = await sql`
       SELECT
