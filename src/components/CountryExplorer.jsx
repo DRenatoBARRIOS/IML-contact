@@ -1,33 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import worldCountries from "../data/world-countries.json";
 import { loadCountryProfiles } from "../services/profileService.js";
-import illinoisProfileData from "../data/illinoisProfile.json";
 
 const MAP_WIDTH = 1000;
 const MAP_HEIGHT = 500;
 const MAP_VISIBLE_HEIGHT = 430;
 const RADAR_LABELS = ["Governance", "Technical", "Identity", "Adoption", "Security", "Learning"];
-
-const SUBNATIONAL_PROFILE_OPTIONS = {
-  USA: [
-    {
-      id: "USA-FED",
-      label: "United States — Federal",
-      name: "United States",
-      countryIso3: "USA",
-      profileIso3: "USA",
-    },
-    {
-      id: "USA-IL",
-      label: "Illinois — United States",
-      name: "Illinois",
-      countryIso3: "USA",
-      profileIso3: null,
-      jurisdictionProfileId: "USA-IL",
-      note: "Illinois is independently assessed. Federal United States scores are not inherited; the world map remains country-level.",
-    },
-  ],
-};
 
 const DOMAIN_INDICATOR_DESCRIPTIONS = {
   Governance: "Standards, responsibilities, oversight and institutional coordination.",
@@ -271,8 +249,9 @@ function ProfilePanel({ country, profile }) {
 
 export default function CountryExplorer() {
   const [profiles, setProfiles] = useState([]);
+  const [jurisdictions, setJurisdictions] = useState([]);
   const [selectedIso3, setSelectedIso3] = useState("FRA");
-  const [selectedJurisdictionId, setSelectedJurisdictionId] = useState("USA-FED");
+  const [selectedJurisdictionId, setSelectedJurisdictionId] = useState("");
   const [hovered, setHovered] = useState(null);
   const [status, setStatus] = useState({ loading: true, warning: "", apiVersion: "" });
 
@@ -281,6 +260,7 @@ export default function CountryExplorer() {
     loadCountryProfiles(controller.signal)
       .then((result) => {
         setProfiles(result.profiles);
+        setJurisdictions(result.jurisdictions || []);
         setStatus({ loading: false, warning: result.warning || "", apiVersion: result.apiVersion || "current" });
         if (!result.profiles.some((profile) => normalizeIso3(profile.iso3) === "FRA") && result.profiles[0]) setSelectedIso3(normalizeIso3(result.profiles[0].iso3));
       })
@@ -291,7 +271,6 @@ export default function CountryExplorer() {
   }, []);
 
   const profilesByIso3 = useMemo(() => new Map(profiles.map((profile) => [normalizeIso3(profile.iso3), profile])), [profiles]);
-  const jurisdictionProfilesById = useMemo(() => new Map([["USA-IL", normalizeProfile(illinoisProfileData)]]), []);
   const features = useMemo(() => worldCountries.features.filter((feature) => !isAntarctica(feature) && featureIso3(feature) && featureIso3(feature) !== "-99").slice().sort((left, right) => {
     const leftIso = featureIso3(left); const rightIso = featureIso3(right);
     if (leftIso === "DEU" && rightIso !== "DEU") return 1;
@@ -300,27 +279,32 @@ export default function CountryExplorer() {
   }), []);
   const countryOptions = useMemo(() => Array.from(new Map(features.map((feature) => [featureIso3(feature), { iso3: featureIso3(feature), name: profilesByIso3.get(featureIso3(feature))?.name || featureName(feature) }])).values()).sort((a, b) => a.name.localeCompare(b.name)), [features, profilesByIso3]);
   const selectedFeature = features.find((feature) => featureIso3(feature) === selectedIso3);
-  const jurisdictionOptions = SUBNATIONAL_PROFILE_OPTIONS[selectedIso3] || [];
-  const selectedJurisdiction = jurisdictionOptions.find((option) => option.id === selectedJurisdictionId) || jurisdictionOptions[0] || null;
+  const jurisdictionOptions = useMemo(
+    () => jurisdictions
+      .filter((profile) => normalizeIso3(profile.parent_iso3) === selectedIso3)
+      .map((profile) => ({
+        id: profile.jurisdiction_code || profile.iso3,
+        label: `${profile.name} — ${profile.parent_name || profilesByIso3.get(selectedIso3)?.name || selectedIso3}`,
+        name: profile.name,
+        profile,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name)),
+    [jurisdictions, profilesByIso3, selectedIso3]
+  );
+  const selectedJurisdiction = jurisdictionOptions.find((option) => option.id === selectedJurisdictionId) || null;
   const selectedCountry = selectedFeature
     ? selectedJurisdiction
       ? {
-          iso3: selectedJurisdiction.profileIso3 || selectedJurisdiction.id,
+          iso3: selectedJurisdiction.profile.iso3 || selectedJurisdiction.id,
           name: selectedJurisdiction.name,
-          note: selectedJurisdiction.note || "",
+          note: "This subnational profile is independently assessed. Federal scores are not inherited; the world map remains country-level.",
         }
       : { iso3: selectedIso3, name: profilesByIso3.get(selectedIso3)?.name || featureName(selectedFeature) }
     : null;
-  const selectedProfile = selectedJurisdiction
-    ? selectedJurisdiction.jurisdictionProfileId
-      ? jurisdictionProfilesById.get(selectedJurisdiction.jurisdictionProfileId) || null
-      : selectedJurisdiction.profileIso3
-        ? profilesByIso3.get(selectedJurisdiction.profileIso3) || null
-        : null
-    : profilesByIso3.get(selectedIso3) || null;
+  const selectedProfile = selectedJurisdiction?.profile || profilesByIso3.get(selectedIso3) || null;
   const chooseCountry = (iso3) => {
     setSelectedIso3(iso3);
-    setSelectedJurisdictionId(iso3 === "USA" ? "USA-FED" : "");
+    setSelectedJurisdictionId("");
   };
 
   if (status.loading) return <div className="explorer-loading" role="status"><span />Loading the live evidence register…</div>;
@@ -328,14 +312,15 @@ export default function CountryExplorer() {
   return (
     <div className="country-explorer">
       <div className="explorer-toolbar">
-        <div><span className={`live-indicator${status.warning ? " is-warning" : ""}`}><i />{status.warning ? "Profile service unavailable" : "Live PostgreSQL dataset"}</span><p>{profiles.length} documented profiles{status.apiVersion ? ` · API ${status.apiVersion}` : ""}</p></div>
-        <label><span>Choose any country</span><select value={selectedIso3} onChange={(event) => chooseCountry(event.target.value)}>{countryOptions.map((country) => <option value={country.iso3} key={country.iso3}>{country.name} — {profilesByIso3.has(country.iso3) ? "examined" : "not examined"}</option>)}</select></label>
+        <div><span className={`live-indicator${status.warning ? " is-warning" : ""}`}><i />{status.warning ? "Profile service unavailable" : "Live PostgreSQL dataset"}</span><p>{profiles.length} country profiles{jurisdictions.length ? ` · ${jurisdictions.length} jurisdiction profile${jurisdictions.length === 1 ? "" : "s"}` : ""}{status.apiVersion ? ` · API ${status.apiVersion}` : ""}</p></div>
+        <label><span>Choose country</span><select value={selectedIso3} onChange={(event) => chooseCountry(event.target.value)}>{countryOptions.map((country) => <option value={country.iso3} key={country.iso3}>{country.name} — {profilesByIso3.has(country.iso3) ? "examined" : "not examined"}</option>)}</select></label>
         {jurisdictionOptions.length ? (
           <label>
             <span>Choose jurisdiction</span>
             <select value={selectedJurisdiction?.id || ""} onChange={(event) => setSelectedJurisdictionId(event.target.value)}>
+              <option value="">{profilesByIso3.get(selectedIso3)?.name || featureName(selectedFeature)} — Federal</option>
               {jurisdictionOptions.map((option) => (
-                <option key={option.id} value={option.id}>{option.label}{(option.profileIso3 || option.jurisdictionProfileId) ? " — examined" : " — not examined"}</option>
+                <option key={option.id} value={option.id}>{option.label} — examined</option>
               ))}
             </select>
           </label>
