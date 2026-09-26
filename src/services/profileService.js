@@ -17,9 +17,11 @@ export async function loadCountryProfiles(signal) {
     if (!response.ok) throw new Error(`Countries API returned ${response.status}.`);
     const payload = await response.json();
     const rows = Array.isArray(payload) ? payload : payload.countries;
+    const jurisdictionRows = Array.isArray(payload?.jurisdictions) ? payload.jurisdictions : [];
     if (!Array.isArray(rows) || rows.length === 0) throw new Error("The countries API contains no published country profiles yet.");
     return {
       profiles: rows.map(enrich),
+      jurisdictions: jurisdictionRows.map(enrich),
       source: "database",
       apiVersion: payload.api_version || "current",
       generatedAt: payload.generated_at || null,
@@ -27,9 +29,10 @@ export async function loadCountryProfiles(signal) {
   } catch (primaryError) {
     if (primaryError?.name === "AbortError") throw primaryError;
     const fallback = await loadGlobalMapProfiles(signal);
-    if (fallback.profiles.length) return { ...fallback, profiles: fallback.profiles.map(enrich) };
+    if (fallback.profiles.length) return { ...fallback, profiles: fallback.profiles.map(enrich), jurisdictions: [] };
     return {
       profiles: [],
+      jurisdictions: [],
       source: "unavailable",
       warning: fallback.warning || primaryError?.message || "Country profile service unavailable.",
     };
