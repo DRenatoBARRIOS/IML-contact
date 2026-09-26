@@ -99,7 +99,9 @@ function simplifyFranceWatch(items) {
 }
 
 export async function GET() {
-  if (!process.env.DATABASE_URL) {
+  const databaseUrl = process.env.DATABASE_URL_MANUAL || process.env.DATABASE_URL;
+
+  if (!databaseUrl) {
     return Response.json(
       { error: "DATABASE_URL is not available." },
       { status: 500 }
@@ -107,7 +109,7 @@ export async function GET() {
   }
 
   try {
-    const sql = neon(process.env.DATABASE_URL);
+    const sql = neon(databaseUrl);
 
     await ensurePreviewCountryData(sql);
 
