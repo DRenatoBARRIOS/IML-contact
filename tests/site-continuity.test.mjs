@@ -47,10 +47,9 @@ test("public IML site uses one Neon-backed profile architecture", () => {
   assert.equal(existsSync("db/seeds"), false);
 
   assert.equal(existsSync("src/data/world-countries.json"), true);
-  assert.equal(existsSync("data/source-audits/usa-illinois.json"), true);
-  assert.equal(existsSync("docs/USA_ILLINOIS_SUBNATIONAL_AUDIT_2026-09-24.md"), true);
-  assert.equal(existsSync("scripts/audit-sources.mjs"), true);
-  assert.equal(existsSync("scripts/audit-production-sources.mjs"), true);
+  assert.equal(existsSync("data/source-audits"), false);
+  assert.equal(existsSync("scripts/audit-sources.mjs"), false);
+  assert.equal(existsSync("scripts/audit-production-sources.mjs"), false);
 
   assert.doesNotMatch(app, /["']\/manuscripts["']/);
   assert.doesNotMatch(sitePages, /function\s+ManuscriptsPage\s*\(/);
