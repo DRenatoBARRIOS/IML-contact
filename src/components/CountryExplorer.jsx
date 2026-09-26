@@ -279,7 +279,7 @@ export default function CountryExplorer() {
       .filter((profile) => normalizeIso3(profile.parent_iso3) === selectedIso3)
       .map((profile) => ({
         id: profile.jurisdiction_code || profile.iso3,
-        label: `${profile.name} — ${profile.parent_name || profilesByIso3.get(selectedIso3)?.name || selectedIso3}`,
+        label: profile.name,
         name: profile.name,
         profile,
       }))
@@ -312,19 +312,18 @@ export default function CountryExplorer() {
         <div><span className={`live-indicator${status.warning ? " is-warning" : ""}`}><i />{status.warning ? "Profile service unavailable" : "Live PostgreSQL dataset"}</span><p>{profiles.length} country profiles{jurisdictions.length ? ` · ${jurisdictions.length} jurisdiction profile${jurisdictions.length === 1 ? "" : "s"}` : ""}{status.apiVersion ? ` · API ${status.apiVersion}` : ""}</p></div>
         <label><span>Choose country</span><select value={selectedIso3} onChange={(event) => chooseCountry(event.target.value)}>{countryOptions.map((country) => <option value={country.iso3} key={country.iso3}>{country.name} — {profilesByIso3.has(country.iso3) ? "examined" : "not examined"}</option>)}</select></label>
         {jurisdictionOptions.length ? (
-          <div className="jurisdiction-menu" aria-label="Choose jurisdiction">
+          <label>
             <span>Choose jurisdiction</span>
-            {jurisdictionOptions.map((option) => (
-              <button
-                type="button"
-                key={option.id}
-                className={selectedJurisdiction?.id === option.id ? "is-selected" : ""}
-                onClick={() => setSelectedJurisdictionId(selectedJurisdiction?.id === option.id ? "" : option.id)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
+            <select
+              value={selectedJurisdictionId}
+              onChange={(event) => setSelectedJurisdictionId(event.target.value)}
+            >
+              <option value="" disabled hidden>Choose jurisdiction</option>
+              {jurisdictionOptions.map((option) => (
+                <option key={option.id} value={option.id}>{option.name}</option>
+              ))}
+            </select>
+          </label>
         ) : null}
       </div>
 
