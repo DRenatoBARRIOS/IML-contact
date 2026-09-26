@@ -1,103 +1,4 @@
 import { neon } from "@neondatabase/serverless";
-import { ensurePreviewCountryData } from "../db/production-country-sync.mjs";
-
-const FRANCE_SECURITY_ADJUSTMENT = 20;
-
-const FRANCE_CYBER_EVIDENCE = {
-  watch: "Security: repeated hospital cyber incidents reveal a gap between formal safeguards and observed operational resilience.",
-  sources: [
-    {
-      title: "La sécurité informatique des établissements de santé",
-      publisher: "Cour des comptes",
-      url: "https://www.ccomptes.fr/sites/default/files/2024-12/20250103-S2024-1456-La-securite-informatique-des-etablissements-de-sante.pdf",
-      url_status: "verified",
-      documentary_url: "https://www.ccomptes.fr/sites/default/files/2024-12/20250103-S2024-1456-La-securite-informatique-des-etablissements-de-sante.pdf",
-      last_checked_at: "2026-09-22T00:00:00+00:00",
-      replacement_reason: "Official Cour des comptes PDF confirmed during the 22 September 2026 secondary link review.",
-      publication_date: "2025-01-03",
-      accessed_at: "2026-09-22",
-      note: "National audit documenting persistent cybersecurity and resilience challenges in French hospitals.",
-      indicators: [{
-        code: "Security",
-        evidence_level: "high",
-        support_type: "official audit",
-        summary: "Repeated attacks across multiple institutions and years support a downward evidence adjustment to the Security score.",
-        limitation: "Incident occurrence alone does not measure the security maturity of every French healthcare institution."
-      }]
-    },
-    {
-      title: "Secteur de la santé — État de la menace informatique",
-      publisher: "ANSSI / CERT-FR",
-      url: "https://www.cert.ssi.gouv.fr/cti/CERTFR-2024-CTI-010/",
-      url_status: "redirected",
-      documentary_url: "https://www.cert.ssi.gouv.fr/uploads/CERTFR-2024-CTI-010.pdf",
-      last_checked_at: "2026-09-22T00:00:00+00:00",
-      replacement_reason: "The documentary PDF is preserved while the stable official CERT-FR HTML report is used as the public link.",
-      publication_date: "2024-11-07",
-      accessed_at: "2026-09-22",
-      note: "National cybersecurity assessment documenting repeated ransomware incidents affecting French healthcare providers.",
-      indicators: [{
-        code: "Security",
-        evidence_level: "high",
-        support_type: "national cybersecurity authority",
-        summary: "Repeated ransomware incidents support a lower resilience score because compromise has repeatedly affected availability and recovery.",
-        limitation: "The report is a threat assessment, not a comparative maturity audit of all French hospitals."
-      }]
-    },
-    {
-      title: "Observatoire des incidents et retours d'expérience",
-      publisher: "CERT Santé / Agence du Numérique en Santé",
-      url: "https://cyberveille.esante.gouv.fr/lobservatoire-des-incidents",
-      url_status: "verified",
-      documentary_url: "https://cyberveille.esante.gouv.fr/lobservatoire-des-incidents",
-      last_checked_at: "2026-09-22T00:00:00+00:00",
-      replacement_reason: "Official CERT Santé observatory page confirmed during the 22 September 2026 secondary link review.",
-      publication_date: "2026-05-11",
-      accessed_at: "2026-09-22",
-      note: "CERT Santé and the Agence du Numérique en Santé document recurring incidents and operational lessons across the health sector.",
-      indicators: [{
-        code: "Security",
-        evidence_level: "high",
-        support_type: "national incident observatory",
-        summary: "National incident reporting confirms cybersecurity resilience as a continuing maturity issue.",
-        limitation: "Reported incidents depend partly on reporting practices and are not a direct measure of attack prevalence."
-      }]
-    },
-    {
-      title: "Violation de données du CHSF de Corbeil-Essonnes",
-      publisher: "Cybermalveillance.gouv.fr",
-      url: "https://www.cybermalveillance.gouv.fr/tous-nos-contenus/actualites/violation-donnees-chsf-formulaire-lettre-plainte-electronique",
-      url_status: "verified",
-      documentary_url: "https://www.cybermalveillance.gouv.fr/tous-nos-contenus/actualites/violation-donnees-chsf-formulaire-lettre-plainte-electronique",
-      last_checked_at: "2026-09-22T00:00:00+00:00",
-      replacement_reason: "Official Cybermalveillance.gouv.fr incident page confirmed during the 22 September 2026 secondary link review.",
-      publication_date: "2022-09-28",
-      accessed_at: "2026-09-22",
-      note: "Government victim-assistance notice confirming the 2022 attack and potential exposure of personal data.",
-      indicators: [{
-        code: "Security",
-        evidence_level: "high",
-        support_type: "official incident documentation",
-        summary: "Confirms the confidentiality dimension of the CHSF incident.",
-        limitation: "This source is focused on victim assistance and data exposure, not forensic attribution."
-      }]
-    }
-  ]
-};
-
-function simplifyFranceWatch(items) {
-  return (Array.isArray(items) ? items : []).map((item) => {
-    const text = String(item || "");
-    if (text.startsWith("Learning revised")) {
-      return "Learning: institutional responsiveness and follow-through remain limited in several documented areas.";
-    }
-    if (text.startsWith("Security score adjusted downward")) {
-      return "Security: repeated hospital cyber incidents reveal a gap between formal safeguards and observed operational resilience.";
-    }
-    return item;
-  });
-}
-
 export async function GET() {
   const databaseUrl = process.env.DATABASE_URL_MANUAL || process.env.DATABASE_URL;
 
@@ -110,8 +11,6 @@ export async function GET() {
 
   try {
     const sql = neon(databaseUrl);
-
-    await ensurePreviewCountryData(sql);
 
     const countries = await sql`
       SELECT
@@ -128,6 +27,33 @@ export async function GET() {
         cp.subtitle,
         cp.assessment_date,
         cp.published_at,
+
+        (
+          SELECT a.overall_score
+          FROM country_profile_assessments a
+          WHERE a.profile_id = cp.id
+          ORDER BY a.id DESC
+          LIMIT 1
+        ) AS overall_score,
+
+        COALESCE(
+          (
+            SELECT json_build_object(
+              'assessment_status', a.assessment_status,
+              'assessment_method', a.assessment_method,
+              'confidence_level', a.confidence_level,
+              'review_notes', a.review_notes,
+              'reviewed_at', a.reviewed_at,
+              'published_at', a.published_at,
+              'overall_score', a.overall_score
+            )
+            FROM country_profile_assessments a
+            WHERE a.profile_id = cp.id
+            ORDER BY a.id DESC
+            LIMIT 1
+          ),
+          '{}'::json
+        ) AS assessment,
 
         COALESCE(
           (
@@ -215,30 +141,6 @@ export async function GET() {
 
       ORDER BY c.name_en;
     `;
-
-    const enrichedCountries = countries.map((country) => {
-      if (String(country.iso3 || "").toUpperCase() !== "FRA") return country;
-
-      const values = Array.isArray(country.values) ? [...country.values] : [];
-      if (values.length >= 5) {
-        const recordedSecurity = Number(values[4]);
-        if (Number.isFinite(recordedSecurity)) {
-          values[4] = Math.max(0, recordedSecurity - FRANCE_SECURITY_ADJUSTMENT);
-        }
-      }
-
-      const watch = simplifyFranceWatch([
-        ...(Array.isArray(country.watch) ? country.watch : []),
-        FRANCE_CYBER_EVIDENCE.watch,
-      ]);
-
-      return {
-        ...country,
-        values,
-        watch,
-        sources: [...(Array.isArray(country.sources) ? country.sources : []), ...FRANCE_CYBER_EVIDENCE.sources],
-      };
-    });
 
     const jurisdictions = await sql`
       SELECT
@@ -392,8 +294,8 @@ export async function GET() {
 
     return Response.json(
       {
-        count: enrichedCountries.length,
-        countries: enrichedCountries,
+        count: countries.length,
+        countries,
         jurisdiction_count: jurisdictions.length,
         jurisdictions,
       },
