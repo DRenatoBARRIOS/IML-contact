@@ -28,12 +28,19 @@ export async function GET() {
         cp.assessment_date,
         cp.published_at,
 
-        (
-          SELECT a.overall_score
-          FROM country_profile_assessments a
-          WHERE a.profile_id = cp.id
-          ORDER BY a.id DESC
-          LIMIT 1
+        COALESCE(
+          (
+            SELECT a.overall_score
+            FROM country_profile_assessments a
+            WHERE a.profile_id = cp.id
+            ORDER BY a.id DESC
+            LIMIT 1
+          ),
+          (
+            SELECT ROUND(AVG(s.score))::int
+            FROM country_profile_scores s
+            WHERE s.profile_id = cp.id
+          )
         ) AS overall_score,
 
         COALESCE(
@@ -162,12 +169,19 @@ export async function GET() {
         cp.assessment_date,
         cp.published_at,
 
-        (
-          SELECT a.overall_score
-          FROM country_profile_assessments a
-          WHERE a.profile_id = cp.id
-          ORDER BY a.id DESC
-          LIMIT 1
+        COALESCE(
+          (
+            SELECT a.overall_score
+            FROM country_profile_assessments a
+            WHERE a.profile_id = cp.id
+            ORDER BY a.id DESC
+            LIMIT 1
+          ),
+          (
+            SELECT ROUND(AVG(s.score))::int
+            FROM country_profile_scores s
+            WHERE s.profile_id = cp.id
+          )
         ) AS overall_score,
 
         COALESCE(
