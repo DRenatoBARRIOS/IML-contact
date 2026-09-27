@@ -63,7 +63,9 @@ function averageScore(values = []) {
 }
 
 function profileScore(profile) {
-  const recorded = Number(profile?.overall_score);
+  const raw = profile?.overall_score;
+  const hasRecordedScore = raw !== null && raw !== undefined && String(raw).trim() !== "";
+  const recorded = hasRecordedScore ? Number(raw) : NaN;
   return Number.isFinite(recorded) ? recorded : averageScore(profile?.values);
 }
 
