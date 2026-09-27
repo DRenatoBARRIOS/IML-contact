@@ -1,7 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 
 export async function GET() {
-  const databaseUrl = process.env.DATABASE_URL_MANUAL || process.env.DATABASE_URL;
+  const databaseUrl = process.env.DATABASE_URL || process.env.DATABASE_URL_MANUAL;
 
   if (!databaseUrl) {
     return Response.json(
