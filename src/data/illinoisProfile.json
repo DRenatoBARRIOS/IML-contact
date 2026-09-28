@@ -3,16 +3,16 @@
   "jurisdiction_code": "US-IL",
   "parent_iso3": "USA",
   "name": "Illinois",
-  "version": "0.1",
+  "version": "0.2",
   "status": "published",
-  "assessment_date": "2026-09-24",
-  "published_at": "2026-09-24T00:00:00.000Z",
+  "assessment_date": "2026-09-28",
+  "published_at": "2026-09-28T00:00:00.000Z",
   "evidenceLevel": "A/B mixed subnational evidence",
-  "subtitle": "Independent subnational IML profile. Illinois combines broad Medicaid and public-health exchange infrastructure with fragmented statewide HIE governance and material, repeatedly documented cybersecurity and control weaknesses. Federal United States scores are not inherited.",
+  "subtitle": "Independent subnational IML profile. Illinois combines broad Medicaid and public-health exchange infrastructure with fragmented statewide HIE governance, no universal patient identifier inherited from the federal level, and material documented cybersecurity and control weaknesses. Federal United States scores are not inherited.",
   "values": [
     62,
-    76,
-    72,
+    74,
+    62,
     78,
     42,
     52
@@ -24,6 +24,7 @@
     "Statewide EVV aggregation and recurring ADT collaboration groups show continuing investment in operational data exchange rather than a purely policy-level framework."
   ],
   "watch": [
+    "Patient identity remains a structural interoperability limitation: the United States has no adopted national standard identifier for patients. Illinois therefore relies on patient matching across local identifiers and demographic attributes; provider identity proofing (for example IMPACT/NPI) must not be treated as equivalent to universal patient identity.",
     "Illinois no longer operates the former state-run ILHIE model. The Illinois Health Information Exchange and Technology Act was repealed in 2023 and the former HIE Office was dissolved; current exchange is distributed across HFS, IDPH, federal requirements and vendor-mediated networks.",
     "The 2022 State Medicaid Health Information Technology Plan described the former state-run HIE as financially unsustainable and noted limited commitment to regional HIE options, with providers relying substantially on vendor-mediated networks. This source is historical context and is not treated as proof of the 2026 landscape by itself.",
     "The 2026 HFS compliance examination reported repeated weaknesses in cybersecurity programs and practices, inadequate IT general controls and inadequate data-protection controls.",
@@ -330,6 +331,42 @@
       ],
       "last_checked_at": "2026-09-24T19:35:00Z",
       "replacement_reason": "Replaced the HFS PDF path that failed in the user's browser with an independently verified official Illinois.gov mirror on 24 September 2026."
+    },
+    {
+      "title": "Unique Identifiers Overview",
+      "publisher": "U.S. Department of Health and Human Services / CMS",
+      "url": "https://www.hhs.gov/guidance/document/unique-identifiers-overview",
+      "url_status": "verified",
+      "documentary_url": "https://www.hhs.gov/guidance/document/unique-identifiers-overview",
+      "accessed_at": "2026-09-28",
+      "note": "HHS states that there is no adopted standard to identify patients, in contrast with adopted identifiers for providers and employers.",
+      "indicators": [
+        {
+          "code": "IL-IDT-03",
+          "evidence_level": "A",
+          "support_type": "supports",
+          "summary": "Establishes the federal structural absence of an adopted national patient identifier standard, which also constrains Illinois cross-system identity resolution.",
+          "limitation": "This does not mean patients cannot be matched; matching is performed through local identifiers and demographic attributes."
+        }
+      ]
+    },
+    {
+      "title": "Patient Identity and Patient Record Matching",
+      "publisher": "Assistant Secretary for Technology Policy / Office of the National Coordinator for Health IT",
+      "url": "https://healthit.gov/standards-and-technology/patient-identity-and-patient-record-matching/",
+      "url_status": "verified",
+      "documentary_url": "https://healthit.gov/standards-and-technology/patient-identity-and-patient-record-matching/",
+      "accessed_at": "2026-09-28",
+      "note": "ONC defines patient matching as linking one patient's data within and across systems, commonly by combining demographic fields, and identifies patient matching as critical to interoperability.",
+      "indicators": [
+        {
+          "code": "IL-TEC-05",
+          "evidence_level": "A",
+          "support_type": "supports",
+          "summary": "Documents the operational dependence on cross-system patient matching rather than a single universal patient identifier.",
+          "limitation": "Patient matching technologies can mitigate but do not eliminate identity fragmentation."
+        }
+      ]
     }
   ],
   "methodology": {
