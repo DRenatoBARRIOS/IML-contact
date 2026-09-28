@@ -1,8 +1,10 @@
+const IML_DOMAIN_COUNT = 6;
+
 import { neon } from "@neondatabase/serverless";
 function withCanonicalOverall(profile) {
   const values = Array.isArray(profile?.values) ? profile.values.map(Number) : [];
-  const overall = values.length === 6
-    ? Math.round(values.reduce((sum, value) => sum + value, 0) / 6)
+  const overall = values.length === IML_DOMAIN_COUNT
+    ? Math.round(values.reduce((sum, value) => sum + value, 0) / IML_DOMAIN_COUNT)
     : (profile?.overall_score == null ? null : Number(profile.overall_score));
 
   return {
