@@ -61,7 +61,7 @@ async function loadCountryProfiles(signal) {
   const rows = Array.isArray(payload) ? payload : payload.countries;
   if (!Array.isArray(rows) || rows.length === 0) throw new Error("No published country profile is available.");
   return {
-    profiles: rows.map(normalizeProfile),
+    profiles: rows.map(normalizeProfile).map(applyUsPatientIdentityCorrection),
     apiVersion: payload.api_version || "current",
   };
 }
@@ -107,6 +107,57 @@ function geometryToPath(geometry) {
 function averageScore(values = []) {
   const scores = asArray(values).map(Number).filter(Number.isFinite);
   return scores.length ? Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length) : 0;
+}
+
+function applyUsPatientIdentityCorrection(profile) {
+  if (normalizeIso3(profile?.iso3) !== "USA") return profile;
+  const values = asArray(profile.values).map(Number);
+  if (values.length !== 6) return profile;
+  const adjustedValues = [...values];
+  adjustedValues[1] = Math.max(0, adjustedValues[1] - 2);
+  adjustedValues[2] = Math.max(0, adjustedValues[2] - 10);
+
+  const identityWatch = "No adopted national patient identifier standard exists in the United States. Cross-system identity therefore depends on patient matching across local identifiers and demographic attributes, creating a structural interoperability burden even where exchange standards and networks are strong.";
+  const hhsTitle = "Unique Identifiers Overview";
+  const oncTitle = "Patient Identity and Patient Record Matching";
+  const sources = asArray(profile.sources);
+  const sourceTitles = new Set(sources.map((source) => source?.title));
+
+  return {
+    ...profile,
+    version: profile.version ? `${profile.version} · identity review 2026-09-28` : "identity review 2026-09-28",
+    values: adjustedValues,
+    overall_score: averageScore(adjustedValues),
+    subtitle: `${profile.subtitle || "United States federal profile."} Identity qualification: the U.S. has no adopted national patient identifier standard usable across all health systems.`,
+    watch: [identityWatch, ...asArray(profile.watch).filter((item) => item !== identityWatch)],
+    sources: [
+      ...sources,
+      ...(sourceTitles.has(hhsTitle) ? [] : [{
+        title: hhsTitle,
+        publisher: "U.S. Department of Health and Human Services / CMS",
+        url: "https://www.hhs.gov/guidance/document/unique-identifiers-overview",
+        note: "HHS states that there is no adopted standard to identify patients, unlike the adopted NPI for providers.",
+        indicators: [{
+          code: "USA-IDT-PATIENT-01",
+          evidence_level: "A",
+          summary: "Documents the absence of an adopted national standard patient identifier.",
+          limitation: "This does not imply absence of patient matching mechanisms."
+        }]
+      }]),
+      ...(sourceTitles.has(oncTitle) ? [] : [{
+        title: oncTitle,
+        publisher: "Assistant Secretary for Technology Policy / Office of the National Coordinator for Health IT",
+        url: "https://healthit.gov/standards-and-technology/patient-identity-and-patient-record-matching/",
+        note: "ONC defines patient matching as linking records within and across systems using multiple demographic fields and identifies it as critical to interoperability.",
+        indicators: [{
+          code: "USA-TEC-PATIENT-01",
+          evidence_level: "A",
+          summary: "Documents the operational need for cross-system patient matching in the U.S. health information infrastructure.",
+          limitation: "Matching can mitigate identity fragmentation but is not equivalent to a single universal identifier."
+        }]
+      }])
+    ]
+  };
 }
 
 function profileScore(profile) {
@@ -344,6 +395,11 @@ function ProfilePanel({ country, profile }) {
         </div>
       ) : null}
       <div className="not-ranking"><strong>Not a ranking.</strong> Scores help structure inquiry across six domains; they are provisional and evidence-dependent.</div>
+      {["USA", "USA-IL"].includes(normalizeIso3(profile.iso3)) ? (
+        <div style={{ marginTop: "14px", borderLeft: "4px solid #c76b35", background: "#fff6ee", padding: "12px 14px", borderRadius: "8px", lineHeight: 1.5 }}>
+          <strong>Patient identity qualification.</strong> The United States has no adopted national patient identifier standard usable across all health systems. Records are linked through patient matching using local identifiers and demographic attributes. This structural limitation is reflected mainly in Identity & Trust and, to a lesser degree, Technical Interoperability.
+        </div>
+      ) : null}
       <div className="radar-wrap">
         <svg className="radar" viewBox="0 0 240 240" role="img" aria-label={`Six-domain orientation for ${profile.name}`}>
           {[25, 50, 75, 100].map((level) => <polygon key={level} points={polygonPoints([level, level, level, level, level, level], 78)} className="radar-grid" />)}
