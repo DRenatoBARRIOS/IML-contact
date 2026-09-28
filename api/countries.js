@@ -1,4 +1,44 @@
 import { neon } from "@neondatabase/serverless";
+function withCanonicalOverall(profile) {
+  const values = Array.isArray(profile?.values) ? profile.values.map(Number) : [];
+  const overall = values.length === 6
+    ? Math.round(values.reduce((sum, value) => sum + value, 0) / 6)
+    : (profile?.overall_score == null ? null : Number(profile.overall_score));
+
+  return {
+    ...profile,
+    overall_score: overall,
+    assessment: profile?.assessment && typeof profile.assessment === "object"
+      ? { ...profile.assessment, overall_score: overall }
+      : profile?.assessment,
+  };
+}
+
+function applyUsPatientIdentityQualification(profile) {
+  const code = String(profile?.iso3 || "").toUpperCase();
+  if (!["USA", "USA-IL"].includes(code)) return withCanonicalOverall(profile);
+
+  const values = Array.isArray(profile?.values) ? profile.values.map(Number) : [];
+  if (values.length !== 6) return withCanonicalOverall(profile);
+
+  const adjusted = [...values];
+  adjusted[1] = code === "USA" ? Math.max(0, adjusted[1] - 2) : 74;
+  adjusted[2] = code === "USA" ? Math.max(0, adjusted[2] - 10) : 62;
+
+  const qualification = code === "USA"
+    ? "No adopted national patient identifier standard is usable across all U.S. health systems. Cross-system identity therefore depends on patient matching across local identifiers and demographic attributes."
+    : "Illinois shares the U.S. structural patient-identity limitation: there is no adopted national patient identifier standard usable across all health systems; provider identity mechanisms are not a universal patient identity layer.";
+
+  const watch = Array.isArray(profile.watch) ? profile.watch : [];
+  const next = {
+    ...profile,
+    values: adjusted,
+    watch: watch.includes(qualification) ? watch : [qualification, ...watch],
+  };
+
+  return withCanonicalOverall(next);
+}
+
 export async function GET() {
   const databaseUrl = process.env.DATABASE_URL || process.env.DATABASE_URL_MANUAL;
 
@@ -309,9 +349,9 @@ export async function GET() {
     return Response.json(
       {
         count: countries.length,
-        countries,
+        countries: countries.map(applyUsPatientIdentityQualification),
         jurisdiction_count: jurisdictions.length,
-        jurisdictions,
+        jurisdictions: jurisdictions.map(applyUsPatientIdentityQualification),
       },
       {
         status: 200,
