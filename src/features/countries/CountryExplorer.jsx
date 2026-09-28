@@ -395,7 +395,7 @@ function ProfilePanel({ country, profile }) {
         </div>
       ) : null}
       <div className="not-ranking"><strong>Not a ranking.</strong> Scores help structure inquiry across six domains; they are provisional and evidence-dependent.</div>
-      {["USA", "USA-IL"].includes(normalizeIso3(profile.iso3)) ? (
+      {normalizeIso3(profile.iso3) === "USA" ? (
         <div style={{ marginTop: "14px", borderLeft: "4px solid #c76b35", background: "#fff6ee", padding: "12px 14px", borderRadius: "8px", lineHeight: 1.5 }}>
           <strong>Patient identity qualification.</strong> The United States has no adopted national patient identifier standard usable across all health systems. Records are linked through patient matching using local identifiers and demographic attributes. This structural limitation is reflected mainly in Identity & Trust and, to a lesser degree, Technical Interoperability.
         </div>
