@@ -531,7 +531,7 @@ export default function CountryExplorer() {
             <span>Choose jurisdiction</span>
             <select value={selectedJurisdiction?.id || ""} onChange={(event) => setSelectedJurisdictionId(event.target.value)}>
               {jurisdictionOptions.map((option) => (
-                <option key={option.id} value={option.id}>{option.label}{(option.profileIso3 || option.jurisdictionProfileId) ? " — examined" : " — not examined"}</option>
+                <option key={option.id} value={option.id}>{option.label}</option>
               ))}
             </select>
           </label>
