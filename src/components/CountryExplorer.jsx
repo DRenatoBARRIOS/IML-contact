@@ -179,6 +179,11 @@ function ProfilePanel({ country, profile }) {
       </div>
       <p className="profile-subtitle">{profile.subtitle || "Exploratory, evidence-oriented country profile."}</p>
       <div className="not-ranking"><strong>Not a ranking.</strong> Scores help structure inquiry across six domains; they are provisional, evidence-dependent and not valid for league tables.</div>
+      {normalizeIso3(profile.iso3) === "USA" ? (
+        <div className="not-ranking" role="note">
+          <strong>Patient identity qualification.</strong> The United States has no adopted national patient identifier standard usable across all health systems. Records are linked through patient matching using local identifiers and demographic attributes. This structural limitation is reflected mainly in Identity & Trust and, to a lesser degree, Technical Interoperability.
+        </div>
+      ) : null}
 
       <div className="radar-wrap">
         <svg className="radar" viewBox="0 0 240 240" role="img" aria-label={`Six-domain orientation for ${profile.name}`}>
