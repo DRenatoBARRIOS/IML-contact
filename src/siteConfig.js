@@ -1,4 +1,8 @@
 export const navigation = [
+  { href: "/publications", label: "Publications" },
+  { href: "/methodology", label: "Methodology" },
+  { href: "/research", label: "Research" },
+  { href: "/scientific-collaboration", label: "Scientific Review" },
   { href: "/interoperability", label: "Interoperability" },
   { href: "/clinical-workspace", label: "Clinical Workspace" },
   { href: "/country-profiles", label: "Country Profiles" },
@@ -35,7 +39,7 @@ export const LEGACY_HASHES = {
 export const LEGACY_PATHS = {
   "/id4d": "/identity-trust",
   "/evaluation": "/interoperability",
-  "/methodology": "/interoperability#methodology",
+  "/methodology-old": "/interoperability#methodology",
   "/world": "/country-profiles",
   "/profiles": "/country-profiles",
   "/contact": "/collaborate",
