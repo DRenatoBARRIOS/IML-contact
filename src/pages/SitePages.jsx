@@ -1,3 +1,4 @@
+import "./ScientificPages.css";
 import { useState } from "react";
 import logoImage from "../assets/iml-logo.png";
 import heroLampImage from "../assets/hero-lamp-editorial.png";
@@ -280,6 +281,19 @@ function HomePage() {
           <span />
           <p>Health is the objective. Trustworthy information is the foundation. Interoperability is the path.</p>
           <span />
+        </div>
+      </section>
+      <section className="sc-shell" aria-labelledby="iml-scientific-heading">
+        <div className="sc-intro"><p className="sc-kicker">Scientific programme · open for external review</p>
+          <h2 id="iml-scientific-heading">A framework for studying health information ecosystems.</h2>
+          <p className="sc-lede">IML begins with health, evidence and accountable information pathways. The Open Clinical Workspace is one implementation path, not the whole research programme.</p>
+          <span className="sc-status">Existing manuscripts · methodological review in progress</span>
+        </div>
+        <div className="sc-grid" style={{marginTop:24}}>
+          <a className="sc-card sc-card-link" href="/publications"><h3>Scientific publications</h3><p>Read the foundational and technical manuscripts, with version and review status.</p><span>Explore →</span></a>
+          <a className="sc-card sc-card-link" href="/methodology"><h3>Methodology</h3><p>Six assessment domains, documented evidence, and LRN-1 to LRN-5.</p><span>Explore →</span></a>
+          <a className="sc-card sc-card-link" href="/comparative-frameworks"><h3>Comparative literature</h3><p>MEASURE Evaluation and other frameworks: convergences, differences and open tests.</p><span>Explore →</span></a>
+          <a className="sc-card sc-card-link" href="/research"><h3>Research & case tracers</h3><p>AMR/BMR, clinical context and institutional responsibility across system boundaries.</p><span>Explore →</span></a>
         </div>
       </section>
     </PageFrame>
