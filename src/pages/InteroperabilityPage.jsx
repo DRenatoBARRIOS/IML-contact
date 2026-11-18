@@ -10,7 +10,7 @@ const layers = [
 ];
 
 const domains = [
-  ["GOV", "Governance", "Stewardship, accountability and policy direction"],
+  ["GOV", "Governance", "Standards, responsibilities, oversight, institutional coordination, and continuing professional education for healthcare personnel"],
   ["TEC", "Technical", "Standards, architecture and reliable exchange"],
   ["IDT", "Identity", "People, professionals, organisations and consent"],
   ["ADP", "Adoption", "Real use in care and public-health workflows"],
