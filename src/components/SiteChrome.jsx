@@ -1,14 +1,6 @@
 
 import logoImage from "../assets/iml-logo.png";
-
-export const navigation = [
-  { href: "/vision", label: "Vision" },
-  { href: "/identity-trust", label: "Identity & Trust" },
-  { href: "/clinical-workspace", label: "Clinical Workspace" },
-  { href: "/interoperability", label: "Interoperability" },
-  { href: "/country-profiles", label: "Country Profiles" },
-  { href: "/collaborate", label: "Collaborate" },
-];
+import PrimaryNavigation from "./PrimaryNavigation.jsx";
 
 function SiteHeader({ active, home }) {
   return (
@@ -26,25 +18,7 @@ function SiteHeader({ active, home }) {
           </span>
         </a>
 
-        <nav className="desktop-nav" aria-label="Primary navigation">
-          {navigation.map((item) => (
-            <a href={item.href} key={item.href} aria-current={active === item.href ? "page" : undefined}>
-              {item.label}
-            </a>
-          ))}
-        </nav>
-
-        <details className="mobile-menu">
-          <summary>Menu</summary>
-          <nav aria-label="Mobile navigation">
-            <a href="/" aria-current={active === "/" ? "page" : undefined}>Home</a>
-            {navigation.map((item) => (
-              <a href={item.href} key={item.href} aria-current={active === item.href ? "page" : undefined}>
-                {item.label}
-              </a>
-            ))}
-          </nav>
-        </details>
+        <PrimaryNavigation active={active} />
       </div>
     </header>
   );
