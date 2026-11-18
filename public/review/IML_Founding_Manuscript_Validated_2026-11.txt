@@ -1057,3 +1057,29 @@ D.5 Core references and validation status
 
 
                                                                                                     IML · Open for Scientific Review · 18
+
+============================ PAGE 19 / 19 ============================
+
+IML Founding Manuscript · Current Edition
+
+
+   MEASURE Evaluation (2018). HIS Interoperability Maturity Model Mapping Tool.
+    https://www.measureevaluation.org/resources/publications/tl-18-17.html [Official description verified; spreadsheet not
+    evaluated]
+
+D.6 Amendment record
+16 November 2026: Added sections 3.9, 4.10, 5.8, 7.7 and Annex K; unchanged substantive content of all prior sections.
+New references are identified as comparative research inputs. No claim of externally validated superiority of IML is
+introduced.
+18 November 2026 · Workforce training indicators added to the November candidate only. Proposed GOV-TRN-01
+(Governance and Standards) and exploratory ADP-TRN-01 (Adoption and Use) are non-scored pending external validation.
+Existing indicators and historical country scores are unchanged.
+Comparative reference: MEASURE Evaluation, Health Information Systems Interoperability Maturity Toolkit: Self-
+Assessment Tool, Version 1.0 (2019), Human Resources Policy, Human Resources Capacity (Skills and Numbers), and
+Human Resources Capacity Development, pp. 9–10. The accompanying Users’ Guide describes the 18-subdomain, five-
+level assessment model.
+
+
+
+
+                                                                                          IML · Open for Scientific Review · 19
