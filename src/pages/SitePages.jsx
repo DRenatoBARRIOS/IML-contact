@@ -3,7 +3,8 @@ import { useState } from "react";
 import logoImage from "../assets/iml-logo.png";
 import heroLampImage from "../assets/hero-lamp-editorial.png";
 import CountryExplorer from "../features/countries/CountryExplorer.jsx";
-import { navigation, interoperabilityLayers } from "../siteConfig.js";
+import { interoperabilityLayers } from "../siteConfig.js";
+import PrimaryNavigation from "../components/PrimaryNavigation.jsx";
 import { latestRegulatoryWatch } from "../data/regulatoryWatch.js";
 import { latestSoftwareWatch } from "../data/softwareWatch.js";
 
@@ -22,20 +23,7 @@ function SiteHeader({ active, home }) {
             <span>Open Health Information Environment</span>
           </span>
         </a>
-        <nav className="desktop-nav" aria-label="Primary navigation">
-          {navigation.map((item) => (
-            <a href={item.href} key={item.href} aria-current={active === item.href ? "page" : undefined}>{item.label}</a>
-          ))}
-        </nav>
-        <details className="mobile-menu">
-          <summary>Menu</summary>
-          <nav aria-label="Mobile navigation">
-            <a href="/" aria-current={active === "/" ? "page" : undefined}>Home</a>
-            {navigation.map((item) => (
-              <a href={item.href} key={item.href} aria-current={active === item.href ? "page" : undefined}>{item.label}</a>
-            ))}
-          </nav>
-        </details>
+        <PrimaryNavigation active={active} />
       </div>
     </header>
   );
