@@ -343,8 +343,8 @@ function ClinicalWorkspacePage() {
 
             <div className="clinical-action-row">
               <a className="text-link" href="/collaborate">Join the clinical workstream →</a>
-              <a className="text-link" href={`${BASE_URL}IML_Founding_Manuscript.pdf`} download>Download Founding Manuscript ↓</a>
-              <a className="text-link" href={`${BASE_URL}IML_Technical_Manuscript.pdf`} download>Download Technical Manuscript ↓</a>
+              
+              
             </div>
           </div>
         </div>
