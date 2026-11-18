@@ -1,6 +1,6 @@
 export const navigation = [
   { href: "/", label: "Vision" },
-  { label: "Science", href: "/publications", children: [
+  { label: "Documentation", href: "/publications", children: [
     { href: "/publications", label: "Publications" },
     { href: "/methodology", label: "Methodology" },
     { href: "/research", label: "Research" },
