@@ -34,18 +34,6 @@ function SiteFooter() {
             <p>Independent, non-commercial and open for scientific review.</p>
           </div>
         </div>
-        <div>
-          <h3>Explore</h3>
-          <a href="/clinical-workspace">Clinical workspace</a>
-          <a href="/interoperability">Integration layer</a>
-          <a href="/country-profiles">Country profiles</a>
-        </div>
-        <div>
-          <h3>Project</h3>
-          <a href="/vision">Vision</a>
-          <a href="/identity-trust">Identity &amp; Trust</a>
-          <a href="/collaborate">Collaborate</a>
-        </div>
       </div>
       <div className="shell footer-bottom">
         <span>© {new Date().getFullYear()} IML Health</span>
