@@ -71,6 +71,10 @@
     {
       "source": "/scientific-collaboration",
       "destination": "/index.html"
+    },
+    {
+      "source": "/manuscript-review",
+      "destination": "/index.html"
     }
   ]
 }
