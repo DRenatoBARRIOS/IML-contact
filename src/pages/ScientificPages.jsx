@@ -3,7 +3,7 @@ import PageFrame from "../components/SiteChrome.jsx";
 import "./ScientificPages.css";
 
 const D = [
-  ["GOV", "Governance & Standards", "Policy, accountable institutions, standards, sustained implementation, and a proposed workforce training governance indicator."],
+  ["GOV", "Governance & Standards", "Standards, responsibilities, oversight, institutional coordination, and continuing professional education for healthcare personnel."],
   ["TEC", "Technical Interoperability", "Reliable exchange and preservation of data meaning across systems."],
   ["IDT", "Identity, Consent & Trust", "Legitimate access, provenance, patient and professional identity."],
   ["ADP", "Adoption & Use", "Actual use in clinical and organisational practice, not deployment alone."],
