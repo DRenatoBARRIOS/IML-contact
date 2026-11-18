@@ -1,0 +1,1059 @@
+============================ PAGE 1 / 19 ============================
+
+
+IML Founding Manuscript · Current Edition
+
+
+                                      INTEROPERABILITY MATURITY LAB (IML)
+
+
+
+
+                                  Founding Manuscript
+               A Scientific Framework for Trusted Health Information Ecosystems
+                    Status Revised candidate for editorial and external scientific review · PREVIEW only
+                    Edition November 2026 candidate · built on consolidated edition of 6 September 2026
+                                                   Author Dr Renato Barrios
+                                      Editorial and analytical assistance OpenAI ChatGPT
+                                            Public website https://www.imlhealth.org
+
+
+
+           Health is our purpose. Trustworthy information is our foundation. Interoperability is our path.
+
+
+
+
+                                                                                           IML · Open for Scientific Review · 1
+
+
+============================ PAGE 2 / 19 ============================
+
+
+IML Founding Manuscript · Current Edition
+
+
+How to Read this Manuscript
+Established evidence. Statements that should be supported by peer-reviewed literature, international recommendations,
+standards or official documentation.
+IML proposal. Concepts and methodological choices proposed by IML for discussion, testing and refinement.
+Research hypothesis. Ideas that appear useful and plausible but require empirical validation.
+Future work. Software modules, indicators, country extensions or scientific studies that remain to be completed.
+
+Opening Statement
+Health is humanity's common objective.
+Progress in health information should not be measured by technological sophistication alone, but by its capacity to help
+people make better decisions, reduce suffering and improve health together.
+Every day, clinical observations, laboratory analyses, medical images, prescriptions, epidemiological reports, administrative
+records and scientific discoveries contribute to our understanding of health. Yet information alone does not protect health. It
+protects health only when it becomes trusted knowledge, available to the right person, at the right time, under the right
+conditions.
+The Interoperability Maturity Lab (IML) was created to examine that transformation. It proposes a scientific framework for
+understanding, assessing and progressively improving Health Information Ecosystems, while also developing a practical
+open-source implementation bridge through the Open Clinical Workspace.
+This edition records an important transition. IML is no longer only a conceptual framework. The reference software
+workstream has begun: PostgreSQL-based clinical structures, terminology canonicalisation, country adaptation logic and a
+traceable AI evidence-retrieval scaffold now provide concrete objects that can be tested, criticised and improved. None of
+these developments is presented as a validated clinical service.
+
+Preface
+Healthcare has entered an unprecedented digital era. Hospitals, primary care practices, laboratories, pharmacies, insurers,
+public-health authorities and research institutions generate and exchange vast quantities of information. Yet fragmentation
+persists, often at precisely the moment when continuity matters most.
+The consequence is not merely inconvenience. Decisions may be made with incomplete information, diagnostic procedures
+may be repeated, prevention opportunities may be missed, and public-health surveillance may identify resistant organisms
+without knowing whether they represent symptomatic infection, colonisation, asymptomatic carriage or contamination.
+IML does not seek to replace the achievements of WHO, HL7 International, SNOMED International, openEHR, LOINC,
+IHE, ISO, national health authorities or the Global Digital Health Monitor. Its contribution is narrower and more clinically
+oriented: to examine whether digital capacity preserves meaning, context, trust and usefulness across the ecosystem.
+The framework therefore combines assessment with action. Country profiles should show evidence and limitations rather
+than produce simplistic rankings. The Open Clinical Workspace should provide a reference implementation environment in
+which the principles of the manuscript can be tested without creating a new proprietary dependency.
+Artificial intelligence is treated in the same way. IML neither rejects AI nor treats it as self-validating. AI becomes useful
+only when the information ecosystem is sufficiently trustworthy, when provenance is preserved, when limitations are visible
+and when human responsibility remains explicit.
+
+The IML Declaration
+Health is one of humanity's greatest shared responsibilities. Trustworthy information is an enabling condition for
+prevention, diagnosis, treatment, rehabilitation, research and public health.
+
+
+
+
+                                                                                              IML · Open for Scientific Review · 2
+
+
+============================ PAGE 3 / 19 ============================
+
+
+IML Founding Manuscript · Current Edition
+
+
+IML is an independent scientific initiative dedicated to understanding, assessing and progressively improving Health
+Information Ecosystems. It does not promote a particular software vendor, national model or commercial platform. It
+supports open standards, inspectable structures, evidence-based evaluation, reproducibility and progressive implementation.
+Interoperability is not an objective in itself. Its value lies in preserving meaning and enabling the safe use of information
+across boundaries. Technical exchange is necessary but insufficient; sustainable interoperability also depends on
+governance, institutional engagement, professional trust, security, legal certainty, correction and learning.
+Artificial intelligence is recognised as an ecosystem actor and as an instrument that may assist professionals, researchers
+and institutions. Scientific judgement, ethical responsibility and clinical decisions remain human responsibilities. AI outputs
+should be attributable, reviewable and linked to the evidence and data on which they depend.
+No country or institution can achieve interoperability alone. Every ecosystem can improve, and every documented failure
+can become an opportunity to learn.
+
+The IML Commitment
+ • Put health before technology.
+ • Promote trustworthy, contextualised and correctable health information.
+ • Support continuity of information across care, public health, research and financing.
+ • Use open standards and open-source reference implementations where they improve transparency and autonomy.
+ • Assess ecosystems rather than isolated products.
+ • Treat institutional responsiveness, correction and learning as observable aspects of maturity.
+ • Use artificial intelligence proportionately, transparently and under human responsibility.
+ • Support country-specific adaptation without fragmenting the common architecture.
+ • Prefer progressive improvement and evidence profiles over competitive country rankings.
+
+
+
+
+                                                                                                IML · Open for Scientific Review · 3
+
+
+============================ PAGE 4 / 19 ============================
+
+
+IML Founding Manuscript · Current Edition
+
+
+PART 0 · Why This White Paper Exists
+0.1 Why another white paper?
+Digital health has achieved extraordinary technical progress, yet the existence of digital systems does not guarantee
+continuity of usable information. The recurring problem is the gap between data that exist and knowledge that can actually
+support a decision.
+IML therefore focuses on transformation rather than digitalisation. It asks whether information remains meaningful across
+organisational and technical boundaries, whether errors can be corrected, whether institutions can learn and whether the
+ecosystem can support care when infrastructures are constrained.
+
+0.2 A changing paradigm
+The first digital-health paradigm was computerisation. The second was exchange. A third is now emerging: information
+must improve decisions. This changes the unit of analysis from the application to the information ecosystem and from
+message transfer to preservation of meaning.
+Technology becomes an instrument. Health remains the objective.
+
+0.3 Why Health Information Ecosystems?
+Patients move across organisations, professionals collaborate, samples circulate, public-health agencies aggregate data,
+payers hold administrative information and scientific knowledge changes over time. These relationships form an ecosystem
+rather than a collection of independent systems.
+IML therefore evaluates actors, flows, responsibilities, interfaces, context, correction and learning together.
+
+0.4 Beyond technical interoperability
+Technical interoperability is essential, but an interface can work while clinical meaning is lost, responsibility is unclear or
+institutions fail to respond to known defects. IML expands interoperability to include semantic, organisational, institutional,
+clinical and public-health dimensions.
+Successful interoperability depends on standards, governance, implementation capacity, trust, professional practice and
+durable institutional follow-through.
+
+0.5 Complementarity rather than duplication
+IML is complementary to WHO, the Global Digital Health Monitor, national digital-health strategies and existing maturity
+models. Country-level digital capacity remains valuable context, but IML adds an evidence-oriented and clinically grounded
+question: does that capacity preserve meaning, context, trust and usefulness in real workflows?
+Where official information is incomplete or unvalidated, IML records uncertainty rather than filling gaps with assumption.
+
+PART I · Health Before Technology
+1.1 Health as the objective
+IML uses a broad health perspective consistent with the long-standing WHO view of health as more than the absence of
+disease. Digital systems should therefore be judged by their contribution to physical, mental and social well-being,
+prevention, continuity and equity.
+A clinically sophisticated application that increases fragmentation or prevents correction may be technologically impressive
+while remaining poorly aligned with health.
+
+1.2 Information as an enabling determinant of health
+Health information shapes access to diagnosis, treatment, prevention and coordination. Missing or misleading information
+can therefore act as a practical determinant of health outcomes.
+This does not mean that information replaces social, biological or environmental determinants. It means that trustworthy
+information can amplify the effectiveness of many health interventions.
+
+
+                                                                                               IML · Open for Scientific Review · 4
+
+
+============================ PAGE 5 / 19 ============================
+
+
+IML Founding Manuscript · Current Edition
+
+
+1.3 Continuity of health information
+Continuity of care depends on continuity of information. The relevant concept is not unrestricted centralisation but the
+ability to recover the right information with preserved context and provenance when a legitimate clinical, public-health or
+research purpose arises.
+Continuity should survive changes in provider, software, institution and, where lawful, country.
+
+1.4 Prevention and public health
+Interoperable information can strengthen screening, vaccination continuity, medication safety, chronic-disease follow-up
+and outbreak detection. Yet prevention requires context. A code without timing, severity, source and outcome may be
+insufficient for action.
+IML therefore treats prevention as a test of whether the ecosystem transforms scattered observations into actionable
+knowledge.
+
+1.5 Equity and constrained environments
+Interoperability must not become a privilege of well-funded institutions. Low-resource settings often require simpler
+infrastructure, offline-capable workflows and progressive deployment rather than large national platforms.
+The Open Clinical Workspace is designed with this constraint in mind: useful first installations should be possible without
+purchasing an entire digital-health ecosystem.
+
+1.6 Trust and correction
+Trust is not produced by branding or by a single security control. It emerges from provenance, accountability, correction,
+understandable governance and the ability to explain what is known and what remains uncertain.
+An ecosystem that cannot correct errors or propagate corrections safely cannot sustain trust over time.
+
+PART II · Health Information Ecosystems
+2.1 Definition
+A Health Information Ecosystem is the governed network of people, institutions, technologies, standards, data flows and
+responsibilities through which health information is produced, transformed, exchanged, interpreted, corrected and reused.
+The definition intentionally includes both technical and human actors. A laboratory interface, a clinician, a payer, a
+terminology authority and an AI service may all influence the meaning and reliability of information.
+
+2.2 Actors and relationships
+Core actors include patients, clinicians, laboratories, pharmacies, hospitals, primary care, public-health bodies, research
+institutions, public and private payers, regulators, software suppliers, standards organisations and civil society.
+Interoperability maturity depends not only on the strength of each actor but on the quality of the relationships between them.
+
+2.3 Information lifecycle
+IML follows information from creation through validation, storage, exchange, interpretation, correction, reuse and eventual
+archival or deletion. Failures can occur at every stage.
+A useful maturity assessment therefore asks not only whether data are exchanged, but whether provenance, versioning and
+purpose remain visible through the lifecycle.
+
+2.4 Clinical context preservation
+A laboratory value or diagnostic code acquires clinical meaning through context: who, when, why, under which conditions,
+and with what subsequent action and outcome. Context loss is therefore an interoperability failure even when the technical
+payload is syntactically valid.
+This principle is central to the AMR demonstrator and to the clinical data model of the Open Clinical Workspace.
+
+
+
+                                                                                               IML · Open for Scientific Review · 5
+
+
+============================ PAGE 6 / 19 ============================
+
+
+IML Founding Manuscript · Current Edition
+
+
+2.5 Payer interoperability
+Payers hold information about eligibility, reimbursement, prior treatment, service use and, in some systems, longitudinal
+care pathways. When governance is appropriate, these data can contribute to continuity, prevention and evaluation.
+IML treats payer interoperability as cross-cutting because the form of the payer varies across national health services, social
+insurance, mutual insurance and private markets.
+
+2.6 Professional role alignment
+Health-information systems often fail when responsibilities encoded in software do not match real professional practice.
+Role alignment therefore belongs to ecosystem maturity: clinicians, pharmacists, laboratory professionals, administrators
+and patients must know what each can see, correct, approve and transmit.
+Identity and access mechanisms should be purpose-limited and attributable rather than relying only on broad organisational
+permission.
+
+2.7 AI as an ecosystem actor
+AI increasingly influences how information is searched, summarised, prioritised and interpreted. For this reason it should be
+modelled as an ecosystem actor with explicit inputs, outputs, dependencies, provenance and accountability.
+The durable record must not disappear when an AI provider changes. Models should be replaceable; evidence and clinical
+provenance should persist.
+
+PART III · Understanding Interoperability
+3.1 Interoperability as preservation of meaning
+Interoperability is the capacity of independently governed actors and systems to use information while preserving its
+intended meaning, context, trust and accountability.
+A successful message transfer is only the first layer.
+
+3.2 Technical interoperability
+Technical interoperability concerns connectivity, protocols, APIs, files, messaging, transport security, availability and the
+ability of systems to exchange structured information reliably.
+IML remains technology-neutral and allows progressive use of mature methods, from structured files to APIs and event-
+driven exchange.
+
+3.3 Semantic interoperability
+Semantic interoperability requires shared concepts, codes, units and mappings. Terminology should be versioned,
+attributable and reviewable.
+The current software workstream treats terminology as a canonical service, including KSH97-P, ICD-10 and progressive
+mapping logic rather than hidden application dictionaries.
+
+3.4 Organisational interoperability
+Organisations must align workflow, responsibility and service boundaries. A technically perfect API cannot compensate for
+a process in which no actor is responsible for reviewing or correcting the incoming information.
+
+3.5 Institutional interoperability
+Institutions must be able to coordinate, respond to documented problems and act on authoritative findings. Formal contact
+points are useful, but operational answerability requires substantive response and follow-through.
+
+3.6 Clinical interoperability
+Clinical interoperability is demonstrated when information can safely support clinical judgement. It requires context,
+provenance, timeliness and an understanding of uncertainty.
+
+
+                                                                                               IML · Open for Scientific Review · 6
+
+
+============================ PAGE 7 / 19 ============================
+
+
+IML Founding Manuscript · Current Edition
+
+
+Clinical interoperability is therefore stricter than syntactic exchange.
+
+3.7 Public-health interoperability
+Public-health interoperability connects individual observations with surveillance and population-level learning without
+erasing the distinction between clinical phenomena and administrative or microbiological proxies.
+
+3.8 Limits and safeguards
+Mature interoperability includes the ability to refuse unnecessary exchange, limit purpose, preserve privacy, document
+uncertainty and separate operational systems from research or AI experimentation.
+More exchange is not automatically better interoperability.
+
+3.9 Relationship to pre-existing interoperability maturity models
+The WHO–ITU National eHealth Strategy Toolkit (2012), the MEASURE Evaluation HIS Interoperability Maturity Toolkit
+(version 1.0, 2019), and the WHO Global Digital Health Monitor provide established reference points for policy,
+governance, workforce, infrastructure, and standards. Their prior contributions must be acknowledged when assessing
+originality of IML constructs.
+IML proposes a complementary emphasis on preservation of clinical context, pathway-level evidence, institutional
+documentary reliability, substantive answerability, and traceable correction. These are proposed differentiators, not
+empirically validated superiority claims. See Annex K and the companion Comparative Literature Review (16 November
+2026).
+
+PART IV · The IML Framework
+The framework translates ecosystem principles into six assessment domains. Cross-cutting dimensions include Institutional
+Engagement, Payer Interoperability and AI Readiness. The framework is intended to produce evidence profiles, not
+competitive rankings.
+
+4.1 Domain 1 · Governance and Standards
+Strategy, governance, legal frameworks, standards adoption, accountability and the capacity to convert policy into sustained
+implementation.
+4.1.1· Governance of workforce training in health-information interoperability
+Definition (proposed): Whether responsible public authorities and healthcare organisations establish, finance, maintain and
+evaluate role-appropriate training for healthcare staff in the safe and clinically meaningful use of health information systems
+and interoperable workflows.
+Assessment questions: (1) Is a responsible body designated? (2) Are training requirements and competencies formally
+defined for clinical and non-clinical roles? (3) Are protected time, funding and equitable access provided? (4) Are curricula
+updated with standards, incidents, user feedback and clinical changes? (5) Is the programme independently reviewed and
+corrected?
+Evidence: published policy and role assignments; budgets and training plans; curriculum versions; records of delivery and
+access across professional groups; independent programme reviews and documented improvement. These sources establish
+governance capacity, not necessarily staff proficiency or patient benefit.
+Status: proposed addition for external methodological review, not scored in existing IML country profiles. It complements
+MEASURE Evaluation Human Resources Policy and Human Resources Capacity Development; it does not create a seventh
+IML domain.
+
+4.2 Domain 2 · Technical Interoperability
+Interfaces, APIs, messaging, structured exchange, availability, portability and infrastructure needed for reliable information
+flow.
+
+4.3 Domain 3 · Identity, Consent and Trust
+Patient and professional identity, authentication, authorisation, consent or lawful basis, provenance and accountability.
+
+                                                                                              IML · Open for Scientific Review · 7
+
+
+============================ PAGE 8 / 19 ============================
+
+
+IML Founding Manuscript · Current Edition
+
+
+4.4 Domain 4 · Adoption and Use
+Actual use in clinical and organisational workflows, not merely formal availability.
+4.4.1 · Demonstrated workforce competence
+Verify whether professionals can actually retrieve, interpret, communicate and correct health information during
+representative workflows. Evidence may include role-specific competency assessments, observed workflow tests,
+documented support needs, refresher training and improvement after incidents. Attendance counts alone cannot demonstrate
+competence. ADP-TRN-01 remains exploratory and unscored pending external validation.
+
+4.5 Domain 5 · Security and Resilience
+Cybersecurity, continuity, backup, recovery, incident response, lifecycle support and the ability to continue essential care.
+
+4.6 Domain 6 · Feedback, Correction and Learning
+A mature ecosystem does not merely exchange information; it detects errors, corrects them, learns from them and improves
+its institutions and software over time. Learning therefore covers technical correction, documentary reliability and
+institutional answerability.
+ Code                                       Criterion                                  Meaning
+                                                                                       Mechanisms for detecting, reporting and
+ LRN-1                                      Error detection and reporting              investigating data, workflow or
+                                                                                       interoperability errors.
+                                                                                       Use of incidents, audits, outcomes, user
+ LRN-2                                      Continuous improvement                     feedback and interoperability indicators to
+                                                                                       change practice or systems.
+                                                                                       Correction, versioning and traceable reuse of
+ LRN-3                                      Traceable correction and reuse             information already held in databases and
+                                                                                       reused across systems.
+                                                                                       Whether official references remain
+ LRN-4                                      Institutional documentary reliability      accessible, precise, current, attributable,
+                                                                                       coherent and correctable over time.
+                                                                                       Demonstrated capacity to receive, examine
+                                                                                       and substantively answer relevant
+                                            Institutional responsiveness and
+ LRN-5                                                                                 documented inquiries, and to act on
+                                            answerability
+                                                                                       authoritative findings, warnings and
+                                                                                       recommendations.
+
+
+LRN-5 belongs inside the Learning domain. It does not create a seventh domain and does not replace Institutional
+Engagement. A formal contact pathway and an actual substantive response are different phenomena.
+For LRN-5, authoritative findings by courts of audit, parliamentary bodies, regulators, ombuds institutions or equivalent
+independent control bodies may directly inform scoring when they document repeated failures of evaluation, enforcement,
+correction or follow-through. Individual correspondence may corroborate but should not become the principal evidence
+source.
+Persistent institutional silence or inaction may be described by its functional effect as passive institutional obstruction when
+the evidence supports that interpretation. This language should not be used to impute personal intent.
+
+4.7 Cross-cutting dimension · Institutional Engagement
+Institutional Engagement examines whether responsible organisations expose contact pathways, participate in review,
+support pilots and engage with external scientific or implementation work.
+INS-9 may assess the existence of procedures and reasonable response pathways; LRN-5 separately assesses actual
+answerability and follow-through.
+
+4.8 Cross-cutting dimension · Payer Interoperability
+Payer-held information may contribute to prevention, continuity and evaluation, but its use must be proportionate and
+governed. The relevant model varies by country and must not assume a single insurance architecture.
+
+
+
+
+                                                                                                IML · Open for Scientific Review · 8
+
+
+============================ PAGE 9 / 19 ============================
+
+
+IML Founding Manuscript · Current Edition
+
+
+4.9 Cross-cutting dimension · AI Readiness
+AI readiness depends on data quality, contextual integrity, governance, auditability, human oversight, security and the
+capacity to identify model limitations. AI capability without these foundations should not be interpreted as maturity.
+
+4.10 Crosswalk to the MEASURE Evaluation HIS interoperability maturity model
+MEASURE Evaluation (2019) structures its HIS interoperability assessment around 18 subdomains in three domains
+(leadership and governance, human resources, and technology), each characterized through five maturity levels. IML retains
+six assessment domains and cross-cutting institutional, payer, and AI-readiness dimensions. The relationship is many-to-
+many, not a conversion of scoring scales.
+Annex K records the 18-item analytical crosswalk. It is for construct comparison and external review only; neither
+MEASURE maturity levels nor IML scores should be inferred from the crosswalk.
+
+PART V · Methodology
+5.1 Evidence-oriented assessment
+IML assessments should be built from traceable sources with explicit evidence levels, dates and limitations. Official
+documentation is valuable but should not be confused with independent confirmation of implementation.
+Evidence should be preserved so that another reviewer can understand how a conclusion was reached.
+
+5.2 Country profiles rather than rankings
+Profiles describe strengths, gaps, uncertainty and the evidence supporting each domain. A single overall number may help
+orientation but should not erase the six-domain shape.
+Scores should therefore remain accompanied by domain-level explanations and source registers.
+
+5.3 Source quality and contradiction
+Sources can be current yet incomplete, official yet aspirational, or technically accurate while clinically uninformative. IML
+therefore records source type, authority, recency, scope and contradiction.
+Where reliable sources disagree, the disagreement is part of the evidence profile.
+
+5.4 Scoring philosophy
+Scoring should reflect demonstrated capability rather than promises. The highest maturity levels require learning,
+correction, resilience and institutional follow-through, not merely formal infrastructure.
+Scoring rules should be versioned, auditable and open to external review.
+
+5.5 Institutional answerability scale
+LRN-5 may use a practical 0–100 interpretation: rapid substantive response with traceable corrective follow-through at the
+high end; delayed or incomplete but usable response in the middle; acknowledgement without substantive answer or
+effective follow-through at the lower end; and persistent non-response or failure to act after reasonable opportunity at zero.
+Automated acknowledgements are not substantive responses. Cases outside an institution's remit, with insufficient evidence
+or without demonstrable receipt should be marked not assessed rather than scored negatively.
+
+5.6 Versioning and reproducibility
+Indicator definitions, scoring rules, source registers, country profiles and software schemas should be versioned. Scientific
+reproducibility includes the ability to reconstruct not only results but the evidence and transformation steps that produced
+them.
+
+5.7 Exploratory comparative workstream · Patient harm, redress and system learning
+IML will examine a comparative patient-safety question at the intersection of rights, accountability and learning: when a
+patient experiences harm associated with care, what happens next? The workstream will describe how health systems enable
+
+
+                                                                                               IML · Open for Scientific Review · 9
+
+
+============================ PAGE 10 / 19 ============================
+
+
+IML Founding Manuscript · Current Edition
+
+
+explanation and review of the event, access to remedies or compensation, and the conversion of individual incidents into
+organisational learning.
+The initial comparison will examine the following dimensions without presuming that one national model is superior:
+ • Accessibility of the remedy or redress pathway, including cost, procedural complexity and whether legal representation
+   is required.
+ • Burden of proof and causal standards, including the distinction between fault-based, avoidability-based and no-fault
+   approaches.
+ • Timeliness from notification or claim to investigation, decision and payment or other resolution.
+ • Scope of redress, including financial compensation, rehabilitation, support, explanation and other forms of repair.
+ • Disclosure, candour and practical access to the clinical record and investigation findings.
+ • Independence of assessment, expert review and availability of appeal or reconsideration.
+ • Equity of access, including whether socioeconomic position materially affects the ability to obtain review or redress.
+ • Learning loop, including whether incidents, complaints or claims are systematically converted into patient-safety
+   improvement and recurrence prevention.
+Evidence policy. The first phase will privilege official legal and administrative documentation, patient-safety authorities and
+peer-reviewed literature. Legal entitlement will be distinguished from operational accessibility. High reporting or
+compensation volumes will not automatically be interpreted as poor quality because they may also reflect transparency,
+detection or easier access to redress. Where evidence is incomplete or incomparable, the limitation will be stated explicitly.
+The WHO Patient Safety Rights Charter provides an initial international rights frame for the study. National compensation,
+complaint, regulatory and patient-safety systems will be mapped as source classes, but inclusion in the map does not imply a
+maturity judgement. Comparative interpretation will remain descriptive until the protocol has undergone review.
+
+5.8 Comparative validation protocol (proposed, not yet validated)
+Training indicator validation safeguard: compare GOV-TRN-01 (institutional programme and commitments) with ADP-
+TRN-01 (demonstrated practical competence) in identical care settings. Document contextual differences, role mix,
+evidence gaps, agreement between reviewers and observed workflow or safety outcomes. Do not infer effectiveness from a
+policy, certificate or attendance list alone.
+Before claiming added discriminative value, compare applicable MEASURE indicators and IML evidence criteria on the
+same precisely bounded trace case. Preserve each instrument’s original unit of analysis; where a national indicator cannot
+validly be evaluated using a local case, mark it not assessable rather than assigning a maturity level.
+The protocol should preregister questions, map claims to dated sources, separate documented structures from operational
+follow-through, independently review uncertain judgments, and compare agreement, disagreement, missing evidence and
+feasibility. Initial candidates include a biology-laboratory signalment pathway and the long-term governance/evaluation
+chain of the French DMP and Mon espace santé. These are candidates, not completed empirical evaluations.
+
+PART VI · Demonstrator: Antimicrobial Resistance and Multidrug-
+Resistant Bacteria
+6.1 Why AMR/BMR?
+Antimicrobial resistance is important enough to justify action, concrete enough to support implementation and complex
+enough to test the full IML logic. It links microbiology, clinical context, treatment, outcomes, surveillance and governance.
+The first reference use case focuses on multidrug-resistant Escherichia coli urinary tract infection.
+
+6.2 Resistant isolate is not the clinical outcome
+A resistant organism detected in a laboratory is not automatically a symptomatic infection. The same result may represent
+colonisation, asymptomatic bacteriuria, contamination or clinically meaningful disease.
+
+
+
+                                                                                              IML · Open for Scientific Review · 10
+
+
+============================ PAGE 11 / 19 ============================
+
+
+IML Founding Manuscript · Current Edition
+
+
+Interoperability must therefore connect microbiology to symptoms, diagnosis, treatment and outcome.
+
+6.3 Minimum clinical dataset
+Useful AMR interpretation requires at least clinical presentation, risk context, urinalysis where relevant, culture, bacterial
+count, susceptibility testing, final diagnosis, antimicrobial treatment and evolution.
+The dataset should remain minimal enough to be implementable while rich enough to distinguish clinically meaningful
+states.
+
+6.4 AI and AMR
+AI may support pattern recognition, missing-context detection, evidence retrieval or decision support, but it cannot
+compensate for fragmented or misleading source data.
+AMR therefore provides a demanding test of responsible AI: the algorithm should inherit the context, provenance and
+uncertainty of the underlying information rather than hide them.
+
+6.5 From demonstrator to service
+The goal is not to solve national interoperability in one prototype. It is to demonstrate that a focused clinical problem can be
+improved by connecting the right information under explicit governance.
+If useful, the same reusable modules can support vaccination continuity, chronic disease, medication safety, discharge
+coordination, registries and other domains.
+
+PART VII · From Assessment to Action
+7.1 Assessment as the beginning of action
+An assessment has value only if it reveals where improvement is possible. IML therefore links observed weaknesses to
+practical actions, implementation priorities and opportunities for collaboration.
+
+7.2 Support for low-resource ecosystems
+Low-resource settings should not be judged against an architecture they cannot realistically deploy. The relevant question is
+whether a safe, useful and maintainable progression path exists.
+Open-source components, local deployment and offline capability may be especially valuable where connectivity and
+procurement capacity are constrained.
+
+7.3 High-resource fragmentation
+High expenditure does not guarantee interoperability. Mature infrastructure can coexist with fragmented clinical
+information, proprietary lock-in, delayed implementation and weak correction pathways.
+
+7.4 The French paradox
+France illustrates the possibility of advanced national digital-health infrastructure alongside persistent fragmentation,
+implementation gaps and institutional difficulty in converting formal capability into consistently useful clinical information.
+Authoritative audit evidence should therefore be incorporated into the Learning domain when it documents weak
+evaluation, enforcement or follow-through.
+
+7.5 Denmark as reference without idealisation
+Denmark provides important references in microbiology, surveillance and national data infrastructures, including systems
+such as MiBa, DANMAP and HAIBA. IML should use these as comparative resources without assuming that every
+clinically relevant data element is always available in structured form at the required time.
+
+7.6 Institutional responsiveness as implementation evidence
+Institutions that publish strong strategies but cannot substantively answer documented implementation questions reveal a
+maturity gap. Responsiveness is therefore not a courtesy metric; it is evidence about whether the ecosystem can learn.
+
+
+                                                                                              IML · Open for Scientific Review · 11
+
+
+============================ PAGE 12 / 19 ============================
+
+
+IML Founding Manuscript · Current Edition
+
+
+7.7 Testing institutional follow-through through bounded tracer cases
+For a bounded tracer, IML proposes reconstructing the chain from initial event or request to acknowledged receipt, allocated
+responsibility, examination, substantive outcome, corrective action where indicated, and independently verifiable follow-up.
+Absence of a public answer does not by itself establish misconduct or absent internal action; findings should state evidence
+limitations explicitly.
+The comparative research question is whether these direct observations add information beyond a high-level maturity
+assessment, and under which conditions such pathway evidence generalises.
+
+PART VIII · Open Clinical Workspace
+8.1 Purpose
+The Open Clinical Workspace is the implementation bridge between IML assessment and practical action. It is intended to
+be open-source, modular, vendor-neutral, inspectable and progressively deployable.
+It should be useful in primary care and other settings without requiring replacement of every existing application.
+
+8.2 Not another monolithic EHR
+The workspace should not be understood as a new national electronic health record. Existing hospital systems, laboratory
+platforms, pharmacy applications and national infrastructures will continue to exist.
+The workspace therefore emphasises interoperability, clinical context and reusable services rather than forced replacement.
+
+8.3 Common clinical core
+The reference architecture now organises the software around a common clinical core containing patient context, encounter
+information, clinical history, terminology, results, audit, correction and provenance.
+Clinical data should remain coherent independently of the national services or AI providers connected around it.
+
+8.4 Open integration layer
+Registries, laboratories, imaging services, identity systems, consent services and national digital-health platforms should
+connect through explicit interfaces. This preserves the possibility of replacing a connector without rewriting the clinical
+core.
+Import may begin with structured files and progress toward APIs, FHIR resources, terminology services or event-based
+messaging according to local maturity.
+
+8.5 Country packs
+Language, terminology, identity, reimbursement, messaging and regulation vary across countries. Country packs therefore
+separate national adaptation from the common data and workflow model.
+
+8.6 PostgreSQL reference foundation
+PostgreSQL is the current reference relational data foundation for the implementation work. It provides a practical
+environment for testing integrity, constraints, provenance, versioning, auditability, migration, backup and restoration.
+This is a reference implementation choice, not a claim that one database technology is universally superior.
+
+8.7 Local, remote and offline-capable deployment
+The deployment strategy supports local or remote databases and APIs, with progressive synchronisation patterns and the
+explicit goal of maintaining useful clinical operation when connectivity is weak or interrupted.
+Reference deployment should remain multiplatform across macOS, Windows and Linux, with conservative Linux server
+baselines and support for local clinical peripherals where required.
+
+
+
+
+                                                                                             IML · Open for Scientific Review · 12
+
+
+============================ PAGE 13 / 19 ============================
+
+
+IML Founding Manuscript · Current Edition
+
+
+8.8 Terminology as a canonical service
+Terminology is not a decorative coding layer. It is part of the clinical meaning of the record. The current implementation
+consolidates a canonical iml_terminology environment with versioned concepts, designations, mappings, releases,
+provenance and mapping-resolution structures.
+KSH97-P provides a concise primary-care consultation vocabulary, while ICD-10 and national variants support more
+extensive classification. Progressive mappings should remain explicit and reviewable.
+
+8.9 Audit, correction and reuse
+Meaningful actions should be attributable. Corrections should remain visible and reusable without silently rewriting the
+historical record.
+This architectural requirement directly supports the Learning domain, especially LRN-3.
+
+8.10 AI as a replaceable service layer
+AI functions should sit above durable clinical and evidence structures rather than become the structure itself. A model or
+provider may change while the clinical record, terminology and evidence trail remain intact.
+AI may assist summarisation, evidence retrieval, terminology support, missing-context detection and pattern recognition,
+but the human professional remains responsible for interpretation and action.
+
+8.11 From Reference Concept to Implementable Clinical Architecture
+IML has begun to translate the Open Clinical Workspace from a conceptual reference environment into an implementable
+software architecture. This development does not change the purpose of the workspace. It remains an open-source, vendor-
+neutral and progressively deployable environment intended to support care, interoperability, evaluation and learning without
+creating unnecessary dependency on a single software product, cloud provider or national platform.
+The reference architecture is organised around three complementary layers: a common clinical core, an open integration
+layer and country-specific adaptation packs. PostgreSQL provides the current reference data foundation, while terminology,
+evidence retrieval and future AI services remain modular.
+The deployment model is deliberately broader than a browser-only national portal. Local and remote operation, offline
+capability, multiplatform deployment, exportability and documented dependencies are treated as resilience and autonomy
+requirements.
+These developments remain reference implementation work. Each module requires technical testing, clinical validation,
+cybersecurity review, documentation, usability assessment and external scientific review before operational claims can be
+made.
+
+8.12 A Common Core with Replaceable Components
+The Open Clinical Workspace should not become a new form of vendor lock-in created in the name of open source. Clinical
+data structures, terminology, integration interfaces, evidence retrieval, analytics and AI services should be separated through
+documented interfaces and explicit provenance.
+A database engine, terminology service, AI model or external connector may evolve or be replaced without destroying the
+meaning, history or auditability of the underlying health information.
+This modularity is not merely a software-engineering preference. Reversibility, portability and the capacity to continue care
+when a supplier, service or technology changes are part of the resilience of a Health Information Ecosystem.
+
+Key Messages · Part VIII
+ • The current reference implementation is organised around a common clinical core, an open integration layer and
+   country-specific adaptation packs.
+ • PostgreSQL provides the current reference data foundation for testing integrity, auditability, correction, portability,
+   resilience and clinical context preservation.
+ • France and Guatemala provide the first country-adaptation workstreams while the common clinical model remains
+   reusable.
+
+
+                                                                                              IML · Open for Scientific Review · 13
+
+
+============================ PAGE 14 / 19 ============================
+
+
+IML Founding Manuscript · Current Edition
+
+
+ • Offline-capable operation, local or remote deployment and multiplatform support are part of the reference architecture.
+ • Terminology, national services and AI capabilities should remain explicit and modular so that components can evolve or
+   be replaced without compromising clinical meaning or provenance.
+
+PART IX · Responsible Artificial Intelligence and Scientific Integrity
+9.1 Why responsible AI belongs in IML
+AI now participates in the production, organisation, search, interpretation and communication of health information. It
+therefore belongs inside the Health Information Ecosystem rather than outside it.
+The relevant question is not whether AI exists, but under which conditions it can contribute without weakening clinical
+responsibility or scientific integrity.
+
+9.2 Human responsibility
+AI outputs may support a professional judgement but should not obscure who is responsible for the decision. Systems
+should identify when AI assistance occurred and preserve the information required for review.
+
+9.3 Transparency and proportionality
+The use of AI should be proportionate to the task and visible to users where relevant. Sensitive clinical information should
+not be copied into external services merely because a model can process it.
+Architecture should favour de-identification, minimum necessary data and separable service boundaries.
+
+9.4 Bias, equity and representativeness
+AI can reproduce biases present in data, access patterns, documentation practices and research publication. Evaluation
+should therefore examine who is represented, who is missing and whether performance changes across contexts.
+An AI system trained on a high-resource environment should not be assumed to transfer safely to a low-resource one.
+
+9.5 Scientific integrity
+AI-assisted research and writing should remain attributable and reproducible. Source selection, search logic, inclusion and
+exclusion decisions, transformations and limitations should be documented sufficiently for review.
+The existence of a fluent answer is not evidence of a reliable evidence process.
+
+9.6 Traceable Clinical Evidence Retrieval · AI-EVIDENCE-01
+One concrete AI workstream within the Open Clinical Workspace is a traceable clinical evidence-retrieval layer. Its purpose
+is not to allow a generative model to produce apparently authoritative answers from opaque sources. Its purpose is to
+preserve the chain between a clinical question, the evidence sources consulted, the records retrieved and the interpretation
+subsequently presented to a professional.
+The current reference architecture, identified as AI-EVIDENCE-01, separates evidence retrieval and provenance from later
+AI-assisted interpretation. A query may be associated with a clinical encounter or diagnostic assessment while the external
+search expression must remain de-identified. Query expressions and retrieval operations may be fingerprinted so that the
+process can be audited without copying unnecessary patient-identifying information into external search workflows.
+Each external source execution remains individually traceable. The architecture can record which source was consulted,
+whether the request succeeded, returned no results, was partial, unavailable, rate-limited, failed or was cancelled, together
+with result counts and technical metadata.
+Retrieved publications or records are represented canonically and can retain identifiers such as PMID, PMCID, DOI, NCT
+and Cochrane identifiers. The durable evidence record is separated from the transient AI model that may later summarise or
+compare it.
+The initial source registry includes PubMed/NCBI, Europe PMC, ClinicalTrials.gov, Crossref and public metadata from the
+Cochrane Library. These sources serve different purposes: bibliographic discovery, open-access links, trial registration,
+persistent metadata identification and systematic-review discovery.
+
+
+                                                                                             IML · Open for Scientific Review · 14
+
+
+============================ PAGE 15 / 19 ============================
+
+
+IML Founding Manuscript · Current Edition
+
+
+Publisher full text is not stored by default. Access rights, licences and institutional entitlements remain respected.
+Passwords, session cookies, API secrets and institutional credentials must not be stored in the evidence tables.
+Connectors remain disabled until validated at application level. The existence of a schema or connector specification must
+never be interpreted as evidence that a clinical AI service is operational, validated or safe.
+AI may subsequently assist with summarisation, prioritisation, comparison, detection of missing context or presentation of
+retrieved evidence. These functions should not erase provenance. A clinician or researcher should be able to determine
+where information came from, what was searched, what was not retrieved, and what limitations were detected.
+This architecture supports technological independence. Evidence provenance should survive replacement of an AI model or
+provider. The model may change; the evidence trail should remain.
+
+9.7 AI readiness as a maturity dimension
+AI readiness should be assessed through information quality, governance, security, human oversight, traceability,
+representativeness, workflow integration, correction and post-deployment learning. Procurement of an AI product is not
+equivalent to readiness.
+
+9.8 Boundaries of automation
+IML should distinguish low-risk assistance from decisions with direct clinical consequences. The more consequential the
+output, the stronger the requirement for validated data, explicit uncertainty, professional review, logging and the ability to
+contest or correct the result.
+
+Key Messages · Part IX
+ • Clinical AI should preserve an auditable chain between the question, sources consulted, evidence retrieved and
+   interpretation presented.
+ • Evidence retrieval and provenance should be architecturally separated from generative model services.
+ • External evidence connectors require explicit technical and clinical validation before operational use.
+ • Clinical evidence queries sent to external services should be de-identified and proportionate to their purpose.
+ • AI should help professionals examine evidence and uncertainty, not transform retrieval into an opaque source of
+   authority.
+
+PART X · Roadmap and Future Work
+10.1 From manuscript to working programme
+IML should continue to develop in parallel as a scientific framework, an assessment methodology, a reference
+implementation and an open collaboration programme.
+Progress should be visible through versioned documents, reproducible software migrations, country evidence profiles and
+explicit validation status.
+
+10.2 From specification to reference implementation
+This transition has begun. Current development includes a PostgreSQL-oriented clinical architecture, canonical terminology
+structures, a traceable clinical evidence-retrieval scaffold, an open integration strategy and country adaptation packs.
+The terminology work is being consolidated around a canonical IML terminology environment so that classifications,
+mappings and later revisions remain explicit and auditable. The AI evidence work establishes explicit structures for queries,
+source executions, bibliographic records, identifiers and provenance before generative assistance is treated as a clinical
+capability.
+A reference implementation is not equivalent to a validated clinical product. Database migrations, software modules and
+interfaces demonstrate architectural progress; they do not by themselves demonstrate clinical safety, effectiveness,
+regulatory conformity or successful deployment.
+
+
+
+
+                                                                                               IML · Open for Scientific Review · 15
+
+
+============================ PAGE 16 / 19 ============================
+
+
+IML Founding Manuscript · Current Edition
+
+
+The next implementation phase should combine software development with reproducible migration testing, simulated or
+appropriately governed clinical datasets, terminology validation, interoperability testing, cybersecurity review, offline and
+resilience testing, country-pack validation, usability assessment, clinical safety review and external scientific evaluation.
+
+10.3 Versioning as scientific discipline
+Manuscript editions, indicator definitions, country profiles, database migrations, terminology releases and software modules
+should carry explicit versions and change histories.
+Versioning allows disagreement and correction without erasing history.
+
+10.4 External scientific review
+IML should invite critique from clinicians, informaticians, public-health specialists, microbiologists, payers, patients,
+security experts, software engineers and researchers. External review should be documented even when it challenges central
+assumptions.
+
+10.5 Technical handbook and implementation studies
+The Founding Manuscript should remain conceptual and scientific. Detailed software architecture, database structures,
+connector contracts, deployment procedures and AI evidence retrieval belong in a companion Technical Manuscript and
+implementation documentation.
+Pilot studies should test both usefulness and failure modes.
+
+10.6 Comparative patient-harm study
+The patient-harm, redress and system-learning workstream should proceed as a protocol-driven comparative study. The next
+step is source mapping and definition harmonisation, followed by external review before any scoring proposal is considered.
+
+ANNEX A · Glossary
+ Term                                                                Working definition
+                                                                     The governed network of actors, technologies, standards, data flows
+ Health Information Ecosystem                                        and responsibilities through which health information is created,
+                                                                     exchanged, interpreted, corrected and reused.
+                                                                     The preservation of the clinical meaning surrounding an observation,
+ Clinical Context Preservation
+                                                                     including purpose, timing, source, interpretation and outcome.
+                                                                     The capacity of an ecosystem to preserve usable knowledge across
+ Knowledge Continuity
+                                                                     encounters, organisations and generations of systems.
+                                                                     A set of national terminology, identity, messaging, reimbursement,
+ Country Pack                                                        regulatory and deployment adaptations layered around the common
+                                                                     clinical core.
+                                                                     A retrieval process in which query, source execution, retrieved
+ Traceable Evidence Retrieval
+                                                                     records, identifiers and limitations remain auditable.
+
+
+
+ANNEX B · Proposed IML Indicator Catalogue · Learning
+ Code                                       Indicator                                        Operational interpretation
+                                                                                             Mechanisms for detecting, reporting and
+ LRN-1                                      Error detection and reporting                    investigating data, workflow or
+                                                                                             interoperability errors.
+                                                                                             Use of incidents, audits, outcomes, user
+ LRN-2                                      Continuous improvement                           feedback and interoperability indicators to
+                                                                                             change practice or systems.
+                                                                                             Correction, versioning and traceable reuse of
+ LRN-3                                      Traceable correction and reuse                   information already held in databases and
+                                                                                             reused across systems.
+                                                                                             Whether official references remain
+ LRN-4                                      Institutional documentary reliability            accessible, precise, current, attributable,
+                                                                                             coherent and correctable over time.
+
+
+
+                                                                                                     IML · Open for Scientific Review · 16
+
+
+============================ PAGE 17 / 19 ============================
+
+
+IML Founding Manuscript · Current Edition
+
+
+                                                                                                   Demonstrated capacity to receive, examine
+                                                                                                   and substantively answer relevant
+                                                 Institutional responsiveness and
+ LRN-5                                                                                             documented inquiries, and to act on
+                                                 answerability
+                                                                                                   authoritative findings, warnings and
+                                                                                                   recommendations.
+
+
+
+ANNEX C · AI-EVIDENCE-01 Reference Objects
+ Object                                                                  Purpose
+                                                                         Registry of evidence sources and their capabilities. Credentials are
+ iml_ai.evidence_source
+                                                                         never stored here.
+                                                                         De-identified bibliographic query metadata linked, where appropriate,
+ iml_ai.evidence_query
+                                                                         to a clinical encounter or diagnostic assessment.
+                                                                         One auditable execution of one source for one query, including zero-
+ iml_ai.evidence_source_run
+                                                                         result and failure states.
+ iml_ai.evidence_record                                                  Canonical bibliographic or scientific metadata for a retrieved record.
+                                                                         Source-specific identifiers such as PMID, PMCID, DOI, NCT or
+ iml_ai.evidence_identifier
+                                                                         other persistent identifiers.
+                                                                         Traceable relationship between a query, a specific source run and a
+ iml_ai.evidence_query_result
+                                                                         retrieved record.
+                                                                         Deployment-level access capability without storing passwords,
+ iml_ai.evidence_access_profile
+                                                                         cookies or secrets.
+
+
+
+
+ANNEX D · Comparative Assessment of Existing HIS Maturity
+Frameworks
+Status: targeted scientific addition proposed on 16 November 2026. For external scientific review. Does not change the
+validated six IML domains, LRN-1–LRN-5, country scores, or clinical software specifications.
+
+D.1 Source and purpose
+Core comparator: MEASURE Evaluation, Health Information Systems Interoperability Maturity Toolkit, version 1.0
+(January 2019). Primary source files: Assessment Tool (17 pp.) and Users’ Guide (55 pp.), supplied for this review. The
+model and mapping workbook are additional resources that warrant deeper assessment in the literature review. This annex is
+a conceptual mapping, not a head-to-head validation.
+
+D.2 Complete 18-subdomain analytical crosswalk
+ MEASURE domain                    MEASURE subdomain                     IML correspondence                   Comparative test question
+
+ Leadership & governance           Governance structure for HIS          Governance and Standards;            Accountability chain and
+                                                                         Institutional Engagement             substantive institutional response
+
+ Leadership & governance           Interoperability guidance             Governance and Standards             Policy existence versus observed
+                                   documents                                                                  implementation
+
+ Leadership & governance           Compliance with data exchange         Governance and Standards;            Operational conformity and test
+                                   standards                             Technical Interoperability           evidence
+
+ Leadership & governance           Data ethics                           Identity, Consent and Trust;         Proportionate permitted use
+                                                                         Security and Resilience
+
+ Leadership & governance           HIS interoperability monitoring       Adoption and Use; Feedback,          Evidence of correction after
+                                   and evaluation                        Correction and Learning              evaluation
+
+ Leadership & governance           Business continuity                   Security and Resilience              Clinical service continuity under
+                                                                                                              disruption
+
+ Leadership & governance           Financial management                  Governance and Standards             Traceable linkage between
+
+
+
+                                                                                                          IML · Open for Scientific Review · 17
+
+
+============================ PAGE 18 / 19 ============================
+
+
+IML Founding Manuscript · Current Edition
+
+
+                                                                                                       expenditure and outcomes
+
+    Leadership & governance        Financial resource mobilization    Governance and Standards         Sustainability of actual provision
+
+    Human resources                Human resources policy             Governance and Standards;        Professional roles and
+                                                                      Adoption and Use                 accountability
+
+    Human resources                Human resources capacity (skills   Adoption and Use                 Competence in clinical
+                                   and numbers)                                                        interpretation
+
+    Human resources                Human resources capacity           Adoption and Use; Feedback,      Learning from incidents and field
+                                   development                        Correction and Learning          feedback
+
+    Technology                     National HIS enterprise            Technical Interoperability;      Verification using actual pathways
+                                   architecture                       Governance and Standards
+
+    Technology                     Technical standards                Technical Interoperability;      Clinical meaning across
+                                                                      Governance and Standards         transformations
+
+    Technology                     Data management                    Technical Interoperability;      Provenance, correction and reuse
+                                                                      Identity, Consent and Trust
+
+    Technology                     HIS subsystems                     Technical Interoperability;      Cross-organisational real use
+                                                                      Adoption and Use
+
+    Technology                     Operations and maintenance (for    Security and Resilience          Operational continuity and
+                                   computer technology)                                                recovery
+
+    Technology                     Communication network: LAN         Technical Interoperability;      Transfer reliability and availability
+                                   and WAN                            Security and Resilience
+
+    Technology                     Hardware                           Technical Interoperability;      Resilience across environments
+                                                                      Security and Resilience
+
+
+D.3 Shared constructs and differences
+Shared: governance, standards, financing, ethical safeguards, monitoring, continuity, workforce and technical infrastructure.
+MEASURE explicitly includes financial audit (G-D2), monitoring influencing decisions (E-E1), and an interoperability
+services layer. It should not be characterized as a technology-only framework.
+Potential IML complement: preservation of clinical meaning, controlled correction and reuse, documentary reliability
+(LRN-4), and institutional responsiveness/answerability (LRN-5). These concepts are present in the IML September 2026
+manuscript; incremental validity remains untested.
+
+D.4 Limitations and validation safeguards
+      National/subnational maturity models cannot be validly scored from a single dispute or event.
+      Crosswalk alignment does not establish equivalent scoring or predictive validity.
+      Incomplete documentation must be labelled missing/unverified, not interpreted automatically as institutional failure.
+      Independent review, sensitivity tests and traceable evidence are prerequisites for stronger claims.
+      Historical literature search and forward citation tracking must continue before a comprehensive novelty claim.
+
+D.5 Core references and validation status
+      MEASURE Evaluation (2019). Health Information Systems Interoperability Maturity Toolkit, v1.0.
+       https://www.measureevaluation.org/resources/publications/cl-19-034.html [Direct: two supplied PDFs reviewed]
+      MEASURE Evaluation (2019). HIS Stages of Continuous Improvement Toolkit (SOCI).
+       https://www.measureevaluation.org/resources/publications/cl-19-022.html [Official abstract and 39-subcomponent
+       description verified; detailed tool not assessed]
+      WHO & ITU (2012). National eHealth Strategy Toolkit. https://www.who.int/publications/i/item/national-ehealth-
+       strategy-toolkit [Official summary verified; detailed 223-page guidance not reviewed]
+      WHO / GDHM. Global Digital Health Monitor – indicator framework. https://data.who.int/dashboards/gdhm/about
+       [Official indicator overview verified]
+      OECD (2023). Health at a Glance 2023 – Digital health at a glance. https://www.oecd.org/en/publications/health-at-a-
+       glance-2023_7a7afb35-en/full-report/digital-health-at-a-glance_86518984.html [Official chapter and indicators
+       verified]
+
+
+
+                                                                                                    IML · Open for Scientific Review · 18
