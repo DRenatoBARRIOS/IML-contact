@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 const INDICATORS = [
-  ["Governance & Standards", "Institutional ownership, legal frameworks, standards governance, accountability and national steering capacity."],
+  ["Governance & Standards", "Standards, responsibilities, oversight, institutional coordination, and continuing professional education for healthcare personnel, alongside legal frameworks and accountability."],
   ["Technical Interoperability", "Exchange models, APIs, semantics, technical integration quality, service continuity and architecture coherence."],
   ["Identity & Trust", "Identity matching, authentication, consent, provider and patient identification, and trust services."],
   ["Security", "Privacy safeguards, access control, traceability, cyber readiness and defensible trust practices."],
