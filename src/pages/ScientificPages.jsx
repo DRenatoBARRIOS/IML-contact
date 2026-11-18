@@ -38,7 +38,7 @@ const COMP=[
  ["Hardware","TEC, SEC"]
 ];
 const SOURCE={label:"MEASURE Evaluation HIS Interoperability Maturity Toolkit (2019)",link:"https://www.measureevaluation.org/resources/publications/tl-17-03b"};
-function Intro({kicker,title,description}){return <div className="sc-intro"><p className="sc-kicker">{kicker}</p><h1>{title}</h1><p className="sc-lede">{description}</p><span className="sc-status">Scientific work in progress · open for external review</span></div>}
+function Intro({kicker,title,description,status="Scientific work in progress · open for external review"}){return <div className="sc-intro"><p className="sc-kicker">{kicker}</p><h1>{title}</h1><p className="sc-lede">{description}</p><span className="sc-status">{status}</span></div>}
 function Section({title,children}){return <section className="sc-section"><h2>{title}</h2>{children}</section>}
 function LinkCard({href,title,body}){return <a className="sc-card sc-card-link" href={href}><h3>{title}</h3><p>{body}</p><span>Explore →</span></a>}
 export function PublicationsPage(){return <PageFrame active="/publications"><div className="sc-shell"><Intro kicker="Scientific publications" title="IML scientific corpus" description="Read the Founding Manuscript and supporting methodological material. Research findings and methodological proposals remain open to scientific examination."/><Section title="Documents"><div className="sc-grid">
@@ -65,7 +65,7 @@ export function ManuscriptReviewPage(){
   const lines=content.split("\n");
   const isHeading=(s)=>/^(PART (?:[IVX]+|0)|ANNEX [A-Z]|(?:\d+\.)?\d+(?:\.\d+)*\s|Founding Manuscript$|Opening Statement$|Preface$|The IML Declaration$|How to Read this Manuscript$|The IML Commitment$)/.test(s.trim());
   return <PageFrame active="/publications"><div className="sc-shell">
-    <Intro kicker="Founding Manuscript · author-validated edition" title="Founding Manuscript · November 2026" description="Reading copy extracted from the author-approved 19-page PDF, including its comparison with MEASURE Evaluation and workforce training indicators. The production site remains unchanged."/>
+    <Intro kicker="Founding Manuscript · author-validated edition" title="Founding Manuscript · November 2026" description="Reading copy extracted from the author-approved 19-page PDF, including its comparison with MEASURE Evaluation and workforce training indicators. The production site remains unchanged." status="Author-approved manuscript · scientific review remains open"/>
     <section className="sc-section">
       <a href="/review/IML_Founding_Manuscript_Validated_2026-11.txt" download>Download the full reading text (.txt) ↓</a>
       <p className="sc-note">This web transcription is derived from the author-approved PDF; it does not reproduce the exact PDF typography or its tables. The original PDF is the authoritative version. Training indicators in the manuscript remain proposals pending external methodological validation.</p>
