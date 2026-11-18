@@ -4,8 +4,8 @@ IML Founding Manuscript · Current Edition
 INTEROPERABILITY MATURITY LAB (IML)
 Founding Manuscript
 A Scientific Framework for Trusted Health Information Ecosystems
-Status  Open for Scientific Review
-Edition  Current consolidated edition · 6 September 2026
+Status  Revised candidate for editorial and external scientific review · PREVIEW only
+Edition  November 2026 candidate · built on consolidated edition of 6 September 2026
 Author  Dr Renato Barrios
 Editorial and analytical assistance  OpenAI ChatGPT
 Public website  https://www.imlhealth.org
@@ -13,7 +13,7 @@ Health is our purpose. Trustworthy information is our foundation. Interoperabili
 
 
 Master Index of the Manuscript
-This index reflects the consolidated September 2026 edition and incorporates the current Open Clinical Workspace implementation work, Learning-domain revisions, the traceable clinical AI evidence architecture, and the exploratory patient-harm, redress and system-learning workstream registered on 6 September 2026.
+This candidate preserves the consolidated September 2026 scientific framework, adding November 2026 comparative material (sections 3.9, 4.10, 5.8, 7.7 and Annex K) and proposed workforce training indicators GOV-TRN-01 and ADP-TRN-01. The previous public edition remains unchanged until explicit approval.
 	No.
 	Manuscript section
 	Purpose
