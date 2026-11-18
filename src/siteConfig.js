@@ -3,7 +3,6 @@ export const navigation = [
   { label: "Science", href: "/publications", children: [
     { href: "/publications", label: "Publications" },
     { href: "/methodology", label: "Methodology" },
-    { href: "/comparative-frameworks", label: "Comparative Frameworks" },
     { href: "/research", label: "Research" },
     { href: "/scientific-collaboration", label: "Scientific Review" },
   ]},
