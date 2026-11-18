@@ -280,7 +280,6 @@ function HomePage() {
         <div className="sc-grid" style={{marginTop:24}}>
           <a className="sc-card sc-card-link" href="/publications"><h3>Scientific publications</h3><p>Read the foundational and technical manuscripts, with version and review status.</p><span>Explore →</span></a>
           <a className="sc-card sc-card-link" href="/methodology"><h3>Methodology</h3><p>Six assessment domains, documented evidence, and LRN-1 to LRN-5.</p><span>Explore →</span></a>
-          <a className="sc-card sc-card-link" href="/comparative-frameworks"><h3>Comparative literature</h3><p>MEASURE Evaluation and other frameworks: convergences, differences and open tests.</p><span>Explore →</span></a>
           <a className="sc-card sc-card-link" href="/research"><h3>Research & case tracers</h3><p>AMR/BMR, clinical context and institutional responsibility across system boundaries.</p><span>Explore →</span></a>
         </div>
       </section>
