@@ -10,7 +10,6 @@ import {HomePage,
 import { PublicationsPage, MethodologyPage, ResearchPage, ScientificCollaborationPage } from "./pages/ScientificPages.jsx";
 import IndicatorDefinitionsTable from "./components/IndicatorDefinitionsTable.jsx";
 import { LEGACY_HASHES, LEGACY_PATHS } from "./siteConfig.js";
-
 export const ROUTES = {
   "/publications": { component: PublicationsPage, title: "Scientific Publications — IML Health", description: "Versioned founding and technical manuscripts with explicit scientific validation status." },
   "/methodology": { component: MethodologyPage, title: "Methodology — IML Health", description: "Six IML evidence domains and institutional learning criteria LRN-1 to LRN-5." },
