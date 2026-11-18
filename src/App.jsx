@@ -12,7 +12,7 @@ import IndicatorDefinitionsTable from "./components/IndicatorDefinitionsTable.js
 import { LEGACY_HASHES, LEGACY_PATHS } from "./siteConfig.js";
 
 export const ROUTES = {
-  "/manuscript-review": { component: ManuscriptReviewPage, title: "Founding Manuscript November 2026 Review — IML", description: "Full review text for the revised IML Founding Manuscript, including training governance proposals." },
+  "/manuscript-review": { component: ManuscriptReviewPage, title: "Founding Manuscript November 2026 — IML Health", description: "Full reading transcription of the approved November 2026 Founding Manuscript, including comparative framework and workforce training methodology." },
   "/publications": { component: PublicationsPage, title: "Scientific Publications — IML Health", description: "Versioned founding and technical manuscripts with explicit scientific validation status." },
   "/methodology": { component: MethodologyPage, title: "Methodology — IML Health", description: "Six IML evidence domains and institutional learning criteria LRN-1 to LRN-5." },
   "/comparative-frameworks": { component: ComparativeFrameworksPage, title: "Comparative Frameworks — IML Health", description: "Comparative literature and maturity model mapping in IML-COMP-01." },
