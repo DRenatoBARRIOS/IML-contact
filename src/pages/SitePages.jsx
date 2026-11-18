@@ -272,10 +272,9 @@ function HomePage() {
         </div>
       </section>
       <section className="sc-shell" aria-labelledby="iml-scientific-heading">
-        <div className="sc-intro"><p className="sc-kicker">Scientific programme · open for external review</p>
+        <div className="sc-intro"><p className="sc-kicker">Scientific programme</p>
           <h2 id="iml-scientific-heading">A framework for studying health information ecosystems.</h2>
           <p className="sc-lede">IML begins with health, evidence and accountable information pathways. The Open Clinical Workspace is one implementation path, not the whole research programme.</p>
-          <span className="sc-status">Existing manuscripts · methodological review in progress</span>
         </div>
         <div className="sc-grid" style={{marginTop:24}}>
           <a className="sc-card sc-card-link" href="/publications"><h3>Scientific publications</h3><p>Read the foundational and technical manuscripts, with version and review status.</p><span>Explore →</span></a>
