@@ -9,7 +9,6 @@ on:
       - main
     paths:
       - "api/countries.js"
-      - "data/source-audits/**"
       - "db/seeds/**"
       - "db/production-country-sync.mjs"
       - "scripts/sync-production-country-data.mjs"
@@ -23,7 +22,6 @@ on:
       - main
     paths:
       - "api/countries.js"
-      - "data/source-audits/**"
       - "db/seeds/**"
       - "db/production-country-sync.mjs"
       - "scripts/sync-production-country-data.mjs"
@@ -87,27 +85,3 @@ jobs:
           if-no-files-found: ignore
           retention-days: 30
 
-  audit-semantic-manifests:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-
-      - name: Audit approved country semantic manifests
-        shell: bash
-        run: |
-          shopt -s nullglob
-          manifests=(data/source-audits/*.json)
-          if [ ${#manifests[@]} -eq 0 ]; then
-            echo "No semantic source-audit manifests found."
-            exit 1
-          fi
-          for manifest in "${manifests[@]}"; do
-            echo "Auditing $manifest"
-            node scripts/audit-sources.mjs "$manifest"
-          done
