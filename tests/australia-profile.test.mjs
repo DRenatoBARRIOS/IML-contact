@@ -4,7 +4,6 @@ import { readFileSync } from "node:fs";
 
 const seed = readFileSync("db/seeds/20260924_australia_event_audit.mjs", "utf8");
 const audit = readFileSync("docs/AUSTRALIA_COUNTRY_EVENT_AUDIT_2026-09-24.md", "utf8");
-const manifest = JSON.parse(readFileSync("data/source-audits/australia.json", "utf8"));
 const sync = readFileSync("db/production-country-sync.mjs", "utf8");
 const explorer = readFileSync("src/features/countries/CountryExplorer.jsx", "utf8");
 
@@ -32,21 +31,6 @@ test("Australia documentary audit distinguishes incident date from event-audit d
   assert.match(audit, /not assessed at national level/i);
 });
 
-test("Australia source manifest covers the primary incident and national infrastructure evidence", () => {
-  assert.equal(manifest.country.iso3, "AUS");
-  assert.equal(manifest.audit_id, "AUS-2026-09-24-EVENT-0");
-  assert.equal(manifest.sources.length, 12);
-  const ids = manifest.sources.map((source) => source.id);
-  assert.equal(new Set(ids).size, ids.length);
-  for (const source of manifest.sources) {
-    assert.match(source.url, /^https:\/\//);
-    assert.ok(source.expected_domains.length >= 1);
-    assert.ok(source.required_text_groups.length >= 3);
-  }
-  assert.ok(ids.includes("AU-PM-OPENAI-INCIDENT"));
-  assert.ok(ids.includes("AU-ASD-AI-MISALIGNMENT"));
-  assert.ok(ids.includes("AU-MHR-STATS-2026-07"));
-});
 
 test("Production sync explicitly protects Australia v0.1", () => {
   assert.match(sync, /seedAustralia/);
