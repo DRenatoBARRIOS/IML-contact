@@ -12,7 +12,7 @@ import IndicatorDefinitionsTable from "./components/IndicatorDefinitionsTable.js
 import { LEGACY_HASHES, LEGACY_PATHS } from "./siteConfig.js";
 export const ROUTES = {
   "/publications": { component: PublicationsPage, title: "Scientific Publications — IML Health", description: "Versioned founding and technical manuscripts with explicit scientific validation status." },
-  "/methodology": { component: MethodologyPage, title: "Methodology — IML Health", description: "Six IML evidence domains and institutional learning criteria LRN-1 to LRN-5." },
+  "/methodology": { component: MethodologyPage, title: "Methodology — IML Health", description: "Six assessment domains, each evaluated on a five-level scale, with documentary evidence and independent validation." },
   "/research": { component: ResearchPage, title: "Academic Research — IML Health", description: "Independent research themes in clinical information continuity, healthcare interoperability and public-health systems." },
   "/scientific-collaboration": { component: ScientificCollaborationPage, title: "Scientific Collaboration — IML Health", description: "Independent scientific review and methodology collaboration." },
   "/": {
