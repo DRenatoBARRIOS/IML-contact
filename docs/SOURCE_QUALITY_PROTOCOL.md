@@ -56,9 +56,9 @@ The automated probe must use limited concurrency and retries. Serverless-functio
 
 Transport success is not enough. A page can return HTTP 200 and still be the wrong publication, a generic landing page or unrelated content.
 
-Each country must progressively receive an approved semantic manifest under `data/source-audits/`.
+Semantic evidence verification remains a methodological requirement, but the former archived country manifests under `data/source-audits/` have been removed. New semantic checks should be designed around current canonical sources and independently reviewable evidence, rather than treating the deleted archive as an active input.
 
-For each source the manifest records:
+For each source, a future active verification record should document:
 
 - stable source identifier;
 - expected canonical domain(s);
@@ -114,7 +114,7 @@ A source can therefore be technically reachable but weak evidence, or technicall
 
 - run the all-country API/integrity audit;
 - probe all exposed public links;
-- run every approved semantic manifest;
+- perform semantic review of material sources using current canonical evidence;
 - review warnings for blocked/transient links and redirects.
 
 ### Monthly or when a warning persists
@@ -143,11 +143,11 @@ A Country Profile update should not be promoted to Production unless:
 4. important claims have explicit evidence summaries and limitations;
 5. country-specific public-link selection has been reviewed;
 6. no confirmed-broken public link remains exposed;
-7. the relevant semantic manifest has been created or updated for material new evidence.
+7. material new evidence has an auditable semantic verification record or an explicitly documented outstanding review.
 
 ## Coverage
 
-The weekly Production/API audit covers every published country and source. Romania, Tunisia and Uzbekistan have source-specific semantic manifests. The remaining country profiles should be migrated progressively to the same content-level verification standard.
+The weekly Production/API audit covers every published country and source. Archived country-specific semantic manifests were removed from the repository; their historical existence does not imply current automated coverage. Content-level validation should be documented prospectively in a maintained, reviewable source of truth.
 
 ## Evidence hierarchy A/B/C/D
 
