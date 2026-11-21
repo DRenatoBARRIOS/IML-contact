@@ -8,6 +8,7 @@ test("validated IML site continuity invariants", () => {
   const api = read("api/countries.js");
   const app = read("src/App.jsx");
   const sitePages = read("src/pages/SitePages.jsx");
+  const scientificPages = read("src/pages/ScientificPages.jsx");
   const vercel = read("vercel.json");
   const sync = read("db/production-country-sync.mjs");
   const productionSync = read("scripts/sync-production-country-data.mjs");
@@ -51,8 +52,8 @@ test("validated IML site continuity invariants", () => {
 
   assert.doesNotMatch(app, /["']\/manuscripts["']/);
   assert.doesNotMatch(sitePages, /function\s+ManuscriptsPage\s*\(/);
-  assert.match(sitePages, /IML_Founding_Manuscript\.pdf/);
-  assert.match(sitePages, /IML_Technical_Manuscript\.pdf/);
+  assert.match(scientificPages, /IML_Founding_Manuscript\.pdf/);
+  assert.match(scientificPages, /IML_Technical_Manuscript\.pdf/);
   assert.doesNotMatch(vercel, /"source"\s*:\s*"\/manuscripts"/);
 
   assert.equal(existsSync("src/pages/ManuscriptsPage.jsx"), false);
