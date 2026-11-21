@@ -13,12 +13,12 @@ import { LEGACY_HASHES, LEGACY_PATHS } from "./siteConfig.js";
 export const ROUTES = {
   "/publications": { component: PublicationsPage, title: "Scientific Publications — IML Health", description: "Versioned founding and technical manuscripts with explicit scientific validation status." },
   "/methodology": { component: MethodologyPage, title: "Methodology — IML Health", description: "Six IML evidence domains and institutional learning criteria LRN-1 to LRN-5." },
-  "/research": { component: ResearchPage, title: "Research and Case Studies — IML Health", description: "AMR demonstrator and exploratory institutional information pathway research." },
+  "/research": { component: ResearchPage, title: "Academic Research — IML Health", description: "Independent research themes in clinical information continuity, healthcare interoperability and public-health systems." },
   "/scientific-collaboration": { component: ScientificCollaborationPage, title: "Scientific Collaboration — IML Health", description: "Independent scientific review and methodology collaboration." },
   "/": {
     component: HomePage,
-    title: "IML Health — Open Health Information Environment",
-    description: "An open-source clinical workspace and an open integration layer for health information systems.",
+    title: "IML Health — Academic Research in Health Information Systems",
+    description: "Independent interdisciplinary research on health information systems, clinical continuity, interoperability and open research tools.",
   },
   "/identity-trust": {
     component: IdentityTrustPage,
