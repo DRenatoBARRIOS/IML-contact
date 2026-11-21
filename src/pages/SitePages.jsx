@@ -1,8 +1,8 @@
 import "./ScientificPages.css";
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import logoImage from "../assets/iml-logo.png";
 import heroLampImage from "../assets/hero-lamp-editorial.png";
-import CountryExplorer from "../features/countries/CountryExplorer.jsx";
+const CountryExplorer = lazy(() => import("../features/countries/CountryExplorer.jsx"));
 import { interoperabilityLayers } from "../siteConfig.js";
 import PrimaryNavigation from "../components/PrimaryNavigation.jsx";
 
@@ -313,7 +313,7 @@ function CountryProfilesPage() {
           <div className="profiles-heading">
             <p id="profiles-heading">Select any country on the map. Neutral means not yet examined, never low maturity.</p>
           </div>
-          <CountryExplorer />
+          <Suspense fallback={<p role="status">Loading country profiles…</p>}><CountryExplorer /></Suspense>
         </div>
       </section>
     </PageFrame>
