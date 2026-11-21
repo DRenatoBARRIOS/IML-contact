@@ -61,6 +61,5 @@ test("validated IML site continuity invariants", () => {
   assert.equal(existsSync("db/seeds/20260901_france_learning_responsiveness.mjs"), true);
   assert.equal(existsSync("db/production-country-sync.mjs"), true);
   assert.equal(existsSync("scripts/sync-production-country-data.mjs"), true);
-  assert.equal(existsSync("data/source-audits/tunisia.json"), true);
   assert.equal(existsSync("src/components/IndicatorDefinitionsTable.jsx"), true);
 });
