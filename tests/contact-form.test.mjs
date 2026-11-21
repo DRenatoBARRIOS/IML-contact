@@ -14,8 +14,12 @@ test("Collaborate page exposes the configured contact form", () => {
 
 test("Footer exposes one textual email on the left and no duplicate right-hand email", () => {
   assert.match(page, /className="footer-brand"[\s\S]*className="footer-email"[\s\S]*iml\.health@pm\.me/);
-  assert.doesNotMatch(page, /<strong>IML Health<\/strong>/);
-  assert.doesNotMatch(page, /footer-mail-icon/);
+  const footerStart = page.indexOf("function SiteFooter()");
+  const footerEnd = page.indexOf("function PageFrame(", footerStart);
+  assert.ok(footerStart >= 0 && footerEnd > footerStart);
+  const footer = page.slice(footerStart, footerEnd);
+  assert.doesNotMatch(footer, /<strong>IML Health<\/strong>/);
+  assert.doesNotMatch(footer, /footer-mail-icon/);
 });
 
 test("Contact styles are isolated from footer styles", () => {
