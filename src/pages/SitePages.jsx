@@ -5,8 +5,6 @@ import heroLampImage from "../assets/hero-lamp-editorial.png";
 import CountryExplorer from "../features/countries/CountryExplorer.jsx";
 import { interoperabilityLayers } from "../siteConfig.js";
 import PrimaryNavigation from "../components/PrimaryNavigation.jsx";
-import { latestRegulatoryWatch } from "../data/regulatoryWatch.js";
-import { latestSoftwareWatch } from "../data/softwareWatch.js";
 
 const BASE_URL = import.meta.env.BASE_URL || "/";
 
@@ -190,48 +188,6 @@ function PageMasthead({
   );
 }
 
-function WatchPanel({ label, entry }) {
-  if (!entry) return null;
-  const monitoredSources = Array.isArray(entry.monitoredSources)
-    ? entry.monitoredSources.join(", ")
-    : entry.monitoredSources;
-
-  return (
-    <details className="evidence-register watch-panel">
-      <summary>
-        <span>
-          <strong>{label}</strong>
-          <small>{entry.dateLabel || entry.date}{entry.scope ? ` · ${entry.scope}` : ""}</small>
-        </span>
-        <span>+</span>
-      </summary>
-      <div className="evidence-list">
-        <article className="evidence-item">
-          {entry.title ? <p><b>{entry.title}</b></p> : null}
-          {entry.summary ? <p>{entry.summary}</p> : null}
-          {entry.imlImpact ? <p><b>IML impact.</b> {entry.imlImpact}</p> : null}
-          {entry.note ? <p>{entry.note}</p> : null}
-          {entry.sources?.length ? (
-            <>
-              <p><b>Sources</b></p>
-              <ul>
-                {entry.sources.map((source) => (
-                  <li key={source.url || source.label}>
-                    <a className="text-link" href={source.url} target="_blank" rel="noopener noreferrer">
-                      {source.label} ↗
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </>
-          ) : null}
-          {monitoredSources ? <p><small>Sources monitored by IML: {monitoredSources}.</small></p> : null}
-        </article>
-      </div>
-    </details>
-  );
-}
-
 function HomePage() {
   return (
     <PageFrame active="/" home>
@@ -337,14 +293,6 @@ function ClinicalWorkspacePage() {
               <p className="ai-regulatory-note"><b>Responsible AI.</b> AI-assisted functions must remain traceable, proportionate and subject to professional review and validation.</p>
             </aside>
 
-            {latestSoftwareWatch ? <WatchPanel label="Latest open-source software watch" entry={latestSoftwareWatch} /> : null}
-            <WatchPanel label="Latest regulatory watch" entry={latestRegulatoryWatch} />
-
-            <div className="clinical-action-row">
-              <a className="text-link" href="/collaborate">Join the clinical workstream →</a>
-              
-              
-            </div>
           </div>
         </div>
       </section>
